@@ -32,9 +32,20 @@ extern "C" {
 
 #include "driver/gpio.h"
 
+/* Littlevgl specific */
+#ifdef LV_LVGL_H_INCLUDE_SIMPLE
+#include "lvgl.h"
+#else
+#include "lvgl/lvgl.h"
+#endif
+
+#include "lvgl_helpers.h"
+
 }
 
 #include "WifiController.h"
+
+#define LV_TICK_PERIOD_MS 1
 
 namespace GrowNode {
 namespace Controller {
@@ -44,6 +55,7 @@ class GrowNodeController {
 private:
 	static GrowNodeController *instance;
 	int initialized;
+	esp_event_loop_handle_t eventLoop;
 
 	GrowNodeController();
 	virtual ~GrowNodeController();
@@ -52,6 +64,12 @@ private:
 
 	void initFlash();
 	void initSPIFFS();
+	void initGUI();
+	void initEventLoop();
+
+	static void guiTask(void *pvParameter);
+	static void create_gui();
+	static void lv_tick_task(void *arg);
 
 	Wifi::WifiController wifi;
 
