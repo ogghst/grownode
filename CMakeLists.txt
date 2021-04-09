@@ -2,8 +2,8 @@
 # CMakeLists in this exact order for cmake to work correctly
 cmake_minimum_required(VERSION 3.5)
 
-set(ENV{IOT_SOLUTION_PATH} C:/Development/esp/esp-iot-solution-master)
-include($ENV{IOT_SOLUTION_PATH}/component.cmake)
+#set(ENV{IOT_SOLUTION_PATH} C:/Development/esp/esp-iot-solution-master)
+#include($ENV{IOT_SOLUTION_PATH}/component.cmake)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
