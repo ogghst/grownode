@@ -23,29 +23,23 @@ extern "C" {
 #include "esp_err.h"
 #include "esp_spiffs.h"
 #include "esp_vfs.h"
-//#include "esp_ota_ops.h"
-//#include "esp_http_client.h"
-//#include "esp_https_ota.h"
+#include "esp_ota_ops.h"
+#include "esp_http_client.h"
+#include "esp_https_ota.h"
 //#include "esp_smartconfig.h"
 
 #include "nvs_flash.h"
 
 #include "driver/gpio.h"
 
-/* Littlevgl specific */
-#ifdef LV_LVGL_H_INCLUDE_SIMPLE
-#include "lvgl.h"
-#else
-#include "lvgl/lvgl.h"
-#endif
-
-#include "lvgl_helpers.h"
+#include "event_source.h"
 
 }
 
-#include "WifiController.h"
+#include <string>
 
-#define LV_TICK_PERIOD_MS 1
+#include "ILI9341Controller.h"
+#include "WifiController.h"
 
 namespace GrowNode {
 namespace Controller {
@@ -53,12 +47,10 @@ namespace Controller {
 class GrowNodeController {
 
 private:
-	static GrowNodeController *instance;
+
+	//static GrowNodeController *instance;
 	int initialized;
 	esp_event_loop_handle_t eventLoop;
-
-	GrowNodeController();
-	virtual ~GrowNodeController();
 
 	void init();
 
@@ -67,16 +59,18 @@ private:
 	void initGUI();
 	void initEventLoop();
 
-	static void guiTask(void *pvParameter);
-	static void create_gui();
-	static void lv_tick_task(void *arg);
+	static void OTATask(void *pvParameter);
 
-	Wifi::WifiController wifi;
-
+	WifiController wifi;
+	ILI9341Controller display;
 
 public:
-	static GrowNodeController* getInstance();
+	//static GrowNodeController* getInstance();
+	static void logMessage(const char *message);
+	static void updateFirmware();
 
+	GrowNodeController();
+	virtual ~GrowNodeController();
 
 };
 

@@ -40,24 +40,26 @@ extern "C" {
 
 namespace GrowNode {
 namespace Controller {
-namespace Wifi {
+
+class GrowNodeController;
 
 class WifiController {
 
 private:
 
-
+	GrowNodeController *controller;
 
 public:
-	WifiController();
+	WifiController(GrowNodeController *_controller);
 	virtual ~WifiController();
 
 	void init();
 
 };
 
-} /* namespace Wifi */
 } /* namespace Controller */
 } /* namespace GrowNode */
+
+#include "GrowNodeController.h"
 
 #endif /* MAIN_WIFICONTROLLER_H_ */

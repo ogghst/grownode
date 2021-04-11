@@ -10,11 +10,11 @@
 namespace GrowNode {
 namespace Controller {
 
-static const char *TAG = "GrowNodeController";
-GrowNodeController *GrowNodeController::instance = nullptr;
+static constexpr char TAG[] = "GrowNodeController";
 
 GrowNodeController::GrowNodeController() :
-		wifi() {
+		wifi { this }, display { this } {
+
 	initialized = false;
 	init();
 }
@@ -23,14 +23,16 @@ GrowNodeController::~GrowNodeController() {
 
 }
 
-GrowNodeController* GrowNodeController::getInstance() {
+/*
+ GrowNodeController* GrowNodeController::getInstance() {
 
-	if (instance == nullptr) {
-		instance = new GrowNodeController();
-	}
+ if (instance == nullptr) {
+ instance = new GrowNodeController();
+ }
 
-	return instance;
-}
+ return instance;
+ }
+ */
 
 void GrowNodeController::init() {
 
@@ -49,10 +51,13 @@ void GrowNodeController::init() {
 	initSPIFFS();
 	ESP_LOGI(TAG, "initGUI");
 	initGUI();
+
 	ESP_LOGI(TAG, "initWifi");
 	wifi.init();
 
 	ESP_LOGI(TAG, "init - END");
+
+	logMessage("GrowNode Initialized");
 
 	initialized = true;
 }
@@ -62,8 +67,10 @@ void GrowNodeController::initEventLoop() {
 	ESP_ERROR_CHECK(esp_event_loop_create_default());
 
 	//user event loop
-	esp_event_loop_args_t event_loop_args = { .queue_size = 5, .task_name = "loop_task", // task will be created
-			.task_priority = uxTaskPriorityGet(NULL), .task_stack_size = 2048, .task_core_id = tskNO_AFFINITY };
+	esp_event_loop_args_t event_loop_args = { .queue_size = 5,
+			.task_name = "loop_task", // task will be created
+			.task_priority = uxTaskPriorityGet(NULL), .task_stack_size = 2048,
+			.task_core_id = tskNO_AFFINITY };
 	ESP_ERROR_CHECK(esp_event_loop_create(&event_loop_args, &eventLoop));
 	//ESP_ERROR_CHECK(esp_event_handler_register_with(eventLoop, TASK_EVENTS, TEXT_EVENT, textEventHandlerCallback, eventLoop));
 }
@@ -88,9 +95,7 @@ void GrowNodeController::initFlash() {
 }
 
 void GrowNodeController::initGUI() {
-
-	xTaskCreatePinnedToCore(guiTask, "gui", 4096 * 2, NULL, 0, NULL, 1);
-
+	display.init();
 }
 
 void GrowNodeController::initSPIFFS() {
@@ -145,126 +150,60 @@ void GrowNodeController::initSPIFFS() {
 
 extern "C" {
 
-static SemaphoreHandle_t xGuiSemaphore;
+extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
+extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
-void GrowNodeController::guiTask(void *pvParameter) {
+ESP_EVENT_DEFINE_BASE(MESSAGE_EVENT);
 
-	(void) pvParameter;
-	xGuiSemaphore = xSemaphoreCreateMutex();
+#define OTA_URL_SIZE 256
 
-	lv_init();
+void GrowNodeController::logMessage(const char *message) {
 
-	/* Initialize SPI or I2C bus used by the drivers */
-	lvgl_driver_init();
-
-	lv_color_t *buf1 = (lv_color_t*) heap_caps_malloc(
-			DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
-	assert(buf1 != NULL);
-
-	/* Use double buffered when not working with monochrome displays */
-#ifndef CONFIG_LV_TFT_DISPLAY_MONOCHROME
-	lv_color_t *buf2 = (lv_color_t*) heap_caps_malloc(
-			DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
-	assert(buf2 != NULL);
-#else
-    static lv_color_t *buf2 = NULL;
-#endif
-
-	static lv_disp_buf_t disp_buf;
-
-	uint32_t size_in_px = DISP_BUF_SIZE;
-
-#if defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_IL3820         \
-    || defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_JD79653A    \
-    || defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_UC8151D     \
-    || defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_SSD1306
-
-    /* Actual size in pixels, not bytes. */
-    size_in_px *= 8;
-#endif
-
-	/* Initialize the working buffer depending on the selected display.
-	 * NOTE: buf2 == NULL when using monochrome displays. */
-	lv_disp_buf_init(&disp_buf, buf1, buf2, size_in_px);
-
-	lv_disp_drv_t disp_drv;
-	lv_disp_drv_init(&disp_drv);
-	disp_drv.flush_cb = disp_driver_flush;
-
-	/* When using a monochrome display we need to register the callbacks:
-	 * - rounder_cb
-	 * - set_px_cb */
-#ifdef CONFIG_LV_TFT_DISPLAY_MONOCHROME
-    disp_drv.rounder_cb = disp_driver_rounder;
-    disp_drv.set_px_cb = disp_driver_set_px;
-#endif
-
-	disp_drv.buffer = &disp_buf;
-	lv_disp_drv_register(&disp_drv);
-
-	/* Register an input device when enabled on the menuconfig */
-#if CONFIG_LV_TOUCH_CONTROLLER != TOUCH_CONTROLLER_NONE
-	lv_indev_drv_t indev_drv;
-	lv_indev_drv_init(&indev_drv);
-	indev_drv.read_cb = touch_driver_read;
-	indev_drv.type = LV_INDEV_TYPE_POINTER;
-	lv_indev_drv_register(&indev_drv);
-
-#endif
-
-	/* Create and start a periodic timer interrupt to call lv_tick_inc */
-	const esp_timer_create_args_t periodic_timer_args = { .callback =
-			&lv_tick_task, .name = "periodic_gui" };
-	esp_timer_handle_t periodic_timer;
-	ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
+	//display.log(message);
+	void *ptr = const_cast<void*>(reinterpret_cast<void const*>(message));
+	//ESP_LOGI(TAG, "logMessage '%s', size %i", message, strlen(message) +1);
 	ESP_ERROR_CHECK(
-			esp_timer_start_periodic(periodic_timer, LV_TICK_PERIOD_MS * 1000));
+			esp_event_post(MESSAGE_EVENT, LOG_SYSTEM, ptr, strlen(message) +1 , portMAX_DELAY));
+}
 
-	/* Create the demo application */
-	create_gui();
+void GrowNodeController::updateFirmware() {
+	xTaskCreate(OTATask, "ota_task", 8196, NULL, 10, NULL);
+}
 
-	while (1) {
-		/* Delay 1 tick (assumes FreeRTOS tick is 10ms */
-		vTaskDelay(pdMS_TO_TICKS(10));
+void GrowNodeController::OTATask(void *pvParameter) {
 
-		/* Try to take the semaphore, call lvgl related function on success */
-		if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) {
-			lv_task_handler();
-			xSemaphoreGive(xGuiSemaphore);
-		}
+	//vTaskDelay(30000 / portTICK_PERIOD_MS);
+
+	//screenPayload x;
+	//x.type = screenPayloadType::LOG;
+	//strcpy(x.text, "Firmware update start");
+	//xQueueSend(screenEventQueue, &x, 0);
+	logMessage("OTA in progress..");
+
+	esp_wifi_set_ps(WIFI_PS_NONE);
+
+	esp_http_client_config_t config = { };
+	config.url = CONFIG_GROWNODE_FIRMWARE_URL;//"http://discoboy.duckdns.org/esp/test_esp32_core.bin";
+	//config.event_handler = _http_event_handler;
+	config.cert_pem = (char*) server_cert_pem_start;
+
+	esp_err_t ret = esp_https_ota(&config);
+	if (ret == ESP_OK) {
+
+		logMessage("Firmware updated. Rebooting..");
+		vTaskDelay(5000 / portTICK_PERIOD_MS);
+		esp_restart();
+
+	} else {
+
+		//screen->log("Firmware Not Updated");
+		logMessage("Firmware upgrade failed.");
+		//vTaskDelay(5000 / portTICK_PERIOD_MS);
+		//esp_restart();
 	}
 
-	/* A task should NEVER return */
-	free(buf1);
-#ifndef CONFIG_LV_TFT_DISPLAY_MONOCHROME
-	free(buf2);
-#endif
 	vTaskDelete(NULL);
-}
 
-void GrowNodeController::create_gui(void) {
-
-	/* use a pretty small demo for monochrome displays */
-	/* Get the current screen  */
-	lv_obj_t *scr = lv_disp_get_scr_act(NULL);
-
-	/*Create a Label on the currently active screen*/
-	lv_obj_t *label1 = lv_label_create(scr, NULL);
-
-	/*Modify the Label's text*/
-	lv_label_set_text(label1, "Hello\nworld");
-
-	/* Align the Label to the center
-	 * NULL means align on parent (which is the screen now)
-	 * 0, 0 at the end means an x, y offset after alignment*/
-	lv_obj_align(label1, NULL, LV_ALIGN_CENTER, 0, 0);
-
-}
-
-void GrowNodeController::lv_tick_task(void *arg) {
-	(void) arg;
-
-	lv_tick_inc(LV_TICK_PERIOD_MS);
 }
 
 } /* extern "C" */

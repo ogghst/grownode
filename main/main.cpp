@@ -1,23 +1,21 @@
 #include <stdio.h>
-#include "sdkconfig.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_system.h"
-#include "esp_spi_flash.h"
 
 #include "GrowNodeController.h"
 
 #define TASK_STACK_SIZE 8192
 
-using namespace GrowNode::Controller;
+extern "C" void app_main(void) {
 
-extern "C" void app_main(void)
-{
+	GrowNode::Controller::GrowNodeController c;
 
-	GrowNodeController* board = GrowNodeController::getInstance();
+	//char buffer[30];
 
+	//int i = 0;
 	while (1) {
-		vTaskDelay(5000 / portTICK_PERIOD_MS);
+		vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+		//sprintf(buffer, "loop - %i", i++);
+		//c.logMessage(buffer);
 	}
 
 }

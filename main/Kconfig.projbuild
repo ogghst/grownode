@@ -23,4 +23,10 @@ menu "GrowNode Configuration"
     	bool "Reset Provisioning Status at every startup"
     	default false
 
+   	config GROWNODE_FIRMWARE_URL
+    	string "Firmware URL"
+    	default "http://discoboy.duckdns.org/esp/GrowNode2.bin"
+    	help
+    		Firmware URL to update
+
 endmenu
