@@ -28,5 +28,11 @@ menu "GrowNode Configuration"
     	default "http://discoboy.duckdns.org/esp/GrowNode2.bin"
     	help
     		Firmware URL to update
+    		
+   	config GROWNODE_MQTT_URL
+    	string "MQTT URL"
+    	default "192.168.1.10:1883"
+    	help
+    		MQTT URL to connect to
 
 endmenu

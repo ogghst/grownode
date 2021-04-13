@@ -34,12 +34,15 @@ extern "C" {
 
 #include "event_source.h"
 
+#include "mqtt_client.h"
+
 }
 
 #include <string>
 
 #include "ILI9341Controller.h"
 #include "WifiController.h"
+
 
 namespace GrowNode {
 namespace Controller {
@@ -58,8 +61,12 @@ private:
 	void initSPIFFS();
 	void initGUI();
 	void initEventLoop();
+	static void initMQTT();
 
 	static void OTATask(void *pvParameter);
+
+	static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data);
+	static void log_error_if_nonzero(const char *message, int error_code);
 
 	WifiController wifi;
 	ILI9341Controller display;
