@@ -2,7 +2,7 @@ menu "GrowNode Configuration"
 
     choice GROWNODE_PROV_TRANSPORT
         bool "Provisioning Transport"
-        default GROWNODE_PROV_TRANSPORT_BLE
+        default GROWNODE_PROV_TRANSPORT_SOFTAP
         help
             Wi-Fi provisioning component offers both, SoftAP and BLE transports. Choose any one.
 
@@ -34,5 +34,18 @@ menu "GrowNode Configuration"
     	default "192.168.1.10:1883"
     	help
     		MQTT URL to connect to
+    		
+   	config GROWNODE_MQTT_BASE_TOPIC
+    	string "Base MQTT Topic"
+    	default "/grownode"
+    	help
+    		base topic, default is "/grownode"
+    		
+    config GROWNODE_SNTP_SERVER_NAME
+        string "SNTP Server Name"
+        default "pool.ntp.org"
+        help
+            Default SNTP Server which is used for time synchronization.
+
 
 endmenu
