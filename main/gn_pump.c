@@ -6,9 +6,9 @@ extern "C" {
 
 void _gn_pump_task(void *pvParam) {
 
-	while (1) {
+	while (true) {
 
-		vTaskDelay(2000 / portTICK_PERIOD_MS);
+		vTaskDelay(5000 / portTICK_PERIOD_MS);
 
 		gn_log_message("pump tick");
 

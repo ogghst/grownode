@@ -16,12 +16,17 @@ void app_main(void) {
 
 	gn_config_handle_t config = gn_init();
 
+	gn_log_message("initialized");
+
 	char* c = malloc(sizeof(char)*100);
 
-
-	for (int i = 0; i < 1000; i++) {
+/*
+	for (int i = 0; i < 2; i++) {
 
 		gn_node_config_handle_t node_config = gn_create_node(config, "node");
+
+		if (node_config == NULL)
+			break;
 
 		ESP_LOGI("main", "gn_create_node %d, name %s", i, node_config->name);
 
@@ -33,18 +38,15 @@ void app_main(void) {
 				pump_config->name, i, pump_config->node_config->name);
 
 		gn_pump_init(pump_config);
-
-/*
-		sprintf(c, "loop: %d", i);
-
-		gn_log_message(c);
-*/
-		vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-		ESP_LOGI("main", "main loop");
+		gn_log_message("Created Pump");
 
 	}
-
+*/
 	free(c);
+
+	while(true) {
+	vTaskDelay(1000 / portTICK_PERIOD_MS);
+	ESP_LOGI("main", "main loop");
+	}
 
 }

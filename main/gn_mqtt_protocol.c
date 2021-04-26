@@ -25,6 +25,8 @@ extern "C" {
 
 static const char *TAG = "gn_mqtt";
 
+#define GN_MQTT_DEFAULT_QOS 0
+
 void _gn_mqtt_build_command_topic(gn_leaf_config_handle_t leaf_config,
 		char *buf) {
 
@@ -87,6 +89,16 @@ esp_err_t _gn_send_startup_message(gn_mqtt_startup_message_handle_t msg) {
 	return ESP_OK;
 }
 
+esp_err_t _gn_mqtt_on_connected(esp_mqtt_client_handle_t client) {
+	int msg_id = esp_mqtt_client_subscribe(client, CONFIG_GROWNODE_MQTT_BASE_TOPIC, GN_MQTT_DEFAULT_QOS);
+
+	if (msg_id == -1) {
+		ESP_LOGE(TAG, "error subscribing default topic %s, msg_id=%d", CONFIG_GROWNODE_MQTT_BASE_TOPIC, msg_id);
+		return ESP_FAIL;
+	}
+	ESP_LOGI(TAG, "subscribing default topic %s, msg_id=%d", CONFIG_GROWNODE_MQTT_BASE_TOPIC, msg_id);
+	return ESP_OK;
+}
 
 void log_error_if_nonzero(const char *message, int error_code) {
 	if (error_code != 0) {
@@ -105,6 +117,8 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 	switch ((esp_mqtt_event_id_t) event_id) {
 	case MQTT_EVENT_CONNECTED:
 		ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
+		gn_log_message("MQTT Connected");
+		_gn_mqtt_on_connected(client);
 		/*
 		msg_id = esp_mqtt_client_publish(client, "/topic/qos1", "data_3", 0, 1,
 				0);
@@ -122,6 +136,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 		break;
 	case MQTT_EVENT_DISCONNECTED:
 		ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
+		gn_log_message("MQTT Disconnected");
 		break;
 
 	case MQTT_EVENT_SUBSCRIBED:

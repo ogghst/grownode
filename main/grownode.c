@@ -63,27 +63,40 @@ extern "C" {
 
 static const char *TAG = "grownode";
 
+esp_event_loop_handle_t gn_event_loop;
+
 void _gn_init_event_loop(gn_config_handle_t conf) {
 	//default event loop
 	ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-	esp_event_loop_handle_t gn_event_loop;
 	//user event loop
 	esp_event_loop_args_t event_loop_args = { .queue_size = 5,
 			.task_name = "loop_task", // task will be created
-			.task_priority = uxTaskPriorityGet(NULL), .task_stack_size = 2048,
-			.task_core_id = tskNO_AFFINITY };
+			.task_priority = 0, .task_stack_size = 2048,
+			.task_core_id = 1 };
 	ESP_ERROR_CHECK(esp_event_loop_create(&event_loop_args, &gn_event_loop));
 
 	conf->event_loop = gn_event_loop;
 }
 
+gn_node_config_handle_t _gn_create_node_config() {
+	gn_node_config_handle_t _conf = (gn_node_config_handle_t) malloc(
+			sizeof(gn_node_config_t));
+	_conf->config = NULL;
+	_conf->event_loop = NULL;
+	_conf->name = NULL;
+	return _conf;
+}
 
 gn_node_config_handle_t gn_create_node(gn_config_handle_t config,
 		const char *name) {
 
-	gn_node_config_handle_t n_c = (gn_node_config_handle_t) malloc(
-			sizeof(gn_node_config_t));
+	if (config == NULL || config->mqtt_client == NULL || name == NULL) {
+		ESP_LOGE(TAG, "gn_create_node failed. parameters not correct");
+		return NULL;
+	}
+
+	gn_node_config_handle_t n_c = _gn_create_node_config();
 
 	//n_c->name = bf;
 	n_c->name = (char*) malloc(GN_MEM_NAME_SIZE * sizeof(char));
@@ -102,10 +115,26 @@ esp_err_t gn_destroy_node(gn_node_config_handle_t node) {
 	return ESP_OK;
 }
 
+gn_leaf_config_handle_t _gn_create_leaf_config() {
+	gn_leaf_config_handle_t _conf = (gn_leaf_config_handle_t) malloc(
+			sizeof(gn_leaf_config_t));
+	_conf->callback = NULL;
+	_conf->name = NULL;
+	_conf->node_config = NULL;
+	return _conf;
+}
+
 gn_leaf_config_handle_t gn_create_leaf(gn_node_config_handle_t node_cfg,
 		const char *name, gn_event_callback_t callback) {
 
-	gn_leaf_config_handle_t l_c = malloc(sizeof(gn_leaf_config_t));
+	if (node_cfg == NULL || node_cfg->config == NULL
+			|| node_cfg->config->mqtt_client == NULL || name == NULL
+			|| callback == NULL) {
+		ESP_LOGE(TAG, "gn_create_leaf failed. parameters not correct");
+		return NULL;
+	}
+
+	gn_leaf_config_handle_t l_c = _gn_create_leaf_config();
 
 	l_c->name = (char*) malloc(GN_MEM_NAME_SIZE * sizeof(char));
 	strncpy(l_c->name, name, GN_MEM_NAME_SIZE);
@@ -130,7 +159,8 @@ esp_err_t gn_destroy_leaf(gn_leaf_config_handle_t leaf) {
 void _gn_init_flash(gn_config_handle_t conf) {
 	/* Initialize NVS partition */
 	esp_err_t ret = nvs_flash_init();
-	if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+	if (ret == ESP_ERR_NVS_NO_FREE_PAGES
+			|| ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
 		/* NVS partition was truncated
 		 * and needs to be erased */
 		ESP_ERROR_CHECK(nvs_flash_erase());
@@ -206,7 +236,7 @@ lv_obj_t *statusLabel[10];
 char rawMessages[10][30];
 int rawIdx = 0;
 
-ESP_EVENT_DEFINE_BASE(GN_BASE_EVENT);
+ESP_EVENT_DEFINE_BASE( GN_BASE_EVENT);
 
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
@@ -218,12 +248,14 @@ void gn_log_message(const char *message) {
 
 	//char *ptr = malloc(sizeof(char) * strlen(message) + 1);
 
+
 	ESP_ERROR_CHECK(
-			esp_event_post(GN_BASE_EVENT, GN_DISPLAY_LOG_SYSTEM, message, strlen(message)+1, portMAX_DELAY));
+			esp_event_post_to(gn_event_loop, GN_BASE_EVENT, GN_DISPLAY_LOG_SYSTEM, message,
+					strlen(message) + 1, portMAX_DELAY));
 
 	//free(ptr);
 
-	//ESP_LOGI(TAG, "end gn_log_message");
+	ESP_LOGI(TAG, "end gn_log_message");
 }
 
 void _gn_ota_task(void *pvParameter) {
@@ -263,21 +295,37 @@ void _gn_ota_task(void *pvParameter) {
 }
 
 void _gn_update_firmware() {
-	xTaskCreate(_gn_ota_task, "ota_task", 8196, NULL, 10, NULL);
+	xTaskCreate(_gn_ota_task, "_gn_ota_task", 8196, NULL, 10, NULL);
 }
 
 void _gn_display_lv_tick_task(void *arg) {
 	(void) arg;
-
 	lv_tick_inc(LV_TICK_PERIOD_MS);
 }
 
 void _gn_display_btn_ota_event_handler(lv_obj_t *obj, lv_event_t event) {
 	if (event == LV_EVENT_CLICKED) {
-		ESP_LOGI(TAG, "ota_event_handler - clicked");
+		ESP_LOGI(TAG, "_gn_display_btn_ota_event_handler - clicked");
 		_gn_update_firmware();
 	} else if (event == LV_EVENT_VALUE_CHANGED) {
-		ESP_LOGI(TAG, "ota_event_handler - toggled");
+		ESP_LOGI(TAG, "_gn_display_btn_ota_event_handler - toggled");
+
+	}
+}
+
+void _gn_display_btn_rst_event_handler(lv_obj_t *obj, lv_event_t event) {
+	if (event == LV_EVENT_CLICKED) {
+		ESP_LOGI(TAG, "_gn_display_btn_rst_event_handler - clicked");
+		gn_log_message("resetting flash");
+		nvs_flash_erase();
+		gn_log_message("reboot in 3 sec");
+
+		vTaskDelay(3000 / portTICK_PERIOD_MS);
+
+		esp_restart();
+
+	} else if (event == LV_EVENT_VALUE_CHANGED) {
+		ESP_LOGI(TAG, "_gn_display_btn_rst_event_handler - toggled");
 
 	}
 }
@@ -285,26 +333,26 @@ void _gn_display_btn_ota_event_handler(lv_obj_t *obj, lv_event_t event) {
 void _gn_display_log_system_handler(void *handler_args, esp_event_base_t base,
 		int32_t id, void *event_data) {
 
-	if (pdTRUE == xSemaphoreTake(_gn_xGuiSemaphore, portMAX_DELAY)) {
+	char *message = (char*) event_data;
 
-		char *message = (char*) event_data;
+	//lv_label_set_text(statusLabel, message.c_str());
+	//const char *t = text.c_str();
 
-		//lv_label_set_text(statusLabel, message.c_str());
-		//const char *t = text.c_str();
+	if (rawIdx > 9) {
 
-		if (rawIdx > 9) {
-
-			//scroll messages
-			for (int row = 1; row < 10; row++) {
-				//ESP_LOGI(TAG, "scrolling %i from %s to %s", row, rawMessages[row], rawMessages[row - 1]);
-				strncpy(rawMessages[row - 1], rawMessages[row], 30);
-			}
-			strncpy(rawMessages[9], message, 30);
-		} else {
-			//ESP_LOGI(TAG, "setting %i", rawIdx);
-			strncpy(rawMessages[rawIdx], message, 30);
-			rawIdx++;
+		//scroll messages
+		for (int row = 1; row < 10; row++) {
+			//ESP_LOGI(TAG, "scrolling %i from %s to %s", row, rawMessages[row], rawMessages[row - 1]);
+			strncpy(rawMessages[row - 1], rawMessages[row], 30);
 		}
+		strncpy(rawMessages[9], message, 30);
+	} else {
+		//ESP_LOGI(TAG, "setting %i", rawIdx);
+		strncpy(rawMessages[rawIdx], message, 30);
+		rawIdx++;
+	}
+
+	//if (pdTRUE == xSemaphoreTake(_gn_xGuiSemaphore, portMAX_DELAY)) {
 
 		//ESP_LOGI(TAG, "printing %s", message);
 		//print
@@ -312,8 +360,9 @@ void _gn_display_log_system_handler(void *handler_args, esp_event_base_t base,
 			//ESP_LOGI(TAG, "label %i to %s", 9 - row, rawMessages[row]);
 			lv_label_set_text(statusLabel[row], rawMessages[row]);
 		}
-		xSemaphoreGive(_gn_xGuiSemaphore);
-	}
+	//	xSemaphoreGive(_gn_xGuiSemaphore);
+	//}
+
 }
 
 void _gn_display_create_gui() {
@@ -323,49 +372,80 @@ void _gn_display_create_gui() {
 	//style
 	static lv_style_t style;
 	lv_style_init(&style);
-	lv_style_set_bg_opa(&style, LV_STATE_DEFAULT, LV_OPA_COVER);
+	//lv_style_set_bg_opa(&style, LV_STATE_DEFAULT, LV_OPA_COVER);
 	lv_style_set_bg_color(&style, LV_STATE_DEFAULT, LV_COLOR_BLACK);
 	lv_style_set_text_color(&style, LV_STATE_DEFAULT, LV_COLOR_WHITE);
-	lv_style_set_border_color(&style, LV_STATE_DEFAULT, LV_COLOR_BLACK);
-	lv_style_set_radius(&style, LV_STATE_DEFAULT, 0);
+	lv_style_set_bg_color(&style, LV_STATE_PRESSED, LV_COLOR_RED);
+	lv_style_set_text_color(&style, LV_STATE_PRESSED, LV_COLOR_WHITE);
+	//lv_style_set_border_color(&style, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+	lv_style_set_border_width(&style, LV_STATE_DEFAULT, 0);
+	lv_style_set_margin_all(&style, LV_STATE_DEFAULT, 0);
+	lv_style_set_pad_all(&style, LV_STATE_DEFAULT, 2);
+	//lv_style_set_radius(&style, LV_STATE_DEFAULT, 0);
 
 	static lv_style_t style_log;
 	lv_style_init(&style_log);
-	lv_style_set_bg_opa(&style_log, LV_STATE_DEFAULT, LV_OPA_COVER);
+	//lv_style_set_bg_opa(&style_log, LV_STATE_DEFAULT, LV_OPA_COVER);
 	lv_style_set_bg_color(&style_log, LV_STATE_DEFAULT, LV_COLOR_BLACK);
 	lv_style_set_text_color(&style_log, LV_STATE_DEFAULT, LV_COLOR_WHITE);
-	lv_style_set_border_color(&style_log, LV_STATE_DEFAULT, LV_COLOR_WHITE);
-	lv_style_set_radius(&style_log, LV_STATE_DEFAULT, 0);
+	//lv_style_set_border_color(&style_log, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+	//lv_style_set_radius(&style_log, LV_STATE_DEFAULT, 0);
 
 	//main container
 	lv_obj_t *cont = lv_cont_create(scr, NULL);
 	lv_obj_add_style(cont, LV_CONT_PART_MAIN, &style);
+	lv_obj_set_style_local_radius(cont, LV_CONT_PART_MAIN, LV_STATE_DEFAULT, 0);
 	lv_obj_align(cont, scr, LV_ALIGN_IN_TOP_MID, 0, 0);
 	lv_cont_set_fit(cont, LV_FIT_MAX);
-	lv_cont_set_layout(cont, LV_LAYOUT_COLUMN_LEFT);
+	lv_cont_set_layout(cont, LV_LAYOUT_COLUMN_MID);
 
-	//button container
-	lv_obj_t *btcont = lv_cont_create(scr, NULL);
-	lv_obj_add_style(btcont, LV_CONT_PART_MAIN, &style);
-	lv_obj_align(btcont, scr, LV_ALIGN_IN_BOTTOM_MID, 0, 0);
-	lv_cont_set_fit(btcont, LV_FIT_TIGHT);
-	lv_cont_set_layout(btcont, LV_LAYOUT_COLUMN_LEFT);
+	//title container
+	lv_obj_t *title_cont = lv_cont_create(cont, NULL);
+	lv_obj_add_style(title_cont, LV_CONT_PART_MAIN, &style);
+	lv_obj_align(title_cont, cont, LV_ALIGN_IN_TOP_MID, 0, 0);
+	//lv_cont_set_fit(title_cont, LV_FIT_TIGHT);
+	lv_cont_set_fit2(title_cont, LV_FIT_MAX, LV_FIT_TIGHT);
+	//lv_obj_set_width(title_cont, 240);
+	//lv_obj_set_height(title_cont, 20);
+	lv_cont_set_layout(title_cont, LV_LAYOUT_COLUMN_MID);
+
+	//log container
+	lv_obj_t *log_cont = lv_cont_create(cont, NULL);
+	lv_obj_add_style(log_cont, LV_CONT_PART_MAIN, &style);
+	lv_obj_align(log_cont, title_cont, LV_ALIGN_IN_TOP_MID, 0, 0);
+	lv_cont_set_fit2(log_cont, LV_FIT_MAX, LV_FIT_TIGHT);
+	//lv_obj_set_width(log_cont, 240);
+	//lv_obj_set_height(log_cont, 260);
+	lv_cont_set_layout(log_cont, LV_LAYOUT_COLUMN_LEFT);
+
+	//bottom container
+	lv_obj_t *bottom_cont = lv_cont_create(cont, NULL);
+	lv_obj_add_style(bottom_cont, LV_CONT_PART_MAIN, &style);
+	lv_obj_align(bottom_cont, cont, LV_ALIGN_IN_BOTTOM_MID, 0, 0);
+	lv_cont_set_fit2(bottom_cont, LV_FIT_MAX, LV_FIT_TIGHT);
+	//lv_obj_set_width(button_cont, 240);
+	//lv_obj_set_height(button_cont, 40);
+	lv_cont_set_layout(bottom_cont, LV_LAYOUT_ROW_MID);
 
 	//label title
-	lv_obj_t *label1 = lv_label_create(cont, NULL);
-	lv_obj_add_style(label1, LV_LABEL_PART_MAIN, &style);
-	lv_label_set_text(label1, "GrowNode Board");
-	lv_obj_align(label1, NULL, LV_ALIGN_IN_TOP_MID, 0, 0);
+	lv_obj_t *label_title = lv_label_create(title_cont, NULL);
+	lv_obj_add_style(label_title, LV_LABEL_PART_MAIN, &style_log);
+	lv_label_set_text(label_title, "GrowNode Board");
+	//lv_obj_align(label_title, NULL, LV_ALIGN_IN_TOP_MID, 0, 0);
+
+	//log labels
 
 	for (int row = 0; row < 10; row++) {
 
 		//log labels
-		statusLabel[row] = lv_label_create(cont, NULL);
+		statusLabel[row] = lv_label_create(log_cont, NULL);
 		lv_obj_add_style(statusLabel[row], LV_LABEL_PART_MAIN, &style_log);
 		lv_label_set_text(statusLabel[row], "");
+		lv_obj_set_width_fit(statusLabel[row], LV_FIT_MAX);
+
 		if (row == 0) {
-			lv_obj_align(statusLabel[row], label1, LV_ALIGN_IN_TOP_LEFT, 0,
-					0);
+			lv_obj_align(statusLabel[row], NULL, LV_ALIGN_IN_TOP_LEFT, 0, 0);
+
 		} else {
 			lv_obj_align(statusLabel[row], statusLabel[row - 1],
 					LV_ALIGN_IN_TOP_LEFT, 0, 0);
@@ -373,24 +453,41 @@ void _gn_display_create_gui() {
 
 	}
 
+	//bottom container
+
 	//buttons
 	lv_obj_t *label_ota;
 
-	lv_obj_t *btn_ota = lv_btn_create(btcont, NULL);
+	lv_obj_t *btn_ota = lv_btn_create(bottom_cont, NULL);
+	lv_obj_add_style(btn_ota, LV_CONT_PART_MAIN, &style);
 	lv_obj_set_event_cb(btn_ota, _gn_display_btn_ota_event_handler);
 	lv_obj_align(btn_ota, NULL, LV_ALIGN_CENTER, 0, 0);
-	lv_btn_set_checkable(btn_ota, true);
-	lv_btn_toggle(btn_ota);
-	lv_btn_set_fit2(btn_ota, LV_FIT_NONE, LV_FIT_TIGHT);
+	lv_btn_set_checkable(btn_ota, false);
+	//lv_btn_toggle(btn_ota);
+	lv_btn_set_fit2(btn_ota, LV_FIT_TIGHT, LV_FIT_TIGHT);
 
 	label_ota = lv_label_create(btn_ota, NULL);
-	lv_label_set_text(label_ota, "Firmare Update");
+	lv_label_set_text(label_ota, "OTA");
 
-	/*
-	 statusLabel = lv_label_create(scr, NULL);
-	 lv_label_set_text(statusLabel, "Startup....");
-	 lv_obj_align(statusLabel, NULL, LV_ALIGN_IN_BOTTOM_LEFT, 0, 0);
-	 */
+	lv_obj_t *label_rst;
+
+	lv_obj_t *btn_rst = lv_btn_create(bottom_cont, NULL);
+	lv_obj_add_style(btn_rst, LV_CONT_PART_MAIN, &style);
+	lv_obj_set_event_cb(btn_rst, _gn_display_btn_rst_event_handler);
+	lv_obj_align(btn_rst, NULL, LV_ALIGN_CENTER, 0, 0);
+	lv_btn_set_checkable(btn_rst, false);
+	//lv_btn_toggle(btn_ota);
+	lv_btn_set_fit2(btn_rst, LV_FIT_TIGHT, LV_FIT_TIGHT);
+
+	label_rst = lv_label_create(btn_rst, NULL);
+	lv_label_set_text(label_rst, "RST");
+
+	//connection status
+	lv_obj_t *connection_label = lv_label_create(bottom_cont, NULL);
+	lv_obj_add_style(connection_label, LV_LABEL_PART_MAIN, &style_log);
+	lv_obj_align(connection_label, bottom_cont, LV_ALIGN_IN_BOTTOM_RIGHT, 0, 0);
+	lv_obj_set_width_fit(connection_label, LV_FIT_MAX);
+	lv_label_set_text(connection_label, "Disconnected");
 
 }
 
@@ -467,14 +564,9 @@ void _gn_display_gui_task(void *pvParameter) {
 	ESP_ERROR_CHECK(
 			esp_timer_start_periodic(periodic_timer, LV_TICK_PERIOD_MS * 1000));
 
-	/* Create the demo application */
 	_gn_display_create_gui();
-	ESP_ERROR_CHECK(
-			esp_event_handler_instance_register(GN_BASE_EVENT, GN_DISPLAY_LOG_SYSTEM, _gn_display_log_system_handler, NULL, NULL));
 
 	xEventGroupSetBits(_gn_gui_event_group, GN_EVT_GROUP_GUI_COMPLETED_EVENT);
-
-	ESP_LOGI(TAG, "xEventGroupSetBits gui_event_group");
 
 	while (1) {
 		/* Delay 1 tick (assumes FreeRTOS tick is 10ms */
@@ -499,18 +591,22 @@ void _gn_init_display(gn_config_handle_t conf) {
 
 	_gn_gui_event_group = xEventGroupCreate();
 
-	ESP_LOGI(TAG, "init");
+	ESP_LOGI(TAG, "_gn_init_display");
 
 	xTaskCreatePinnedToCore(_gn_display_gui_task, "_gn_display_gui_task",
-			4096 * 2, NULL, 0, NULL, 1);
+			4096 * 2, NULL, 10, NULL, 1);
 
 	ESP_LOGI(TAG, "_gn_display_gui_task created");
 
 	xEventGroupWaitBits(_gn_gui_event_group, GN_EVT_GROUP_GUI_COMPLETED_EVENT,
-	pdTRUE, pdTRUE,
-	portMAX_DELAY);
+			pdTRUE, pdTRUE, portMAX_DELAY);
 
-	ESP_LOGI(TAG, "init done");
+
+	ESP_ERROR_CHECK (esp_event_handler_instance_register_with(gn_event_loop, GN_BASE_EVENT,
+			GN_DISPLAY_LOG_SYSTEM, _gn_display_log_system_handler, NULL, NULL));
+
+
+	ESP_LOGI(TAG, "_gn_init_display done");
 
 }
 
@@ -527,14 +623,14 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 	if (event_base == WIFI_PROV_EVENT) {
 		switch (event_id) {
 		case WIFI_PROV_START:
-			ESP_LOGI(TAG, "Provisioning started");
+			gn_log_message("Provisioning Started");
 			break;
 		case WIFI_PROV_CRED_RECV: {
 			wifi_sta_config_t *wifi_sta_cfg = (wifi_sta_config_t*) event_data;
 			ESP_LOGI(TAG,
 					"Received Wi-Fi credentials" "\n\tSSID     : %s\n\tPassword : %s",
-					(const char* ) wifi_sta_cfg->ssid,
-					(const char* ) wifi_sta_cfg->password);
+					(const char*) wifi_sta_cfg->ssid,
+					(const char*) wifi_sta_cfg->password);
 			break;
 		}
 		case WIFI_PROV_CRED_FAIL: {
@@ -545,16 +641,20 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 				nvs_flash_erase();
 				esp_restart();
 			}
+
+			gn_log_message("Provisioning Failed");
+
 			ESP_LOGE(TAG,
 					"Provisioning failed!\n\tReason : %s" "\n\tRetrying %d of 5 times and then reset to factory",
 					((*reason == WIFI_PROV_STA_AUTH_ERROR) ?
 							"Wi-Fi station authentication failed" :
-							"Wi-Fi access-point not found"), _gn_wifi_connect_retries);
+							"Wi-Fi access-point not found"),
+					_gn_wifi_connect_retries);
 			break;
 		}
 		case WIFI_PROV_CRED_SUCCESS:
 			_gn_wifi_connect_retries = 0;
-			ESP_LOGI(TAG, "Provisioning successful");
+			gn_log_message("Provisioning OK");
 			break;
 		case WIFI_PROV_END:
 			ESP_LOGI(TAG, "WIFI_PROV_END");
@@ -570,8 +670,11 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 	} else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
 		_gn_wifi_connect_retries = 0;
 		ip_event_got_ip_t *event = (ip_event_got_ip_t*) event_data;
-		ESP_LOGI(TAG, "Connected with IP Address:" IPSTR,
-				IP2STR(&event->ip_info.ip));
+		char *log = (char*) malloc(sizeof(char) * 20);
+		sprintf(log, "IP: %d.%d.%d.%d", IP2STR(&event->ip_info.ip));
+		gn_log_message(log);
+		//ESP_LOGI(TAG, "IP : " IPSTR, IP2STR(&event->ip_info.ip));
+		free(log);
 		/* Signal main application to continue execution */
 		xEventGroupSetBits(_gn_event_group_wifi, GN_WIFI_CONNECTED_EVENT);
 	} else if (event_base == WIFI_EVENT
@@ -583,7 +686,10 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 			esp_restart();
 		}
 
-		ESP_LOGI(TAG, "Disconnected. Connecting to the AP again. Trying %d out of 5..", _gn_wifi_connect_retries);
+		ESP_LOGI(TAG,
+				"Disconnected. Connecting to the AP again. Trying %d out of 5..",
+				_gn_wifi_connect_retries);
+		gn_log_message("Disconnected");
 		esp_wifi_connect();
 	}
 }
@@ -610,7 +716,7 @@ esp_err_t _gn_wifi_custom_prov_data_handler(uint32_t session_id,
 		const uint8_t *inbuf, ssize_t inlen, uint8_t **outbuf, ssize_t *outlen,
 		void *priv_data) {
 	if (inbuf) {
-		ESP_LOGI(TAG, "Received data: %.*s", inlen, (char* )inbuf);
+		ESP_LOGI(TAG, "Received data: %.*s", inlen, (char*) inbuf);
 	}
 	char response[] = "SUCCESS";
 	*outbuf = (uint8_t*) strdup(response);
@@ -625,18 +731,20 @@ esp_err_t _gn_wifi_custom_prov_data_handler(uint32_t session_id,
 
 void _gn_init_wifi(gn_config_handle_t conf) {
 
-	ESP_LOGI(TAG, "WifiController::init()");
 	gn_log_message("Wifi Init");
 
 	ESP_ERROR_CHECK(esp_netif_init());
 	_gn_event_group_wifi = xEventGroupCreate();
 
 	ESP_ERROR_CHECK(
-			esp_event_handler_register(WIFI_PROV_EVENT, ESP_EVENT_ANY_ID, &_gn_wifi_event_handler, NULL));
+			esp_event_handler_register(WIFI_PROV_EVENT, ESP_EVENT_ANY_ID,
+					&_gn_wifi_event_handler, NULL));
 	ESP_ERROR_CHECK(
-			esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &_gn_wifi_event_handler, NULL));
+			esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID,
+					&_gn_wifi_event_handler, NULL));
 	ESP_ERROR_CHECK(
-			esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &_gn_wifi_event_handler, NULL));
+			esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP,
+					&_gn_wifi_event_handler, NULL));
 
 	esp_netif_create_default_wifi_sta();
 
@@ -644,8 +752,7 @@ void _gn_init_wifi(gn_config_handle_t conf) {
 	esp_netif_create_default_wifi_ap();
 #endif /* CONFIG_GROWNODE_PROV_TRANSPORT_SOFTAP */
 
-	wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT()
-	;
+	wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
 
 	ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
@@ -762,8 +869,7 @@ void _gn_init_wifi(gn_config_handle_t conf) {
 		 * has already been created above.
 		 */
 		wifi_prov_mgr_endpoint_register("custom-data",
-				_gn_wifi_custom_prov_data_handler,
-				NULL);
+				_gn_wifi_custom_prov_data_handler, NULL);
 
 		/* Uncomment the following to wait for the provisioning to finish and then release
 		 * the resources of the manager. Since in this case de-initialization is triggered
@@ -772,7 +878,6 @@ void _gn_init_wifi(gn_config_handle_t conf) {
 		// wifi_prov_mgr_deinit();
 	} else {
 		ESP_LOGI(TAG, "Already provisioned, starting Wi-Fi STA");
-		gn_log_message("Connecting...");
 
 		/* We don't need the manager as device is already provisioned,
 		 * so let's release it's resources */
@@ -783,9 +888,10 @@ void _gn_init_wifi(gn_config_handle_t conf) {
 	}
 
 	ESP_LOGI(TAG, "Wait for Wi-Fi connection");
+	gn_log_message("Connecting...");
 	/* Wait for Wi-Fi connection */
-	xEventGroupWaitBits(_gn_event_group_wifi, GN_WIFI_CONNECTED_EVENT, false, true,
-	portMAX_DELAY);
+	xEventGroupWaitBits(_gn_event_group_wifi, GN_WIFI_CONNECTED_EVENT, false,
+			true, portMAX_DELAY);
 
 }
 
@@ -793,29 +899,41 @@ static bool time_sync_init_done = false;
 
 esp_err_t _gn_init_time_sync(gn_config_handle_t conf) {
 
-    if (sntp_enabled()) {
-        ESP_LOGI(TAG, "SNTP already initialized.");
-        time_sync_init_done = true;
-        return ESP_OK;
-    }
-    char *sntp_server_name = CONFIG_GROWNODE_SNTP_SERVER_NAME;
-    ESP_LOGI(TAG, "Initializing SNTP. Using the SNTP server: %s", sntp_server_name);
-    sntp_setoperatingmode(SNTP_OPMODE_POLL);
-    sntp_setservername(0, sntp_server_name);
-    sntp_init();
-    time_sync_init_done = true;
-    return ESP_OK;
+	if (sntp_enabled()) {
+		ESP_LOGI(TAG, "SNTP already initialized.");
+		time_sync_init_done = true;
+		return ESP_OK;
+	}
+	char *sntp_server_name = CONFIG_GROWNODE_SNTP_SERVER_NAME;
+	ESP_LOGI(TAG, "Initializing SNTP. Using the SNTP server: %s",
+			sntp_server_name);
+	sntp_setoperatingmode(SNTP_OPMODE_POLL);
+	sntp_setservername(0, sntp_server_name);
+	sntp_init();
+	gn_log_message("Time sync");
+	time_sync_init_done = true;
+	return ESP_OK;
 
 }
 
 gn_config_handle_t _gn_default_conf;
+
+gn_config_handle_t _gn_create_config() {
+	gn_config_handle_t _conf = (gn_config_handle_t) malloc(sizeof(gn_config_t));
+	_conf->event_loop = NULL;
+	_conf->mqtt_client = NULL;
+	//_conf->prov_config = NULL;
+	//_conf->spiffs_conf = NULL;
+	//_conf->wifi_config = NULL;
+	return _conf;
+}
 
 gn_config_handle_t gn_init() {
 
 	if (initialized)
 		return _gn_default_conf;
 
-	_gn_default_conf = (gn_config_handle_t) malloc(sizeof(gn_config_t));
+	_gn_default_conf = _gn_create_config();
 
 	//init flash
 	_gn_init_flash(_gn_default_conf);
@@ -825,6 +943,8 @@ gn_config_handle_t gn_init() {
 	_gn_init_event_loop(_gn_default_conf);
 	//init display
 	_gn_init_display(_gn_default_conf);
+	//vTaskDelay(1000 / portTICK_PERIOD_MS);
+
 	//init wifi
 	_gn_init_wifi(_gn_default_conf);
 	//init time sync
