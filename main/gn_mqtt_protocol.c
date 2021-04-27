@@ -5,12 +5,9 @@
  *      Author: muratori.n
  */
 
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 #include "esp_log.h"
 #include "cJSON.h"
@@ -26,6 +23,8 @@ extern "C" {
 static const char *TAG = "gn_mqtt";
 
 #define GN_MQTT_DEFAULT_QOS 0
+
+gn_config_handle_t _config;
 
 void _gn_mqtt_build_command_topic(gn_leaf_config_handle_t leaf_config,
 		char *buf) {
@@ -70,7 +69,8 @@ esp_err_t _gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t leaf_config) {
 
 }
 
-esp_err_t _gn_create_startup_message (char* buf, int len, gn_mqtt_startup_message_handle_t msg) {
+esp_err_t _gn_create_startup_message(char *buf, int len,
+		gn_mqtt_startup_message_handle_t msg) {
 
 	cJSON *root;
 	root = cJSON_CreateObject();
@@ -90,13 +90,23 @@ esp_err_t _gn_send_startup_message(gn_mqtt_startup_message_handle_t msg) {
 }
 
 esp_err_t _gn_mqtt_on_connected(esp_mqtt_client_handle_t client) {
-	int msg_id = esp_mqtt_client_subscribe(client, CONFIG_GROWNODE_MQTT_BASE_TOPIC, GN_MQTT_DEFAULT_QOS);
+
+	int msg_id = esp_mqtt_client_subscribe(client,
+	CONFIG_GROWNODE_MQTT_BASE_TOPIC, GN_MQTT_DEFAULT_QOS);
 
 	if (msg_id == -1) {
-		ESP_LOGE(TAG, "error subscribing default topic %s, msg_id=%d", CONFIG_GROWNODE_MQTT_BASE_TOPIC, msg_id);
+		ESP_LOGE(TAG, "error subscribing default topic %s, msg_id=%d",
+				CONFIG_GROWNODE_MQTT_BASE_TOPIC, msg_id);
 		return ESP_FAIL;
 	}
-	ESP_LOGI(TAG, "subscribing default topic %s, msg_id=%d", CONFIG_GROWNODE_MQTT_BASE_TOPIC, msg_id);
+	ESP_LOGI(TAG, "subscribing default topic %s, msg_id=%d",
+			CONFIG_GROWNODE_MQTT_BASE_TOPIC, msg_id);
+
+	ESP_ERROR_CHECK(
+			//TODO change the base event to network
+			esp_event_post_to(_config->event_loop, GN_BASE_EVENT, GN_NET_CONNECTED, NULL,
+					0, portMAX_DELAY));
+
 	return ESP_OK;
 }
 
@@ -113,26 +123,26 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 			event_id);
 	esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t) event_data;
 	esp_mqtt_client_handle_t client = event->client;
-	int msg_id;
+	//int msg_id;
 	switch ((esp_mqtt_event_id_t) event_id) {
 	case MQTT_EVENT_CONNECTED:
 		ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
 		gn_log_message("MQTT Connected");
 		_gn_mqtt_on_connected(client);
 		/*
-		msg_id = esp_mqtt_client_publish(client, "/topic/qos1", "data_3", 0, 1,
-				0);
-		ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
+		 msg_id = esp_mqtt_client_publish(client, "/topic/qos1", "data_3", 0, 1,
+		 0);
+		 ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
 
-		msg_id = esp_mqtt_client_subscribe(client, "/topic/qos0", 0);
-		ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
+		 msg_id = esp_mqtt_client_subscribe(client, "/topic/qos0", 0);
+		 ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
 
-		msg_id = esp_mqtt_client_subscribe(client, "/topic/qos1", 1);
-		ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
+		 msg_id = esp_mqtt_client_subscribe(client, "/topic/qos1", 1);
+		 ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
 
-		msg_id = esp_mqtt_client_unsubscribe(client, "/topic/qos1");
-		ESP_LOGI(TAG, "sent unsubscribe successful, msg_id=%d", msg_id);
-		*/
+		 msg_id = esp_mqtt_client_unsubscribe(client, "/topic/qos1");
+		 ESP_LOGI(TAG, "sent unsubscribe successful, msg_id=%d", msg_id);
+		 */
 		break;
 	case MQTT_EVENT_DISCONNECTED:
 		ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
@@ -142,10 +152,10 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 	case MQTT_EVENT_SUBSCRIBED:
 		ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
 		/*
-		msg_id = esp_mqtt_client_publish(client, "/topic/qos0", "data", 0, 0,
-				0);
-		ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
-		*/
+		 msg_id = esp_mqtt_client_publish(client, "/topic/qos0", "data", 0, 0,
+		 0);
+		 ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
+		 */
 		break;
 	case MQTT_EVENT_UNSUBSCRIBED:
 		ESP_LOGI(TAG, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
@@ -154,6 +164,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 		ESP_LOGI(TAG, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
 		break;
 	case MQTT_EVENT_DATA:
+		//TODO here the code to forward the call to appropriate node/leaf or system handler. start from remote OTA and RST
 		ESP_LOGI(TAG, "MQTT_EVENT_DATA");
 		printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
 		printf("DATA=%.*s\r\n", event->data_len, event->data);
@@ -193,19 +204,22 @@ void _gn_init_mqtt(gn_config_handle_t conf) {
 
 	conf->mqtt_client = client;
 
-}
+	//TODO dangerous, better share config data through events
+	_config = conf;
 
+}
 
 static void test() {
 
 	for (int i = 0; i < 100000; i++) {
 
-		gn_mqtt_startup_message_handle_t m1 = malloc(sizeof(gn_mqtt_startup_message_t));
+		gn_mqtt_startup_message_handle_t m1 = malloc(
+				sizeof(gn_mqtt_startup_message_t));
 		m1->nodeid = i;
 		strcpy(m1->nodeName, "test");
 
 		const int len = 100;
-		char* deserialize = malloc(sizeof(char)*len);
+		char *deserialize = malloc(sizeof(char) * len);
 
 		_gn_create_startup_message(deserialize, len, m1);
 
@@ -217,7 +231,6 @@ static void test() {
 		strcpy(m1->nodeName, _nodeName->valuestring);
 
 		cJSON_Delete(json);
-
 
 		if (i % 1000 == 0) {
 			ESP_LOGI(TAG, "%i", i);
@@ -239,5 +252,4 @@ static void test() {
 #ifdef __cplusplus
 }
 #endif
-
 

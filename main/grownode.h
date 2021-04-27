@@ -34,7 +34,7 @@ typedef struct {
 typedef gn_config_t *gn_config_handle_t;
 
 typedef struct {
-	gn_event_id event;
+	gn_event_id_t event;
 	char *data; /*!< Data associated with this event */
 	int data_len; /*!< Length of the data for this event */
 } gn_event_t;

@@ -20,6 +20,8 @@ extern "C" {
 // Declare an event base
 ESP_EVENT_DECLARE_BASE (GN_BASE_EVENT);
 
+#define GN_EVENT_ANY_ID       -1
+
 typedef enum  {
 	GN_LEAF_ADDED,
 
@@ -29,7 +31,10 @@ typedef enum  {
 	GN_NET_DISCONNECTED,
 	GN_NET_MSG_RECV,
 
-} gn_event_id;
+	GN_NET_OTA_START,
+	GN_NET_RESET_START
+
+} gn_event_id_t;
 
 #ifdef __cplusplus
 }
