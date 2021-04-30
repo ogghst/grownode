@@ -136,6 +136,7 @@ CONFIG_GROWNODE_FIRMWARE_URL="http://discoboy.duckdns.org/esp/GrowNode2.bin"
 CONFIG_GROWNODE_MQTT_URL="mqtt://192.168.1.10:1883"
 CONFIG_GROWNODE_MQTT_BASE_TOPIC="/grownode"
 CONFIG_GROWNODE_SNTP_SERVER_NAME="pool.ntp.org"
+CONFIG_GROWNODE_DISPLAY_PRESENT=y
 # end of GrowNode Configuration
 
 #

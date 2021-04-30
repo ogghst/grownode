@@ -34,6 +34,8 @@ int rawIdx = 0;
 
 lv_obj_t *connection_label;
 
+bool _initialized = false;
+
 void _gn_display_lv_tick_task(void *arg) {
 	(void) arg;
 	lv_tick_inc(LV_TICK_PERIOD_MS);
@@ -61,6 +63,8 @@ void _gn_display_btn_rst_event_handler(lv_obj_t *obj, lv_event_t event) {
 		ESP_ERROR_CHECK(
 				esp_event_post_to(_config->event_loop, GN_BASE_EVENT, GN_NET_RESET_START, NULL,
 						0, portMAX_DELAY));
+
+		ESP_LOGI(TAG, "_gn_display_btn_rst_event_handler - sent event");
 
 	} else if (event == LV_EVENT_VALUE_CHANGED) {
 		ESP_LOGI(TAG, "_gn_display_btn_rst_event_handler - toggled");
@@ -344,15 +348,21 @@ void _gn_display_gui_task(void *pvParameter) {
 
 esp_err_t gn_init_display(gn_config_handle_t conf) {
 
+	if (_initialized)
+		return ESP_OK;
+
 	//TODO initialization guards
-	//TODO add define to kconfig to ignore display if not present
+
+#if !CONFIG_GROWNODE_DISPLAY_PRESENT
+	return ESP_OK;
+#endif
 
 	_gn_gui_event_group = xEventGroupCreate();
 
 	ESP_LOGI(TAG, "gn_init_display");
 
 	xTaskCreatePinnedToCore(_gn_display_gui_task, "_gn_display_gui_task",
-			4096 * 2, NULL, 10, NULL, 1);
+			4096 * 2, NULL, 1, NULL, 1);
 
 	ESP_LOGI(TAG, "_gn_display_gui_task created");
 
@@ -370,6 +380,8 @@ esp_err_t gn_init_display(gn_config_handle_t conf) {
 
 	//TODO dangerous, better update through events
 	_config = conf;
+
+	_initialized = true;
 
 	return ESP_OK;
 

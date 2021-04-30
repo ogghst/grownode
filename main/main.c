@@ -20,7 +20,7 @@ void app_main(void) {
 
 	char* c = malloc(sizeof(char)*100);
 
-/*
+
 	for (int i = 0; i < 2; i++) {
 
 		gn_node_config_handle_t node_config = gn_create_node(config, "node");
@@ -41,7 +41,7 @@ void app_main(void) {
 		gn_log_message("Created Pump");
 
 	}
-*/
+
 	free(c);
 
 	while(true) {

@@ -29,6 +29,7 @@ typedef struct {
 	esp_event_loop_handle_t event_loop;
 	wifi_init_config_t wifi_config;
 	wifi_prov_mgr_config_t prov_config;
+	char deviceName[30];
 } gn_config_t;
 
 typedef gn_config_t *gn_config_handle_t;

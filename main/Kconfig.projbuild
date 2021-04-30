@@ -46,6 +46,12 @@ menu "GrowNode Configuration"
         default "pool.ntp.org"
         help
             Default SNTP Server which is used for time synchronization.
+           
+    config GROWNODE_DISPLAY_PRESENT
+    	bool "Init Display"
+    	default true
+    	help
+    		If false, reduces memory consumption 
 
 
 endmenu

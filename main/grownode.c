@@ -58,6 +58,20 @@ static const char *TAG = "grownode";
 
 esp_event_loop_handle_t gn_event_loop;
 
+gn_config_handle_t _gn_default_conf;
+
+gn_config_handle_t _gn_create_config() {
+	gn_config_handle_t _conf = (gn_config_handle_t) malloc(sizeof(gn_config_t));
+	_conf->event_loop = NULL;
+	_conf->mqtt_client = NULL;
+	strncpy(_conf->deviceName,"anonymous",10);
+	//_conf->prov_config = NULL;
+	//_conf->spiffs_conf = NULL;
+	//_conf->wifi_config = NULL;
+	return _conf;
+}
+
+
 void _gn_init_event_loop(gn_config_handle_t conf) {
 	//default event loop
 	ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -280,7 +294,10 @@ void _gn_update_firmware() {
 
 /* Signal Wi-Fi events on this event-group */
 const int GN_WIFI_CONNECTED_EVENT = BIT0;
-static EventGroupHandle_t _gn_event_group_wifi;
+const int GN_PROV_END_EVENT = BIT1;
+
+EventGroupHandle_t _gn_event_group_wifi;
+
 int _gn_wifi_connect_retries = 0;
 
 void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
@@ -327,7 +344,8 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		case WIFI_PROV_END:
 			ESP_LOGI(TAG, "WIFI_PROV_END");
 			/* De-initialize manager once provisioning is finished */
-			wifi_prov_mgr_deinit();
+			//wifi_prov_mgr_deinit();
+			//xEventGroupSetBits(_gn_event_group_wifi, GN_PROV_END_EVENT);
 			break;
 		default:
 			break;
@@ -340,6 +358,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		ip_event_got_ip_t *event = (ip_event_got_ip_t*) event_data;
 		char *log = (char*) malloc(sizeof(char) * 20);
 		sprintf(log, "IP: %d.%d.%d.%d", IP2STR(&event->ip_info.ip));
+		strncpy(_gn_default_conf->deviceName,log, 20);
 		gn_log_message(log);
 		//ESP_LOGI(TAG, "IP : " IPSTR, IP2STR(&event->ip_info.ip));
 		free(log);
@@ -542,8 +561,9 @@ void _gn_init_wifi(gn_config_handle_t conf) {
 		/* Uncomment the following to wait for the provisioning to finish and then release
 		 * the resources of the manager. Since in this case de-initialization is triggered
 		 * by the default event loop handler, we don't need to call the following */
-		// wifi_prov_mgr_wait();
-		// wifi_prov_mgr_deinit();
+		wifi_prov_mgr_wait();
+		wifi_prov_mgr_deinit();
+
 	} else {
 		ESP_LOGI(TAG, "Already provisioned, starting Wi-Fi STA");
 
@@ -609,26 +629,15 @@ void _gn_evt_reset_start_handler(void *handler_args, esp_event_base_t base,
 esp_err_t _gn_register_event_handlers(gn_config_handle_t conf) {
 
 	ESP_ERROR_CHECK(
-			esp_event_handler_instance_register_with(gn_event_loop, GN_BASE_EVENT, GN_NET_OTA_START, _gn_evt_ota_start_handler, NULL, NULL));
+			esp_event_handler_instance_register_with(conf->event_loop, GN_BASE_EVENT, GN_NET_OTA_START, _gn_evt_ota_start_handler, NULL, NULL));
 
 	ESP_ERROR_CHECK(
-			esp_event_handler_instance_register_with(gn_event_loop, GN_BASE_EVENT, GN_NET_RESET_START, _gn_evt_reset_start_handler, NULL, NULL));
+			esp_event_handler_instance_register_with(conf->event_loop, GN_BASE_EVENT, GN_NET_RESET_START, _gn_evt_reset_start_handler, NULL, NULL));
 
 	return ESP_OK;
 
 }
 
-gn_config_handle_t _gn_default_conf;
-
-gn_config_handle_t _gn_create_config() {
-	gn_config_handle_t _conf = (gn_config_handle_t) malloc(sizeof(gn_config_t));
-	_conf->event_loop = NULL;
-	_conf->mqtt_client = NULL;
-	//_conf->prov_config = NULL;
-	//_conf->spiffs_conf = NULL;
-	//_conf->wifi_config = NULL;
-	return _conf;
-}
 
 gn_config_handle_t gn_init() {
 
@@ -644,6 +653,9 @@ gn_config_handle_t gn_init() {
 	//init event loop
 	_gn_init_event_loop(_gn_default_conf);
 
+	//register to events
+	_gn_register_event_handlers(_gn_default_conf);
+
 	//init display
 	gn_init_display(_gn_default_conf);
 	//vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -653,10 +665,8 @@ gn_config_handle_t gn_init() {
 	//init time sync
 	_gn_init_time_sync(_gn_default_conf);
 	//init mqtt system
-	_gn_init_mqtt(_gn_default_conf);
+	_gn_mqtt_init(_gn_default_conf);
 
-	//register to events
-	_gn_register_event_handlers(_gn_default_conf);
 
 	initialized = true;
 
