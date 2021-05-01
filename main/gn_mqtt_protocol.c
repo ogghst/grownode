@@ -23,12 +23,13 @@ extern "C" {
 
 static const char *TAG = "gn_mqtt";
 
-#define GN_MQTT_DEFAULT_QOS 0
+#define _GN_MQTT_DEFAULT_QOS 0
 
 EventGroupHandle_t _gn_event_group_mqtt;
-const int GN_MQTT_CONNECTED_EVENT = BIT0;
+const int _GN_MQTT_CONNECTED_OK_EVENT = BIT0;
+const int _GN_MQTT_CONNECTED_KO_EVENT = BIT1;
 
-gn_config_handle_t _config;
+gn_config_handle_t _config; //TODO shared pointer, dangerous
 
 void _gn_mqtt_build_leaf_command_topic(gn_leaf_config_handle_t leaf_config,
 		char *buf) {
@@ -104,52 +105,49 @@ esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t config) {
 	cJSON_Delete(root);
 
 	//publish
-	msg_id = esp_mqtt_client_publish(msg->config->mqtt_client, msg->topic, buf, 0, 2, 0);
-	ESP_LOGI(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s", msg_id, msg->topic, buf);
+	msg_id = esp_mqtt_client_publish(msg->config->mqtt_client, msg->topic, buf,
+			0, 2, 0);
+	ESP_LOGI(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s",
+			msg_id, msg->topic, buf);
 
-	fail:
-	free(buf);
+	fail: free(buf);
 	free(msg);
 
-	return ((msg_id == -1) ? (ESP_FAIL) : (ESP_OK) );
+	return ((msg_id == -1) ? (ESP_FAIL) : (ESP_OK));
 }
 
 esp_err_t _gn_mqtt_on_connected(gn_config_handle_t config) {
 
 	int msg_id = esp_mqtt_client_subscribe(config->mqtt_client,
-	CONFIG_GROWNODE_MQTT_BASE_TOPIC, GN_MQTT_DEFAULT_QOS);
+	CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_DEFAULT_QOS);
 
 	if (msg_id == -1) {
 		ESP_LOGE(TAG, "error subscribing default topic %s, msg_id=%d",
 				CONFIG_GROWNODE_MQTT_BASE_TOPIC, msg_id);
-		return ESP_FAIL;
+		goto fail;
 	}
 	ESP_LOGI(TAG, "subscribing default topic %s, msg_id=%d",
 			CONFIG_GROWNODE_MQTT_BASE_TOPIC, msg_id);
 
 	//send hello message
-	if (ESP_OK != _gn_mqtt_send_startup_message(config) ) {
+	if (ESP_OK != _gn_mqtt_send_startup_message(config)) {
 		ESP_LOGE(TAG, "failed to send startup message");
-		return ESP_FAIL;
+		goto fail;
 	}
 
-	//publish net connected event
-	if (ESP_OK != esp_event_post_to(_config->event_loop, GN_BASE_EVENT, GN_NET_CONNECTED,
-	NULL, 0, portMAX_DELAY)) {
-		ESP_LOGE(TAG, "failed to send GN_NET_CONNECTED event");
-		return ESP_FAIL;
-	}
+	//stop waiting for mqtt
+	return xEventGroupSetBits(_gn_event_group_mqtt, _GN_MQTT_CONNECTED_OK_EVENT);
 
-	return ESP_OK;
+	fail:
+	//stop waiting for mqtt
+	xEventGroupSetBits(_gn_event_group_mqtt, _GN_MQTT_CONNECTED_KO_EVENT);
+	return ESP_FAIL;
 }
 
 esp_err_t _gn_mqtt_on_disconnected(esp_mqtt_client_handle_t client) {
 
-	ESP_ERROR_CHECK(
-	//TODO change the base event to network
-			esp_event_post_to(_config->event_loop, GN_BASE_EVENT, GN_NET_DISCONNECTED, NULL, 0, portMAX_DELAY));
-	//TODO add error handling
-	return ESP_OK;
+	return xEventGroupSetBits(_gn_event_group_mqtt, _GN_MQTT_CONNECTED_KO_EVENT);
+
 }
 
 void log_error_if_nonzero(const char *message, int error_code) {
@@ -169,10 +167,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 	switch ((esp_mqtt_event_id_t) event_id) {
 	case MQTT_EVENT_CONNECTED:
 		ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
-		gn_log_message("MQTT Connected");
 		_gn_mqtt_on_connected(_config); //TODO find a better way to get context, here the event mqtt client is not taken in consideration
-
-
 
 		/*
 		 msg_id = esp_mqtt_client_publish(client, "/topic/qos1", "data_3", 0, 1,
@@ -191,7 +186,6 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 		break;
 	case MQTT_EVENT_DISCONNECTED:
 		ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
-		gn_log_message("MQTT Disconnected");
 		_gn_mqtt_on_disconnected(client);
 		break;
 
@@ -242,7 +236,7 @@ esp_err_t _gn_mqtt_init(gn_config_handle_t conf) {
 	esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
 
 	if (client == NULL) {
-		ESP_LOGE(TAG, "Error configuring MQTT client");
+		ESP_LOGE(TAG, "Error on esp_mqtt_client_init");
 		return ESP_FAIL;
 	}
 
@@ -252,8 +246,8 @@ esp_err_t _gn_mqtt_init(gn_config_handle_t conf) {
 
 	ESP_LOGI(TAG, "Connecting MQTT server at %s", mqtt_cfg.uri);
 
-	if(esp_mqtt_client_start(client) != ESP_OK) {
-		ESP_LOGE(TAG, "Error starting MQTT client");
+	if (esp_mqtt_client_start(client) != ESP_OK) {
+		ESP_LOGE(TAG, "Error on esp_mqtt_client_start");
 		return ESP_FAIL;
 	}
 
@@ -262,54 +256,82 @@ esp_err_t _gn_mqtt_init(gn_config_handle_t conf) {
 	//TODO dangerous, better share config data through events
 	_config = conf;
 
-	xEventGroupWaitBits(_gn_event_group_mqtt, GN_MQTT_CONNECTED_EVENT, false,
-			true, portMAX_DELAY);
+	EventBits_t uxBits;
+	uxBits = xEventGroupWaitBits(_gn_event_group_mqtt,
+			_GN_MQTT_CONNECTED_OK_EVENT | _GN_MQTT_CONNECTED_KO_EVENT, pdTRUE,
+			pdFALSE, portMAX_DELAY);
 
-	return ESP_OK;
+	if ((uxBits & _GN_MQTT_CONNECTED_OK_EVENT) != 0) {
+		ESP_LOGI(TAG, "MQTT client handshake successful");
+		//publish server connected event
+		if (ESP_OK
+				!= esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
+						GN_SERVER_CONNECTED_EVENT,
+						NULL, 0, portMAX_DELAY)) {
+			ESP_LOGE(TAG, "failed to send GN_SERVER_CONNECTED_EVENT event");
+			goto fail;
+		}
+
+		return ESP_OK;
+	}
+
+	if ((uxBits & _GN_MQTT_CONNECTED_KO_EVENT) != 0) {
+		ESP_LOGE(TAG, "MQTT client handshake error");
+		//publish server disconnected event
+		if (ESP_OK
+				!= esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
+						GN_SERVER_DISCONNECTED_EVENT,
+						NULL, 0, portMAX_DELAY)) {
+			ESP_LOGE(TAG, "failed to send GN_SERVER_DISCONNECTED_EVENT event");
+			return ESP_FAIL;
+		}
+	}
+
+	fail: return ESP_FAIL;
 
 }
 
 /*
-static void test() {
+ static void test() {
 
-	for (int i = 0; i < 100000; i++) {
+ for (int i = 0; i < 100000; i++) {
 
-		gn_mqtt_startup_message_handle_t m1 = malloc(
-				sizeof(gn_mqtt_startup_message_t));
-		m1->topic
-		strcpy(m1->nodeName, "test");
+ gn_mqtt_startup_message_handle_t m1 = malloc(
+ sizeof(gn_mqtt_startup_message_t));
+ m1->topic
+ strcpy(m1->nodeName, "test");
 
-		const int len = 100;
-		char *deserialize = malloc(sizeof(char) * len);
+ const int len = 100;
+ char *deserialize = malloc(sizeof(char) * len);
 
-		_gn_create_startup_message(deserialize, len, m1);
+ _gn_create_startup_message(deserialize, len, m1);
 
-		cJSON *json = cJSON_Parse(deserialize);
-		cJSON *_nodeId = cJSON_GetObjectItemCaseSensitive(json, "nodeid");
-		cJSON *_nodeName = cJSON_GetObjectItemCaseSensitive(json, "nodeName");
+ cJSON *json = cJSON_Parse(deserialize);
+ cJSON *_nodeId = cJSON_GetObjectItemCaseSensitive(json, "nodeid");
+ cJSON *_nodeName = cJSON_GetObjectItemCaseSensitive(json, "nodeName");
 
-		m1->nodeid = _nodeId->valueint;
-		strcpy(m1->nodeName, _nodeName->valuestring);
+ m1->nodeid = _nodeId->valueint;
+ strcpy(m1->nodeName, _nodeName->valuestring);
 
-		cJSON_Delete(json);
+ cJSON_Delete(json);
 
-		if (i % 1000 == 0) {
-			ESP_LOGI(TAG, "%i", i);
-			ESP_LOGI(TAG, "-- deserialize '%s'", deserialize);
-			ESP_LOGI(TAG, "-- nodeid '%i'", m1->nodeid);
-			ESP_LOGI(TAG, "-- nodename '%s'", m1->nodeName);
-			vTaskDelay(1);
-		}
+ if (i % 1000 == 0) {
+ ESP_LOGI(TAG, "%i", i);
+ ESP_LOGI(TAG, "-- deserialize '%s'", deserialize);
+ ESP_LOGI(TAG, "-- nodeid '%i'", m1->nodeid);
+ ESP_LOGI(TAG, "-- nodename '%s'", m1->nodeName);
+ vTaskDelay(1);
+ }
 
-		free(deserialize);
-		free(m1);
+ free(deserialize);
+ free(m1);
 
-		//free(deserialize);
+ //free(deserialize);
 
-	}
+ }
 
-}
-*/
+ }
+ */
 
 #ifdef __cplusplus
 }

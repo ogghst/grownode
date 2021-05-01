@@ -23,6 +23,14 @@ extern "C" {
 
 #define GN_MEM_NAME_SIZE 32
 
+typedef enum {
+	GN_CONFIG_STATUS_NOT_INITIALIZED,
+	GN_CONFIG_STATUS_INITIALIZING,
+	GN_CONFIG_STATUS_NETWORK_ERROR,
+	GN_CONFIG_STATUS_SERVER_ERROR,
+	GN_CONFIG_STATUS_OK
+} gn_config_status_t;
+
 typedef struct {
 	esp_vfs_spiffs_conf_t spiffs_conf;
 	esp_mqtt_client_handle_t mqtt_client;
@@ -30,6 +38,7 @@ typedef struct {
 	wifi_init_config_t wifi_config;
 	wifi_prov_mgr_config_t prov_config;
 	char deviceName[30];
+	gn_config_status_t status;
 } gn_config_t;
 
 typedef gn_config_t *gn_config_handle_t;

@@ -13,13 +13,16 @@ void app_main(void) {
 
 	//GrowNode::Controller::GrowNodeController c;
 
-
 	gn_config_handle_t config = gn_init();
+
+	while (config->status != GN_CONFIG_STATUS_OK) {
+		gn_log_message("status not OK, waiting..");
+		vTaskDelay(10000 / portTICK_PERIOD_MS);
+	}
 
 	gn_log_message("initialized");
 
-	char* c = malloc(sizeof(char)*100);
-
+	char *c = malloc(sizeof(char) * 100);
 
 	for (int i = 0; i < 2; i++) {
 
@@ -44,9 +47,9 @@ void app_main(void) {
 
 	free(c);
 
-	while(true) {
-	vTaskDelay(1000 / portTICK_PERIOD_MS);
-	ESP_LOGI("main", "main loop");
+	while (true) {
+		vTaskDelay(10000 / portTICK_PERIOD_MS);
+		ESP_LOGI("main", "main loop");
 	}
 
 }

@@ -62,29 +62,27 @@ gn_config_handle_t _gn_default_conf;
 
 gn_config_handle_t _gn_create_config() {
 	gn_config_handle_t _conf = (gn_config_handle_t) malloc(sizeof(gn_config_t));
+	_conf->status = GN_CONFIG_STATUS_INITIALIZING;
 	_conf->event_loop = NULL;
 	_conf->mqtt_client = NULL;
-	strncpy(_conf->deviceName,"anonymous",10);
+	strncpy(_conf->deviceName, "anonymous", 10);
 	//_conf->prov_config = NULL;
 	//_conf->spiffs_conf = NULL;
 	//_conf->wifi_config = NULL;
 	return _conf;
 }
 
-
 void _gn_init_event_loop(gn_config_handle_t conf) {
 	//default event loop
 	ESP_ERROR_CHECK(esp_event_loop_create_default());
 
 	//user event loop
-	esp_event_loop_args_t event_loop_args = { .queue_size = 5,
-			.task_name = "loop_task", // task will be created
-			.task_priority = 0, .task_stack_size = 2048,
-			.task_core_id = 1 };
+	esp_event_loop_args_t event_loop_args = { .queue_size = 5, .task_name =
+			"loop_task", // task will be created
+			.task_priority = 0, .task_stack_size = 2048, .task_core_id = 1 };
 	ESP_ERROR_CHECK(esp_event_loop_create(&event_loop_args, &gn_event_loop));
 
 	conf->event_loop = gn_event_loop;
-
 
 }
 
@@ -168,8 +166,7 @@ esp_err_t gn_destroy_leaf(gn_leaf_config_handle_t leaf) {
 void _gn_init_flash(gn_config_handle_t conf) {
 	/* Initialize NVS partition */
 	esp_err_t ret = nvs_flash_init();
-	if (ret == ESP_ERR_NVS_NO_FREE_PAGES
-			|| ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+	if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
 		/* NVS partition was truncated
 		 * and needs to be erased */
 		ESP_ERROR_CHECK(nvs_flash_erase());
@@ -223,13 +220,9 @@ void _gn_init_spiffs(gn_config_handle_t conf) {
 	}
 }
 
-
-
 bool initialized = false;
 
-
-
-ESP_EVENT_DEFINE_BASE( GN_BASE_EVENT);
+ESP_EVENT_DEFINE_BASE(GN_BASE_EVENT);
 
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
@@ -241,14 +234,10 @@ void gn_log_message(const char *message) {
 
 	//char *ptr = malloc(sizeof(char) * strlen(message) + 1);
 
-
 	ESP_ERROR_CHECK(
-			esp_event_post_to(gn_event_loop, GN_BASE_EVENT, GN_DISPLAY_LOG_SYSTEM, message,
-					strlen(message) + 1, portMAX_DELAY));
+			esp_event_post_to(gn_event_loop, GN_BASE_EVENT, GN_DISPLAY_LOG_EVENT, message, strlen(message) + 1, portMAX_DELAY));
 
 	//free(ptr);
-
-	ESP_LOGI(TAG, "end gn_log_message");
 }
 
 void _gn_ota_task(void *pvParameter) {
@@ -291,7 +280,6 @@ void _gn_update_firmware() {
 	xTaskCreate(_gn_ota_task, "_gn_ota_task", 8196, NULL, 10, NULL);
 }
 
-
 /* Signal Wi-Fi events on this event-group */
 const int GN_WIFI_CONNECTED_EVENT = BIT0;
 const int GN_PROV_END_EVENT = BIT1;
@@ -314,8 +302,8 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 			wifi_sta_config_t *wifi_sta_cfg = (wifi_sta_config_t*) event_data;
 			ESP_LOGI(TAG,
 					"Received Wi-Fi credentials" "\n\tSSID     : %s\n\tPassword : %s",
-					(const char*) wifi_sta_cfg->ssid,
-					(const char*) wifi_sta_cfg->password);
+					(const char* ) wifi_sta_cfg->ssid,
+					(const char* ) wifi_sta_cfg->password);
 			break;
 		}
 		case WIFI_PROV_CRED_FAIL: {
@@ -338,14 +326,11 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 			break;
 		}
 		case WIFI_PROV_CRED_SUCCESS:
-			_gn_wifi_connect_retries = 0;
-			gn_log_message("Provisioning OK");
 			break;
 		case WIFI_PROV_END:
 			ESP_LOGI(TAG, "WIFI_PROV_END");
-			/* De-initialize manager once provisioning is finished */
-			//wifi_prov_mgr_deinit();
-			//xEventGroupSetBits(_gn_event_group_wifi, GN_PROV_END_EVENT);
+			_gn_wifi_connect_retries = 0;
+			gn_log_message("Provisioning OK");
 			break;
 		default:
 			break;
@@ -356,27 +341,44 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 	} else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
 		_gn_wifi_connect_retries = 0;
 		ip_event_got_ip_t *event = (ip_event_got_ip_t*) event_data;
-		char *log = (char*) malloc(sizeof(char) * 20);
-		sprintf(log, "IP: %d.%d.%d.%d", IP2STR(&event->ip_info.ip));
-		strncpy(_gn_default_conf->deviceName,log, 20);
+		char log[33]; //TODO make configurable lenght
+
+		uint8_t eth_mac[6];
+		const char ssid_prefix[10] = "GROWNODE_"; //TODO make configurable prefix
+		esp_wifi_get_mac(WIFI_IF_STA, eth_mac);
+		char deviceName[17];
+		snprintf(deviceName, 16, "%s%02X%02X%02X", ssid_prefix, eth_mac[3],
+				eth_mac[4], eth_mac[5]);
+
+		strcpy(_gn_default_conf->deviceName, deviceName);
+
+		sprintf(log, "%s-%d.%d.%d.%d", deviceName, IP2STR(&event->ip_info.ip));
 		gn_log_message(log);
+
 		//ESP_LOGI(TAG, "IP : " IPSTR, IP2STR(&event->ip_info.ip));
-		free(log);
+
+		if (ESP_OK
+				!= esp_event_post_to(_gn_default_conf->event_loop, GN_BASE_EVENT,
+						GN_NETWORK_CONNECTED_EVENT,
+						NULL, 0, portMAX_DELAY)) {
+			ESP_LOGE(TAG, "failed to send GN_NETWORK_DISCONNECTED_EVENT event");
+		}
+
 		/* Signal main application to continue execution */
 		xEventGroupSetBits(_gn_event_group_wifi, GN_WIFI_CONNECTED_EVENT);
+
 	} else if (event_base == WIFI_EVENT
 			&& event_id == WIFI_EVENT_STA_DISCONNECTED) {
 
-		_gn_wifi_connect_retries++;
-		if (_gn_wifi_connect_retries > 5) {
-			nvs_flash_erase();
-			esp_restart();
+		ESP_LOGI(TAG, "Disconnected. Connecting to the AP again.");
+
+		if (ESP_OK
+				!= esp_event_post_to(_gn_default_conf->event_loop, GN_BASE_EVENT,
+						GN_NETWORK_DISCONNECTED_EVENT,
+						NULL, 0, portMAX_DELAY)) {
+			ESP_LOGE(TAG, "failed to send GN_NETWORK_DISCONNECTED_EVENT event");
 		}
 
-		ESP_LOGI(TAG,
-				"Disconnected. Connecting to the AP again. Trying %d out of 5..",
-				_gn_wifi_connect_retries);
-		gn_log_message("Disconnected");
 		esp_wifi_connect();
 	}
 }
@@ -403,7 +405,7 @@ esp_err_t _gn_wifi_custom_prov_data_handler(uint32_t session_id,
 		const uint8_t *inbuf, ssize_t inlen, uint8_t **outbuf, ssize_t *outlen,
 		void *priv_data) {
 	if (inbuf) {
-		ESP_LOGI(TAG, "Received data: %.*s", inlen, (char*) inbuf);
+		ESP_LOGI(TAG, "Received data: %.*s", inlen, (char* ) inbuf);
 	}
 	char response[] = "SUCCESS";
 	*outbuf = (uint8_t*) strdup(response);
@@ -424,14 +426,11 @@ void _gn_init_wifi(gn_config_handle_t conf) {
 	_gn_event_group_wifi = xEventGroupCreate();
 
 	ESP_ERROR_CHECK(
-			esp_event_handler_register(WIFI_PROV_EVENT, ESP_EVENT_ANY_ID,
-					&_gn_wifi_event_handler, NULL));
+			esp_event_handler_register(WIFI_PROV_EVENT, ESP_EVENT_ANY_ID, &_gn_wifi_event_handler, NULL));
 	ESP_ERROR_CHECK(
-			esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID,
-					&_gn_wifi_event_handler, NULL));
+			esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &_gn_wifi_event_handler, NULL));
 	ESP_ERROR_CHECK(
-			esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP,
-					&_gn_wifi_event_handler, NULL));
+			esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &_gn_wifi_event_handler, NULL));
 
 	esp_netif_create_default_wifi_sta();
 
@@ -439,7 +438,8 @@ void _gn_init_wifi(gn_config_handle_t conf) {
 	esp_netif_create_default_wifi_ap();
 #endif /* CONFIG_GROWNODE_PROV_TRANSPORT_SOFTAP */
 
-	wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+	wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT()
+	;
 
 	ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
@@ -579,7 +579,7 @@ void _gn_init_wifi(gn_config_handle_t conf) {
 	gn_log_message("Connecting...");
 	/* Wait for Wi-Fi connection */
 	xEventGroupWaitBits(_gn_event_group_wifi, GN_WIFI_CONNECTED_EVENT, false,
-			true, portMAX_DELAY);
+	true, portMAX_DELAY);
 
 }
 
@@ -622,9 +622,7 @@ void _gn_evt_reset_start_handler(void *handler_args, esp_event_base_t base,
 
 	esp_restart();
 
-
 }
-
 
 esp_err_t _gn_register_event_handlers(gn_config_handle_t conf) {
 
@@ -637,7 +635,6 @@ esp_err_t _gn_register_event_handlers(gn_config_handle_t conf) {
 	return ESP_OK;
 
 }
-
 
 gn_config_handle_t gn_init() {
 
@@ -665,12 +662,15 @@ gn_config_handle_t gn_init() {
 	//init time sync
 	_gn_init_time_sync(_gn_default_conf);
 	//init mqtt system
-	_gn_mqtt_init(_gn_default_conf);
+	if (ESP_OK != _gn_mqtt_init(_gn_default_conf)) {
+		_gn_default_conf->status = GN_CONFIG_STATUS_SERVER_ERROR;
+		goto fail;
+	}
 
-
+	_gn_default_conf->status = GN_CONFIG_STATUS_OK;
 	initialized = true;
 
-	return _gn_default_conf;
+	fail: return _gn_default_conf;
 
 }
 

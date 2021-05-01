@@ -32,7 +32,7 @@ lv_obj_t *statusLabel[10];
 char rawMessages[10][30];
 int rawIdx = 0;
 
-lv_obj_t *connection_label;
+lv_obj_t *network_status_label, *server_status_label;
 
 bool _initialized = false;
 
@@ -107,15 +107,28 @@ void _gn_display_log_system_handler(void *handler_args, esp_event_base_t base,
 
 }
 
-void _gn_display_net_connected_handler(void *handler_args,
+void _gn_display_net_mqtt_handler(void *handler_args,
 		esp_event_base_t base, int32_t id, void *event_data) {
 
-	//TODO pass mqtt server info to the event
+	//TODO pass wifi info to the event
 	char *message = (char*) event_data;
 
 	if (pdTRUE == xSemaphoreTake(_gn_xGuiSemaphore, portMAX_DELAY)) {
 
-		lv_label_set_text(connection_label, "OK");
+		switch (id) {
+		case GN_NETWORK_CONNECTED_EVENT:
+			lv_label_set_text(network_status_label, "NET OK");
+			break;
+		case GN_NETWORK_DISCONNECTED_EVENT:
+			lv_label_set_text(network_status_label, "NET KO");
+			break;
+		case GN_SERVER_CONNECTED_EVENT:
+			lv_label_set_text(server_status_label, "SRV OK");
+			break;
+		case GN_SERVER_DISCONNECTED_EVENT:
+			lv_label_set_text(server_status_label, "SRV_KO");
+			break;
+		}
 
 		xSemaphoreGive(_gn_xGuiSemaphore);
 	}
@@ -241,12 +254,20 @@ void _gn_display_create_gui() {
 	lv_label_set_text(label_rst, "RST");
 
 	//TODO change to a connection icon
-	//connection status
-	connection_label = lv_label_create(bottom_cont, NULL);
-	lv_obj_add_style(connection_label, LV_LABEL_PART_MAIN, &style_log);
-	lv_obj_align(connection_label, bottom_cont, LV_ALIGN_IN_BOTTOM_RIGHT, 0, 0);
-	lv_obj_set_width_fit(connection_label, LV_FIT_MAX);
-	lv_label_set_text(connection_label, "OFFLINE");
+
+	//network status
+	network_status_label = lv_label_create(bottom_cont, NULL);
+	lv_obj_add_style(network_status_label, LV_LABEL_PART_MAIN, &style_log);
+	lv_obj_align(network_status_label, bottom_cont, LV_ALIGN_IN_BOTTOM_RIGHT, 0, 0);
+	lv_obj_set_width_fit(network_status_label, LV_FIT_MAX);
+	lv_label_set_text(network_status_label, "NET KO");
+
+	//server status
+	server_status_label = lv_label_create(bottom_cont, NULL);
+	lv_obj_add_style(server_status_label, LV_LABEL_PART_MAIN, &style_log);
+	lv_obj_align(server_status_label, bottom_cont, LV_ALIGN_IN_BOTTOM_RIGHT, 0, 0);
+	lv_obj_set_width_fit(server_status_label, LV_FIT_MAX);
+	lv_label_set_text(server_status_label, "SRV KO");
 
 }
 
@@ -371,10 +392,10 @@ esp_err_t gn_init_display(gn_config_handle_t conf) {
 
 	//add event handlers
 	ESP_ERROR_CHECK(
-			esp_event_handler_instance_register_with(conf->event_loop, GN_BASE_EVENT, GN_DISPLAY_LOG_SYSTEM, _gn_display_log_system_handler, NULL, NULL));
+			esp_event_handler_instance_register_with(conf->event_loop, GN_BASE_EVENT, GN_DISPLAY_LOG_EVENT, _gn_display_log_system_handler, NULL, NULL));
 
 	ESP_ERROR_CHECK(
-			esp_event_handler_instance_register_with(conf->event_loop, GN_BASE_EVENT, GN_NET_CONNECTED, _gn_display_net_connected_handler, NULL, NULL));
+			esp_event_handler_instance_register_with(conf->event_loop, GN_BASE_EVENT, GN_EVENT_ANY_ID, _gn_display_net_mqtt_handler, NULL, NULL));
 
 	ESP_LOGI(TAG, "gn_init_display done");
 
