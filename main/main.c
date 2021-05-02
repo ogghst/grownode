@@ -15,11 +15,6 @@ void app_main(void) {
 
 	gn_config_handle_t config = gn_init();
 
-	while (config->status != GN_CONFIG_STATUS_OK) {
-		gn_log_message("status not OK, waiting..");
-		vTaskDelay(10000 / portTICK_PERIOD_MS);
-	}
-
 	gn_log_message("initialized");
 
 	char *c = malloc(sizeof(char) * 100);

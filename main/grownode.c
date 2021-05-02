@@ -18,6 +18,7 @@ extern "C" {
 #include "freertos/event_groups.h"
 #include "freertos/semphr.h"
 
+#include "esp_check.h"
 #include "esp_log.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
@@ -62,7 +63,7 @@ gn_config_handle_t _gn_default_conf;
 
 gn_config_handle_t _gn_create_config() {
 	gn_config_handle_t _conf = (gn_config_handle_t) malloc(sizeof(gn_config_t));
-	_conf->status = GN_CONFIG_STATUS_INITIALIZING;
+	_conf->status = GN_CONFIG_STATUS_NOT_INITIALIZED;
 	_conf->event_loop = NULL;
 	_conf->mqtt_client = NULL;
 	strncpy(_conf->deviceName, "anonymous", 10);
@@ -72,17 +73,25 @@ gn_config_handle_t _gn_create_config() {
 	return _conf;
 }
 
-void _gn_init_event_loop(gn_config_handle_t conf) {
+esp_err_t _gn_init_event_loop(gn_config_handle_t conf) {
+
+	esp_err_t ret = ESP_OK;
+
 	//default event loop
-	ESP_ERROR_CHECK(esp_event_loop_create_default());
+	ESP_GOTO_ON_ERROR(esp_event_loop_create_default(), fail, TAG,
+			"error creating system event loop: %s", esp_err_to_name(ret));
 
 	//user event loop
 	esp_event_loop_args_t event_loop_args = { .queue_size = 5, .task_name =
 			"loop_task", // task will be created
 			.task_priority = 0, .task_stack_size = 2048, .task_core_id = 1 };
-	ESP_ERROR_CHECK(esp_event_loop_create(&event_loop_args, &gn_event_loop));
+	ESP_GOTO_ON_ERROR(esp_event_loop_create(&event_loop_args, &gn_event_loop),
+			fail, TAG, "error creating grownode event loop: %s",
+			esp_err_to_name(ret));
 
 	conf->event_loop = gn_event_loop;
+
+	fail: return ret;
 
 }
 
@@ -163,28 +172,34 @@ esp_err_t gn_destroy_leaf(gn_leaf_config_handle_t leaf) {
 
 }
 
-void _gn_init_flash(gn_config_handle_t conf) {
+esp_err_t _gn_init_flash(gn_config_handle_t conf) {
+
+	esp_err_t ret = ESP_OK;
 	/* Initialize NVS partition */
-	esp_err_t ret = nvs_flash_init();
+	ret = nvs_flash_init();
+
 	if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
 		/* NVS partition was truncated
 		 * and needs to be erased */
-		ESP_ERROR_CHECK(nvs_flash_erase());
+		ESP_GOTO_ON_ERROR(nvs_flash_erase(), err, TAG,
+				"error erasing flash: %s", esp_err_to_name(ret));
 		/* Retry nvs_flash_init */
-		ESP_ERROR_CHECK(nvs_flash_init());
+		ESP_GOTO_ON_ERROR(nvs_flash_init(), err, TAG, "error init flash: %s",
+				esp_err_to_name(ret));
+
 	}
 
 #ifdef CONFIG_GROWNODE_RESET_PROVISIONED
-	ESP_ERROR_CHECK(nvs_flash_erase());
+	ESP_GOTO_ON_ERROR(nvs_flash_erase(), fail, TAG, "error erasing flash", esp_err_to_name(ret));
 	/* Retry nvs_flash_init */
-	ESP_ERROR_CHECK(nvs_flash_init());
+	ESP_GOTO_ON_ERROR(nvs_flash_init(), fail, TAG, "error init flash", esp_err_to_name(ret));
 #endif
+
+	err: return ret;
 
 }
 
-void _gn_init_spiffs(gn_config_handle_t conf) {
-
-	ESP_LOGI(TAG, "Initializing SPIFFS");
+esp_err_t _gn_init_spiffs(gn_config_handle_t conf) {
 
 	esp_vfs_spiffs_conf_t vfs_conf;
 	vfs_conf.base_path = "/spiffs";
@@ -196,7 +211,9 @@ void _gn_init_spiffs(gn_config_handle_t conf) {
 
 	// Use settings defined above to initialize and mount SPIFFS filesystem.
 	// Note: esp_vfs_spiffs_register is anall-in-one convenience function.
-	esp_err_t ret = esp_vfs_spiffs_register(&vfs_conf);
+	esp_err_t ret = ESP_OK;
+
+	ret = esp_vfs_spiffs_register(&vfs_conf);
 
 	if (ret != ESP_OK) {
 		if (ret == ESP_FAIL) {
@@ -207,7 +224,7 @@ void _gn_init_spiffs(gn_config_handle_t conf) {
 			ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)",
 					esp_err_to_name(ret));
 		}
-		return;
+		return ret;
 	}
 
 	size_t total = 0, used = 0;
@@ -218,6 +235,9 @@ void _gn_init_spiffs(gn_config_handle_t conf) {
 	} else {
 		ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
 	}
+
+	return ret;
+
 }
 
 bool initialized = false;
@@ -248,7 +268,7 @@ void _gn_ota_task(void *pvParameter) {
 	//x.type = screenPayloadType::LOG;
 	//strcpy(x.text, "Firmware update start");
 	//xQueueSend(screenEventQueue, &x, 0);
-	gn_log_message("OTA in progress..");
+	gn_log_message("Firmware update in progress..");
 
 	esp_wifi_set_ps(WIFI_PS_NONE);
 
@@ -286,8 +306,6 @@ const int GN_PROV_END_EVENT = BIT1;
 
 EventGroupHandle_t _gn_event_group_wifi;
 
-int _gn_wifi_connect_retries = 0;
-
 void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		int32_t event_id, void *event_data) {
 
@@ -309,27 +327,18 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		case WIFI_PROV_CRED_FAIL: {
 			wifi_prov_sta_fail_reason_t *reason =
 					(wifi_prov_sta_fail_reason_t*) event_data;
-			_gn_wifi_connect_retries++;
-			if (_gn_wifi_connect_retries > 5) {
-				nvs_flash_erase();
-				esp_restart();
-			}
-
-			gn_log_message("Provisioning Failed");
 
 			ESP_LOGE(TAG,
-					"Provisioning failed!\n\tReason : %s" "\n\tRetrying %d of 5 times and then reset to factory",
+					"Provisioning failed!\n\tReason : %s",
 					((*reason == WIFI_PROV_STA_AUTH_ERROR) ?
 							"Wi-Fi station authentication failed" :
-							"Wi-Fi access-point not found"),
-					_gn_wifi_connect_retries);
+							"Wi-Fi access-point not found"));
 			break;
 		}
 		case WIFI_PROV_CRED_SUCCESS:
 			break;
 		case WIFI_PROV_END:
 			ESP_LOGI(TAG, "WIFI_PROV_END");
-			_gn_wifi_connect_retries = 0;
 			gn_log_message("Provisioning OK");
 			break;
 		default:
@@ -339,7 +348,6 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		ESP_LOGI(TAG, "WIFI_EVENT_STA_START");
 		esp_wifi_connect();
 	} else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
-		_gn_wifi_connect_retries = 0;
 		ip_event_got_ip_t *event = (ip_event_got_ip_t*) event_data;
 		char log[33]; //TODO make configurable lenght
 
@@ -358,9 +366,9 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		//ESP_LOGI(TAG, "IP : " IPSTR, IP2STR(&event->ip_info.ip));
 
 		if (ESP_OK
-				!= esp_event_post_to(_gn_default_conf->event_loop, GN_BASE_EVENT,
-						GN_NETWORK_CONNECTED_EVENT,
-						NULL, 0, portMAX_DELAY)) {
+				!= esp_event_post_to(_gn_default_conf->event_loop,
+						GN_BASE_EVENT, GN_NETWORK_CONNECTED_EVENT, NULL, 0,
+						portMAX_DELAY)) {
 			ESP_LOGE(TAG, "failed to send GN_NETWORK_DISCONNECTED_EVENT event");
 		}
 
@@ -373,9 +381,9 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		ESP_LOGI(TAG, "Disconnected. Connecting to the AP again.");
 
 		if (ESP_OK
-				!= esp_event_post_to(_gn_default_conf->event_loop, GN_BASE_EVENT,
-						GN_NETWORK_DISCONNECTED_EVENT,
-						NULL, 0, portMAX_DELAY)) {
+				!= esp_event_post_to(_gn_default_conf->event_loop,
+						GN_BASE_EVENT, GN_NETWORK_DISCONNECTED_EVENT, NULL, 0,
+						portMAX_DELAY)) {
 			ESP_LOGE(TAG, "failed to send GN_NETWORK_DISCONNECTED_EVENT event");
 		}
 
@@ -418,19 +426,25 @@ esp_err_t _gn_wifi_custom_prov_data_handler(uint32_t session_id,
 	return ESP_OK;
 }
 
-void _gn_init_wifi(gn_config_handle_t conf) {
+esp_err_t _gn_init_wifi(gn_config_handle_t conf) {
 
-	gn_log_message("Wifi Init");
+	esp_err_t ret = ESP_OK;
 
-	ESP_ERROR_CHECK(esp_netif_init());
+	ESP_GOTO_ON_ERROR(esp_netif_init(), fail, TAG, "");
+
 	_gn_event_group_wifi = xEventGroupCreate();
 
-	ESP_ERROR_CHECK(
-			esp_event_handler_register(WIFI_PROV_EVENT, ESP_EVENT_ANY_ID, &_gn_wifi_event_handler, NULL));
-	ESP_ERROR_CHECK(
-			esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &_gn_wifi_event_handler, NULL));
-	ESP_ERROR_CHECK(
-			esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &_gn_wifi_event_handler, NULL));
+	ESP_GOTO_ON_ERROR(
+			esp_event_handler_register(WIFI_PROV_EVENT, ESP_EVENT_ANY_ID, &_gn_wifi_event_handler, NULL),
+			fail, TAG, "");
+
+	ESP_GOTO_ON_ERROR(
+			esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &_gn_wifi_event_handler, NULL),
+			fail, TAG, "");
+
+	ESP_GOTO_ON_ERROR(
+			esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &_gn_wifi_event_handler, NULL),
+			fail, TAG, "");
 
 	esp_netif_create_default_wifi_sta();
 
@@ -441,7 +455,7 @@ void _gn_init_wifi(gn_config_handle_t conf) {
 	wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT()
 	;
 
-	ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+	ESP_GOTO_ON_ERROR(esp_wifi_init(&cfg), fail, TAG, "");
 
 	conf->wifi_config = cfg;
 
@@ -472,7 +486,7 @@ void _gn_init_wifi(gn_config_handle_t conf) {
 #endif /* CONFIG_GROWNODE_PROV_TRANSPORT_SOFTAP */
 			};
 
-	ESP_ERROR_CHECK(wifi_prov_mgr_init(config));
+	ESP_GOTO_ON_ERROR(wifi_prov_mgr_init(config), fail, TAG, "");
 
 	conf->prov_config = config;
 
@@ -483,7 +497,8 @@ void _gn_init_wifi(gn_config_handle_t conf) {
 #endif
 
 	/* Let's find out if the device is provisioned */
-	ESP_ERROR_CHECK(wifi_prov_mgr_is_provisioned(&provisioned));
+	ESP_GOTO_ON_ERROR(wifi_prov_mgr_is_provisioned(&provisioned), fail, TAG,
+			"");
 
 	/* If device is not yet provisioned start provisioning service */
 	if (!provisioned) {
@@ -547,9 +562,10 @@ void _gn_init_wifi(gn_config_handle_t conf) {
 		wifi_prov_mgr_endpoint_create("custom-data");
 
 		/* Start provisioning service */
-		ESP_ERROR_CHECK(
+
+		ESP_GOTO_ON_ERROR(
 				wifi_prov_mgr_start_provisioning(security, pop, service_name,
-						service_key));
+						service_key), fail, TAG, "");
 
 		/* The handler for the optional endpoint created above.
 		 * This call must be made after starting the provisioning, and only if the endpoint
@@ -576,10 +592,12 @@ void _gn_init_wifi(gn_config_handle_t conf) {
 	}
 
 	ESP_LOGI(TAG, "Wait for Wi-Fi connection");
-	gn_log_message("Connecting...");
+
 	/* Wait for Wi-Fi connection */
 	xEventGroupWaitBits(_gn_event_group_wifi, GN_WIFI_CONNECTED_EVENT, false,
 	true, portMAX_DELAY);
+
+	fail: return ret;
 
 }
 
@@ -598,7 +616,6 @@ esp_err_t _gn_init_time_sync(gn_config_handle_t conf) {
 	sntp_setoperatingmode(SNTP_OPMODE_POLL);
 	sntp_setservername(0, sntp_server_name);
 	sntp_init();
-	gn_log_message("Time sync");
 	time_sync_init_done = true;
 	return ESP_OK;
 
@@ -638,39 +655,60 @@ esp_err_t _gn_register_event_handlers(gn_config_handle_t conf) {
 
 gn_config_handle_t gn_init() {
 
+	esp_err_t ret = ESP_OK;
+
 	if (initialized)
 		return _gn_default_conf;
 
 	_gn_default_conf = _gn_create_config();
+	_gn_default_conf->status = GN_CONFIG_STATUS_INITIALIZING;
 
 	//init flash
-	_gn_init_flash(_gn_default_conf);
+	ESP_GOTO_ON_ERROR(_gn_init_flash(_gn_default_conf), err, TAG,
+			"error init flash: %s", esp_err_to_name(ret));
+
 	//init spiffs
-	_gn_init_spiffs(_gn_default_conf);
+	ESP_GOTO_ON_ERROR(_gn_init_spiffs(_gn_default_conf), err, TAG,
+			"error init spiffs: %s", esp_err_to_name(ret));
+
 	//init event loop
-	_gn_init_event_loop(_gn_default_conf);
+	ESP_GOTO_ON_ERROR(_gn_init_event_loop(_gn_default_conf), err, TAG,
+			"error init_event_loop: %s", esp_err_to_name(ret));
 
 	//register to events
-	_gn_register_event_handlers(_gn_default_conf);
+	ESP_GOTO_ON_ERROR(_gn_register_event_handlers(_gn_default_conf), err, TAG,
+			"error _gn_register_event_handlers: %s", esp_err_to_name(ret));
 
 	//init display
-	gn_init_display(_gn_default_conf);
-	//vTaskDelay(1000 / portTICK_PERIOD_MS);
+	ESP_GOTO_ON_ERROR(gn_init_display(_gn_default_conf), err, TAG,
+			"error on display init: %s", esp_err_to_name(ret));
 
 	//init wifi
-	_gn_init_wifi(_gn_default_conf);
-	//init time sync
-	_gn_init_time_sync(_gn_default_conf);
+	ESP_GOTO_ON_ERROR(_gn_init_wifi(_gn_default_conf), err_net, TAG,
+			"error on display init: %s", esp_err_to_name(ret));
+
+	//init time sync. note: if bad, continue
+	ESP_GOTO_ON_ERROR(_gn_init_time_sync(_gn_default_conf), err_timesync, TAG,
+			"error on time sync init: %s", esp_err_to_name(ret));
+
+	err_timesync:
 	//init mqtt system
-	if (ESP_OK != _gn_mqtt_init(_gn_default_conf)) {
-		_gn_default_conf->status = GN_CONFIG_STATUS_SERVER_ERROR;
-		goto fail;
-	}
+	ESP_GOTO_ON_ERROR(_gn_mqtt_init(_gn_default_conf), err_srv, TAG,
+			"error on server init: %s", esp_err_to_name(ret));
 
 	_gn_default_conf->status = GN_CONFIG_STATUS_OK;
 	initialized = true;
+	return _gn_default_conf;
 
-	fail: return _gn_default_conf;
+	err: _gn_default_conf->status = GN_CONFIG_STATUS_ERROR;
+	return _gn_default_conf;
+
+	err_net: _gn_default_conf->status = GN_CONFIG_STATUS_NETWORK_ERROR;
+	return _gn_default_conf;
+
+	err_srv: _gn_default_conf->status = GN_CONFIG_STATUS_SERVER_ERROR;
+	return _gn_default_conf;
+
 
 }
 
