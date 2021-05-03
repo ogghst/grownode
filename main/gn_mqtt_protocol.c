@@ -26,8 +26,8 @@ static const char *TAG = "gn_mqtt";
 #define _GN_MQTT_DEFAULT_QOS 0
 
 EventGroupHandle_t _gn_event_group_mqtt;
-const int _GN_MQTT_CONNECTED_OK_EVENT = BIT0;
-const int _GN_MQTT_CONNECTED_KO_EVENT = BIT1;
+const int _GN_MQTT_CONNECTED_OK_EVENT_BIT = BIT0;
+const int _GN_MQTT_CONNECTED_KO_EVENT_BIT = BIT1;
 
 gn_config_handle_t _config; //TODO shared pointer, dangerous
 
@@ -135,18 +135,38 @@ esp_err_t _gn_mqtt_on_connected(gn_config_handle_t config) {
 		goto fail;
 	}
 
+	if (ESP_OK
+			!= esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
+					GN_SERVER_CONNECTED_EVENT,
+					NULL, 0, portMAX_DELAY)) {
+		ESP_LOGE(TAG, "failed to send GN_SERVER_CONNECTED_EVENT event");
+		goto fail;
+	}
+
 	//stop waiting for mqtt
-	return xEventGroupSetBits(_gn_event_group_mqtt, _GN_MQTT_CONNECTED_OK_EVENT);
+	return xEventGroupSetBits(_gn_event_group_mqtt,
+			_GN_MQTT_CONNECTED_OK_EVENT_BIT);
 
 	fail:
 	//stop waiting for mqtt
-	xEventGroupSetBits(_gn_event_group_mqtt, _GN_MQTT_CONNECTED_KO_EVENT);
+	xEventGroupSetBits(_gn_event_group_mqtt, _GN_MQTT_CONNECTED_KO_EVENT_BIT);
 	return ESP_FAIL;
 }
 
 esp_err_t _gn_mqtt_on_disconnected(esp_mqtt_client_handle_t client) {
 
-	return xEventGroupSetBits(_gn_event_group_mqtt, _GN_MQTT_CONNECTED_KO_EVENT);
+	if (ESP_OK
+			!= esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
+					GN_SERVER_DISCONNECTED_EVENT,
+					NULL, 0, portMAX_DELAY)) {
+		ESP_LOGE(TAG, "failed to send GN_SERVER_DISCONNECTED_EVENT event");
+		goto fail;
+	}
+
+	fail:
+	//stop waiting for mqtt
+	xEventGroupSetBits(_gn_event_group_mqtt, _GN_MQTT_CONNECTED_KO_EVENT_BIT);
+	return ESP_FAIL;
 
 }
 
@@ -218,7 +238,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 					event->error_handle->esp_transport_sock_errno);
 			ESP_LOGI(TAG, "Last errno string (%s)",
 					strerror(event->error_handle->esp_transport_sock_errno));
-
+			_gn_mqtt_on_disconnected(client);
 		}
 		break;
 	default:
@@ -231,7 +251,7 @@ esp_err_t _gn_mqtt_init(gn_config_handle_t conf) {
 
 	_gn_event_group_mqtt = xEventGroupCreate();
 
-	esp_mqtt_client_config_t mqtt_cfg = { .uri = "mqtt://192.168.1.10" };//TODO CONFIG_GROWNODE_MQTT_URL };
+	esp_mqtt_client_config_t mqtt_cfg = { .uri = CONFIG_GROWNODE_MQTT_URL };
 
 	esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
 
@@ -258,10 +278,11 @@ esp_err_t _gn_mqtt_init(gn_config_handle_t conf) {
 
 	EventBits_t uxBits;
 	uxBits = xEventGroupWaitBits(_gn_event_group_mqtt,
-			_GN_MQTT_CONNECTED_OK_EVENT | _GN_MQTT_CONNECTED_KO_EVENT, pdTRUE,
+			_GN_MQTT_CONNECTED_OK_EVENT_BIT | _GN_MQTT_CONNECTED_KO_EVENT_BIT,
+			pdTRUE,
 			pdFALSE, portMAX_DELAY);
 
-	if ((uxBits & _GN_MQTT_CONNECTED_OK_EVENT) != 0) {
+	if ((uxBits & _GN_MQTT_CONNECTED_OK_EVENT_BIT) != 0) {
 		ESP_LOGI(TAG, "MQTT client handshake successful");
 		//publish server connected event
 		if (ESP_OK
@@ -275,7 +296,7 @@ esp_err_t _gn_mqtt_init(gn_config_handle_t conf) {
 		return ESP_OK;
 	}
 
-	if ((uxBits & _GN_MQTT_CONNECTED_KO_EVENT) != 0) {
+	if ((uxBits & _GN_MQTT_CONNECTED_KO_EVENT_BIT) != 0) {
 		ESP_LOGE(TAG, "MQTT client handshake error");
 		//publish server disconnected event
 		if (ESP_OK

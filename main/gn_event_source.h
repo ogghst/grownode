@@ -20,7 +20,7 @@ extern "C" {
 // Declare an event base
 ESP_EVENT_DECLARE_BASE (GN_BASE_EVENT);
 
-#define GN_EVENT_ANY_ID       -1
+#define GN_EVENT_ANY_ID       ESP_EVENT_ANY_ID
 
 typedef enum  {
 	GN_LEAF_ADDED_EVENT,

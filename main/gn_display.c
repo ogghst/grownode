@@ -31,7 +31,8 @@ lv_obj_t *statusLabel[10];
 char rawMessages[10][30];
 int rawIdx = 0;
 
-lv_obj_t *network_status_label, *server_status_label;
+//lv_obj_t *network_status_label, *server_status_label;
+lv_obj_t *network_led, *server_led;
 
 bool _initialized = false;
 
@@ -114,16 +115,20 @@ void _gn_display_net_mqtt_handler(void *handler_args, esp_event_base_t base,
 
 		switch (id) {
 		case GN_NETWORK_CONNECTED_EVENT:
-			lv_label_set_text(network_status_label, "NET OK");
+			//lv_label_set_text(network_status_label, "NET OK");
+			lv_led_on(network_led);
 			break;
 		case GN_NETWORK_DISCONNECTED_EVENT:
-			lv_label_set_text(network_status_label, "NET KO");
+			//lv_label_set_text(network_status_label, "NET KO");
+			lv_led_off(network_led);
 			break;
 		case GN_SERVER_CONNECTED_EVENT:
-			lv_label_set_text(server_status_label, "SRV OK");
+			//lv_label_set_text(server_status_label, "SRV OK");
+			lv_led_on(server_led);
 			break;
 		case GN_SERVER_DISCONNECTED_EVENT:
-			lv_label_set_text(server_status_label, "SRV_KO");
+			//lv_label_set_text(server_status_label, "SRV_KO");
+			lv_led_off(server_led);
 			break;
 		}
 
@@ -171,6 +176,12 @@ void _gn_display_create_gui() {
 	lv_style_set_border_width(&style_btn, LV_STATE_DEFAULT, 1);
 	lv_style_set_pad_all(&style_btn, LV_STATE_DEFAULT, 5);
 	lv_style_set_radius(&style_btn, LV_STATE_DEFAULT, 5);
+
+	static lv_style_t style_led;
+	lv_style_init(&style_led);
+	lv_style_copy(&style_led, &style);
+	lv_style_set_bg_opa(&style_led, LV_STATE_DEFAULT, LV_OPA_COVER);
+	lv_style_set_bg_color(&style_led, LV_STATE_DEFAULT, LV_COLOR_GREEN);
 
 	//main container
 	lv_obj_t *cont = lv_cont_create(scr, NULL);
@@ -266,6 +277,21 @@ void _gn_display_create_gui() {
 
 	//TODO change to a connection icon
 
+
+
+	network_led = lv_led_create(bottom_cont, NULL);
+	lv_obj_add_style(network_led, LV_LED_PART_MAIN, &style_led);
+	lv_obj_align(network_led, bottom_cont, LV_ALIGN_IN_BOTTOM_RIGHT, 0, 0);
+	lv_obj_set_size(network_led, 10, 10);
+	lv_led_off(network_led);
+
+	server_led = lv_led_create(bottom_cont, NULL);
+	lv_obj_add_style(server_led, LV_LED_PART_MAIN, &style_led);
+	lv_obj_align(server_led, bottom_cont, LV_ALIGN_IN_BOTTOM_RIGHT, 0, 0);
+	lv_obj_set_size(server_led, 10, 10);
+	lv_led_off(server_led);
+
+	/*
 	//network status
 	network_status_label = lv_label_create(bottom_cont, NULL);
 	lv_obj_add_style(network_status_label, LV_LABEL_PART_MAIN, &style);
@@ -281,7 +307,7 @@ void _gn_display_create_gui() {
 			0);
 	lv_obj_set_width_fit(server_status_label, LV_FIT_MAX);
 	lv_label_set_text(server_status_label, "SRV KO");
-
+	*/
 }
 
 void _gn_display_gui_task(void *pvParameter) {

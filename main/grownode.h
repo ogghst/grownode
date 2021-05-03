@@ -21,6 +21,10 @@ extern "C" {
 #include "wifi_provisioning/scheme_softap.h"
 #endif /* CONFIG_GROWNODE_PROV_TRANSPORT_SOFTAP */
 
+
+extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
+extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
+
 #define GN_MEM_NAME_SIZE 32
 
 typedef enum {

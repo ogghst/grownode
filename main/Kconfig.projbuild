@@ -22,6 +22,12 @@ menu "GrowNode Configuration"
     config GROWNODE_RESET_PROVISIONED
     	bool "Reset Provisioning Status at every startup"
     	default false
+    	
+   	config GROWNODE_PROV_SOFTAP_PREFIX
+    	string "SoftAP Prefix"
+    	default "GROWNODE_"
+    	help
+    		Name of the WiFi Network. the final will be prefix+"-"+6 MAC address letters
 
    	config GROWNODE_FIRMWARE_URL
     	string "Firmware URL"
