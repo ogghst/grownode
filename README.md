@@ -35,11 +35,11 @@ Every node provides some basic services
 - NTP clock sync
 - Client/Server and Client/Client network configuration and high level messaging protocol, having in mind highly distributed environment (mesh networks, cloud communication)
 
-## How to use example
+# How to use example
 
 add lvgl (release/v7) and lvgl_esp32_drivers (master) as components as specified here: [esp32 port](https://github.com/lvgl/lv_port_esp32)
 
-## Sample code
+# Sample code
 
     
 
