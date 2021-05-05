@@ -34,7 +34,7 @@ typedef enum  {
 	GN_NET_MSG_RECV,
 
 	GN_NET_OTA_START,
-	GN_NET_RESET_START
+	GN_NET_RST_START
 
 } gn_event_id_t;
 

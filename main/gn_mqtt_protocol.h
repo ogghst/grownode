@@ -17,6 +17,7 @@ extern "C" {
 
 
 #define GN_MQTT_MAX_TOPIC_LENGTH 80
+#define GN_MQTT_MAX_PAYLOAD_LENGTH 255
 
 #define GN_MQTT_COMMAND_MESS "cmd"
 

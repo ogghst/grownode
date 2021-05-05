@@ -60,7 +60,7 @@ void _gn_display_btn_rst_event_handler(lv_obj_t *obj, lv_event_t event) {
 		ESP_LOGI(TAG, "_gn_display_btn_rst_event_handler - clicked");
 
 		ESP_ERROR_CHECK(
-				esp_event_post_to(_config->event_loop, GN_BASE_EVENT, GN_NET_RESET_START, NULL, 0, portMAX_DELAY));
+				esp_event_post_to(_config->event_loop, GN_BASE_EVENT, GN_NET_RST_START, NULL, 0, portMAX_DELAY));
 
 		ESP_LOGI(TAG, "_gn_display_btn_rst_event_handler - sent event");
 
@@ -167,6 +167,7 @@ void _gn_display_create_gui() {
 	lv_style_init(&style_btn);
 	lv_style_copy(&style_btn, &style);
 	lv_style_set_bg_opa(&style_btn, LV_STATE_DEFAULT, LV_OPA_COVER);
+
 	lv_style_set_bg_color(&style_btn, LV_STATE_DEFAULT, LV_COLOR_BLACK);
 	lv_style_set_text_color(&style_btn, LV_STATE_DEFAULT, LV_COLOR_WHITE);
 	lv_style_set_bg_color(&style_btn, LV_STATE_PRESSED, LV_COLOR_GREEN);
@@ -181,7 +182,9 @@ void _gn_display_create_gui() {
 	lv_style_init(&style_led);
 	lv_style_copy(&style_led, &style);
 	lv_style_set_bg_opa(&style_led, LV_STATE_DEFAULT, LV_OPA_COVER);
-	lv_style_set_bg_color(&style_led, LV_STATE_DEFAULT, LV_COLOR_GREEN);
+	lv_style_set_bg_color(&style_led, LV_STATE_DEFAULT,  LV_COLOR_GREEN);
+	lv_style_set_border_color(&style_led, LV_STATE_DEFAULT, LV_COLOR_GREEN);
+	lv_style_set_border_width(&style_led, LV_STATE_DEFAULT, 1);
 
 	//main container
 	lv_obj_t *cont = lv_cont_create(scr, NULL);
@@ -275,21 +278,19 @@ void _gn_display_create_gui() {
 	label_rst = lv_label_create(btn_rst, NULL);
 	lv_label_set_text(label_rst, "RST");
 
-	//TODO change to a connection icon
-
-
-
 	network_led = lv_led_create(bottom_cont, NULL);
 	lv_obj_add_style(network_led, LV_LED_PART_MAIN, &style_led);
 	lv_obj_align(network_led, bottom_cont, LV_ALIGN_IN_BOTTOM_RIGHT, 0, 0);
 	lv_obj_set_size(network_led, 10, 10);
+	lv_led_set_bright(network_led, 255);
 	lv_led_off(network_led);
 
 	server_led = lv_led_create(bottom_cont, NULL);
 	lv_obj_add_style(server_led, LV_LED_PART_MAIN, &style_led);
 	lv_obj_align(server_led, bottom_cont, LV_ALIGN_IN_BOTTOM_RIGHT, 0, 0);
 	lv_obj_set_size(server_led, 10, 10);
-	lv_led_off(server_led);
+	lv_led_set_bright(server_led, 255);
+	lv_led_on(server_led);
 
 	/*
 	//network status

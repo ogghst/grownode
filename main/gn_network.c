@@ -92,12 +92,13 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		char log[33]; //TODO make configurable lenght
 
 		uint8_t eth_mac[6];
-		const char ssid_prefix[10] = "GROWNODE_"; //TODO make configurable prefix
+		const char ssid_prefix[10] = CONFIG_GROWNODE_PROV_SOFTAP_PREFIX;
 		esp_wifi_get_mac(WIFI_IF_STA, eth_mac);
 		char deviceName[17];
 		snprintf(deviceName, 16, "%s%02X%02X%02X", ssid_prefix, eth_mac[3],
 				eth_mac[4], eth_mac[5]);
 
+		memcpy(_conf->macAddress, eth_mac, 6);
 		strcpy(_conf->deviceName, deviceName);
 
 		sprintf(log, "%s-%d.%d.%d.%d", deviceName, IP2STR(&event->ip_info.ip));

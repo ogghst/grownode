@@ -32,6 +32,7 @@ extern "C" {
 #include "esp_https_ota.h"
 //#include "esp_smartconfig.h"
 
+
 #include "nvs_flash.h"
 
 #include "driver/gpio.h"
@@ -289,7 +290,7 @@ esp_err_t _gn_register_event_handlers(gn_config_handle_t conf) {
 			esp_event_handler_instance_register_with(conf->event_loop, GN_BASE_EVENT, GN_NET_OTA_START, _gn_evt_ota_start_handler, NULL, NULL));
 
 	ESP_ERROR_CHECK(
-			esp_event_handler_instance_register_with(conf->event_loop, GN_BASE_EVENT, GN_NET_RESET_START, _gn_evt_reset_start_handler, NULL, NULL));
+			esp_event_handler_instance_register_with(conf->event_loop, GN_BASE_EVENT, GN_NET_RST_START, _gn_evt_reset_start_handler, NULL, NULL));
 
 	return ESP_OK;
 

@@ -43,6 +43,7 @@ typedef struct {
 	wifi_init_config_t wifi_config;
 	wifi_prov_mgr_config_t prov_config;
 	char deviceName[30];
+	uint8_t macAddress[6];
 	gn_config_status_t status;
 } gn_config_t;
 
