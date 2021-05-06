@@ -24,10 +24,15 @@ extern "C" {
 
 static const char *TAG = "gn_mqtt";
 
-#define _GN_MQTT_DEFAULT_QOS 0
+#define _GN_MQTT_MAX_TOPIC_LENGTH 80
+#define _GN_MQTT_MAX_PAYLOAD_LENGTH 255
 
+#define _GN_MQTT_COMMAND_MESS "cmd"
+#define _GN_MQTT_STATUS_MESS "sts"
 #define _GN_MQTT_PAYLOAD_RST "RST"
 #define _GN_MQTT_PAYLOAD_OTA "OTA"
+
+#define _GN_MQTT_DEFAULT_QOS 0
 
 EventGroupHandle_t _gn_event_group_mqtt;
 const int _GN_MQTT_CONNECTED_OK_EVENT_BIT = BIT0;
@@ -35,16 +40,31 @@ const int _GN_MQTT_CONNECTED_KO_EVENT_BIT = BIT1;
 
 gn_config_handle_t _config; //TODO shared pointer, dangerous
 
-char _gn_cmd_topic[GN_MQTT_MAX_TOPIC_LENGTH],
-		_gn_sts_topic[GN_MQTT_MAX_TOPIC_LENGTH];
+char _gn_cmd_topic[_GN_MQTT_MAX_TOPIC_LENGTH],
+		_gn_sts_topic[_GN_MQTT_MAX_TOPIC_LENGTH];
 
 char __mac[13];
+
+typedef struct {
+	gn_config_handle_t config;
+	char topic[_GN_MQTT_MAX_TOPIC_LENGTH];
+} gn_mqtt_startup_message_t;
+
+typedef gn_mqtt_startup_message_t *gn_mqtt_startup_message_handle_t;
+
+typedef struct {
+	gn_node_config_handle_t config;
+	char topic[_GN_MQTT_MAX_TOPIC_LENGTH];
+	char nodeName[30];
+} gn_mqtt_node_config_message_t;
+
+typedef gn_mqtt_node_config_message_t *gn_mqtt_node_config_message_handle_t;
 
 void _gn_mqtt_build_leaf_command_topic(gn_leaf_config_handle_t leaf_config,
 		char *buf) {
 
-	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, "/", GN_MQTT_MAX_TOPIC_LENGTH);
+	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_MAX_TOPIC_LENGTH);
+	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X",
 			leaf_config->node_config->config->macAddress[0],
 			leaf_config->node_config->config->macAddress[1],
@@ -53,18 +73,18 @@ void _gn_mqtt_build_leaf_command_topic(gn_leaf_config_handle_t leaf_config,
 			leaf_config->node_config->config->macAddress[4],
 			leaf_config->node_config->config->macAddress[5]);
 	strncat(buf, __mac, 12);
-	strncat(buf, "/", GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, leaf_config->name, GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, "/", GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, GN_MQTT_COMMAND_MESS, GN_MQTT_MAX_TOPIC_LENGTH);
-	buf[GN_MQTT_MAX_TOPIC_LENGTH - 1] = '\0';
+	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
+	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
+	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
+	strncat(buf, _GN_MQTT_COMMAND_MESS, _GN_MQTT_MAX_TOPIC_LENGTH);
+	buf[_GN_MQTT_MAX_TOPIC_LENGTH - 1] = '\0';
 
 }
 
 void _gn_mqtt_build_leaf_status_topic(gn_leaf_config_handle_t leaf_config,
 		char *buf) {
-	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, "/", GN_MQTT_MAX_TOPIC_LENGTH);
+	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_MAX_TOPIC_LENGTH);
+	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X",
 			leaf_config->node_config->config->macAddress[0],
 			leaf_config->node_config->config->macAddress[1],
@@ -73,37 +93,37 @@ void _gn_mqtt_build_leaf_status_topic(gn_leaf_config_handle_t leaf_config,
 			leaf_config->node_config->config->macAddress[4],
 			leaf_config->node_config->config->macAddress[5]);
 	strncat(buf, __mac, 12);
-	strncat(buf, "/", GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, leaf_config->name, GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, "/", GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, GN_MQTT_STATUS_MESS, GN_MQTT_MAX_TOPIC_LENGTH);
-	buf[GN_MQTT_MAX_TOPIC_LENGTH - 1] = '\0';
+	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
+	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
+	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
+	strncat(buf, _GN_MQTT_STATUS_MESS, _GN_MQTT_MAX_TOPIC_LENGTH);
+	buf[_GN_MQTT_MAX_TOPIC_LENGTH - 1] = '\0';
 
 }
 
 void _gn_mqtt_build_status_topic(gn_config_handle_t config, char *buf) {
-	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, "/", GN_MQTT_MAX_TOPIC_LENGTH);
+	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_MAX_TOPIC_LENGTH);
+	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X", config->macAddress[0],
 			config->macAddress[1], config->macAddress[2], config->macAddress[3],
 			config->macAddress[4], config->macAddress[5]);
 	strncat(buf, __mac, 12);
-	strncat(buf, "/", GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, GN_MQTT_STATUS_MESS, GN_MQTT_MAX_TOPIC_LENGTH);
-	buf[GN_MQTT_MAX_TOPIC_LENGTH - 1] = '\0';
+	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
+	strncat(buf, _GN_MQTT_STATUS_MESS, _GN_MQTT_MAX_TOPIC_LENGTH);
+	buf[_GN_MQTT_MAX_TOPIC_LENGTH - 1] = '\0';
 
 }
 
 void _gn_mqtt_build_command_topic(gn_config_handle_t config, char *buf) {
-	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, "/", GN_MQTT_MAX_TOPIC_LENGTH);
+	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_MAX_TOPIC_LENGTH);
+	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X", config->macAddress[0],
 			config->macAddress[1], config->macAddress[2], config->macAddress[3],
 			config->macAddress[4], config->macAddress[5]);
 	strncat(buf, __mac, 12);
-	strncat(buf, "/", GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, GN_MQTT_COMMAND_MESS, GN_MQTT_MAX_TOPIC_LENGTH);
-	buf[GN_MQTT_MAX_TOPIC_LENGTH - 1] = '\0';
+	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
+	strncat(buf, _GN_MQTT_COMMAND_MESS, _GN_MQTT_MAX_TOPIC_LENGTH);
+	buf[_GN_MQTT_MAX_TOPIC_LENGTH - 1] = '\0';
 
 }
 
@@ -111,7 +131,7 @@ esp_err_t _gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t leaf_config) {
 
 	ESP_LOGI(TAG, "subscribing leaf");
 
-	char topic[GN_MQTT_MAX_TOPIC_LENGTH];
+	char topic[_GN_MQTT_MAX_TOPIC_LENGTH];
 	_gn_mqtt_build_leaf_status_topic(leaf_config, topic);
 
 	ESP_LOGI(TAG, "esp_mqtt_client_subscribe. topic: %s", topic);
@@ -125,6 +145,59 @@ esp_err_t _gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t leaf_config) {
 
 }
 
+esp_err_t _gn_mqtt_send_node_config(gn_node_config_handle_t config) {
+
+	//TODO merge in just one status message to be sent every time there is a change
+	int ret = ESP_OK;
+
+	//build
+	gn_mqtt_node_config_message_handle_t msg =
+			(gn_mqtt_node_config_message_handle_t) malloc(
+					sizeof(gn_mqtt_node_config_message_t));
+
+	msg->config = config;
+	strncpy(msg->topic, _gn_sts_topic, _GN_MQTT_MAX_TOPIC_LENGTH);
+
+	//payload
+	int msg_id = -1;
+	char *buf = (char*) malloc(_GN_MQTT_MAX_PAYLOAD_LENGTH * sizeof(char));
+
+	cJSON *root, *leaves, *leaf, *leaf_name;
+	root = cJSON_CreateObject();
+	cJSON_AddStringToObject(root, "name", msg->config->name); //TODO grab network name
+	leaves = cJSON_CreateArray();
+	cJSON_AddItemToObject(root, "leaves", leaves);
+	for (int i = 0; i < config->leaves.last; i++) {
+		leaf = cJSON_CreateObject();
+		cJSON_AddItemToArray(leaves, leaf);
+		leaf_name = cJSON_CreateString(config->leaves.at[i]->name);
+		cJSON_AddItemToObject(leaf, "name", leaf_name);
+	}
+	if (!cJSON_PrintPreallocated(root, buf, _GN_MQTT_MAX_PAYLOAD_LENGTH,
+	false)) {
+		ESP_LOGE(TAG, "_gn_create_startup_message: cannot print json message");
+		goto fail;
+		return ESP_FAIL;
+	}
+
+	cJSON_Delete(root);
+
+	//publish
+	msg_id = esp_mqtt_client_publish(msg->config->config->mqtt_client,
+			msg->topic, buf, 0, 2, 0);
+	ESP_LOGD(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s",
+			msg_id, msg->topic, buf);
+
+	fail: {
+		free(buf);
+		free(msg);
+		return ((msg_id == -1) ? (ESP_FAIL) : (ESP_OK));
+	}
+
+	return ret;
+
+}
+
 esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t config) {
 
 	//build
@@ -132,16 +205,16 @@ esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t config) {
 			(gn_mqtt_startup_message_handle_t) malloc(
 					sizeof(gn_mqtt_startup_message_t));
 	msg->config = config;
-	strncpy(msg->topic, _gn_sts_topic, GN_MQTT_MAX_TOPIC_LENGTH);
+	strncpy(msg->topic, _gn_sts_topic, _GN_MQTT_MAX_TOPIC_LENGTH);
 
 	//payload
 	int msg_id = -1;
-	char *buf = (char*) malloc(GN_MQTT_MAX_PAYLOAD_LENGTH * sizeof(char)); //TODO guess, depending on mqtt message. maybe better go with internal allocation?
+	char *buf = (char*) malloc(_GN_MQTT_MAX_PAYLOAD_LENGTH * sizeof(char));
 
 	cJSON *root;
 	root = cJSON_CreateObject();
 	cJSON_AddStringToObject(root, "deviceName", msg->config->deviceName); //TODO grab network name
-	if (!cJSON_PrintPreallocated(root, buf, GN_MQTT_MAX_PAYLOAD_LENGTH,
+	if (!cJSON_PrintPreallocated(root, buf, _GN_MQTT_MAX_PAYLOAD_LENGTH,
 	false)) {
 		ESP_LOGE(TAG, "_gn_create_startup_message: cannot print json message");
 		goto fail;
@@ -152,7 +225,7 @@ esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t config) {
 	//publish
 	msg_id = esp_mqtt_client_publish(msg->config->mqtt_client, msg->topic, buf,
 			0, 2, 0);
-	ESP_LOGI(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s",
+	ESP_LOGD(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s",
 			msg_id, msg->topic, buf);
 
 	fail: {
@@ -169,11 +242,11 @@ esp_err_t _gn_mqtt_on_connected(gn_config_handle_t config) {
 
 	if (msg_id == -1) {
 		ESP_LOGE(TAG, "error subscribing default topic %s, msg_id=%d",
-				CONFIG_GROWNODE_MQTT_BASE_TOPIC, msg_id);
+				_gn_cmd_topic, msg_id);
 		goto fail;
 	}
-	ESP_LOGI(TAG, "subscribing default topic %s, msg_id=%d",
-			CONFIG_GROWNODE_MQTT_BASE_TOPIC, msg_id);
+	ESP_LOGD(TAG, "subscribing default topic %s, msg_id=%d", _gn_cmd_topic,
+			msg_id);
 
 	//send hello message
 	if (ESP_OK != _gn_mqtt_send_startup_message(config)) {
@@ -225,50 +298,50 @@ void log_error_if_nonzero(const char *message, int error_code) {
 void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 		int32_t event_id, void *event_data) {
 
-	ESP_LOGI(TAG, "Event dispatched from event loop base=%s, event_id=%d", base,
+	ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%d", base,
 			event_id);
 	esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t) event_data;
 	esp_mqtt_client_handle_t client = event->client;
 	//int msg_id;
 	switch ((esp_mqtt_event_id_t) event_id) {
 	case MQTT_EVENT_CONNECTED:
-		ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
+		ESP_LOGD(TAG, "MQTT_EVENT_CONNECTED");
 		_gn_mqtt_on_connected(_config); //TODO find a better way to get context, here the event mqtt client is not taken in consideration
 
 		/*
 		 msg_id = esp_mqtt_client_publish(client, "/topic/qos1", "data_3", 0, 1,
 		 0);
-		 ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
+		 ESP_LOGD(TAG, "sent publish successful, msg_id=%d", msg_id);
 
 		 msg_id = esp_mqtt_client_subscribe(client, "/topic/qos0", 0);
-		 ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
+		 ESP_LOGD(TAG, "sent subscribe successful, msg_id=%d", msg_id);
 
 		 msg_id = esp_mqtt_client_subscribe(client, "/topic/qos1", 1);
-		 ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
+		 ESP_LOGD(TAG, "sent subscribe successful, msg_id=%d", msg_id);
 
 		 msg_id = esp_mqtt_client_unsubscribe(client, "/topic/qos1");
-		 ESP_LOGI(TAG, "sent unsubscribe successful, msg_id=%d", msg_id);
+		 ESP_LOGD(TAG, "sent unsubscribe successful, msg_id=%d", msg_id);
 		 */
 		break;
 	case MQTT_EVENT_DISCONNECTED:
-		ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
+		ESP_LOGD(TAG, "MQTT_EVENT_DISCONNECTED");
 		_gn_mqtt_on_disconnected(client);
 		break;
 
 	case MQTT_EVENT_SUBSCRIBED:
-		ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
+		ESP_LOGD(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
 		break;
 	case MQTT_EVENT_UNSUBSCRIBED:
-		ESP_LOGI(TAG, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
+		ESP_LOGD(TAG, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
 		break;
 	case MQTT_EVENT_PUBLISHED:
-		ESP_LOGI(TAG, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
+		ESP_LOGD(TAG, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
 		break;
 	case MQTT_EVENT_DATA:
 		//TODO here the code to forward the call to appropriate node/leaf or system handler. start from remote OTA and RST
-		ESP_LOGI(TAG, "MQTT_EVENT_DATA");
-		ESP_LOGI(TAG, "TOPIC=%.*s\r\n", event->topic_len, event->topic);
-		ESP_LOGI(TAG, "DATA=%.*s\r\n", event->data_len, event->data);
+		ESP_LOGD(TAG, "MQTT_EVENT_DATA");
+		ESP_LOGD(TAG, "TOPIC=%.*s\r\n", event->topic_len, event->topic);
+		ESP_LOGD(TAG, "DATA=%.*s\r\n", event->data_len, event->data);
 
 		if (strncmp(event->topic, _gn_cmd_topic, event->topic_len) == 0) {
 			//device message
@@ -291,7 +364,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 
 		break;
 	case MQTT_EVENT_ERROR:
-		ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
+		ESP_LOGD(TAG, "MQTT_EVENT_ERROR");
 		if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT) {
 			log_error_if_nonzero("reported from esp-tls",
 					event->error_handle->esp_tls_last_esp_err);
@@ -299,13 +372,13 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 					event->error_handle->esp_tls_stack_err);
 			log_error_if_nonzero("captured as transport's socket errno",
 					event->error_handle->esp_transport_sock_errno);
-			ESP_LOGI(TAG, "Last errno string (%s)",
+			ESP_LOGD(TAG, "Last errno string (%s)",
 					strerror(event->error_handle->esp_transport_sock_errno));
 			_gn_mqtt_on_disconnected(client);
 		}
 		break;
 	default:
-		ESP_LOGI(TAG, "Other event id:%d", event->event_id);
+		ESP_LOGD(TAG, "Other event id:%d", event->event_id);
 		break;
 	}
 

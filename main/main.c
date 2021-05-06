@@ -20,32 +20,38 @@ void app_main(void) {
 		ESP_LOGI("main", "main loop");
 	}
 
+	gn_node_config_handle_t node_config = gn_create_node(config, "node");
+
+	if (node_config == NULL) {
+		ESP_LOGE("main", "node creation error");
+		goto fail;
+	}
+
+	ESP_LOGI("main", "gn_create_node, name %s", node_config->name);
+
 	gn_log_message("initialized");
 
-	char *c = malloc(sizeof(char) * 100);
-
-	for (int i = 0; i < 2; i++) {
-
-		gn_node_config_handle_t node_config = gn_create_node(config, "node");
-
-		if (node_config == NULL)
-			break;
-
-		ESP_LOGI("main", "gn_create_node %d, name %s", i, node_config->name);
+	for (int i = 0; i < 6; i++) {
 
 		//create new leaf, controlling pump
 		gn_leaf_config_handle_t pump_config = gn_create_leaf(node_config,
 				"pump", gn_pump_callback);
 
-		ESP_LOGI("main", "gn_create_leaf %s on node %i with name %s",
-				pump_config->name, i, pump_config->node_config->name);
+		if (pump_config == NULL) {
+			ESP_LOGE("main", "leaf creation error");
+			goto fail;
+		}
 
-		gn_pump_init(pump_config);
-		gn_log_message("Created Pump");
+		ESP_LOGI("main", "gn_create_leaf number %i - name %s on node %s", i,
+				pump_config->name, pump_config->node_config->name);
+
+		ESP_ERROR_CHECK(gn_init_leaf(pump_config));
 
 	}
 
-	free(c);
+	gn_publish_node(node_config);
+
+	fail:
 
 	while (true) {
 		vTaskDelay(10000 / portTICK_PERIOD_MS);

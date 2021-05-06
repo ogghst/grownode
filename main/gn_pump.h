@@ -17,7 +17,7 @@ extern "C" {
 
 void gn_pump_init(gn_leaf_config_handle_t config);
 
-void gn_pump_callback(gn_event_handle_t event, void* event_data);
+void gn_pump_callback(gn_event_id_t event, void* event_data);
 
 #ifdef __cplusplus
 }

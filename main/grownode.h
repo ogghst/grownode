@@ -21,7 +21,6 @@ extern "C" {
 #include "wifi_provisioning/scheme_softap.h"
 #endif /* CONFIG_GROWNODE_PROV_TRANSPORT_SOFTAP */
 
-
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
@@ -57,35 +56,71 @@ typedef struct {
 
 typedef gn_event_t *gn_event_handle_t;
 
-typedef void (*gn_event_callback_t)(gn_event_handle_t event, void *event_data);
+typedef void (*gn_event_callback_t)(gn_event_id_t event, void *event_data);
 
-typedef struct {
-	char *name;
-	esp_event_loop_handle_t event_loop;
-	gn_config_handle_t config;
-} gn_node_config_t;
-
+typedef struct __gn_node_config_t gn_node_config_t;
 typedef gn_node_config_t *gn_node_config_handle_t;
 
+typedef struct __gn_leaf_config_t gn_leaf_config_t;
+typedef gn_leaf_config_t *gn_leaf_config_handle_t;
+
 typedef struct {
+	size_t size;
+	size_t last;
+	gn_leaf_config_handle_t* at;
+} gn_leaves_list;
+
+struct __gn_node_config_t {
+	char *name;
+	//esp_event_loop_handle_t event_loop;
+	gn_config_handle_t config;
+	gn_leaves_list leaves;
+};
+
+struct __gn_leaf_config_t {
 	char *name;
 	gn_node_config_handle_t node_config;
 	gn_event_callback_t callback;
-} gn_leaf_config_t;
+};
 
-typedef gn_leaf_config_t *gn_leaf_config_handle_t;
+/*
+ typedef struct {
+ char *name;
+ esp_event_loop_handle_t event_loop;
+ gn_config_handle_t config;
+ gn_leaf_config_handle_t leaf;
+ } gn_node_config_t;
 
+
+ typedef gn_node_config_t *gn_node_config_handle_t;
+
+
+ typedef struct {
+ char *name;
+ gn_node_config_handle_t node_config;
+ gn_event_callback_t callback;
+ gn_leaf_config_handle_t next;
+ } gn_leaf_config_t;
+
+ typedef gn_leaf_config_t *gn_leaf_config_handle_t;
+ */
+
+//functions
 gn_node_config_handle_t gn_create_node(gn_config_handle_t config,
 		const char *name);
 
 esp_err_t gn_destroy_node(gn_node_config_handle_t node);
+
+esp_err_t gn_publish_node(gn_node_config_handle_t node);
+
+gn_config_handle_t gn_init();
 
 gn_leaf_config_handle_t gn_create_leaf(gn_node_config_handle_t node_config,
 		const char *name, gn_event_callback_t callback);
 
 esp_err_t gn_destroy_leaf(gn_leaf_config_handle_t leaf);
 
-gn_config_handle_t gn_init();
+esp_err_t gn_init_leaf(gn_leaf_config_handle_t leaf);
 
 void gn_log_message(const char *message);
 

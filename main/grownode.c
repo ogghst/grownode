@@ -32,7 +32,6 @@ extern "C" {
 #include "esp_https_ota.h"
 //#include "esp_smartconfig.h"
 
-
 #include "nvs_flash.h"
 
 #include "driver/gpio.h"
@@ -57,7 +56,6 @@ extern "C" {
 #include "gn_mqtt_protocol.h"
 #include "gn_display.h"
 
-
 static const char *TAG = "grownode";
 
 esp_event_loop_handle_t gn_event_loop;
@@ -67,6 +65,7 @@ gn_config_handle_t _gn_default_conf;
 bool initialized = false;
 
 ESP_EVENT_DEFINE_BASE(GN_BASE_EVENT);
+ESP_EVENT_DEFINE_BASE(GN_LEAF_EVENT);
 
 gn_config_handle_t _gn_create_config() {
 	gn_config_handle_t _conf = (gn_config_handle_t) malloc(sizeof(gn_config_t));
@@ -106,7 +105,7 @@ gn_node_config_handle_t _gn_create_node_config() {
 	gn_node_config_handle_t _conf = (gn_node_config_handle_t) malloc(
 			sizeof(gn_node_config_t));
 	_conf->config = NULL;
-	_conf->event_loop = NULL;
+	//_conf->event_loop = NULL;
 	_conf->name = NULL;
 	return _conf;
 }
@@ -124,18 +123,32 @@ gn_node_config_handle_t gn_create_node(gn_config_handle_t config,
 	//n_c->name = bf;
 	n_c->name = (char*) malloc(GN_MEM_NAME_SIZE * sizeof(char));
 	strncpy(n_c->name, name, GN_MEM_NAME_SIZE);
-	n_c->event_loop = config->event_loop;
+	//n_c->event_loop = config->event_loop;
 	n_c->config = config;
+
+	//create leaves
+	gn_leaves_list
+	leaves = {.size = 5, .last = 0, .at =
+		(gn_leaf_config_handle_t*) malloc(5 * sizeof(gn_leaf_config_t))};
+
+	n_c->leaves = leaves;
 
 	return n_c;
 }
 
 esp_err_t gn_destroy_node(gn_node_config_handle_t node) {
 
+	free(node->leaves.at);
 	free(node->name);
 	free(node);
 
 	return ESP_OK;
+}
+
+esp_err_t gn_publish_node(gn_node_config_handle_t node) {
+
+	return _gn_mqtt_send_node_config(node);
+
 }
 
 gn_leaf_config_handle_t _gn_create_leaf_config() {
@@ -164,8 +177,15 @@ gn_leaf_config_handle_t gn_create_leaf(gn_node_config_handle_t node_cfg,
 	l_c->node_config = node_cfg;
 	l_c->callback = callback;
 
-	//mqtt subscribe to topic
-	_gn_mqtt_subscribe_leaf(l_c);
+
+	//TODO add leaf to node. implement dynamic array
+	if (l_c->node_config->leaves.last == l_c->node_config->leaves.size-1) {
+		ESP_LOGE(TAG, "gn_create_leaf failed. not possible to add more than 5 leaves to a node");
+		return NULL;
+	}
+
+	l_c->node_config->leaves.at[l_c->node_config->leaves.last] = l_c;
+	l_c->node_config->leaves.last++;
 
 	return l_c;
 }
@@ -176,6 +196,19 @@ esp_err_t gn_destroy_leaf(gn_leaf_config_handle_t leaf) {
 	free(leaf);
 
 	return ESP_OK;
+
+}
+
+esp_err_t gn_init_leaf(gn_leaf_config_handle_t leaf) {
+
+	int ret = ESP_OK;
+
+	//send callback init request
+	leaf->callback(GN_LEAF_INIT_REQUEST_EVENT, leaf);
+
+	//notice network of the leaf added
+	_gn_mqtt_subscribe_leaf(leaf);
+	return ret;
 
 }
 
@@ -333,6 +366,8 @@ gn_config_handle_t gn_init() {
 	//init time sync. note: if bad, continue
 	ESP_GOTO_ON_ERROR(_gn_init_time_sync(_gn_default_conf), err_timesync, TAG,
 			"error on time sync init: %s", esp_err_to_name(ret));
+
+	//TODO implement heartbeat to check network comm and send periodical system watchdog to the network
 
 	err_timesync:
 	//init mqtt system

@@ -9,9 +9,9 @@ extern "C" {
 
 int state = GN_PUMP_STATE_STOP;
 
-void _gn_pump_event_handler (void *handler_args, esp_event_base_t base,
-		int32_t id, void *event_data) {
 
+void _gn_pump_event_handler(void *handler_args, esp_event_base_t base,
+		int32_t id, void *event_data) {
 
 	switch (id) {
 	case GN_NETWORK_CONNECTED_EVENT:
@@ -36,30 +36,38 @@ void _gn_pump_event_handler (void *handler_args, esp_event_base_t base,
 
 void _gn_pump_task(void *pvParam) {
 
+	gn_leaf_config_handle_t config = (gn_leaf_config_handle_t) pvParam;
+
 	while (true) {
 
 		vTaskDelay(5000 / portTICK_PERIOD_MS);
 
 		if (state == GN_PUMP_STATE_RUNNING) {
-			gn_log_message("pump tick");
+			char msg[80];
+			strncpy(msg, "pump ", 79);
+			strncat(msg, config->name, 79);
+			strncat(msg, " tick", 79);
+			gn_log_message(msg);
 		}
 
 	}
 
 }
 
-void gn_pump_init(gn_leaf_config_handle_t config) {
-
-	xTaskCreate(_gn_pump_task, "_gn_pump_task", 2048, NULL, 0, NULL);
-
-	ESP_ERROR_CHECK(
-			esp_event_handler_instance_register_with(config->node_config->event_loop, GN_BASE_EVENT, GN_EVENT_ANY_ID, _gn_pump_event_handler, NULL, NULL));
-
-}
-
-void gn_pump_callback(gn_event_handle_t event, void *event_data) {
+void gn_pump_callback(gn_event_id_t event, void *event_data) {
 
 	gn_log_message("gn_pump_callback");
+	switch (event) {
+
+	case GN_LEAF_INIT_REQUEST_EVENT: {
+		gn_leaf_config_handle_t config = (gn_leaf_config_handle_t) event_data;
+		xTaskCreate(_gn_pump_task, "_gn_pump_task", 2048, config, 0, NULL);
+
+	}; break;
+
+	default: break;
+
+	}
 
 }
 
