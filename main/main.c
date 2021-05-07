@@ -17,7 +17,7 @@ void app_main(void) {
 
 	while (config->status != GN_CONFIG_STATUS_OK) {
 		vTaskDelay(10000 / portTICK_PERIOD_MS);
-		ESP_LOGI("main", "main loop");
+		ESP_LOGI("main", "grownode status not OK: %d", config->status);
 	}
 
 	gn_node_config_handle_t node_config = gn_create_node(config, "node");
@@ -31,11 +31,15 @@ void app_main(void) {
 
 	gn_log_message("initialized");
 
-	for (int i = 0; i < 6; i++) {
+	const char* buf[6];
+
+	for (int i = 0; i < 2; i++) {
+
+		sprintf(buf, "pump%d",i);
 
 		//create new leaf, controlling pump
 		gn_leaf_config_handle_t pump_config = gn_create_leaf(node_config,
-				"pump", gn_pump_callback);
+				buf, gn_pump_callback);
 
 		if (pump_config == NULL) {
 			ESP_LOGE("main", "leaf creation error");
@@ -45,11 +49,9 @@ void app_main(void) {
 		ESP_LOGI("main", "gn_create_leaf number %i - name %s on node %s", i,
 				pump_config->name, pump_config->node_config->name);
 
-		ESP_ERROR_CHECK(gn_init_leaf(pump_config));
-
 	}
 
-	gn_publish_node(node_config);
+	ESP_ERROR_CHECK(gn_start_node(node_config));
 
 	fail:
 

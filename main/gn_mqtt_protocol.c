@@ -127,12 +127,46 @@ void _gn_mqtt_build_command_topic(gn_config_handle_t config, char *buf) {
 
 }
 
+/*
+ * called when a MQTT_EVENT_PUBLISHED is sent.
+ * handler_arg is the leaf to be checked against the topic to call his callback
+ *
+ */
+/*
+void _gn_mqtt_on_publish(void* handler_arg, esp_event_base_t base, int32_t id, void* event_data) {
+
+	esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t) event_data;
+
+	switch (id) {
+
+	case MQTT_EVENT_DATA: {
+
+		gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t) handler_arg;
+
+		ESP_LOGD(TAG, "MQTT_EVENT_DATA");
+		ESP_LOGD(TAG, "TOPIC=%.*s\r\n", event->topic_len, event->topic);
+		ESP_LOGD(TAG, "DATA=%.*s\r\n", event->data_len, event->data);
+		char *buf = (char*) malloc(sizeof(char)*_GN_MQTT_MAX_TOPIC_LENGTH);
+		_gn_mqtt_build_leaf_command_topic(leaf_config, buf);
+		if (strncmp(buf, event->topic, event->topic_len) == 0) {
+			//callback to leaf
+			leaf_config->callback(GN_LEAF_MESSAGE_RECEIVED_EVENT, leaf_config, event); //TODO wrap only event data in a structure
+		}
+		free(buf);
+
+		break;
+	}
+
+	}
+}
+*/
+
 esp_err_t _gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t leaf_config) {
 
 	ESP_LOGI(TAG, "subscribing leaf");
 
 	char topic[_GN_MQTT_MAX_TOPIC_LENGTH];
-	_gn_mqtt_build_leaf_status_topic(leaf_config, topic);
+	_gn_mqtt_build_leaf_command_topic(leaf_config, topic);
 
 	ESP_LOGI(TAG, "esp_mqtt_client_subscribe. topic: %s", topic);
 
@@ -144,6 +178,8 @@ esp_err_t _gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t leaf_config) {
 	return ESP_OK;
 
 }
+
+
 
 esp_err_t _gn_mqtt_send_node_config(gn_node_config_handle_t config) {
 
@@ -343,6 +379,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 		ESP_LOGD(TAG, "TOPIC=%.*s\r\n", event->topic_len, event->topic);
 		ESP_LOGD(TAG, "DATA=%.*s\r\n", event->data_len, event->data);
 
+		//device command topic
 		if (strncmp(event->topic, _gn_cmd_topic, event->topic_len) == 0) {
 			//device message
 			if (strncmp(event->data, _GN_MQTT_PAYLOAD_OTA, event->data_len)
@@ -360,6 +397,22 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 						GN_NET_RST_START, NULL, 0, portMAX_DELAY);
 
 			}
+		} else {
+			//forward message to the appropriate leaf
+			char buf [_GN_MQTT_MAX_TOPIC_LENGTH];
+
+			for (int i = 0; i < _config->node_config->leaves.last; i++) {
+				_gn_mqtt_build_leaf_command_topic(_config->node_config->leaves.at[i], buf);
+
+				//message is for this leaf
+				if (strncmp(buf, event->topic, event->topic_len) == 0) {
+				_config->node_config->leaves.at[i]->callback(GN_LEAF_MESSAGE_RECEIVED_EVENT, _config->node_config->leaves.at[i], event); //TODO change in custom structure to not expose mqtt library
+				}
+			}
+
+
+			break;
+
 		}
 
 		break;

@@ -109,7 +109,7 @@ void _gn_display_net_mqtt_handler(void *handler_args, esp_event_base_t base,
 		int32_t id, void *event_data) {
 
 	//TODO pass wifi info to the event
-	char *message = (char*) event_data;
+	//char *message = (char*) event_data;
 
 	if (pdTRUE == xSemaphoreTake(_gn_xGuiSemaphore, portMAX_DELAY)) {
 

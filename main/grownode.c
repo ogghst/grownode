@@ -67,6 +67,8 @@ bool initialized = false;
 ESP_EVENT_DEFINE_BASE(GN_BASE_EVENT);
 ESP_EVENT_DEFINE_BASE(GN_LEAF_EVENT);
 
+esp_err_t _gn_start_leaf(gn_leaf_config_handle_t leaf);
+
 gn_config_handle_t _gn_create_config() {
 	gn_config_handle_t _conf = (gn_config_handle_t) malloc(sizeof(gn_config_t));
 	_conf->status = GN_CONFIG_STATUS_NOT_INITIALIZED;
@@ -127,11 +129,10 @@ gn_node_config_handle_t gn_create_node(gn_config_handle_t config,
 	n_c->config = config;
 
 	//create leaves
-	gn_leaves_list
-	leaves = {.size = 5, .last = 0, .at =
-		(gn_leaf_config_handle_t*) malloc(5 * sizeof(gn_leaf_config_t))};
+	gn_leaves_list leaves = { .size = 5, .last = 0};
 
 	n_c->leaves = leaves;
+	config->node_config = n_c;
 
 	return n_c;
 }
@@ -145,9 +146,22 @@ esp_err_t gn_destroy_node(gn_node_config_handle_t node) {
 	return ESP_OK;
 }
 
-esp_err_t gn_publish_node(gn_node_config_handle_t node) {
+esp_err_t gn_start_node(gn_node_config_handle_t node) {
 
-	return _gn_mqtt_send_node_config(node);
+	esp_err_t ret = ESP_OK;
+	ESP_LOGI(TAG, "gn_start_node: %s", node->name);
+
+	//publish node
+	if(_gn_mqtt_send_node_config(node) != ESP_OK) goto fail;
+
+	//run leaves
+	for (int i = 0; i < node->leaves.last; i++) {
+		ESP_LOGI(TAG, "starting leaf: %d", i);
+		_gn_start_leaf(node->leaves.at[i]);
+	}
+
+	return ret;
+	fail: return ESP_FAIL;
 
 }
 
@@ -161,7 +175,7 @@ gn_leaf_config_handle_t _gn_create_leaf_config() {
 }
 
 gn_leaf_config_handle_t gn_create_leaf(gn_node_config_handle_t node_cfg,
-		const char *name, gn_event_callback_t callback) {
+		const char *name, gn_leaf_event_callback_t callback) {
 
 	if (node_cfg == NULL || node_cfg->config == NULL
 			|| node_cfg->config->mqtt_client == NULL || name == NULL
@@ -177,10 +191,10 @@ gn_leaf_config_handle_t gn_create_leaf(gn_node_config_handle_t node_cfg,
 	l_c->node_config = node_cfg;
 	l_c->callback = callback;
 
-
 	//TODO add leaf to node. implement dynamic array
-	if (l_c->node_config->leaves.last == l_c->node_config->leaves.size-1) {
-		ESP_LOGE(TAG, "gn_create_leaf failed. not possible to add more than 5 leaves to a node");
+	if (l_c->node_config->leaves.last >= l_c->node_config->leaves.size - 1) {
+		ESP_LOGE(TAG,
+				"gn_create_leaf failed. not possible to add more than 5 leaves to a node");
 		return NULL;
 	}
 
@@ -199,12 +213,12 @@ esp_err_t gn_destroy_leaf(gn_leaf_config_handle_t leaf) {
 
 }
 
-esp_err_t gn_init_leaf(gn_leaf_config_handle_t leaf) {
+esp_err_t _gn_start_leaf(gn_leaf_config_handle_t leaf) {
 
 	int ret = ESP_OK;
-
+	ESP_LOGI(TAG, "gn_start_leaf %s", leaf->name);
 	//send callback init request
-	leaf->callback(GN_LEAF_INIT_REQUEST_EVENT, leaf);
+	leaf->callback(GN_LEAF_INIT_REQUEST_EVENT, leaf, NULL);
 
 	//notice network of the leaf added
 	_gn_mqtt_subscribe_leaf(leaf);

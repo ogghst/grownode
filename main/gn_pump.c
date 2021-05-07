@@ -9,6 +9,7 @@ extern "C" {
 
 int state = GN_PUMP_STATE_STOP;
 
+static const char *TAG = "gn_pump";
 
 void _gn_pump_event_handler(void *handler_args, esp_event_base_t base,
 		int32_t id, void *event_data) {
@@ -54,18 +55,29 @@ void _gn_pump_task(void *pvParam) {
 
 }
 
-void gn_pump_callback(gn_event_id_t event, void *event_data) {
+void gn_pump_callback(gn_event_id_t event, gn_leaf_config_handle_t leaf_config,
+		void *event_data) {
 
-	gn_log_message("gn_pump_callback");
+	ESP_LOGI(TAG, "gn_pump_callback (%s)", leaf_config->name);
+
 	switch (event) {
 
 	case GN_LEAF_INIT_REQUEST_EVENT: {
-		gn_leaf_config_handle_t config = (gn_leaf_config_handle_t) event_data;
-		xTaskCreate(_gn_pump_task, "_gn_pump_task", 2048, config, 0, NULL);
+		char buf[40];
+		sprintf(buf, "%.*s_task", 30, leaf_config->name);
+		xTaskCreate(_gn_pump_task, buf, 2048, leaf_config, 0, NULL);
+		break;
+	}
+	case GN_LEAF_MESSAGE_RECEIVED_EVENT: {
+		esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t) event_data;
+		char buf[30 + event->data_len];
+		sprintf(buf, "message received: %.*s", event->data_len, event->data);
+		gn_log_message(buf);
+		break;
+	}
 
-	}; break;
-
-	default: break;
+	default:
+		break;
 
 	}
 
