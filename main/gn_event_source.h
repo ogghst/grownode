@@ -25,7 +25,7 @@ ESP_EVENT_DECLARE_BASE (GN_LEAF_EVENT);
 
 typedef enum  {
 
-	GN_LEAF_INIT_REQUEST_EVENT,
+	GN_LEAF_INIT_REQUEST_EVENT, //used internally to leaf event queue
 	GN_LEAF_MESSAGE_RECEIVED_EVENT,
 
 	GN_LEAF_ADDED_EVENT,
@@ -39,7 +39,10 @@ typedef enum  {
 	GN_NET_MSG_RECV,
 
 	GN_NET_OTA_START,
-	GN_NET_RST_START
+	GN_NET_RST_START,
+
+	GN_KEEPALIVE_START_EVENT
+
 
 } gn_event_id_t;
 

@@ -31,15 +31,15 @@ void app_main(void) {
 
 	gn_log_message("initialized");
 
-	const char* buf[6];
+	char buf[20];
 
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 3; i++) {
 
 		sprintf(buf, "pump%d",i);
 
 		//create new leaf, controlling pump
 		gn_leaf_config_handle_t pump_config = gn_create_leaf(node_config,
-				buf, gn_pump_callback);
+				buf, gn_pump_callback, gn_pump_loop); //TODO add callback for loop?
 
 		if (pump_config == NULL) {
 			ESP_LOGE("main", "leaf creation error");

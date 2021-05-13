@@ -56,15 +56,16 @@ typedef struct {
 typedef gn_config_t *gn_config_handle_t;
 
 typedef struct {
-	gn_event_id_t event;
-	char *data; /*!< Data associated with this event */
-	int data_len; /*!< Length of the data for this event */
+	gn_event_id_t id;
+	void *data; /*!< Data associated with this event */
+	int data_size; /*!< Length of the data for this event */
 } gn_event_t;
 
 typedef gn_event_t *gn_event_handle_t;
 
-typedef void (*gn_leaf_event_callback_t)(gn_event_id_t event, gn_leaf_config_handle_t leaf_config, void *event_data);
-
+typedef void (*gn_leaf_event_callback_t)(gn_event_handle_t id,
+		gn_leaf_config_handle_t leaf_config);
+typedef void (*gn_leaf_loop_callback_t)(gn_leaf_config_handle_t leaf_config);
 
 typedef struct {
 	size_t size;
@@ -75,7 +76,7 @@ typedef struct {
 typedef struct {
 	size_t size;
 	size_t last;
-	gn_node_config_handle_t* at;
+	gn_node_config_handle_t *at;
 } gn_nodes_list;
 
 struct __gn_node_config_t {
@@ -85,12 +86,17 @@ struct __gn_node_config_t {
 	gn_leaves_list leaves;
 };
 
+typedef void* gn_leaf_context_handle_t;
+
 struct __gn_leaf_config_t {
- char *name;
- gn_node_config_handle_t node_config;
- gn_leaf_event_callback_t callback;
- gn_leaf_config_handle_t next;
- } ;
+	char *name;
+	gn_node_config_handle_t node_config;
+	gn_leaf_event_callback_t callback;
+	gn_leaf_loop_callback_t loop;
+	//gn_leaf_config_handle_t next;
+	QueueHandle_t xLeafTaskEventQueue;
+	gn_leaf_context_handle_t leaf_context;
+};
 
 /*
  typedef struct {
@@ -125,13 +131,15 @@ esp_err_t gn_start_node(gn_node_config_handle_t node);
 gn_config_handle_t gn_init();
 
 gn_leaf_config_handle_t gn_create_leaf(gn_node_config_handle_t node_config,
-		const char *name, gn_leaf_event_callback_t callback);
+		const char *name, gn_leaf_event_callback_t callback, gn_leaf_loop_callback_t loop);
 
 esp_err_t gn_destroy_leaf(gn_leaf_config_handle_t leaf);
 
 //esp_err_t _gn_start_leaf(gn_leaf_config_handle_t leaf);
 
-void gn_log_message(const char *message);
+esp_err_t gn_log_message(char *message);
+
+esp_err_t gn_send_text_message(gn_leaf_config_handle_t config, const char *msg);
 
 #ifdef __cplusplus
 }

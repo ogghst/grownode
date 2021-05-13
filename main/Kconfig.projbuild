@@ -23,6 +23,12 @@ menu "GrowNode Configuration"
     	bool "Reset Provisioning Status at every startup"
     	default false
     	
+   	config GROWNODE_PROV_POP
+    	string "SoftAP Proof of Possession"
+    	default "grownode"
+    	help
+    		Password to prove provisioning is coming from trusted source
+    	
    	config GROWNODE_PROV_SOFTAP_PREFIX
     	string "SoftAP Prefix"
     	default "GROWNODE_"

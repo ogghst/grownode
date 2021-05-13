@@ -49,7 +49,7 @@ gn_config_handle_t _conf;
 void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		int32_t event_id, void *event_data) {
 
-	ESP_LOGI(TAG, "_gn_wifi_event_handler");
+	ESP_LOGD(TAG, "_gn_wifi_event_handler");
 
 	if (event_base == WIFI_PROV_EVENT) {
 		switch (event_id) {
@@ -58,7 +58,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 			break;
 		case WIFI_PROV_CRED_RECV: {
 			wifi_sta_config_t *wifi_sta_cfg = (wifi_sta_config_t*) event_data;
-			ESP_LOGI(TAG,
+			ESP_LOGD(TAG,
 					"Received Wi-Fi credentials" "\n\tSSID     : %s\n\tPassword : %s",
 					(const char* ) wifi_sta_cfg->ssid,
 					(const char* ) wifi_sta_cfg->password);
@@ -78,14 +78,14 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		case WIFI_PROV_CRED_SUCCESS:
 			break;
 		case WIFI_PROV_END:
-			ESP_LOGI(TAG, "WIFI_PROV_END");
+			ESP_LOGD(TAG, "WIFI_PROV_END");
 			gn_log_message("Provisioning OK");
 			break;
 		default:
 			break;
 		}
 	} else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
-		ESP_LOGI(TAG, "WIFI_EVENT_STA_START");
+		ESP_LOGD(TAG, "WIFI_EVENT_STA_START");
 		esp_wifi_connect();
 	} else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
 		ip_event_got_ip_t *event = (ip_event_got_ip_t*) event_data;
@@ -154,7 +154,7 @@ esp_err_t _gn_wifi_custom_prov_data_handler(uint32_t session_id,
 		const uint8_t *inbuf, ssize_t inlen, uint8_t **outbuf, ssize_t *outlen,
 		void *priv_data) {
 	if (inbuf) {
-		ESP_LOGI(TAG, "Received data: %.*s", inlen, (char* ) inbuf);
+		ESP_LOGD(TAG, "Received data: %.*s", inlen, (char* ) inbuf);
 	}
 	char response[] = "SUCCESS";
 	*outbuf = (uint8_t*) strdup(response);
@@ -255,7 +255,7 @@ esp_err_t _gn_init_wifi(gn_config_handle_t conf) {
 		char service_name[18];
 		_gn_wifi_get_device_service_name(service_name, sizeof(service_name));
 
-		ESP_LOGI(TAG, "service_name: %s", service_name);
+		ESP_LOGD(TAG, "service_name: %s", service_name);
 
 		/* What is the security level that we want (0 or 1):
 		 *      - WIFI_PROV_SECURITY_0 is simply plain text communication.
@@ -269,7 +269,7 @@ esp_err_t _gn_init_wifi(gn_config_handle_t conf) {
 		 *      - this should be a string with length > 0
 		 *      - NULL if not used
 		 */
-		const char *pop = "abcd1234";
+		const char *pop = CONFIG_GROWNODE_PROV_POP;
 
 		/* What is the service key (could be NULL)
 		 * This translates to :
@@ -334,7 +334,7 @@ esp_err_t _gn_init_wifi(gn_config_handle_t conf) {
 		_gn_wifi_init_sta();
 	}
 
-	ESP_LOGI(TAG, "Wait for Wi-Fi connection");
+	ESP_LOGD(TAG, "Wait for Wi-Fi connection");
 
 	/* Wait for Wi-Fi connection */
 	xEventGroupWaitBits(_gn_event_group_wifi, GN_WIFI_CONNECTED_EVENT, false,
@@ -349,7 +349,7 @@ static bool time_sync_init_done = false;
 esp_err_t _gn_init_time_sync(gn_config_handle_t conf) {
 
 	if (sntp_enabled()) {
-		ESP_LOGI(TAG, "SNTP already initialized.");
+		ESP_LOGD(TAG, "SNTP already initialized.");
 		time_sync_init_done = true;
 		return ESP_OK;
 	}

@@ -43,13 +43,13 @@ void _gn_display_lv_tick_task(void *arg) {
 
 void _gn_display_btn_ota_event_handler(lv_obj_t *obj, lv_event_t event) {
 	if (event == LV_EVENT_CLICKED) {
-		ESP_LOGI(TAG, "_gn_display_btn_ota_event_handler - clicked");
+		ESP_LOGD(TAG, "_gn_display_btn_ota_event_handler - clicked");
 
 		ESP_ERROR_CHECK(
 				esp_event_post_to(_config->event_loop, GN_BASE_EVENT, GN_NET_OTA_START, NULL, 0, portMAX_DELAY));
 
 	} else if (event == LV_EVENT_VALUE_CHANGED) {
-		ESP_LOGI(TAG, "_gn_display_btn_ota_event_handler - toggled");
+		ESP_LOGD(TAG, "_gn_display_btn_ota_event_handler - toggled");
 
 	}
 }
@@ -57,15 +57,15 @@ void _gn_display_btn_ota_event_handler(lv_obj_t *obj, lv_event_t event) {
 void _gn_display_btn_rst_event_handler(lv_obj_t *obj, lv_event_t event) {
 	if (event == LV_EVENT_CLICKED) {
 
-		ESP_LOGI(TAG, "_gn_display_btn_rst_event_handler - clicked");
+		ESP_LOGD(TAG, "_gn_display_btn_rst_event_handler - clicked");
 
 		ESP_ERROR_CHECK(
 				esp_event_post_to(_config->event_loop, GN_BASE_EVENT, GN_NET_RST_START, NULL, 0, portMAX_DELAY));
 
-		ESP_LOGI(TAG, "_gn_display_btn_rst_event_handler - sent event");
+		ESP_LOGD(TAG, "_gn_display_btn_rst_event_handler - sent event");
 
 	} else if (event == LV_EVENT_VALUE_CHANGED) {
-		ESP_LOGI(TAG, "_gn_display_btn_rst_event_handler - toggled");
+		ESP_LOGD(TAG, "_gn_display_btn_rst_event_handler - toggled");
 
 	}
 }
@@ -73,26 +73,26 @@ void _gn_display_btn_rst_event_handler(lv_obj_t *obj, lv_event_t event) {
 void _gn_display_log_system_handler(void *handler_args, esp_event_base_t base,
 		int32_t id, void *event_data) {
 
-	char *message = (char*) event_data;
-
-	//lv_label_set_text(statusLabel, message.c_str());
-	//const char *t = text.c_str();
-
-	if (rawIdx > 9) {
-
-		//scroll messages
-		for (int row = 1; row < 10; row++) {
-			//ESP_LOGI(TAG, "scrolling %i from %s to %s", row, rawMessages[row], rawMessages[row - 1]);
-			strncpy(rawMessages[row - 1], rawMessages[row], 30);
-		}
-		strncpy(rawMessages[9], message, 30);
-	} else {
-		//ESP_LOGI(TAG, "setting %i", rawIdx);
-		strncpy(rawMessages[rawIdx], message, 30);
-		rawIdx++;
-	}
-
 	if (pdTRUE == xSemaphoreTake(_gn_xGuiSemaphore, portMAX_DELAY)) {
+
+		char *message = (char*) event_data;
+
+		//lv_label_set_text(statusLabel, message.c_str());
+		//const char *t = text.c_str();
+
+		if (rawIdx > 9) {
+
+			//scroll messages
+			for (int row = 1; row < 10; row++) {
+				//ESP_LOGI(TAG, "scrolling %i from %s to %s", row, rawMessages[row], rawMessages[row - 1]);
+				strncpy(rawMessages[row - 1], rawMessages[row], 30);
+			}
+			strncpy(rawMessages[9], message, 30);
+		} else {
+			//ESP_LOGI(TAG, "setting %i", rawIdx);
+			strncpy(rawMessages[rawIdx], message, 30);
+			rawIdx++;
+		}
 
 		//ESP_LOGI(TAG, "printing %s", message);
 		//print
@@ -100,6 +100,7 @@ void _gn_display_log_system_handler(void *handler_args, esp_event_base_t base,
 			//ESP_LOGI(TAG, "label %i to %s", 9 - row, rawMessages[row]);
 			lv_label_set_text(statusLabel[row], rawMessages[row]);
 		}
+
 		xSemaphoreGive(_gn_xGuiSemaphore);
 	}
 
@@ -182,7 +183,7 @@ void _gn_display_create_gui() {
 	lv_style_init(&style_led);
 	lv_style_copy(&style_led, &style);
 	lv_style_set_bg_opa(&style_led, LV_STATE_DEFAULT, LV_OPA_COVER);
-	lv_style_set_bg_color(&style_led, LV_STATE_DEFAULT,  LV_COLOR_GREEN);
+	lv_style_set_bg_color(&style_led, LV_STATE_DEFAULT, LV_COLOR_GREEN);
 	lv_style_set_border_color(&style_led, LV_STATE_DEFAULT, LV_COLOR_GREEN);
 	lv_style_set_border_width(&style_led, LV_STATE_DEFAULT, 1);
 
@@ -293,22 +294,22 @@ void _gn_display_create_gui() {
 	lv_led_on(server_led);
 
 	/*
-	//network status
-	network_status_label = lv_label_create(bottom_cont, NULL);
-	lv_obj_add_style(network_status_label, LV_LABEL_PART_MAIN, &style);
-	lv_obj_align(network_status_label, bottom_cont, LV_ALIGN_IN_BOTTOM_RIGHT, 0,
-			0);
-	lv_obj_set_width_fit(network_status_label, LV_FIT_MAX);
-	lv_label_set_text(network_status_label, "NET KO");
+	 //network status
+	 network_status_label = lv_label_create(bottom_cont, NULL);
+	 lv_obj_add_style(network_status_label, LV_LABEL_PART_MAIN, &style);
+	 lv_obj_align(network_status_label, bottom_cont, LV_ALIGN_IN_BOTTOM_RIGHT, 0,
+	 0);
+	 lv_obj_set_width_fit(network_status_label, LV_FIT_MAX);
+	 lv_label_set_text(network_status_label, "NET KO");
 
-	//server status
-	server_status_label = lv_label_create(bottom_cont, NULL);
-	lv_obj_add_style(server_status_label, LV_LABEL_PART_MAIN, &style);
-	lv_obj_align(server_status_label, bottom_cont, LV_ALIGN_IN_BOTTOM_RIGHT, 0,
-			0);
-	lv_obj_set_width_fit(server_status_label, LV_FIT_MAX);
-	lv_label_set_text(server_status_label, "SRV KO");
-	*/
+	 //server status
+	 server_status_label = lv_label_create(bottom_cont, NULL);
+	 lv_obj_add_style(server_status_label, LV_LABEL_PART_MAIN, &style);
+	 lv_obj_align(server_status_label, bottom_cont, LV_ALIGN_IN_BOTTOM_RIGHT, 0,
+	 0);
+	 lv_obj_set_width_fit(server_status_label, LV_FIT_MAX);
+	 lv_label_set_text(server_status_label, "SRV KO");
+	 */
 }
 
 void _gn_display_gui_task(void *pvParameter) {
@@ -427,7 +428,7 @@ esp_err_t gn_init_display(gn_config_handle_t conf) {
 	xTaskCreatePinnedToCore(_gn_display_gui_task, "_gn_display_gui_task",
 			4096 * 2, NULL, 1, NULL, 1);
 
-	ESP_LOGI(TAG, "_gn_display_gui_task created");
+	ESP_LOGD(TAG, "_gn_display_gui_task created");
 
 	xEventGroupWaitBits(_gn_gui_event_group, GN_EVT_GROUP_GUI_COMPLETED_EVENT,
 	pdTRUE, pdTRUE, portMAX_DELAY);
@@ -439,7 +440,7 @@ esp_err_t gn_init_display(gn_config_handle_t conf) {
 	ESP_ERROR_CHECK(
 			esp_event_handler_instance_register_with(conf->event_loop, GN_BASE_EVENT, GN_EVENT_ANY_ID, _gn_display_net_mqtt_handler, NULL, NULL));
 
-	ESP_LOGI(TAG, "gn_init_display done");
+	ESP_LOGD(TAG, "gn_init_display done");
 
 	//TODO dangerous, better update through events
 	_config = conf;

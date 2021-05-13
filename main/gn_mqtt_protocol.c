@@ -163,12 +163,12 @@ void _gn_mqtt_on_publish(void* handler_arg, esp_event_base_t base, int32_t id, v
 
 esp_err_t _gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t leaf_config) {
 
-	ESP_LOGI(TAG, "subscribing leaf");
+	ESP_LOGD(TAG, "subscribing leaf");
 
 	char topic[_GN_MQTT_MAX_TOPIC_LENGTH];
 	_gn_mqtt_build_leaf_command_topic(leaf_config, topic);
 
-	ESP_LOGI(TAG, "esp_mqtt_client_subscribe. topic: %s", topic);
+	ESP_LOGD(TAG, "esp_mqtt_client_subscribe. topic: %s", topic);
 
 	int msg_id = esp_mqtt_client_subscribe(
 			leaf_config->node_config->config->mqtt_client, topic, 0);
@@ -270,6 +270,23 @@ esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t config) {
 		return ((msg_id == -1) ? (ESP_FAIL) : (ESP_OK));
 	}
 }
+
+esp_err_t _gn_mqtt_send_leaf_status(gn_leaf_config_handle_t leaf, const char* msg) {
+
+	//get the topic
+	char buf[_GN_MQTT_MAX_TOPIC_LENGTH];
+	_gn_mqtt_build_command_topic(leaf->node_config->config, buf);
+
+	//publish
+	ESP_LOGD(TAG, "publish topic %s, msg=%s", buf, msg);
+	int msg_id = esp_mqtt_client_publish(leaf->node_config->config->mqtt_client, buf, msg, 0, 2, 0);
+
+	if (msg_id == -1) return ESP_FAIL;
+
+	return ESP_OK;
+
+}
+
 
 esp_err_t _gn_mqtt_on_connected(gn_config_handle_t config) {
 
@@ -406,7 +423,14 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 
 				//message is for this leaf
 				if (strncmp(buf, event->topic, event->topic_len) == 0) {
-				_config->node_config->leaves.at[i]->callback(GN_LEAF_MESSAGE_RECEIVED_EVENT, _config->node_config->leaves.at[i], event); //TODO change in custom structure to not expose mqtt library
+
+					gn_event_t evt = {GN_LEAF_MESSAGE_RECEIVED_EVENT, event->data, 	event->data_len};
+
+					if (xQueueSend(_config->node_config->leaves.at[i]->xLeafTaskEventQueue, &evt, 0) != pdTRUE) {
+						ESP_LOGE(TAG,"not possible to send message to leaf %s",_config->node_config->leaves.at[i]->name);
+					}
+
+				//_config->node_config->leaves.at[i]->callback(GN_LEAF_MESSAGE_RECEIVED_EVENT, _config->node_config->leaves.at[i], event); //TODO change in custom structure to not expose mqtt library
 				}
 			}
 
@@ -477,6 +501,8 @@ esp_err_t _gn_mqtt_init(gn_config_handle_t conf) {
 
 	if ((uxBits & _GN_MQTT_CONNECTED_OK_EVENT_BIT) != 0) {
 		ESP_LOGI(TAG, "MQTT client handshake successful");
+
+		/*
 		//publish server connected event
 		if (ESP_OK
 				!= esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
@@ -485,6 +511,7 @@ esp_err_t _gn_mqtt_init(gn_config_handle_t conf) {
 			ESP_LOGE(TAG, "failed to send GN_SERVER_CONNECTED_EVENT event");
 			goto fail;
 		}
+		*/
 
 		return ESP_OK;
 	}
@@ -492,6 +519,7 @@ esp_err_t _gn_mqtt_init(gn_config_handle_t conf) {
 	if ((uxBits & _GN_MQTT_CONNECTED_KO_EVENT_BIT) != 0) {
 		ESP_LOGE(TAG, "MQTT client handshake error");
 		//publish server disconnected event
+		/*
 		if (ESP_OK
 				!= esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
 						GN_SERVER_DISCONNECTED_EVENT,
@@ -499,9 +527,15 @@ esp_err_t _gn_mqtt_init(gn_config_handle_t conf) {
 			ESP_LOGE(TAG, "failed to send GN_SERVER_DISCONNECTED_EVENT event");
 			return ESP_FAIL;
 		}
+		*/
 	}
 
-	fail: return ESP_FAIL;
+	//TODO start keepalive service
+
+
+	//fail: return ESP_FAIL;
+	ESP_LOGE(TAG, "MQTT client error: should never reach here!"); //TODO improve flow
+	return ESP_FAIL;
 
 }
 
