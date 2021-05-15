@@ -5,6 +5,8 @@ cmake_minimum_required(VERSION 3.5)
 #set(ENV{IOT_SOLUTION_PATH} C:/Development/esp/esp-iot-solution-master)
 #include($ENV{IOT_SOLUTION_PATH}/component.cmake)
 
+set(EXTRA_COMPONENT_DIRS C:\\Development\\esp\\esp-idf-lib\\components)
+
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
 project(GrowNode2)

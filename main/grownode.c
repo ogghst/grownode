@@ -224,6 +224,7 @@ esp_err_t gn_destroy_leaf(gn_leaf_config_handle_t leaf) {
 
 }
 
+/*
 void _gn_leaf_task(void *pvParam) {
 
 	//wait for events, if not raise an execute event to cycle execution
@@ -263,17 +264,22 @@ void _gn_leaf_task(void *pvParam) {
 	}
 
 }
+*/
 
 esp_err_t _gn_start_leaf(gn_leaf_config_handle_t leaf_config) {
 
 	int ret = ESP_OK;
-	ESP_LOGI(TAG, "gn_start_leaf %s", leaf_config->name);
+	ESP_LOGI(TAG, "_gn_start_leaf %s", leaf_config->name);
 //TODO not valid to pass the entire context, as the leaf can do everything. better pass only name and us grownode functions to protect context
-	if (xTaskCreate(_gn_leaf_task, leaf_config->name, 2048, leaf_config, 1,
+	if (xTaskCreate(leaf_config->loop, leaf_config->name, 2048, leaf_config, 1,
 	NULL) != pdPASS) {
 		ESP_LOGE(TAG, "failed to create lef task for %s", leaf_config->name);
 		goto fail;
 	}
+
+
+	//notice network of the leaf added
+	_gn_mqtt_subscribe_leaf(leaf_config);
 
 	return ret;
 
@@ -492,7 +498,7 @@ esp_err_t _gn_init_timer(gn_config_handle_t conf) {
 
 }
 
-gn_config_handle_t gn_init() {
+gn_config_handle_t gn_init() { //TODO make the node working even without network
 
 	esp_err_t ret = ESP_OK;
 

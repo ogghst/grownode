@@ -4,6 +4,7 @@
 
 #include "grownode.h"
 #include "gn_pump.h"
+#include "gn_ds18b20.h"
 
 //#include "GrowNodeController.h"
 
@@ -33,25 +34,38 @@ void app_main(void) {
 
 	char buf[20];
 
-	for (int i = 0; i < 3; i++) {
+	sprintf(buf, "pump");
 
-		sprintf(buf, "pump%d",i);
+	//create new leaf, controlling pump
+	gn_leaf_config_handle_t pump_config = gn_create_leaf(node_config, buf,
+			gn_pump_callback, gn_pump_loop); //TODO add callback for loop?
 
-		//create new leaf, controlling pump
-		gn_leaf_config_handle_t pump_config = gn_create_leaf(node_config,
-				buf, gn_pump_callback, gn_pump_loop); //TODO add callback for loop?
-
-		if (pump_config == NULL) {
-			ESP_LOGE("main", "leaf creation error");
-			goto fail;
-		}
-
-		ESP_LOGI("main", "gn_create_leaf number %i - name %s on node %s", i,
-				pump_config->name, pump_config->node_config->name);
-
+	if (pump_config == NULL) {
+		ESP_LOGE("main", "leaf creation error");
+		goto fail;
 	}
 
+	ESP_LOGI("main", "gn_create_leaf number - name %s on node %s",
+			pump_config->name, pump_config->node_config->name);
+
+	sprintf(buf, "ds18b20");
+
+	//create new leaf, rading temp
+	gn_leaf_config_handle_t temp_config = gn_create_leaf(node_config, buf,
+			gn_ds18b20_callback, gn_ds18b20_loop); //TODO add callback for loop?
+
+	if (temp_config == NULL) {
+		ESP_LOGE("main", "leaf creation error");
+		goto fail;
+	}
+
+	ESP_LOGI("main", "gn_create_leaf number - name %s on node %s",
+			temp_config->name, temp_config->node_config->name);
+
+
+	//finally, start node
 	ESP_ERROR_CHECK(gn_start_node(node_config));
+
 
 	fail:
 

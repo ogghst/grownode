@@ -7,22 +7,59 @@ extern "C" {
 #define GN_PUMP_STATE_STOP 0
 #define GN_PUMP_STATE_RUNNING 1
 
-size_t state = GN_PUMP_STATE_STOP;
+size_t gn_pump_state = GN_PUMP_STATE_STOP;
 
 static const char *TAG = "gn_pump";
 
-size_t i = 0;
-char leaf_name[20];
-char buf[40];
+size_t gn_pump_i = 0;
+char gn_pump_leaf_name[20];
+char gn_pump_buf[40];
 
-void gn_pump_loop(gn_leaf_config_handle_t leaf_config) {
-	i++;
-	if (state == GN_PUMP_STATE_RUNNING) {
-		if (i > 1000) {
-			ESP_LOGI(TAG, "running %s, status %d", leaf_name, state);
-			i = 0;
+void __gn_pump_loop(gn_leaf_config_handle_t leaf_config) {
+	gn_pump_i++;
+	if (gn_pump_state == GN_PUMP_STATE_RUNNING) {
+		if (gn_pump_i > 1000) {
+			ESP_LOGI(TAG, "running %s, status %d", gn_pump_leaf_name, gn_pump_state);
+			gn_pump_i = 0;
 		}
 	}
+}
+
+void gn_pump_loop(gn_leaf_config_handle_t leaf_config) {
+
+
+	//make sure the init event is processed before anything else
+	gn_event_handle_t _init_evt = (gn_event_handle_t) malloc(
+			sizeof(gn_event_t));
+	_init_evt->id = GN_LEAF_INIT_REQUEST_EVENT;
+	_init_evt->data = NULL;
+	_init_evt->data_size = 0;
+
+	leaf_config->callback(_init_evt, leaf_config);
+
+	free(_init_evt);
+
+	gn_event_t evt;
+
+	while (true) {
+		//wait for events, otherwise run execution
+		if (xQueueReceive(leaf_config->xLeafTaskEventQueue, &evt,
+				(TickType_t) 10) == pdPASS) {
+			ESP_LOGD(TAG, "_gn_leaf_task %s event received %d",
+					leaf_config->name, evt.id);
+			//event received
+			leaf_config->callback(&evt, leaf_config);
+		} else {
+			//run
+			//ESP_LOGD(TAG, "_gn_leaf_task %s loop", leaf_config->name);
+			__gn_pump_loop(leaf_config);
+		}
+
+		vTaskDelay(1);
+	}
+
+
+
 }
 
 void gn_pump_callback(gn_event_handle_t event,
@@ -34,35 +71,35 @@ void gn_pump_callback(gn_event_handle_t event,
 	switch (event->id) {
 
 	case GN_LEAF_INIT_REQUEST_EVENT:
-		strncpy(leaf_name, leaf_config->name, 20);
-		state = GN_PUMP_STATE_RUNNING;
-		sprintf(buf, "%.*s init", 30, leaf_config->name);
-		gn_log_message(buf);
+		strncpy(gn_pump_leaf_name, leaf_config->name, 20);
+		gn_pump_state = GN_PUMP_STATE_RUNNING;
+		sprintf(gn_pump_buf, "%.*s init", 30, leaf_config->name);
+		gn_log_message(gn_pump_buf);
 		break;
 
 	case GN_LEAF_MESSAGE_RECEIVED_EVENT:
-		sprintf(buf, "message received: %.*s", (event->data_size > 20? 20: event->data_size), (char*) event->data);
-		gn_log_message(buf);
+		sprintf(gn_pump_buf, "message received: %.*s", (event->data_size > 20? 20: event->data_size), (char*) event->data);
+		gn_log_message(gn_pump_buf);
 		break;
 
 	case GN_NETWORK_CONNECTED_EVENT:
 		//lv_label_set_text(network_status_label, "NET OK");
-		state = GN_PUMP_STATE_RUNNING;
+		gn_pump_state = GN_PUMP_STATE_RUNNING;
 		break;
 
 	case GN_NETWORK_DISCONNECTED_EVENT:
 		//lv_label_set_text(network_status_label, "NET KO");
-		state = GN_PUMP_STATE_STOP;
+		gn_pump_state = GN_PUMP_STATE_STOP;
 		break;
 
 	case GN_SERVER_CONNECTED_EVENT:
 		//lv_label_set_text(server_status_label, "SRV OK");
-		state = GN_PUMP_STATE_RUNNING;
+		gn_pump_state = GN_PUMP_STATE_RUNNING;
 		break;
 
 	case GN_SERVER_DISCONNECTED_EVENT:
 		//lv_label_set_text(server_status_label, "SRV_KO");
-		state = GN_PUMP_STATE_STOP;
+		gn_pump_state = GN_PUMP_STATE_STOP;
 		break;
 
 	default:
