@@ -57,6 +57,7 @@ void gn_ds18b20_callback(void *handler_args, esp_event_base_t base, int32_t id,
 				sprintf(gn_ds18b20_buf, "message received: %.*s",
 						(event->data_size > 20 ? 20 : event->data_size),
 						(char*) event->data);
+				gn_leaf_param_set_string(leaf_config, "temp", (char*) event->data);
 				gn_message_display(gn_ds18b20_buf);
 				break;
 			} else _param = _param->next;
