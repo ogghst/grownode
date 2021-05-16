@@ -21,7 +21,7 @@ void app_main(void) {
 		ESP_LOGI("main", "grownode status not OK: %d", config->status);
 	}
 
-	gn_node_config_handle_t node_config = gn_create_node(config, "node");
+	gn_node_config_handle_t node_config = gn_node_create(config, "node");
 
 	if (node_config == NULL) {
 		ESP_LOGE("main", "node creation error");
@@ -30,15 +30,15 @@ void app_main(void) {
 
 	ESP_LOGI("main", "gn_create_node, name %s", node_config->name);
 
-	gn_log_message("initialized");
+	gn_message_display("initialized");
 
 	char buf[20];
 
 	sprintf(buf, "pump");
 
 	//create new leaf, controlling pump
-	gn_leaf_config_handle_t pump_config = gn_create_leaf(node_config, buf,
-			gn_pump_callback, gn_pump_loop); //TODO add callback for loop?
+	gn_leaf_config_handle_t pump_config = gn_leaf_create(node_config, buf,
+			gn_pump_loop);
 
 	if (pump_config == NULL) {
 		ESP_LOGE("main", "leaf creation error");
@@ -51,8 +51,8 @@ void app_main(void) {
 	sprintf(buf, "ds18b20");
 
 	//create new leaf, rading temp
-	gn_leaf_config_handle_t temp_config = gn_create_leaf(node_config, buf,
-			gn_ds18b20_callback, gn_ds18b20_loop); //TODO add callback for loop?
+	gn_leaf_config_handle_t temp_config = gn_leaf_create(node_config, buf,
+			gn_ds18b20_loop);
 
 	if (temp_config == NULL) {
 		ESP_LOGE("main", "leaf creation error");
@@ -64,7 +64,7 @@ void app_main(void) {
 
 
 	//finally, start node
-	ESP_ERROR_CHECK(gn_start_node(node_config));
+	ESP_ERROR_CHECK(gn_node_start(node_config));
 
 
 	fail:

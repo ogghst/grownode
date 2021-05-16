@@ -11,75 +11,28 @@ size_t gn_pump_state = GN_PUMP_STATE_STOP;
 
 static const char *TAG = "gn_pump";
 
-size_t gn_pump_i = 0;
-char gn_pump_leaf_name[20];
-char gn_pump_buf[40];
+static size_t gn_pump_i = 0;
+static gn_leaf_config_handle_t _leaf_config;
+static char gn_pump_buf[60];
 
-void __gn_pump_loop(gn_leaf_config_handle_t leaf_config) {
-	gn_pump_i++;
-	if (gn_pump_state == GN_PUMP_STATE_RUNNING) {
-		if (gn_pump_i > 1000) {
-			ESP_LOGI(TAG, "running %s, status %d", gn_pump_leaf_name, gn_pump_state);
-			gn_pump_i = 0;
-		}
-	}
-}
+void gn_pump_callback(void *handler_args, esp_event_base_t base, int32_t id,
+		void *event_data) {
 
-void gn_pump_loop(gn_leaf_config_handle_t leaf_config) {
+	gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t) handler_args;
+	gn_leaf_event_handle_t event;
 
+	ESP_LOGD(TAG, "gn_pump_callback (%s) event: %d", leaf_config->name, id);
 
-	//make sure the init event is processed before anything else
-	gn_event_handle_t _init_evt = (gn_event_handle_t) malloc(
-			sizeof(gn_event_t));
-	_init_evt->id = GN_LEAF_INIT_REQUEST_EVENT;
-	_init_evt->data = NULL;
-	_init_evt->data_size = 0;
-
-	leaf_config->callback(_init_evt, leaf_config);
-
-	free(_init_evt);
-
-	gn_event_t evt;
-
-	while (true) {
-		//wait for events, otherwise run execution
-		if (xQueueReceive(leaf_config->xLeafTaskEventQueue, &evt,
-				(TickType_t) 10) == pdPASS) {
-			ESP_LOGD(TAG, "_gn_leaf_task %s event received %d",
-					leaf_config->name, evt.id);
-			//event received
-			leaf_config->callback(&evt, leaf_config);
-		} else {
-			//run
-			//ESP_LOGD(TAG, "_gn_leaf_task %s loop", leaf_config->name);
-			__gn_pump_loop(leaf_config);
-		}
-
-		vTaskDelay(1);
-	}
-
-
-
-}
-
-void gn_pump_callback(gn_event_handle_t event,
-		gn_leaf_config_handle_t leaf_config) {
-
-	ESP_LOGD(TAG, "gn_pump_callback (%s) event: %d", leaf_config->name,
-			event->id);
-
-	switch (event->id) {
-
-	case GN_LEAF_INIT_REQUEST_EVENT:
-		strncpy(gn_pump_leaf_name, leaf_config->name, 20);
-		gn_pump_state = GN_PUMP_STATE_RUNNING;
-		sprintf(gn_pump_buf, "%.*s init", 30, leaf_config->name);
-		gn_log_message(gn_pump_buf);
-		break;
+	switch (id) {
 
 	case GN_LEAF_MESSAGE_RECEIVED_EVENT:
-		sprintf(gn_pump_buf, "message received: %.*s", (event->data_size > 20? 20: event->data_size), (char*) event->data);
-		gn_log_message(gn_pump_buf);
+		event = (gn_leaf_event_handle_t) event_data;
+		if (strcmp(event->leaf_name, leaf_config->name) != 0)
+			break;
+		sprintf(gn_pump_buf, "message received: %.*s",
+				(event->data_size > 20 ? 20 : event->data_size),
+				(char*) event->data);
+		gn_message_display(gn_pump_buf);
 		break;
 
 	case GN_NETWORK_CONNECTED_EVENT:
@@ -105,6 +58,44 @@ void gn_pump_callback(gn_event_handle_t event,
 	default:
 		break;
 
+	}
+
+}
+
+void gn_pump_loop(gn_leaf_config_handle_t leaf_config) {
+
+	_leaf_config = leaf_config;
+	gn_pump_state = GN_PUMP_STATE_RUNNING;
+	sprintf(gn_pump_buf, "%.*s init", 30, leaf_config->name);
+	gn_message_display(gn_pump_buf);
+
+	ESP_ERROR_CHECK(
+			esp_event_handler_instance_register_with(leaf_config->event_loop, GN_BASE_EVENT, GN_EVENT_ANY_ID, gn_pump_callback, leaf_config, NULL));
+
+	gn_param_handle_t param = gn_leaf_param_create("status", GN_VAL_TYPE_BOOLEAN,
+			(gn_val_t){ false });
+	gn_leaf_param_add(leaf_config, param);
+
+	while (true) {
+
+		gn_pump_i++;
+		if (gn_pump_state == GN_PUMP_STATE_RUNNING) {
+			if (gn_pump_i > 1000) {
+
+				gn_param_handle_t param = gn_leaf_param_get(leaf_config, "status");
+				param->param_val->v.b = !param->param_val->v.b;
+				gn_leaf_param_set_bool(leaf_config, "status", param->param_val->v.b);
+
+				sprintf(gn_pump_buf,  "%s - %d", leaf_config->name,
+						gn_pump_state);
+				gn_message_send_text(leaf_config, gn_pump_buf);
+				gn_message_display(gn_pump_buf);
+				gn_pump_i = 0;
+
+			}
+		}
+
+		vTaskDelay(1);
 	}
 
 }

@@ -15,9 +15,7 @@ extern "C" {
 #include "grownode.h"
 //#include "gn_mqtt_protocol.h"
 
-void gn_pump_callback(gn_event_handle_t event, gn_leaf_config_handle_t leaf_config);
-
-void gn_pump_loop();
+void gn_pump_loop(gn_leaf_config_handle_t leaf_config);
 
 #ifdef __cplusplus
 }

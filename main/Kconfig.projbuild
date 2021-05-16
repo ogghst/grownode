@@ -19,6 +19,10 @@ menu "GrowNode Configuration"
         default 1 if GROWNODE_PROV_TRANSPORT_BLE
         default 2 if GROWNODE_PROV_TRANSPORT_SOFTAP
         
+    config GROWNODE_KEEPALIVE_TIMER_SEC
+    	int "Kepalive message (sec)"
+    	default 60
+        
     config GROWNODE_RESET_PROVISIONED
     	bool "Reset Provisioning Status at every startup"
     	default false

@@ -17,13 +17,13 @@ extern "C" {
 
 
 
-esp_err_t _gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t leaf_config);
+esp_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t leaf_config);
 
-esp_err_t _gn_mqtt_init(gn_config_handle_t conf);
+esp_err_t gn_mqtt_init(gn_config_handle_t conf);
 
-esp_err_t _gn_mqtt_send_node_config(gn_node_config_handle_t conf);
+esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t conf);
 
-esp_err_t _gn_mqtt_send_leaf_status(gn_leaf_config_handle_t leaf, const char* msg);
+esp_err_t gn_mqtt_send_leaf_status(gn_leaf_config_handle_t leaf, const char* msg);
 
 #ifdef __cplusplus
 }

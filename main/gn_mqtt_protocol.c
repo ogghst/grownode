@@ -133,35 +133,35 @@ void _gn_mqtt_build_command_topic(gn_config_handle_t config, char *buf) {
  *
  */
 /*
-void _gn_mqtt_on_publish(void* handler_arg, esp_event_base_t base, int32_t id, void* event_data) {
+ void _gn_mqtt_on_publish(void* handler_arg, esp_event_base_t base, int32_t id, void* event_data) {
 
-	esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t) event_data;
+ esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t) event_data;
 
-	switch (id) {
+ switch (id) {
 
-	case MQTT_EVENT_DATA: {
+ case MQTT_EVENT_DATA: {
 
-		gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t) handler_arg;
+ gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t) handler_arg;
 
-		ESP_LOGD(TAG, "MQTT_EVENT_DATA");
-		ESP_LOGD(TAG, "TOPIC=%.*s\r\n", event->topic_len, event->topic);
-		ESP_LOGD(TAG, "DATA=%.*s\r\n", event->data_len, event->data);
-		char *buf = (char*) malloc(sizeof(char)*_GN_MQTT_MAX_TOPIC_LENGTH);
-		_gn_mqtt_build_leaf_command_topic(leaf_config, buf);
-		if (strncmp(buf, event->topic, event->topic_len) == 0) {
-			//callback to leaf
-			leaf_config->callback(GN_LEAF_MESSAGE_RECEIVED_EVENT, leaf_config, event); //TODO wrap only event data in a structure
-		}
-		free(buf);
+ ESP_LOGD(TAG, "MQTT_EVENT_DATA");
+ ESP_LOGD(TAG, "TOPIC=%.*s\r\n", event->topic_len, event->topic);
+ ESP_LOGD(TAG, "DATA=%.*s\r\n", event->data_len, event->data);
+ char *buf = (char*) malloc(sizeof(char)*_GN_MQTT_MAX_TOPIC_LENGTH);
+ _gn_mqtt_build_leaf_command_topic(leaf_config, buf);
+ if (strncmp(buf, event->topic, event->topic_len) == 0) {
+ //callback to leaf
+ leaf_config->callback(GN_LEAF_MESSAGE_RECEIVED_EVENT, leaf_config, event); //TODO wrap only event data in a structure
+ }
+ free(buf);
 
-		break;
-	}
+ break;
+ }
 
-	}
-}
-*/
+ }
+ }
+ */
 
-esp_err_t _gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t leaf_config) {
+esp_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t leaf_config) {
 
 	ESP_LOGD(TAG, "subscribing leaf");
 
@@ -179,9 +179,7 @@ esp_err_t _gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t leaf_config) {
 
 }
 
-
-
-esp_err_t _gn_mqtt_send_node_config(gn_node_config_handle_t config) {
+esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t config) {
 
 	//TODO merge in just one status message to be sent every time there is a change
 	int ret = ESP_OK;
@@ -198,16 +196,47 @@ esp_err_t _gn_mqtt_send_node_config(gn_node_config_handle_t config) {
 	int msg_id = -1;
 	char *buf = (char*) malloc(_GN_MQTT_MAX_PAYLOAD_LENGTH * sizeof(char));
 
-	cJSON *root, *leaves, *leaf, *leaf_name;
+	cJSON *root, *leaves, *leaf, *leaf_name, *leaf_params, *leaf_param,
+			*leaf_param_name, *leaf_param_val;
 	root = cJSON_CreateObject();
-	cJSON_AddStringToObject(root, "name", msg->config->name); //TODO grab network name
+	cJSON_AddStringToObject(root, "name", msg->config->name);
 	leaves = cJSON_CreateArray();
 	cJSON_AddItemToObject(root, "leaves", leaves);
 	for (int i = 0; i < config->leaves.last; i++) {
+		gn_leaf_config_handle_t _leaf_config = config->leaves.at[i];
 		leaf = cJSON_CreateObject();
 		cJSON_AddItemToArray(leaves, leaf);
-		leaf_name = cJSON_CreateString(config->leaves.at[i]->name);
+		leaf_name = cJSON_CreateString(_leaf_config->name);
 		cJSON_AddItemToObject(leaf, "name", leaf_name);
+
+		leaf_params = cJSON_CreateArray();
+		cJSON_AddItemToObject(leaf, "params", leaf_params);
+
+		gn_param_handle_t _param = _leaf_config->params;
+		while (_param) {
+			leaf_param = cJSON_CreateObject();
+			cJSON_AddItemToArray(leaf_params, leaf_param);
+			//leaf_param_name = cJSON_CreateString(_param->name);
+			cJSON_AddStringToObject(leaf_param, "name", _param->name);
+			//leaf_param_val = cJSON_CreateString(_param->param_val->val.s);
+			switch (_param->param_val->t) {
+			case GN_VAL_TYPE_STRING:
+				cJSON_AddStringToObject(leaf_param, "val",
+						_param->param_val->v.s);
+				break;
+			case GN_VAL_TYPE_BOOLEAN:
+				cJSON_AddBoolToObject(leaf_param, "val",
+						_param->param_val->v.b);
+				break;
+			default:
+				ESP_LOGE(TAG, "parameter type not handled");
+				goto fail;
+				break;
+
+			}
+			_param = _param->next;
+		}
+
 	}
 	if (!cJSON_PrintPreallocated(root, buf, _GN_MQTT_MAX_PAYLOAD_LENGTH,
 	false)) {
@@ -249,7 +278,7 @@ esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t config) {
 
 	cJSON *root;
 	root = cJSON_CreateObject();
-	cJSON_AddStringToObject(root, "deviceName", msg->config->deviceName); //TODO grab network name
+	cJSON_AddStringToObject(root, "deviceName", msg->config->deviceName);
 	if (!cJSON_PrintPreallocated(root, buf, _GN_MQTT_MAX_PAYLOAD_LENGTH,
 	false)) {
 		ESP_LOGE(TAG, "_gn_create_startup_message: cannot print json message");
@@ -271,7 +300,8 @@ esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t config) {
 	}
 }
 
-esp_err_t _gn_mqtt_send_leaf_status(gn_leaf_config_handle_t leaf, const char* msg) {
+esp_err_t gn_mqtt_send_leaf_status(gn_leaf_config_handle_t leaf,
+		const char *msg) {
 
 	//get the topic
 	char buf[_GN_MQTT_MAX_TOPIC_LENGTH];
@@ -279,14 +309,15 @@ esp_err_t _gn_mqtt_send_leaf_status(gn_leaf_config_handle_t leaf, const char* ms
 
 	//publish
 	ESP_LOGD(TAG, "publish topic %s, msg=%s", buf, msg);
-	int msg_id = esp_mqtt_client_publish(leaf->node_config->config->mqtt_client, buf, msg, 0, 2, 0);
+	int msg_id = esp_mqtt_client_publish(leaf->node_config->config->mqtt_client,
+			buf, msg, 0, 2, 0);
 
-	if (msg_id == -1) return ESP_FAIL;
+	if (msg_id == -1)
+		return ESP_FAIL;
 
 	return ESP_OK;
 
 }
-
 
 esp_err_t _gn_mqtt_on_connected(gn_config_handle_t config) {
 
@@ -414,26 +445,43 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 						GN_NET_RST_START, NULL, 0, portMAX_DELAY);
 
 			}
+
 		} else {
 			//forward message to the appropriate leaf
-			char buf [_GN_MQTT_MAX_TOPIC_LENGTH];
+			char buf[_GN_MQTT_MAX_TOPIC_LENGTH];
+			gn_leaf_event_t evt;
 
 			for (int i = 0; i < _config->node_config->leaves.last; i++) {
-				_gn_mqtt_build_leaf_command_topic(_config->node_config->leaves.at[i], buf);
 
 				//message is for this leaf
+				_gn_mqtt_build_leaf_command_topic(
+						_config->node_config->leaves.at[i], buf);
 				if (strncmp(buf, event->topic, event->topic_len) == 0) {
 
-					gn_event_t evt = {GN_LEAF_MESSAGE_RECEIVED_EVENT, event->data, 	event->data_len};
+					evt.id = GN_LEAF_MESSAGE_RECEIVED_EVENT;
+					strncpy(evt.leaf_name,
+							_config->node_config->leaves.at[i]->name,
+							GN_LEAF_NAME_SIZE);
+					evt.data = event->data;
+					evt.data_size = event->data_len;
 
-					if (xQueueSend(_config->node_config->leaves.at[i]->xLeafTaskEventQueue, &evt, 0) != pdTRUE) {
-						ESP_LOGE(TAG,"not possible to send message to leaf %s",_config->node_config->leaves.at[i]->name);
+					if (esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
+							evt.id, &evt, sizeof(evt), 0) != ESP_OK) {
+						ESP_LOGE(TAG, "not possible to send message to leaf %s",
+								_config->node_config->leaves.at[i]->name);
 					}
 
-				//_config->node_config->leaves.at[i]->callback(GN_LEAF_MESSAGE_RECEIVED_EVENT, _config->node_config->leaves.at[i], event); //TODO change in custom structure to not expose mqtt library
+					break;
+
+					/*
+					 if (xQueueSend(_config->node_config->leaves.at[i]->xLeafTaskEventQueue, &evt, 0) != pdTRUE) {
+					 ESP_LOGE(TAG,"not possible to send message to leaf %s",_config->node_config->leaves.at[i]->name);
+					 }
+					 */
+
+					//_config->node_config->leaves.at[i]->callback(GN_LEAF_MESSAGE_RECEIVED_EVENT, _config->node_config->leaves.at[i], event); //TODO change in custom structure to not expose mqtt library
 				}
 			}
-
 
 			break;
 
@@ -461,7 +509,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 
 }
 
-esp_err_t _gn_mqtt_init(gn_config_handle_t conf) {
+esp_err_t gn_mqtt_init(gn_config_handle_t conf) {
 
 	_gn_event_group_mqtt = xEventGroupCreate();
 
@@ -503,15 +551,15 @@ esp_err_t _gn_mqtt_init(gn_config_handle_t conf) {
 		ESP_LOGI(TAG, "MQTT client handshake successful");
 
 		/*
-		//publish server connected event
-		if (ESP_OK
-				!= esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
-						GN_SERVER_CONNECTED_EVENT,
-						NULL, 0, portMAX_DELAY)) {
-			ESP_LOGE(TAG, "failed to send GN_SERVER_CONNECTED_EVENT event");
-			goto fail;
-		}
-		*/
+		 //publish server connected event
+		 if (ESP_OK
+		 != esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
+		 GN_SERVER_CONNECTED_EVENT,
+		 NULL, 0, portMAX_DELAY)) {
+		 ESP_LOGE(TAG, "failed to send GN_SERVER_CONNECTED_EVENT event");
+		 goto fail;
+		 }
+		 */
 
 		return ESP_OK;
 	}
@@ -520,18 +568,17 @@ esp_err_t _gn_mqtt_init(gn_config_handle_t conf) {
 		ESP_LOGE(TAG, "MQTT client handshake error");
 		//publish server disconnected event
 		/*
-		if (ESP_OK
-				!= esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
-						GN_SERVER_DISCONNECTED_EVENT,
-						NULL, 0, portMAX_DELAY)) {
-			ESP_LOGE(TAG, "failed to send GN_SERVER_DISCONNECTED_EVENT event");
-			return ESP_FAIL;
-		}
-		*/
+		 if (ESP_OK
+		 != esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
+		 GN_SERVER_DISCONNECTED_EVENT,
+		 NULL, 0, portMAX_DELAY)) {
+		 ESP_LOGE(TAG, "failed to send GN_SERVER_DISCONNECTED_EVENT event");
+		 return ESP_FAIL;
+		 }
+		 */
 	}
 
 	//TODO start keepalive service
-
 
 	//fail: return ESP_FAIL;
 	ESP_LOGE(TAG, "MQTT client error: should never reach here!"); //TODO improve flow

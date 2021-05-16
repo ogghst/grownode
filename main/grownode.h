@@ -24,7 +24,8 @@ extern "C" {
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
-#define GN_MEM_NAME_SIZE 32
+#define GN_NODE_NAME_SIZE 32
+#define GN_LEAF_NAME_SIZE 32
 
 typedef enum {
 	GN_CONFIG_STATUS_NOT_INITIALIZED,
@@ -57,15 +58,23 @@ typedef gn_config_t *gn_config_handle_t;
 
 typedef struct {
 	gn_event_id_t id;
+	char leaf_name[GN_LEAF_NAME_SIZE];
 	void *data; /*!< Data associated with this event */
 	int data_size; /*!< Length of the data for this event */
-} gn_event_t;
+} gn_leaf_event_t;
 
-typedef gn_event_t *gn_event_handle_t;
+typedef gn_leaf_event_t *gn_leaf_event_handle_t;
 
-typedef void (*gn_leaf_event_callback_t)(gn_event_handle_t id,
-		gn_leaf_config_handle_t leaf_config);
-typedef void (*gn_leaf_loop_callback_t)(gn_leaf_config_handle_t leaf_config);
+typedef struct {
+	gn_event_id_t id;
+	char node_name[GN_NODE_NAME_SIZE];
+	void *data; /*!< Data associated with this event */
+	int data_size; /*!< Length of the data for this event */
+} gn_node_event_t;
+
+typedef gn_node_event_t *gn_node_event_handle_t;
+
+typedef void (*gn_leaf_task_t)(gn_leaf_config_handle_t leaf_config);
 
 typedef struct {
 	size_t size;
@@ -80,22 +89,50 @@ typedef struct {
 } gn_nodes_list;
 
 struct __gn_node_config_t {
-	char *name;
+	char name[GN_NODE_NAME_SIZE];
 	//esp_event_loop_handle_t event_loop;
 	gn_config_handle_t config;
 	gn_leaves_list leaves;
 };
 
-typedef void* gn_leaf_context_handle_t;
+typedef enum {
+	GN_VAL_TYPE_STRING,
+	GN_VAL_TYPE_BOOLEAN,
+} gn_val_type_t;
+
+typedef union {
+	char *s;
+	bool b;
+} gn_val_t;
+
+typedef struct {
+	gn_val_type_t t;
+	gn_val_t v;
+} gn_param_val_t;
+
+typedef gn_param_val_t *gn_param_val_handle_t;
+
+struct gn_param {
+	char *name;
+	gn_param_val_handle_t param_val;
+	gn_leaf_config_handle_t leaf_config;
+	struct gn_param *next;
+};
+
+typedef struct gn_param gn_param_t;
+
+typedef gn_param_t *gn_param_handle_t;
+
+//typedef void* gn_leaf_context_handle_t;
 
 struct __gn_leaf_config_t {
-	char *name;
+	char name[GN_LEAF_NAME_SIZE];
 	gn_node_config_handle_t node_config;
-	gn_leaf_event_callback_t callback;
-	gn_leaf_loop_callback_t loop;
+	gn_leaf_task_t task;
 	//gn_leaf_config_handle_t next;
-	QueueHandle_t xLeafTaskEventQueue;
-	gn_leaf_context_handle_t leaf_context;
+	//QueueHandle_t xLeafTaskEventQueue;
+	esp_event_loop_handle_t event_loop;
+	gn_param_handle_t params;
 };
 
 /*
@@ -121,25 +158,43 @@ struct __gn_leaf_config_t {
  */
 
 //functions
-gn_node_config_handle_t gn_create_node(gn_config_handle_t config,
+gn_node_config_handle_t gn_node_create(gn_config_handle_t config,
 		const char *name);
 
-esp_err_t gn_destroy_node(gn_node_config_handle_t node);
+esp_err_t gn_node_destroy(gn_node_config_handle_t node);
 
-esp_err_t gn_start_node(gn_node_config_handle_t node);
+esp_err_t gn_node_start(gn_node_config_handle_t node);
 
 gn_config_handle_t gn_init();
 
-gn_leaf_config_handle_t gn_create_leaf(gn_node_config_handle_t node_config,
-		const char *name, gn_leaf_event_callback_t callback, gn_leaf_loop_callback_t loop);
+gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
+		const char *name, gn_leaf_task_t loop);
 
-esp_err_t gn_destroy_leaf(gn_leaf_config_handle_t leaf);
+esp_err_t gn_leaf_destroy(gn_leaf_config_handle_t leaf);
 
 //esp_err_t _gn_start_leaf(gn_leaf_config_handle_t leaf);
 
-esp_err_t gn_log_message(char *message);
+gn_param_handle_t gn_leaf_param_create(const char* name, const gn_val_type_t type, const gn_val_t val);
 
-esp_err_t gn_send_text_message(gn_leaf_config_handle_t config, const char *msg);
+esp_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf, const gn_param_handle_t new_param);
+
+gn_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf, const char *param_name);
+
+esp_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf, const char* name, const char *val);
+
+esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf, const char* name, const bool val);
+
+
+esp_err_t gn_leaf_param_destroy(gn_param_handle_t new_param);
+
+
+
+
+
+
+esp_err_t gn_message_display(char *message);
+
+esp_err_t gn_message_send_text(gn_leaf_config_handle_t config, const char *msg);
 
 #ifdef __cplusplus
 }

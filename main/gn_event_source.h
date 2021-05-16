@@ -27,6 +27,7 @@ typedef enum  {
 
 	GN_LEAF_INIT_REQUEST_EVENT, //used internally to leaf event queue
 	GN_LEAF_MESSAGE_RECEIVED_EVENT,
+	GN_SYSTEM_MESSAGE_RECEIVED_EVENT,
 
 	GN_LEAF_ADDED_EVENT,
 
