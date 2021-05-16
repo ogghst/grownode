@@ -35,7 +35,7 @@ void gn_ds18b20_callback(void *handler_args, esp_event_base_t base, int32_t id,
 
 	switch (id) {
 
-	case GN_LEAF_MESSAGE_RECEIVED_EVENT:
+	case GN_LEAF_MESSAGE_RECEIVED_EVENT: //TODO better use specific callbacks per events
 		event = (gn_leaf_event_handle_t) event_data;
 		if (strcmp(event->leaf_name, leaf_config->name) != 0)
 			break;
@@ -43,6 +43,25 @@ void gn_ds18b20_callback(void *handler_args, esp_event_base_t base, int32_t id,
 				(event->data_size > 20 ? 20 : event->data_size),
 				(char*) event->data);
 		gn_message_display(gn_ds18b20_buf);
+		break;
+
+	case GN_LEAF_PARAM_MESSAGE_RECEIVED_EVENT:
+		event = (gn_leaf_event_handle_t) event_data;
+		if (strcmp(event->leaf_name, leaf_config->name) != 0)
+			break;
+
+		gn_param_handle_t _param = leaf_config->params;
+		while(_param) {
+			if (strcmp(event->param_name, _param->name) == 0) {
+
+				sprintf(gn_ds18b20_buf, "message received: %.*s",
+						(event->data_size > 20 ? 20 : event->data_size),
+						(char*) event->data);
+				gn_message_display(gn_ds18b20_buf);
+				break;
+			} else _param = _param->next;
+		}
+
 		break;
 
 	case GN_NETWORK_CONNECTED_EVENT:

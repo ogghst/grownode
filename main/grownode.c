@@ -336,6 +336,12 @@ esp_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
 		leaf->params = new_param;
 	}
 
+
+	if (gn_mqtt_subscribe_leaf_param(new_param) != ESP_OK) {
+		ESP_LOGE(TAG, "gn_leaf_param_add failed to add param %s to leaf %s", new_param->name, leaf->name);
+		return ESP_FAIL;
+	}
+
 	ESP_LOGD(TAG, "Param %s added in %s", new_param->name, leaf->name);
 	return ESP_OK;
 }

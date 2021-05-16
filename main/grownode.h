@@ -26,6 +26,7 @@ extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
 #define GN_NODE_NAME_SIZE 32
 #define GN_LEAF_NAME_SIZE 32
+#define GN_LEAF_PARAM_NAME_SIZE 32
 
 typedef enum {
 	GN_CONFIG_STATUS_NOT_INITIALIZED,
@@ -59,6 +60,7 @@ typedef gn_config_t *gn_config_handle_t;
 typedef struct {
 	gn_event_id_t id;
 	char leaf_name[GN_LEAF_NAME_SIZE];
+	char param_name[GN_LEAF_PARAM_NAME_SIZE];
 	void *data; /*!< Data associated with this event */
 	int data_size; /*!< Length of the data for this event */
 } gn_leaf_event_t;

@@ -81,6 +81,29 @@ void _gn_mqtt_build_leaf_command_topic(gn_leaf_config_handle_t leaf_config,
 
 }
 
+void _gn_mqtt_build_leaf_parameter_command_topic(
+		gn_leaf_config_handle_t leaf_config, char *param_name, char *buf) {
+
+	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_MAX_TOPIC_LENGTH);
+	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
+	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X",
+			leaf_config->node_config->config->macAddress[0],
+			leaf_config->node_config->config->macAddress[1],
+			leaf_config->node_config->config->macAddress[2],
+			leaf_config->node_config->config->macAddress[3],
+			leaf_config->node_config->config->macAddress[4],
+			leaf_config->node_config->config->macAddress[5]);
+	strncat(buf, __mac, 12);
+	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
+	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
+	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
+	strncat(buf, param_name, _GN_MQTT_MAX_TOPIC_LENGTH);
+	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
+	strncat(buf, _GN_MQTT_COMMAND_MESS, _GN_MQTT_MAX_TOPIC_LENGTH);
+	buf[_GN_MQTT_MAX_TOPIC_LENGTH - 1] = '\0';
+
+}
+
 void _gn_mqtt_build_leaf_status_topic(gn_leaf_config_handle_t leaf_config,
 		char *buf) {
 	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -163,15 +186,33 @@ void _gn_mqtt_build_command_topic(gn_config_handle_t config, char *buf) {
 
 esp_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t leaf_config) {
 
-	ESP_LOGD(TAG, "subscribing leaf");
+	ESP_LOGD(TAG, "subscribing leaf %s", leaf_config->name);
 
 	char topic[_GN_MQTT_MAX_TOPIC_LENGTH];
 	_gn_mqtt_build_leaf_command_topic(leaf_config, topic);
 
-	ESP_LOGD(TAG, "esp_mqtt_client_subscribe. topic: %s", topic);
+	ESP_LOGD(TAG, "gn_mqtt_subscribe_leaf. topic: %s", topic);
 
 	int msg_id = esp_mqtt_client_subscribe(
 			leaf_config->node_config->config->mqtt_client, topic, 0);
+	ESP_LOGI(TAG, "sent subscribe successful, topic = %s, msg_id=%d", topic,
+			msg_id);
+
+	return ESP_OK;
+
+}
+
+esp_err_t gn_mqtt_subscribe_leaf_param(gn_param_handle_t param) {
+
+	ESP_LOGD(TAG, "subscribing param %s on %s", param->name, param->leaf_config->name);
+
+	char topic[_GN_MQTT_MAX_TOPIC_LENGTH];
+	_gn_mqtt_build_leaf_parameter_command_topic(param->leaf_config, param->name, topic);
+
+	ESP_LOGD(TAG, "gn_mqtt_subscribe_leaf_param. topic: %s", topic);
+
+	int msg_id = esp_mqtt_client_subscribe(
+			param->leaf_config->node_config->config->mqtt_client, topic, 0);
 	ESP_LOGI(TAG, "sent subscribe successful, topic = %s, msg_id=%d", topic,
 			msg_id);
 
@@ -448,15 +489,16 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 
 		} else {
 			//forward message to the appropriate leaf
-			char buf[_GN_MQTT_MAX_TOPIC_LENGTH];
+			char leaf_topic[_GN_MQTT_MAX_TOPIC_LENGTH];
+			char param_topic[_GN_MQTT_MAX_TOPIC_LENGTH];
 			gn_leaf_event_t evt;
 
 			for (int i = 0; i < _config->node_config->leaves.last; i++) {
 
 				//message is for this leaf
 				_gn_mqtt_build_leaf_command_topic(
-						_config->node_config->leaves.at[i], buf);
-				if (strncmp(buf, event->topic, event->topic_len) == 0) {
+						_config->node_config->leaves.at[i], leaf_topic);
+				if (strncmp(leaf_topic, event->topic, event->topic_len) == 0) {
 
 					evt.id = GN_LEAF_MESSAGE_RECEIVED_EVENT;
 					strncpy(evt.leaf_name,
@@ -481,6 +523,37 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 
 					//_config->node_config->leaves.at[i]->callback(GN_LEAF_MESSAGE_RECEIVED_EVENT, _config->node_config->leaves.at[i], event); //TODO change in custom structure to not expose mqtt library
 				}
+
+				gn_param_handle_t _param =
+						_config->node_config->leaves.at[i]->params;
+				while (_param) {
+					//message is for a parameter of this leaf
+					_gn_mqtt_build_leaf_parameter_command_topic(
+							_config->node_config->leaves.at[i], _param->name,
+							param_topic);
+					if (strncmp(param_topic, event->topic, event->topic_len)
+							== 0) {
+						evt.id = GN_LEAF_PARAM_MESSAGE_RECEIVED_EVENT;
+						strncpy(evt.leaf_name,
+								_config->node_config->leaves.at[i]->name,
+								GN_LEAF_NAME_SIZE);
+						strncpy(evt.param_name, _param->name,
+						GN_LEAF_PARAM_NAME_SIZE);
+						evt.data = event->data;
+						evt.data_size = event->data_len;
+
+						if (esp_event_post_to(_config->event_loop,
+								GN_BASE_EVENT, evt.id, &evt, sizeof(evt),
+								0) != ESP_OK) {
+							ESP_LOGE(TAG,
+									"not possible to send param message to leaf %s",
+									_config->node_config->leaves.at[i]->name);
+						}
+						break;
+					}
+					_param = _param->next;
+				}
+
 			}
 
 			break;
