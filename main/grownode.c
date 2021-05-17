@@ -176,7 +176,7 @@ gn_leaf_config_handle_t _gn_leaf_config_create() {
 	return _conf;
 }
 
-gn_param_handle_t gn_leaf_param_create(const char *name,
+gn_leaf_param_handle_t gn_leaf_param_create(const char *name,
 		const gn_val_type_t type, const gn_val_t val) {
 
 	if (!name) {
@@ -184,7 +184,7 @@ gn_param_handle_t gn_leaf_param_create(const char *name,
 		return NULL;
 	}
 
-	gn_param_handle_t _ret = (gn_param_handle_t) malloc(sizeof(gn_param_t));
+	gn_leaf_param_handle_t _ret = (gn_leaf_param_handle_t) malloc(sizeof(gn_leaf_param_t));
 	_ret->next = NULL;
 
 	char *_name = strdup(name);
@@ -263,7 +263,7 @@ esp_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf,
 	if (!leaf || !name || !val)
 		return ESP_ERR_INVALID_ARG;
 
-	gn_param_handle_t _param = gn_leaf_param_get(leaf, name);
+	gn_leaf_param_handle_t _param = gn_leaf_param_get(leaf, name);
 
 	ESP_LOGD(TAG, "gn_leaf_param_set %s %s", name, val);
 	ESP_LOGD(TAG, "	old value %s", val);
@@ -273,7 +273,7 @@ esp_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf,
 	strncpy(_param->param_val->v.s, val, strlen(val));
 	ESP_LOGD(TAG, "gn_leaf_param_set - result %s", _param->param_val->v.s);
 
-	return gn_mqtt_send_node_config(leaf->node_config);
+	return gn_mqtt_send_leaf_param(_param);
 
 }
 
@@ -283,18 +283,18 @@ esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf,
 	if (!leaf || !name)
 		return ESP_ERR_INVALID_ARG;
 
-	gn_param_handle_t _param = gn_leaf_param_get(leaf, name);
+	gn_leaf_param_handle_t _param = gn_leaf_param_get(leaf, name);
 
 	ESP_LOGD(TAG, "gn_leaf_param_set %s %d", name, val);
 	ESP_LOGD(TAG, "	old value %d", val);
 	_param->param_val->v.b = val;
 	ESP_LOGD(TAG, "gn_leaf_param_set - result %d", _param->param_val->v.b);
 
-	return gn_mqtt_send_node_config(leaf->node_config);
+	return gn_mqtt_send_leaf_param(_param);
 
 }
 
-esp_err_t gn_leaf_param_destroy(gn_param_handle_t new_param) {
+esp_err_t gn_leaf_param_destroy(gn_leaf_param_handle_t new_param) {
 
 	if (!new_param)
 		return ESP_ERR_INVALID_ARG;
@@ -308,13 +308,13 @@ esp_err_t gn_leaf_param_destroy(gn_param_handle_t new_param) {
 }
 
 esp_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
-		const gn_param_handle_t new_param) {
+		const gn_leaf_param_handle_t new_param) {
 	if (!leaf || !new_param) {
 		ESP_LOGE(TAG, "gn_leaf_param_add incorrect parameters");
 		return ESP_ERR_INVALID_ARG;
 	}
 
-	gn_param_handle_t _param = leaf->params;
+	gn_leaf_param_handle_t _param = leaf->params;
 
 	while (_param) {
 		if (strcmp(_param->name, new_param->name) == 0) {
@@ -346,13 +346,13 @@ esp_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
 	return ESP_OK;
 }
 
-gn_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf,
+gn_leaf_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf,
 		const char *param_name) {
 	if (!leaf || !param_name) {
 		ESP_LOGE(TAG, "gn_leaf_param_get incorrect parameters");
 		return NULL;
 	}
-	gn_param_handle_t param = leaf->params;
+	gn_leaf_param_handle_t param = leaf->params;
 	while (param) {
 		if (strcmp(param->name, param_name) == 0) {
 			break;
@@ -556,7 +556,7 @@ esp_err_t gn_message_display(char *message) {
 
 esp_err_t gn_message_send_text(gn_leaf_config_handle_t leaf, const char *msg) {	//TODO remove leaf config
 
-	return gn_mqtt_send_leaf_status(leaf, msg);
+	return gn_mqtt_send_leaf_message(leaf, msg);
 
 }
 

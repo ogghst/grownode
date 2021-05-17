@@ -114,16 +114,16 @@ typedef struct {
 
 typedef gn_param_val_t *gn_param_val_handle_t;
 
-struct gn_param {
+struct gn_leaf_param {
 	char *name;
 	gn_param_val_handle_t param_val;
 	gn_leaf_config_handle_t leaf_config;
-	struct gn_param *next;
+	struct gn_leaf_param *next;
 };
 
-typedef struct gn_param gn_param_t;
+typedef struct gn_leaf_param gn_leaf_param_t;
 
-typedef gn_param_t *gn_param_handle_t;
+typedef gn_leaf_param_t *gn_leaf_param_handle_t;
 
 //typedef void* gn_leaf_context_handle_t;
 
@@ -134,7 +134,7 @@ struct __gn_leaf_config_t {
 	//gn_leaf_config_handle_t next;
 	//QueueHandle_t xLeafTaskEventQueue;
 	esp_event_loop_handle_t event_loop;
-	gn_param_handle_t params;
+	gn_leaf_param_handle_t params;
 };
 
 /*
@@ -176,18 +176,18 @@ esp_err_t gn_leaf_destroy(gn_leaf_config_handle_t leaf);
 
 //esp_err_t _gn_start_leaf(gn_leaf_config_handle_t leaf);
 
-gn_param_handle_t gn_leaf_param_create(const char* name, const gn_val_type_t type, const gn_val_t val);
+gn_leaf_param_handle_t gn_leaf_param_create(const char* name, const gn_val_type_t type, const gn_val_t val);
 
-esp_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf, const gn_param_handle_t new_param);
+esp_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf, const gn_leaf_param_handle_t new_param);
 
-gn_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf, const char *param_name);
+gn_leaf_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf, const char *param_name);
 
 esp_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf, const char* name, const char *val);
 
 esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf, const char* name, const bool val);
 
 
-esp_err_t gn_leaf_param_destroy(gn_param_handle_t new_param);
+esp_err_t gn_leaf_param_destroy(gn_leaf_param_handle_t new_param);
 
 
 

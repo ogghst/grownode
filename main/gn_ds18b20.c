@@ -50,7 +50,7 @@ void gn_ds18b20_callback(void *handler_args, esp_event_base_t base, int32_t id,
 		if (strcmp(event->leaf_name, leaf_config->name) != 0)
 			break;
 
-		gn_param_handle_t _param = leaf_config->params;
+		gn_leaf_param_handle_t _param = leaf_config->params;
 		while(_param) {
 			if (strcmp(event->param_name, _param->name) == 0) {
 
@@ -180,7 +180,7 @@ void gn_ds18b20_loop(gn_leaf_config_handle_t leaf_config) {
 	ESP_ERROR_CHECK(
 			esp_event_handler_instance_register_with(leaf_config->event_loop, GN_BASE_EVENT, GN_EVENT_ANY_ID, gn_ds18b20_callback, leaf_config, NULL));
 
-	gn_param_handle_t param = gn_leaf_param_create("temp", GN_VAL_TYPE_STRING,
+	gn_leaf_param_handle_t param = gn_leaf_param_create("temp", GN_VAL_TYPE_STRING,
 			(gn_val_t) { "" });
 	gn_leaf_param_add(leaf_config, param);
 
