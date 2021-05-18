@@ -37,7 +37,12 @@ Every node provides some basic services
 
 # How to use example
 
-add lvgl (release/v7) and lvgl_esp32_drivers (master) as components as specified here: [esp32 port](https://github.com/lvgl/lv_port_esp32)
+- install ESP-IDF as per [ESP-IDF getting started guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/)
+- `git clone` this repository
+- add lvgl (release/v7) and lvgl_esp32_drivers (master) as components as specified [here](https://github.com/lvgl/lv_port_esp32)
+- connect your ESP32 board to a serial port
+- open a prompt to go to project directory
+- type `idf.py menuconfig flash build monitor` according to your needs. this will run the latest test code as per the `main.c` file
 
 # Sample code
 
@@ -50,10 +55,14 @@ add lvgl (release/v7) and lvgl_esp32_drivers (master) as components as specified
 	    gn_config_handle_t config = gn_init();
 	    gn_log_message("System Initialized");
 	    gn_node_config_handle_t node_config = gn_create_node(config, "node");
-	    gn_leaf_config_handle_t leaf_config = gn_create_leaf(node_config,
-					"leaf", gn_leaf_callback);
-		gn_leaf_init(leaf_config);
+		gn_leaf_config_handle_t pump_config = gn_leaf_create(node_config, buf,
+			gn_pump_loop);
+		ESP_ERROR_CHECK(gn_node_start(node_config));
 		gn_log_message("Created Leaf");
+		while (true) {
+			vTaskDelay(10000 / portTICK_PERIOD_MS);
+			ESP_LOGI("main", "main loop");
+		}
 	}
         
     void _gn_leaf_task(void *pvParam) {
@@ -62,11 +71,18 @@ add lvgl (release/v7) and lvgl_esp32_drivers (master) as components as specified
     		gn_log_message("Leaf Growing!");
     	}
     }
+        
+    void gn_pump_loop(gn_leaf_config_handle_t leaf_config) {
     
-    void gn_leaf_init(gn_leaf_config_handle_t config) {
-    	xTaskCreate(_gn_leaf_task, "_gn_leaf_task", 2048, NULL, 0, NULL);
-    }
-    
-    void gn_pump_callback(gn_event_handle_t event, void *event_data) {
-    	gn_log_message("gn_leaf_callback");
-    }
+    	gn_leaf_param_handle_t param = gn_leaf_param_create("status",
+    			GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { false });
+    	gn_leaf_param_add(leaf_config, param);
+		while (true) {
+				//leaf code
+				ESP_LOGI("main", "gn_pump_loop event");
+				vTaskDelay(1);
+		}
+	}
+
+		
+
