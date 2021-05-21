@@ -100,11 +100,13 @@ struct __gn_node_config_t {
 typedef enum {
 	GN_VAL_TYPE_STRING,
 	GN_VAL_TYPE_BOOLEAN,
+	GN_VAL_TYPE_DOUBLE,
 } gn_val_type_t;
 
 typedef union {
 	char *s;
 	bool b;
+	double d;
 } gn_val_t;
 
 typedef struct {

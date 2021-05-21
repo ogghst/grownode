@@ -16,7 +16,6 @@ size_t gn_pump_state = GN_PUMP_STATE_STOP;
 
 static const char *TAG = "gn_pump";
 
-static size_t gn_pump_i = 0;
 static gn_leaf_config_handle_t _leaf_config;
 static char gn_pump_buf[60];
 
@@ -102,8 +101,10 @@ void gn_pump_loop(gn_leaf_config_handle_t leaf_config) {
 	sprintf(gn_pump_buf, "%.*s init", 30, leaf_config->name);
 	gn_message_display(gn_pump_buf);
 
-	//init variables
+	//init variables. TODO make status and power stored in flash
+	double power = 0;
 	gn_pump_state = GN_PUMP_STATE_RUNNING;
+
 	_gn_event_group_pump = xEventGroupCreate();
 
 	//setup pwm
@@ -112,8 +113,8 @@ void gn_pump_loop(gn_leaf_config_handle_t leaf_config) {
     };
     mcpwm_set_pin(MCPWM_UNIT_0, &pin_config);
     mcpwm_config_t pwm_config;
-    pwm_config.frequency = 3000;
-    pwm_config.cmpr_a = 0.0;
+    pwm_config.frequency = 3000; //TODO make configurable
+    pwm_config.cmpr_a = power;
     pwm_config.cmpr_b = 0.0;
     pwm_config.counter_mode = MCPWM_UP_COUNTER;
     pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
@@ -122,9 +123,15 @@ void gn_pump_loop(gn_leaf_config_handle_t leaf_config) {
 	ESP_ERROR_CHECK(
 			esp_event_handler_instance_register_with(leaf_config->event_loop, GN_BASE_EVENT, GN_EVENT_ANY_ID, gn_pump_callback, leaf_config, NULL));
 
-	gn_leaf_param_handle_t param = gn_leaf_param_create("status",
-			GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { false });
-	gn_leaf_param_add(leaf_config, param);
+	gn_leaf_param_handle_t status_param = gn_leaf_param_create("status",
+			GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b = false });
+
+	gn_leaf_param_add(leaf_config, status_param);
+
+	gn_leaf_param_handle_t power_param = gn_leaf_param_create("power",
+			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d= power });
+
+	gn_leaf_param_add(leaf_config, power_param);
 
 	while (true) {
 
@@ -136,14 +143,20 @@ void gn_pump_loop(gn_leaf_config_handle_t leaf_config) {
 	    	mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, 0);
 		}
 
-		gn_leaf_param_handle_t status = gn_leaf_param_get(leaf_config, "status");
+		status_param = gn_leaf_param_get(leaf_config, "status");
 
-		if (status->param_val->v.b) {
-			mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, 60);
+		if (status_param->param_val->v.b) {
+			mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, power);
 		} else {
 			mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, 0);
 		}
 
+		power_param = gn_leaf_param_get(leaf_config, "power");
+
+		if (power_param->param_val->v.d != power) {
+			mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, power);
+			power = power_param->param_val->v.d;
+		}
 
 		/*
 		gn_pump_i++;

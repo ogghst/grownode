@@ -207,6 +207,9 @@ gn_leaf_param_handle_t gn_leaf_param_create(const char *name,
 	case GN_VAL_TYPE_BOOLEAN:
 		_val.b = val.b;
 		break;
+	case GN_VAL_TYPE_DOUBLE:
+		_val.d = val.d;
+		break;
 	default:
 		ESP_LOGE(TAG, "param type not handled");
 		return NULL;

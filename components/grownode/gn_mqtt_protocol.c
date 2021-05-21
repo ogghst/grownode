@@ -289,6 +289,10 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t config) {
 				cJSON_AddStringToObject(leaf_param, "val",
 						_param->param_val->v.s);
 				break;
+			case GN_VAL_TYPE_DOUBLE:
+				cJSON_AddNumberToObject(leaf_param, "val",
+						_param->param_val->v.d);
+				break;
 			case GN_VAL_TYPE_BOOLEAN:
 				cJSON_AddBoolToObject(leaf_param, "val",
 						_param->param_val->v.b);
@@ -335,6 +339,7 @@ esp_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t param) {
 	int msg_id = -1;
 	char _topic[_GN_MQTT_MAX_TOPIC_LENGTH];
 	char *buf = (char*) malloc(_GN_MQTT_MAX_PAYLOAD_LENGTH * sizeof(char));
+	//char dbuf[30]; //TODO get max double length
 
 	_gn_mqtt_build_leaf_parameter_status_topic(param->leaf_config, param->name,
 			_topic);
@@ -348,7 +353,12 @@ esp_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t param) {
 		}
 		break;
 	case GN_VAL_TYPE_STRING:
-		strncpy(buf, param->param_val->v.s, strlen(param->param_val->v.s)+1);
+		strncpy(buf, param->param_val->v.s, strlen(param->param_val->v.s) + 1);
+		break;
+	case GN_VAL_TYPE_DOUBLE:
+
+		snprintf(buf,31, "%f", param->param_val->v.d);
+		//strncpy(buf, dbuf, 31);
 		break;
 	default:
 		ESP_LOGE(TAG, "unhandled parameter type");

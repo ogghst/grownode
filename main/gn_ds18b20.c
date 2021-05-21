@@ -181,7 +181,7 @@ void gn_ds18b20_loop(gn_leaf_config_handle_t leaf_config) {
 			esp_event_handler_instance_register_with(leaf_config->event_loop, GN_BASE_EVENT, GN_EVENT_ANY_ID, gn_ds18b20_callback, leaf_config, NULL));
 
 	gn_leaf_param_handle_t param = gn_leaf_param_create("temp", GN_VAL_TYPE_STRING,
-			(gn_val_t) { "" });
+			(gn_val_t) { .s = "" });
 	gn_leaf_param_add(leaf_config, param);
 
 	while (true) {
