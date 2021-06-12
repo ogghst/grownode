@@ -1,0 +1,73 @@
+menu "GrowNode Configuration"
+
+    choice GROWNODE_PROV_TRANSPORT
+        bool "Provisioning Transport"
+        default GROWNODE_PROV_TRANSPORT_SOFTAP
+        help
+            Wi-Fi provisioning component offers both, SoftAP and BLE transports. Choose any one.
+
+        config GROWNODE_PROV_TRANSPORT_BLE
+            bool "BLE"
+            select BT_ENABLED
+            depends on IDF_TARGET_ESP32
+        config GROWNODE_PROV_TRANSPORT_SOFTAP
+            bool "Soft AP"
+    endchoice
+
+    config GROWNODE_PROV_TRANSPORT
+        int
+        default 1 if GROWNODE_PROV_TRANSPORT_BLE
+        default 2 if GROWNODE_PROV_TRANSPORT_SOFTAP
+        
+    config GROWNODE_KEEPALIVE_TIMER_SEC
+    	int "Kepalive message (sec)"
+    	default 60
+        
+    config GROWNODE_RESET_PROVISIONED
+    	bool "Reset Provisioning Status at every startup"
+    	default false
+    	
+   	config GROWNODE_PROV_POP
+    	string "SoftAP Proof of Possession"
+    	default "grownode"
+    	help
+    		Password to prove provisioning is coming from trusted source
+    	
+   	config GROWNODE_PROV_SOFTAP_PREFIX
+    	string "SoftAP Prefix"
+    	default "GROWNODE_"
+    	help
+    		Name of the WiFi Network. the final will be prefix+"-"+6 MAC address letters
+
+   	config GROWNODE_FIRMWARE_URL
+    	string "Firmware URL"
+    	default "http://discoboy.duckdns.org/esp/GrowNode2.bin"
+    	help
+    		Firmware URL to update
+    		
+   	config GROWNODE_MQTT_URL
+    	string "MQTT URL"
+    	default "192.168.1.10:1883"
+    	help
+    		MQTT URL to connect to
+    		
+   	config GROWNODE_MQTT_BASE_TOPIC
+    	string "Base MQTT Topic"
+    	default "/grownode"
+    	help
+    		base topic, default is "/grownode"
+    		
+    config GROWNODE_SNTP_SERVER_NAME
+        string "SNTP Server Name"
+        default "pool.ntp.org"
+        help
+            Default SNTP Server which is used for time synchronization.
+           
+    config GROWNODE_DISPLAY_PRESENT
+    	bool "Init Display"
+    	default true
+    	help
+    		If false, reduces memory consumption 
+
+
+endmenu
