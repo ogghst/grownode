@@ -286,14 +286,17 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t config) {
 			//leaf_param_val = cJSON_CreateString(_param->param_val->val.s);
 			switch (_param->param_val->t) {
 			case GN_VAL_TYPE_STRING:
+				cJSON_AddStringToObject(leaf_param, "type", "string");
 				cJSON_AddStringToObject(leaf_param, "val",
 						_param->param_val->v.s);
 				break;
 			case GN_VAL_TYPE_DOUBLE:
+				cJSON_AddStringToObject(leaf_param, "type", "number");
 				cJSON_AddNumberToObject(leaf_param, "val",
 						_param->param_val->v.d);
 				break;
 			case GN_VAL_TYPE_BOOLEAN:
+				cJSON_AddStringToObject(leaf_param, "type", "bool");
 				cJSON_AddBoolToObject(leaf_param, "val",
 						_param->param_val->v.b);
 				break;

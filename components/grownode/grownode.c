@@ -366,7 +366,7 @@ gn_leaf_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf,
 }
 
 gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_cfg,
-		const char *name, gn_leaf_task_t task) {
+		const char *name, gn_leaf_task_t task, gn_leaf_display_config_t display_config, gn_leaf_display_task_t display_task) {
 
 	if (node_cfg == NULL || node_cfg->config == NULL
 			|| node_cfg->config->mqtt_client == NULL || name == NULL
@@ -380,6 +380,8 @@ gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_cfg,
 	strncpy(l_c->name, name, GN_LEAF_NAME_SIZE);
 	l_c->node_config = node_cfg;
 	l_c->task = task;
+	l_c->display_config = display_config;
+	l_c->display_task = display_task;
 	/*
 	 l_c->xLeafTaskEventQueue = xQueueCreate(10, sizeof(gn_event_t));
 	 if (l_c->xLeafTaskEventQueue == NULL) {

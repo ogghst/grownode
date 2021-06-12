@@ -387,6 +387,12 @@ void _gn_display_gui_task(void *pvParameter) {
 
 	_gn_display_create_gui();
 
+	//initialize display for every leaf
+	for (int l = 0; l < _config->node_config->leaves.last; l++) {
+		if (_config->node_config->leaves.at[l]->display_config)
+			_config->node_config->leaves.at[l]->display_config(_config->node_config->leaves.at[l]);
+	}
+
 	xEventGroupSetBits(_gn_gui_event_group, GN_EVT_GROUP_GUI_COMPLETED_EVENT);
 
 	while (1) {
@@ -396,6 +402,13 @@ void _gn_display_gui_task(void *pvParameter) {
 		/* Try to take the semaphore, call lvgl related function on success */
 		if (pdTRUE == xSemaphoreTake(_gn_xGuiSemaphore, portMAX_DELAY)) {
 			lv_task_handler();
+
+			//initialize display for every leaf
+			for (int l = 0; l < _config->node_config->leaves.last; l++) {
+				if (_config->node_config->leaves.at[l]->display_task)
+					_config->node_config->leaves.at[l]->display_task(_config->node_config->leaves.at[l]);
+			}
+
 			xSemaphoreGive(_gn_xGuiSemaphore);
 		}
 	}

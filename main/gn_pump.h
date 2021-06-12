@@ -17,6 +17,10 @@ extern "C" {
 
 void gn_pump_loop(gn_leaf_config_handle_t leaf_config);
 
+void gn_pump_display_config(gn_leaf_config_handle_t leaf_config);
+
+void gn_pump_display_task(gn_leaf_config_handle_t leaf_config);
+
 #ifdef __cplusplus
 }
 #endif //__cplusplus

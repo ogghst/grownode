@@ -38,7 +38,7 @@ void app_main(void) {
 
 	//create new leaf, controlling pump
 	gn_leaf_config_handle_t pump_config = gn_leaf_create(node_config, buf,
-			gn_pump_loop);
+			gn_pump_loop, gn_pump_display_config, gn_pump_display_task);
 
 	if (pump_config == NULL) {
 		ESP_LOGE("main", "leaf creation error");
@@ -52,7 +52,7 @@ void app_main(void) {
 
 	//create new leaf, rading temp
 	gn_leaf_config_handle_t temp_config = gn_leaf_create(node_config, buf,
-			gn_ds18b20_loop);
+			gn_ds18b20_loop, NULL, NULL);
 
 	if (temp_config == NULL) {
 		ESP_LOGE("main", "leaf creation error");
