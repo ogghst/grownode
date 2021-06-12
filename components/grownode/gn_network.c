@@ -269,7 +269,12 @@ esp_err_t _gn_init_wifi(gn_config_handle_t conf) {
 		 *      - this should be a string with length > 0
 		 *      - NULL if not used
 		 */
+
+#ifdef CONFIG_GROWNODE_PROV_POP
 		const char *pop = CONFIG_GROWNODE_PROV_POP;
+#else
+		const char *pop = NULL;
+#endif
 
 		/* What is the service key (could be NULL)
 		 * This translates to :

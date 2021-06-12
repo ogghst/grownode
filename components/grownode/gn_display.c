@@ -214,6 +214,15 @@ void _gn_display_create_gui() {
 	//lv_obj_set_height(log_cont, 260);
 	lv_cont_set_layout(log_cont, LV_LAYOUT_COLUMN_LEFT);
 
+	//leaf container
+	lv_obj_t *leaf_cont = lv_cont_create(cont, NULL);
+	lv_obj_add_style(leaf_cont, LV_CONT_PART_MAIN, &style);
+	lv_obj_align(leaf_cont, title_cont, LV_ALIGN_IN_TOP_MID, 0, 0);
+	lv_cont_set_fit2(leaf_cont, LV_FIT_MAX, LV_FIT_TIGHT);
+	//lv_obj_set_width(log_cont, 240);
+	//lv_obj_set_height(log_cont, 260);
+	lv_cont_set_layout(leaf_cont, LV_LAYOUT_COLUMN_LEFT);
+
 	//bottom container
 	lv_obj_t *bottom_cont = lv_cont_create(cont, NULL);
 	lv_obj_add_style(bottom_cont, LV_CONT_PART_MAIN, &style);
@@ -310,6 +319,14 @@ void _gn_display_create_gui() {
 	 lv_obj_set_width_fit(server_status_label, LV_FIT_MAX);
 	 lv_label_set_text(server_status_label, "SRV KO");
 	 */
+
+
+	//initialize display for every leaf
+	for (int l = 0; l < _config->node_config->leaves.last; l++) {
+		if (_config->node_config->leaves.at[l]->display_config)
+			_config->node_config->leaves.at[l]->display_config(_config->node_config->leaves.at[l], leaf_cont, _gn_xGuiSemaphore);
+	}
+
 }
 
 void _gn_display_gui_task(void *pvParameter) {
@@ -387,12 +404,6 @@ void _gn_display_gui_task(void *pvParameter) {
 
 	_gn_display_create_gui();
 
-	//initialize display for every leaf
-	for (int l = 0; l < _config->node_config->leaves.last; l++) {
-		if (_config->node_config->leaves.at[l]->display_config)
-			_config->node_config->leaves.at[l]->display_config(_config->node_config->leaves.at[l]);
-	}
-
 	xEventGroupSetBits(_gn_gui_event_group, GN_EVT_GROUP_GUI_COMPLETED_EVENT);
 
 	while (1) {
@@ -403,11 +414,6 @@ void _gn_display_gui_task(void *pvParameter) {
 		if (pdTRUE == xSemaphoreTake(_gn_xGuiSemaphore, portMAX_DELAY)) {
 			lv_task_handler();
 
-			//initialize display for every leaf
-			for (int l = 0; l < _config->node_config->leaves.last; l++) {
-				if (_config->node_config->leaves.at[l]->display_task)
-					_config->node_config->leaves.at[l]->display_task(_config->node_config->leaves.at[l]);
-			}
 
 			xSemaphoreGive(_gn_xGuiSemaphore);
 		}

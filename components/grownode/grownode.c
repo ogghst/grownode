@@ -59,7 +59,7 @@ extern "C" {
 #include "gn_network.h"
 #include "gn_event_source.h"
 #include "gn_mqtt_protocol.h"
-#include "gn_display.h"
+
 
 static const char *TAG = "grownode";
 
@@ -366,7 +366,7 @@ gn_leaf_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf,
 }
 
 gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_cfg,
-		const char *name, gn_leaf_task_t task, gn_leaf_display_config_t display_config, gn_leaf_display_task_t display_task) {
+		const char *name, gn_leaf_task_t task, gn_leaf_display_config_t display_config) { //, gn_leaf_display_task_t display_task) {
 
 	if (node_cfg == NULL || node_cfg->config == NULL
 			|| node_cfg->config->mqtt_client == NULL || name == NULL
@@ -381,7 +381,7 @@ gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_cfg,
 	l_c->node_config = node_cfg;
 	l_c->task = task;
 	l_c->display_config = display_config;
-	l_c->display_task = display_task;
+	//l_c->display_task = display_task;
 	/*
 	 l_c->xLeafTaskEventQueue = xQueueCreate(10, sizeof(gn_event_t));
 	 if (l_c->xLeafTaskEventQueue == NULL) {

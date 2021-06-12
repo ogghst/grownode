@@ -78,9 +78,9 @@ typedef gn_node_event_t *gn_node_event_handle_t;
 
 typedef void (*gn_leaf_task_t)(gn_leaf_config_handle_t leaf_config);
 
-typedef void (*gn_leaf_display_config_t)(gn_leaf_config_handle_t leaf_config);
+typedef void (*gn_leaf_display_config_t)(gn_leaf_config_handle_t leaf_config, void* leaf_container, SemaphoreHandle_t xGuiSemaphore);
 
-typedef void (*gn_leaf_display_task_t)(gn_leaf_config_handle_t leaf_config);
+//typedef void (*gn_leaf_display_task_t)(gn_leaf_config_handle_t leaf_config);
 
 typedef struct {
 	size_t size;
@@ -138,7 +138,7 @@ struct __gn_leaf_config_t {
 	gn_node_config_handle_t node_config;
 	gn_leaf_task_t task;
 	gn_leaf_display_config_t display_config;
-	gn_leaf_display_task_t display_task;
+	//gn_leaf_display_task_t display_task;
 	//gn_leaf_config_handle_t next;
 	//QueueHandle_t xLeafTaskEventQueue;
 	esp_event_loop_handle_t event_loop;
@@ -178,7 +178,7 @@ esp_err_t gn_node_start(gn_node_config_handle_t node);
 gn_config_handle_t gn_init();
 
 gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
-		const char *name, gn_leaf_task_t task, gn_leaf_display_config_t display_config, gn_leaf_display_task_t display_task);
+		const char *name, gn_leaf_task_t task, gn_leaf_display_config_t display_config); //, gn_leaf_display_task_t display_task);
 
 esp_err_t gn_leaf_destroy(gn_leaf_config_handle_t leaf);
 
