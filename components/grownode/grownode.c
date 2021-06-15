@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#include "grownode.h"
+#include "grownode_intl.h"
 
 #include <stdbool.h>
 
@@ -59,6 +59,7 @@ extern "C" {
 #include "gn_network.h"
 #include "gn_event_source.h"
 #include "gn_mqtt_protocol.h"
+#include "gn_display.h"
 
 
 static const char *TAG = "grownode";
@@ -77,10 +78,21 @@ ESP_EVENT_DEFINE_BASE(GN_LEAF_EVENT);
 esp_err_t _gn_leaf_start(gn_leaf_config_handle_t leaf_config);
 
 gn_config_handle_t _gn_config_create() {
-	gn_config_handle_t _conf = (gn_config_handle_t) malloc(sizeof(gn_config_t));
+	gn_config_handle_t _conf = (gn_config_handle_t) malloc(sizeof(struct gn_config_t));
 	_conf->status = GN_CONFIG_STATUS_NOT_INITIALIZED;
 
 	return _conf;
+}
+
+gn_config_status_t gn_get_config_status(gn_config_handle_t config) {
+	if (!config) return GN_CONFIG_STATUS_ERROR;
+	return config->status;
+}
+
+
+esp_event_loop_handle_t gn_get_config_event_loop(gn_config_handle_t config) {
+	if (!config) return NULL;
+	return config->event_loop;
 }
 
 esp_err_t _gn_init_event_loop(gn_config_handle_t conf) {
@@ -107,11 +119,16 @@ esp_err_t _gn_init_event_loop(gn_config_handle_t conf) {
 
 gn_node_config_handle_t _gn_node_config_create() {
 	gn_node_config_handle_t _conf = (gn_node_config_handle_t) malloc(
-			sizeof(gn_node_config_t));
+			sizeof(struct gn_node_config_t));
 	_conf->config = NULL;
 	//_conf->event_loop = NULL;
 	strcpy(_conf->name, "");
 	return _conf;
+}
+
+char* gn_get_node_config_name(gn_node_config_handle_t node_config) {
+	if (!node_config) return NULL;
+	return node_config->name;
 }
 
 gn_node_config_handle_t gn_node_create(gn_config_handle_t config,
@@ -167,14 +184,27 @@ esp_err_t gn_node_start(gn_node_config_handle_t node) {
 
 gn_leaf_config_handle_t _gn_leaf_config_create() {
 	gn_leaf_config_handle_t _conf = (gn_leaf_config_handle_t) malloc(
-			sizeof(gn_leaf_config_t));
+			sizeof(struct gn_leaf_config_t));
 	//_conf->callback = NULL;
 	strcpy(_conf->name, "");
 	_conf->node_config = NULL;
-	_conf->task = NULL;
+	_conf->task_cb = NULL;
 	_conf->params = NULL;
 	return _conf;
 }
+
+
+char* gn_get_leaf_config_name(gn_leaf_config_handle_t leaf_config) {
+	if (!leaf_config) return NULL;
+	return leaf_config->name;
+}
+
+esp_event_loop_handle_t gn_get_leaf_config_event_loop(gn_leaf_config_handle_t leaf_config) {
+	if (!leaf_config) return NULL;
+	return leaf_config->event_loop;
+}
+
+
 
 gn_leaf_param_handle_t gn_leaf_param_create(const char *name,
 		const gn_val_type_t type, const gn_val_t val) {
@@ -349,6 +379,11 @@ esp_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
 	return ESP_OK;
 }
 
+gn_leaf_param_handle_t gn_get_leaf_config_params(gn_leaf_config_handle_t leaf_config) {
+	if (!leaf_config) return NULL;
+	return leaf_config->params;
+}
+
 gn_leaf_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf,
 		const char *param_name) {
 	if (!leaf || !param_name) {
@@ -366,7 +401,7 @@ gn_leaf_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf,
 }
 
 gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_cfg,
-		const char *name, gn_leaf_task_t task, gn_leaf_display_config_t display_config) { //, gn_leaf_display_task_t display_task) {
+		const char *name, gn_leaf_task_callback task, gn_leaf_display_config_callback display_config) { //, gn_leaf_display_task_t display_task) {
 
 	if (node_cfg == NULL || node_cfg->config == NULL
 			|| node_cfg->config->mqtt_client == NULL || name == NULL
@@ -379,8 +414,8 @@ gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_cfg,
 
 	strncpy(l_c->name, name, GN_LEAF_NAME_SIZE);
 	l_c->node_config = node_cfg;
-	l_c->task = task;
-	l_c->display_config = display_config;
+	l_c->task_cb = task;
+	l_c->display_config_cb = display_config;
 	//l_c->display_task = display_task;
 	/*
 	 l_c->xLeafTaskEventQueue = xQueueCreate(10, sizeof(gn_event_t));
@@ -459,7 +494,7 @@ esp_err_t _gn_leaf_start(gn_leaf_config_handle_t leaf_config) {
 	int ret = ESP_OK;
 	ESP_LOGI(TAG, "_gn_start_leaf %s", leaf_config->name);
 //TODO not valid to pass the entire context, as the leaf can do everything. better pass only name and us grownode functions to protect context
-	if (xTaskCreate((void*) leaf_config->task, leaf_config->name, 2048,
+	if (xTaskCreate((void*) leaf_config->task_cb, leaf_config->name, 2048,
 			leaf_config, 1,
 			NULL) != pdPASS) {
 		ESP_LOGE(TAG, "failed to create lef task for %s", leaf_config->name);

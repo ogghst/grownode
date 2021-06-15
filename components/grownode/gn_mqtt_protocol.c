@@ -19,7 +19,7 @@ extern "C" {
 #include "freertos/event_groups.h"
 #include "freertos/semphr.h"
 
-#include "grownode.h"
+#include "grownode_intl.h"
 #include "gn_mqtt_protocol.h"
 
 static const char *TAG = "gn_mqtt";

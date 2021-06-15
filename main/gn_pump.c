@@ -25,13 +25,13 @@ size_t gn_pump_state = GN_PUMP_STATE_STOP;
 
 static const char *TAG = "gn_pump";
 
-static gn_leaf_config_handle_t _leaf_config;
+//static gn_leaf_config_handle_t _leaf_config;
 static char gn_pump_buf[60];
 
 static const int GN_PUMP_EVENT = BIT0;
 static EventGroupHandle_t _gn_event_group_pump;
 
-static lv_obj_t *_cnt;
+//static lv_obj_t *_cnt;
 static SemaphoreHandle_t xGuiSemaphore;
 static lv_obj_t *label_status;
 static lv_obj_t *label_power;
@@ -42,13 +42,15 @@ void gn_pump_callback(void *handler_args, esp_event_base_t base, int32_t id,
 	gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t) handler_args;
 	gn_leaf_event_handle_t event;
 
-	ESP_LOGD(TAG, "gn_pump_callback (%s) event: %d", leaf_config->name, id);
+	char* leaf_name = gn_get_leaf_config_name(leaf_config);
+
+	ESP_LOGD(TAG, "gn_pump_callback (%s) event: %d", leaf_name, id);
 
 	switch (id) {
 
 	case GN_LEAF_MESSAGE_RECEIVED_EVENT:
 		event = (gn_leaf_event_handle_t) event_data;
-		if (strcmp(event->leaf_name, leaf_config->name) != 0)
+		if (strcmp(event->leaf_name, leaf_name) != 0)
 			break;
 		sprintf(gn_pump_buf, "message received: %.*s",
 				(event->data_size > 20 ? 20 : event->data_size),
@@ -58,7 +60,7 @@ void gn_pump_callback(void *handler_args, esp_event_base_t base, int32_t id,
 
 	case GN_LEAF_PARAM_MESSAGE_RECEIVED_EVENT: //TODO move to core and use callbacks
 		event = (gn_leaf_event_handle_t) event_data;
-		if (strcmp(event->leaf_name, leaf_config->name) != 0)
+		if (strcmp(event->leaf_name, leaf_name) != 0)
 			break;
 
 		if (strcmp(event->param_name, "status") == 0) {
@@ -108,11 +110,11 @@ void gn_pump_callback(void *handler_args, esp_event_base_t base, int32_t id,
 
 }
 
-void gn_pump_loop(gn_leaf_config_handle_t leaf_config) {
+void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 
-	_leaf_config = leaf_config;
+	char* leaf_name = gn_get_leaf_config_name(leaf_config);
 
-	sprintf(gn_pump_buf, "%.*s init", 30, leaf_config->name);
+	sprintf(gn_pump_buf, "%.*s init", 30, leaf_name);
 	gn_message_display(gn_pump_buf);
 
 	//init variables. TODO make status and power stored in flash
@@ -134,8 +136,10 @@ void gn_pump_loop(gn_leaf_config_handle_t leaf_config) {
 	pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
 	mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0, &pwm_config); //Configure PWM0A & PWM0B with above settings
 
+	esp_event_loop_handle_t event_loop = gn_get_leaf_config_event_loop(leaf_config);
+
 	ESP_ERROR_CHECK(
-			esp_event_handler_instance_register_with(leaf_config->event_loop, GN_BASE_EVENT, GN_EVENT_ANY_ID, gn_pump_callback, leaf_config, NULL));
+			esp_event_handler_instance_register_with(event_loop, GN_BASE_EVENT, GN_EVENT_ANY_ID, gn_pump_callback, leaf_config, NULL));
 
 	gn_leaf_param_handle_t status_param = gn_leaf_param_create("status",
 			GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b = false });
@@ -226,18 +230,19 @@ void gn_pump_loop(gn_leaf_config_handle_t leaf_config) {
 void gn_pump_display_config(gn_leaf_config_handle_t leaf_config,
 		void *leaf_container, SemaphoreHandle_t _xGuiSemaphore) {
 
-	_cnt = (lv_obj_t*) leaf_container;
+	lv_obj_t* _cnt = (lv_obj_t*) leaf_container;
 	xGuiSemaphore = _xGuiSemaphore;
+	char* leaf_name = gn_get_leaf_config_name(leaf_config);
 
 	lv_obj_t *label_pump = lv_label_create(_cnt, NULL);
-	lv_label_set_text(label_pump, _leaf_config->name);
+	lv_label_set_text(label_pump, leaf_name);
 
 	lv_obj_align(label_pump, NULL, LV_ALIGN_CENTER, 0, 0);
 	lv_btn_set_fit2(label_pump, LV_FIT_TIGHT, LV_FIT_TIGHT);
 
-	gn_leaf_param_handle_t power_param = gn_leaf_param_get(_leaf_config,
+	gn_leaf_param_handle_t power_param = gn_leaf_param_get(leaf_config,
 			"power");
-	gn_leaf_param_handle_t status_param = gn_leaf_param_get(_leaf_config,
+	gn_leaf_param_handle_t status_param = gn_leaf_param_get(leaf_config,
 			"status");
 
 	label_status = lv_label_create(_cnt, NULL);

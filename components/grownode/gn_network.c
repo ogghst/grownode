@@ -34,7 +34,7 @@ extern "C" {
 
 #include "lwip/apps/sntp.h"
 
-#include "grownode.h"
+#include "grownode_intl.h"
 
 static const char *TAG = "network";
 

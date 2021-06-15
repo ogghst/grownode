@@ -11,8 +11,11 @@ extern "C" {
 
 #include "lvgl_helpers.h"
 
+#include "esp_heap_caps.h"
+
 #include "gn_display.h"
 #include "gn_commons.h"
+#include "grownode_intl.h"
 #include "gn_event_source.h"
 
 #define LV_TICK_PERIOD_MS 1
@@ -46,7 +49,7 @@ void _gn_display_btn_ota_event_handler(lv_obj_t *obj, lv_event_t event) {
 		ESP_LOGD(TAG, "_gn_display_btn_ota_event_handler - clicked");
 
 		ESP_ERROR_CHECK(
-				esp_event_post_to(_config->event_loop, GN_BASE_EVENT, GN_NET_OTA_START, NULL, 0, portMAX_DELAY));
+				esp_event_post_to(gn_get_config_event_loop(_config), GN_BASE_EVENT, GN_NET_OTA_START, NULL, 0, portMAX_DELAY));
 
 	} else if (event == LV_EVENT_VALUE_CHANGED) {
 		ESP_LOGD(TAG, "_gn_display_btn_ota_event_handler - toggled");
@@ -60,7 +63,7 @@ void _gn_display_btn_rst_event_handler(lv_obj_t *obj, lv_event_t event) {
 		ESP_LOGD(TAG, "_gn_display_btn_rst_event_handler - clicked");
 
 		ESP_ERROR_CHECK(
-				esp_event_post_to(_config->event_loop, GN_BASE_EVENT, GN_NET_RST_START, NULL, 0, portMAX_DELAY));
+				esp_event_post_to(gn_get_config_event_loop(_config), GN_BASE_EVENT, GN_NET_RST_START, NULL, 0, portMAX_DELAY));
 
 		ESP_LOGD(TAG, "_gn_display_btn_rst_event_handler - sent event");
 
@@ -320,11 +323,24 @@ void _gn_display_create_gui() {
 	 lv_label_set_text(server_status_label, "SRV KO");
 	 */
 
-
 	//initialize display for every leaf
 	for (int l = 0; l < _config->node_config->leaves.last; l++) {
-		if (_config->node_config->leaves.at[l]->display_config)
-			_config->node_config->leaves.at[l]->display_config(_config->node_config->leaves.at[l], leaf_cont, _gn_xGuiSemaphore);
+		if (_config->node_config->leaves.at[l]->display_config_cb) {
+
+			//create a leaf container
+			//leaf container
+			lv_obj_t *_a_leaf_cont = lv_cont_create(leaf_cont, NULL);
+			lv_obj_add_style(_a_leaf_cont, LV_CONT_PART_MAIN, &style);
+			lv_obj_align(_a_leaf_cont, leaf_cont, LV_ALIGN_IN_TOP_MID, 0, 0);
+			lv_cont_set_fit2(_a_leaf_cont, LV_FIT_MAX, LV_FIT_TIGHT);
+			//lv_obj_set_width(log_cont, 240);
+			//lv_obj_set_height(log_cont, 260);
+			lv_cont_set_layout(_a_leaf_cont, LV_LAYOUT_COLUMN_LEFT);
+
+			_config->node_config->leaves.at[l]->display_config_cb(
+					_config->node_config->leaves.at[l], _a_leaf_cont,
+					_gn_xGuiSemaphore);
+		}
 	}
 
 }
@@ -413,7 +429,6 @@ void _gn_display_gui_task(void *pvParameter) {
 		/* Try to take the semaphore, call lvgl related function on success */
 		if (pdTRUE == xSemaphoreTake(_gn_xGuiSemaphore, portMAX_DELAY)) {
 			lv_task_handler();
-
 
 			xSemaphoreGive(_gn_xGuiSemaphore);
 		}

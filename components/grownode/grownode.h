@@ -21,9 +21,6 @@ extern "C" {
 #include "wifi_provisioning/scheme_softap.h"
 #endif /* CONFIG_GROWNODE_PROV_TRANSPORT_SOFTAP */
 
-extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
-extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
-
 #define GN_NODE_NAME_SIZE 32
 #define GN_LEAF_NAME_SIZE 32
 #define GN_LEAF_PARAM_NAME_SIZE 32
@@ -37,25 +34,11 @@ typedef enum {
 	GN_CONFIG_STATUS_OK
 } gn_config_status_t;
 
-typedef struct __gn_node_config_t gn_node_config_t;
-typedef gn_node_config_t *gn_node_config_handle_t;
+typedef struct gn_node_config_t *gn_node_config_handle_t;
 
-typedef struct __gn_leaf_config_t gn_leaf_config_t;
-typedef gn_leaf_config_t *gn_leaf_config_handle_t;
+typedef struct gn_leaf_config_t *gn_leaf_config_handle_t;
 
-typedef struct {
-	esp_vfs_spiffs_conf_t spiffs_conf;
-	esp_mqtt_client_handle_t mqtt_client;
-	esp_event_loop_handle_t event_loop;
-	wifi_init_config_t wifi_config;
-	wifi_prov_mgr_config_t prov_config;
-	char deviceName[30];
-	uint8_t macAddress[6];
-	gn_config_status_t status;
-	gn_node_config_handle_t node_config;
-} gn_config_t;
-
-typedef gn_config_t *gn_config_handle_t;
+typedef struct gn_config_t *gn_config_handle_t;
 
 typedef struct {
 	gn_event_id_t id;
@@ -76,9 +59,10 @@ typedef struct {
 
 typedef gn_node_event_t *gn_node_event_handle_t;
 
-typedef void (*gn_leaf_task_t)(gn_leaf_config_handle_t leaf_config);
+typedef void (*gn_leaf_task_callback)(gn_leaf_config_handle_t leaf_config);
 
-typedef void (*gn_leaf_display_config_t)(gn_leaf_config_handle_t leaf_config, void* leaf_container, SemaphoreHandle_t xGuiSemaphore);
+typedef void (*gn_leaf_display_config_callback)(gn_leaf_config_handle_t leaf_config,
+		void *leaf_container, SemaphoreHandle_t xGuiSemaphore);
 
 //typedef void (*gn_leaf_display_task_t)(gn_leaf_config_handle_t leaf_config);
 
@@ -94,17 +78,8 @@ typedef struct {
 	gn_node_config_handle_t *at;
 } gn_nodes_list;
 
-struct __gn_node_config_t {
-	char name[GN_NODE_NAME_SIZE];
-	//esp_event_loop_handle_t event_loop;
-	gn_config_handle_t config;
-	gn_leaves_list leaves;
-};
-
 typedef enum {
-	GN_VAL_TYPE_STRING,
-	GN_VAL_TYPE_BOOLEAN,
-	GN_VAL_TYPE_DOUBLE,
+	GN_VAL_TYPE_STRING, GN_VAL_TYPE_BOOLEAN, GN_VAL_TYPE_DOUBLE,
 } gn_val_type_t;
 
 typedef union {
@@ -133,40 +108,6 @@ typedef gn_leaf_param_t *gn_leaf_param_handle_t;
 
 //typedef void* gn_leaf_context_handle_t;
 
-struct __gn_leaf_config_t {
-	char name[GN_LEAF_NAME_SIZE];
-	gn_node_config_handle_t node_config;
-	gn_leaf_task_t task;
-	gn_leaf_display_config_t display_config;
-	//gn_leaf_display_task_t display_task;
-	//gn_leaf_config_handle_t next;
-	//QueueHandle_t xLeafTaskEventQueue;
-	esp_event_loop_handle_t event_loop;
-	gn_leaf_param_handle_t params;
-};
-
-/*
- typedef struct {
- char *name;
- esp_event_loop_handle_t event_loop;
- gn_config_handle_t config;
- gn_leaf_config_handle_t leaf;
- } gn_node_config_t;
-
-
- typedef gn_node_config_t *gn_node_config_handle_t;
-
-
- typedef struct {
- char *name;
- gn_node_config_handle_t node_config;
- gn_event_callback_t callback;
- gn_leaf_config_handle_t next;
- } gn_leaf_config_t;
-
- typedef gn_leaf_config_t *gn_leaf_config_handle_t;
- */
-
 //functions
 gn_node_config_handle_t gn_node_create(gn_config_handle_t config,
 		const char *name);
@@ -178,33 +119,45 @@ esp_err_t gn_node_start(gn_node_config_handle_t node);
 gn_config_handle_t gn_init();
 
 gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
-		const char *name, gn_leaf_task_t task, gn_leaf_display_config_t display_config); //, gn_leaf_display_task_t display_task);
+		const char *name, gn_leaf_task_callback task,
+		gn_leaf_display_config_callback display_config); //, gn_leaf_display_task_t display_task);
 
 esp_err_t gn_leaf_destroy(gn_leaf_config_handle_t leaf);
 
 //esp_err_t _gn_start_leaf(gn_leaf_config_handle_t leaf);
 
-gn_leaf_param_handle_t gn_leaf_param_create(const char* name, const gn_val_type_t type, const gn_val_t val);
+gn_leaf_param_handle_t gn_leaf_param_create(const char *name,
+		const gn_val_type_t type, const gn_val_t val);
 
-esp_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf, const gn_leaf_param_handle_t new_param);
+esp_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
+		const gn_leaf_param_handle_t new_param);
 
-gn_leaf_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf, const char *param_name);
+gn_leaf_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf,
+		const char *param_name);
 
-esp_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf, const char* name, const char *val);
+esp_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf,
+		const char *name, const char *val);
 
-esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf, const char* name, const bool val);
-
+esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf,
+		const char *name, const bool val);
 
 esp_err_t gn_leaf_param_destroy(gn_leaf_param_handle_t new_param);
-
-
-
-
-
 
 esp_err_t gn_message_display(char *message);
 
 esp_err_t gn_message_send_text(gn_leaf_config_handle_t config, const char *msg);
+
+gn_config_status_t gn_get_config_status(gn_config_handle_t config);
+
+esp_event_loop_handle_t gn_get_config_event_loop(gn_config_handle_t config);
+
+char* gn_get_node_config_name(gn_node_config_handle_t node_config);
+
+char* gn_get_leaf_config_name(gn_leaf_config_handle_t leaf_config);
+
+esp_event_loop_handle_t gn_get_leaf_config_event_loop(gn_leaf_config_handle_t leaf_config);
+
+gn_leaf_param_handle_t gn_get_leaf_config_params(gn_leaf_config_handle_t leaf_config);
 
 #ifdef __cplusplus
 }

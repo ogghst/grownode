@@ -30,14 +30,15 @@ void gn_ds18b20_callback(void *handler_args, esp_event_base_t base, int32_t id,
 	gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t) handler_args;
 	gn_leaf_event_handle_t event;
 	char gn_ds18b20_buf[40];
+	char* leaf_name = gn_get_leaf_config_name(leaf_config);
 
-	ESP_LOGD(TAG, "callback (%s) event: %d", leaf_config->name, id);
+	ESP_LOGD(TAG, "callback (%s) event: %d", leaf_name , id);
 
 	switch (id) {
 
 	case GN_LEAF_MESSAGE_RECEIVED_EVENT: //TODO better use specific callbacks per events
 		event = (gn_leaf_event_handle_t) event_data;
-		if (strcmp(event->leaf_name, leaf_config->name) != 0)
+		if (strcmp(event->leaf_name, leaf_name) != 0)
 			break;
 		sprintf(gn_ds18b20_buf, "message received: %.*s",
 				(event->data_size > 20 ? 20 : event->data_size),
@@ -47,10 +48,10 @@ void gn_ds18b20_callback(void *handler_args, esp_event_base_t base, int32_t id,
 
 	case GN_LEAF_PARAM_MESSAGE_RECEIVED_EVENT:
 		event = (gn_leaf_event_handle_t) event_data;
-		if (strcmp(event->leaf_name, leaf_config->name) != 0)
+		if (strcmp(event->leaf_name, leaf_name) != 0)
 			break;
 
-		gn_leaf_param_handle_t _param = leaf_config->params;
+		gn_leaf_param_handle_t _param = gn_get_leaf_config_params(leaf_config);
 		while(_param) {
 			if (strcmp(event->param_name, _param->name) == 0) {
 
@@ -169,16 +170,17 @@ void __gn_ds18b20_loop(gn_leaf_config_handle_t leaf_config) {
 	}
 }
 
-void gn_ds18b20_loop(gn_leaf_config_handle_t leaf_config) {
+void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 
+	char* leaf_name = gn_get_leaf_config_name(leaf_config);
 	gpio_set_pull_mode(SENSOR_GPIO, GPIO_PULLUP_ONLY);
 	gn_ds18b20_state = GN_DS18B20_STATE_RUNNING;
 	char gn_ds18b20_buf[GN_LEAF_NAME_SIZE + 10];
-	sprintf(gn_ds18b20_buf, "%.*s init", GN_LEAF_NAME_SIZE, leaf_config->name);
+	sprintf(gn_ds18b20_buf, "%.*s init", GN_LEAF_NAME_SIZE, leaf_name);
 	gn_message_display(gn_ds18b20_buf);
 
 	ESP_ERROR_CHECK(
-			esp_event_handler_instance_register_with(leaf_config->event_loop, GN_BASE_EVENT, GN_EVENT_ANY_ID, gn_ds18b20_callback, leaf_config, NULL));
+			esp_event_handler_instance_register_with(gn_get_leaf_config_event_loop(leaf_config), GN_BASE_EVENT, GN_EVENT_ANY_ID, gn_ds18b20_callback, leaf_config, NULL));
 
 	gn_leaf_param_handle_t param = gn_leaf_param_create("temp", GN_VAL_TYPE_STRING,
 			(gn_val_t) { .s = "" });

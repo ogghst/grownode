@@ -15,7 +15,7 @@ extern "C" {
 #include "grownode.h"
 //#include "gn_mqtt_protocol.h"
 
-void gn_pump_loop(gn_leaf_config_handle_t leaf_config);
+void gn_pump_task(gn_leaf_config_handle_t leaf_config);
 
 void gn_pump_display_config(gn_leaf_config_handle_t leaf_config, void* leaf_container, SemaphoreHandle_t _xGuiSemaphore);
 

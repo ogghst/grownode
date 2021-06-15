@@ -15,7 +15,7 @@ extern "C" {
 #include "grownode.h"
 //#include "gn_mqtt_protocol.h"
 
-void gn_ds18b20_loop(gn_leaf_config_handle_t leaf_config);
+void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config);
 
 #ifdef __cplusplus
 }
