@@ -1,5 +1,3 @@
 /build/
 /sdkconfig.old
-/components/lvgl
-/components/lvgl_esp32_drivers
 /old/
