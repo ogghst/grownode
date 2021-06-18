@@ -21,7 +21,7 @@ extern "C" {
 #include "esp_check.h"
 
 //TODO switch from LOGI to LOGD
-#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
+//#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 #include "esp_log.h"
 
 #include "esp_system.h"
@@ -55,12 +55,11 @@ extern "C" {
 #include "wifi_provisioning/scheme_softap.h"
 #endif /* CONFIG_GROWNODE_PROV_TRANSPORT_SOFTAP */
 
+#include "gn_display.h"
 #include "gn_commons.h"
 #include "gn_network.h"
 #include "gn_event_source.h"
 #include "gn_mqtt_protocol.h"
-#include "gn_display.h"
-
 
 static const char *TAG = "grownode";
 
@@ -170,6 +169,8 @@ esp_err_t gn_node_start(gn_node_config_handle_t node) {
 	//publish node
 	if (gn_mqtt_send_node_config(node) != ESP_OK)
 		goto fail;
+
+
 
 	//run leaves
 	for (int i = 0; i < node->leaves.last; i++) {
@@ -493,6 +494,9 @@ esp_err_t _gn_leaf_start(gn_leaf_config_handle_t leaf_config) {
 
 	int ret = ESP_OK;
 	ESP_LOGI(TAG, "_gn_start_leaf %s", leaf_config->name);
+
+	gn_display_leaf_start(leaf_config);
+
 //TODO not valid to pass the entire context, as the leaf can do everything. better pass only name and us grownode functions to protect context
 	if (xTaskCreate((void*) leaf_config->task_cb, leaf_config->name, 2048,
 			leaf_config, 1,

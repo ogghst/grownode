@@ -32,7 +32,6 @@ static const int GN_PUMP_EVENT = BIT0;
 static EventGroupHandle_t _gn_event_group_pump;
 
 //static lv_obj_t *_cnt;
-static SemaphoreHandle_t xGuiSemaphore;
 static lv_obj_t *label_status;
 static lv_obj_t *label_power;
 
@@ -173,12 +172,12 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 			}
 
 			//show status
-			if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) {
+			if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 				lv_label_set_text(label_status,
 						status_param->param_val->v.b ? "on" : "off");
 
-				xSemaphoreGive(xGuiSemaphore);
+				gn_display_leaf_refresh_end();
 			}
 		}
 
@@ -189,13 +188,16 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 			power = power_param->param_val->v.d;
 
 			//show power
-			if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) {
+			//if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) {
+
+			if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 				char _p[11];
 				snprintf(_p, 10, "%f", power_param->param_val->v.d);
 				lv_label_set_text(label_power, _p);
 
-				xSemaphoreGive(xGuiSemaphore);
+				//xSemaphoreGive(xGuiSemaphore);
+				gn_display_leaf_refresh_end();
 			}
 
 		}
@@ -228,10 +230,9 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 }
 
 void gn_pump_display_config(gn_leaf_config_handle_t leaf_config,
-		void *leaf_container, SemaphoreHandle_t _xGuiSemaphore) {
+		void *leaf_container) {
 
 	lv_obj_t* _cnt = (lv_obj_t*) leaf_container;
-	xGuiSemaphore = _xGuiSemaphore;
 	char* leaf_name = gn_get_leaf_config_name(leaf_config);
 
 	lv_obj_t *label_pump = lv_label_create(_cnt, NULL);

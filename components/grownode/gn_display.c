@@ -27,7 +27,6 @@ gn_config_handle_t _config;
 //event groups
 const int GN_EVT_GROUP_GUI_COMPLETED_EVENT = BIT0;
 EventGroupHandle_t _gn_gui_event_group;
-SemaphoreHandle_t _gn_xGuiSemaphore;
 
 //TODO revise log structure with structs
 lv_obj_t *statusLabel[10];
@@ -36,6 +35,9 @@ int rawIdx = 0;
 
 //lv_obj_t *network_status_label, *server_status_label;
 lv_obj_t *network_led, *server_led;
+
+static lv_obj_t *leaf_cont;
+static lv_style_t style;
 
 bool _initialized = false;
 
@@ -141,12 +143,19 @@ void _gn_display_net_mqtt_handler(void *handler_args, esp_event_base_t base,
 
 }
 
+BaseType_t gn_display_leaf_refresh_start() {
+	return xSemaphoreTake(_gn_xGuiSemaphore, portMAX_DELAY);
+}
+
+BaseType_t gn_display_leaf_refresh_end() {
+	return xSemaphoreGive(_gn_xGuiSemaphore);
+}
+
 void _gn_display_create_gui() {
 
 	lv_obj_t *scr = lv_disp_get_scr_act(NULL);
 
 	//style
-	static lv_style_t style;
 	lv_style_init(&style);
 	//lv_style_set_bg_opa(&style, LV_STATE_DEFAULT, LV_OPA_COVER);
 	lv_style_set_bg_color(&style, LV_STATE_DEFAULT, LV_COLOR_BLACK);
@@ -218,7 +227,7 @@ void _gn_display_create_gui() {
 	lv_cont_set_layout(log_cont, LV_LAYOUT_COLUMN_LEFT);
 
 	//leaf container
-	lv_obj_t *leaf_cont = lv_cont_create(cont, NULL);
+	leaf_cont = lv_cont_create(cont, NULL);
 	lv_obj_add_style(leaf_cont, LV_CONT_PART_MAIN, &style);
 	lv_obj_align(leaf_cont, title_cont, LV_ALIGN_IN_TOP_MID, 0, 0);
 	lv_cont_set_fit2(leaf_cont, LV_FIT_MAX, LV_FIT_TIGHT);
@@ -260,8 +269,6 @@ void _gn_display_create_gui() {
 		}
 
 	}
-
-	//bottom container
 
 	//TODO put into a specific configuration panel
 	//buttons
@@ -322,26 +329,21 @@ void _gn_display_create_gui() {
 	 lv_obj_set_width_fit(server_status_label, LV_FIT_MAX);
 	 lv_label_set_text(server_status_label, "SRV KO");
 	 */
+}
 
-	//initialize display for every leaf
-	for (int l = 0; l < _config->node_config->leaves.last; l++) {
-		if (_config->node_config->leaves.at[l]->display_config_cb) {
+void gn_display_leaf_start(gn_leaf_config_handle_t leaf_config) {
 
-			//create a leaf container
-			//leaf container
-			lv_obj_t *_a_leaf_cont = lv_cont_create(leaf_cont, NULL);
-			lv_obj_add_style(_a_leaf_cont, LV_CONT_PART_MAIN, &style);
-			lv_obj_align(_a_leaf_cont, leaf_cont, LV_ALIGN_IN_TOP_MID, 0, 0);
-			lv_cont_set_fit2(_a_leaf_cont, LV_FIT_MAX, LV_FIT_TIGHT);
-			//lv_obj_set_width(log_cont, 240);
-			//lv_obj_set_height(log_cont, 260);
-			lv_cont_set_layout(_a_leaf_cont, LV_LAYOUT_COLUMN_LEFT);
+	//create a leaf container
+	//leaf container
+	lv_obj_t *_a_leaf_cont = lv_cont_create(leaf_cont, NULL);
+	lv_obj_add_style(_a_leaf_cont, LV_CONT_PART_MAIN, &style);
+	lv_obj_align(_a_leaf_cont, leaf_cont, LV_ALIGN_IN_TOP_MID, 0, 0);
+	lv_cont_set_fit2(_a_leaf_cont, LV_FIT_MAX, LV_FIT_TIGHT);
+	//lv_obj_set_width(log_cont, 240);
+	//lv_obj_set_height(log_cont, 260);
+	lv_cont_set_layout(_a_leaf_cont, LV_LAYOUT_COLUMN_LEFT);
 
-			_config->node_config->leaves.at[l]->display_config_cb(
-					_config->node_config->leaves.at[l], _a_leaf_cont,
-					_gn_xGuiSemaphore);
-		}
-	}
+	leaf_config->display_config_cb(leaf_config, _a_leaf_cont);
 
 }
 

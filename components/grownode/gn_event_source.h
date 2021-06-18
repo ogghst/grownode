@@ -12,14 +12,15 @@ extern "C" {
 #include "freertos/event_groups.h"
 #include "freertos/semphr.h"
 
+#include "esp_event_base.h"
 #include "esp_event.h"
 #include "esp_timer.h"
 
 
 
 // Declare an event base
-ESP_EVENT_DECLARE_BASE (GN_BASE_EVENT);
-ESP_EVENT_DECLARE_BASE (GN_LEAF_EVENT);
+ESP_EVENT_DECLARE_BASE (GN_BASE_EVENT); // @suppress("Type cannot be resolved")
+ESP_EVENT_DECLARE_BASE (GN_LEAF_EVENT); // @suppress("Type cannot be resolved")
 
 #define GN_EVENT_ANY_ID       ESP_EVENT_ANY_ID
 

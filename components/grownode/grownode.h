@@ -7,11 +7,12 @@ extern "C" {
 
 #include <stddef.h>
 
-#include "gn_event_source.h"
 #include "esp_log.h"
 #include "mqtt_client.h"
 #include "esp_wifi.h"
 #include "esp_spiffs.h"
+
+#include "gn_event_source.h"
 
 #ifdef CONFIG_GROWNODE_PROV_TRANSPORT_BLE
 #include "wifi_provisioning/scheme_ble.h"
@@ -61,8 +62,8 @@ typedef gn_node_event_t *gn_node_event_handle_t;
 
 typedef void (*gn_leaf_task_callback)(gn_leaf_config_handle_t leaf_config);
 
-typedef void (*gn_leaf_display_config_callback)(gn_leaf_config_handle_t leaf_config,
-		void *leaf_container, SemaphoreHandle_t xGuiSemaphore);
+typedef void (*gn_leaf_display_config_callback)(
+		gn_leaf_config_handle_t leaf_config, void *leaf_container);
 
 //typedef void (*gn_leaf_display_task_t)(gn_leaf_config_handle_t leaf_config);
 
@@ -155,9 +156,17 @@ char* gn_get_node_config_name(gn_node_config_handle_t node_config);
 
 char* gn_get_leaf_config_name(gn_leaf_config_handle_t leaf_config);
 
-esp_event_loop_handle_t gn_get_leaf_config_event_loop(gn_leaf_config_handle_t leaf_config);
+esp_event_loop_handle_t gn_get_leaf_config_event_loop(
+		gn_leaf_config_handle_t leaf_config);
 
-gn_leaf_param_handle_t gn_get_leaf_config_params(gn_leaf_config_handle_t leaf_config);
+gn_leaf_param_handle_t gn_get_leaf_config_params(
+		gn_leaf_config_handle_t leaf_config);
+
+extern BaseType_t gn_display_leaf_refresh_start();
+
+extern BaseType_t gn_display_leaf_refresh_end();
+
+extern void gn_display_leaf_start(gn_leaf_config_handle_t leaf_config);
 
 #ifdef __cplusplus
 }
