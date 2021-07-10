@@ -4,7 +4,7 @@ idf_component_register(SRCS
 					"grownode.c"
 					"gn_mqtt_protocol.c"
 					"gn_network.c"
-					REQUIRES lvgl lvgl_esp32_drivers
+					REQUIRES lvgl lvgl_esp32_drivers unity
 							
                     INCLUDE_DIRS "."
                     EMBED_TXTFILES server_certs/ca_cert.pem)
