@@ -35,6 +35,10 @@ Every node provides some basic services
 - NTP clock sync
 - Client/Server and Client/Client network configuration and high level messaging protocol, having in mind highly distributed environment (mesh networks, cloud communication)
 
+## Testing
+
+Unit testing are working although in early stage (started using after core writing), both SOC and Host tests are implemented
+
 # How to use example
 
 - install ESP-IDF as per [ESP-IDF getting started guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/)
