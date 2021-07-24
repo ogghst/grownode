@@ -1,0 +1,13 @@
+        :cmock:
+          :plugins:
+            - expect
+            - expect_any_args
+            - return_thru_ptr
+            - array
+            - callback
+          :includes:
+#            - <esp_event_base.h>
+#            - <esp_log.h>
+#            - <mqtt_client.h>
+#            - <esp_wifi.h>
+#            - <esp_spiffs.h>

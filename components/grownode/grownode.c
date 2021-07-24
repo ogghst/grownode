@@ -60,12 +60,13 @@ extern "C" {
 #include "gn_network.h"
 #include "gn_event_source.h"
 #include "gn_mqtt_protocol.h"
+#include "grownode_intl.h"
 
 static const char *TAG = "grownode";
 
 esp_event_loop_handle_t gn_event_loop;
 
-gn_config_handle_t _gn_default_conf;
+gn_config_handle_intl_t _gn_default_conf;
 
 //SemaphoreHandle_t _gn_xEvtSemaphore;
 
@@ -74,27 +75,202 @@ bool initialized = false;
 ESP_EVENT_DEFINE_BASE(GN_BASE_EVENT);
 ESP_EVENT_DEFINE_BASE(GN_LEAF_EVENT);
 
-esp_err_t _gn_leaf_start(gn_leaf_config_handle_t leaf_config);
+esp_err_t _gn_leaf_start(gn_leaf_config_handle_intl_t leaf_config) {
 
-gn_config_handle_t _gn_config_create() {
-	gn_config_handle_t _conf = (gn_config_handle_t) malloc(sizeof(struct gn_config_t));
+	int ret = ESP_OK;
+	ESP_LOGI(TAG, "_gn_start_leaf %s", leaf_config->name);
+
+	gn_display_leaf_start(leaf_config);
+
+//TODO not valid to pass the entire context, as the leaf can do everything. better pass only name and us grownode functions to protect context
+	if (xTaskCreate((void*) leaf_config->task_cb, leaf_config->name, 2048,
+			leaf_config, 1,
+			NULL) != pdPASS) {
+		ESP_LOGE(TAG, "failed to create lef task for %s", leaf_config->name);
+		goto fail;
+	}
+
+	//notice network of the leaf added
+	gn_mqtt_subscribe_leaf(leaf_config);
+
+	return ret;
+
+	fail: return ESP_FAIL;
+
+}
+
+esp_err_t _gn_init_flash(gn_config_handle_t conf) {
+
+	esp_err_t ret = ESP_OK;
+	/* Initialize NVS partition */
+	ret = nvs_flash_init();
+
+	if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+		/* NVS partition was truncated
+		 * and needs to be erased */
+		ESP_GOTO_ON_ERROR(nvs_flash_erase(), err, TAG,
+				"error erasing flash: %s", esp_err_to_name(ret));
+		/* Retry nvs_flash_init */
+		ESP_GOTO_ON_ERROR(nvs_flash_init(), err, TAG, "error init flash: %s",
+				esp_err_to_name(ret));
+
+	}
+
+#ifdef CONFIG_GROWNODE_RESET_PROVISIONED
+	ESP_GOTO_ON_ERROR(nvs_flash_erase(), fail, TAG, "error erasing flash", esp_err_to_name(ret));
+	/* Retry nvs_flash_init */
+	ESP_GOTO_ON_ERROR(nvs_flash_init(), fail, TAG, "error init flash", esp_err_to_name(ret));
+#endif
+
+	err: return ret;
+
+}
+
+esp_err_t _gn_init_spiffs(gn_config_handle_intl_t conf) {
+
+	esp_vfs_spiffs_conf_t vfs_conf;
+	vfs_conf.base_path = "/spiffs";
+	vfs_conf.partition_label = NULL;
+	vfs_conf.max_files = 6;
+	vfs_conf.format_if_mount_failed = true;
+
+	conf->spiffs_conf = vfs_conf;
+
+	// Use settings defined above to initialize and mount SPIFFS filesystem.
+	// Note: esp_vfs_spiffs_register is anall-in-one convenience function.
+	esp_err_t ret = ESP_OK;
+
+	ret = esp_vfs_spiffs_register(&vfs_conf);
+
+	if (ret != ESP_OK) {
+		if (ret == ESP_FAIL) {
+			ESP_LOGE(TAG, "Failed to mount or format filesystem");
+		} else if (ret == ESP_ERR_NOT_FOUND) {
+			ESP_LOGE(TAG, "Failed to find SPIFFS partition");
+		} else {
+			ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)",
+					esp_err_to_name(ret));
+		}
+		return ret;
+	}
+
+	size_t total = 0, used = 0;
+	ret = esp_spiffs_info(NULL, &total, &used);
+	if (ret != ESP_OK) {
+		ESP_LOGE(TAG, "Failed to get SPIFFS partition information (%s)",
+				esp_err_to_name(ret));
+	} else {
+		ESP_LOGD(TAG, "Partition size: total: %d, used: %d", total, used);
+	}
+
+	return ret;
+
+}
+
+#define TIMER_DIVIDER         (16)  //  Hardware timer clock divider
+#define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
+
+static bool IRAM_ATTR _gn_timer_callback_isr(void *args) {
+	BaseType_t high_task_awoken = pdFALSE;
+	esp_event_isr_post_to(gn_event_loop, GN_BASE_EVENT,
+			GN_KEEPALIVE_START_EVENT, NULL, 0, &high_task_awoken);
+	return high_task_awoken == pdTRUE;
+}
+
+void _gn_keepalive_start() {
+
+	timer_start(TIMER_GROUP_0, TIMER_0);
+	ESP_LOGD(TAG, "timer started");
+}
+
+void _gn_keepalive_stop() {
+	timer_pause(TIMER_GROUP_0, TIMER_0);
+	ESP_LOGD(TAG, "timer paused");
+}
+
+void _gn_evt_handler(void *handler_args, esp_event_base_t base, int32_t id,
+		void *event_data) {
+
+	//if (pdTRUE == xSemaphoreTake(_gn_xEvtSemaphore, portMAX_DELAY)) {
+
+	ESP_LOGD(TAG, "_gn_evt_handler event: %d", id);
+
+	switch (id) {
+	case GN_NET_OTA_START:
+		gn_firmware_update();
+		break;
+
+	case GN_NET_RST_START:
+		gn_reset();
+		break;
+
+	case GN_NETWORK_CONNECTED_EVENT:
+
+		break;
+	case GN_NETWORK_DISCONNECTED_EVENT:
+
+		break;
+	case GN_SERVER_CONNECTED_EVENT:
+		//start keepalive service
+		_gn_keepalive_start();
+		break;
+	case GN_SERVER_DISCONNECTED_EVENT:
+		//stop keepalive service
+		_gn_keepalive_stop();
+		break;
+
+	case GN_KEEPALIVE_START_EVENT:
+		//publish node
+		gn_mqtt_send_node_config(_gn_default_conf->node_config);
+		break;
+
+	default:
+		break;
+	}
+
+	//xSemaphoreGive(_gn_xEvtSemaphore);
+	//}
+}
+
+void _gn_evt_reset_start_handler(void *handler_args, esp_event_base_t base,
+		int32_t id, void *event_data) {
+
+}
+
+esp_err_t _gn_evt_handlers_register(gn_config_handle_intl_t conf) {
+
+	ESP_ERROR_CHECK(
+			esp_event_handler_instance_register_with(conf->event_loop, GN_BASE_EVENT, GN_EVENT_ANY_ID, _gn_evt_handler, conf, NULL));
+
+	return ESP_OK;
+
+}
+
+esp_err_t _gn_init_keepalive_timer(gn_config_handle_intl_t conf) {
+
+	timer_config_t config = { .divider = TIMER_DIVIDER, .counter_dir =
+			TIMER_COUNT_UP, .counter_en = TIMER_PAUSE, .alarm_en =
+			TIMER_ALARM_EN, .auto_reload = 1, }; // default clock source is APB
+	timer_init(TIMER_GROUP_0, TIMER_0, &config);
+	timer_set_counter_value(TIMER_GROUP_0, TIMER_0, 0);
+	timer_set_alarm_value(TIMER_GROUP_0, TIMER_0,
+	CONFIG_GROWNODE_KEEPALIVE_TIMER_SEC * TIMER_SCALE); //TODO timer configurable from kconfig
+	timer_enable_intr(TIMER_GROUP_0, TIMER_0);
+	return timer_isr_callback_add(TIMER_GROUP_0, TIMER_0,
+			_gn_timer_callback_isr,
+			NULL, 0);
+
+}
+
+gn_config_handle_intl_t _gn_config_create() {
+
+	gn_config_handle_intl_t _conf = (gn_config_handle_intl_t) malloc(
+			sizeof(struct gn_config_t));
 	_conf->status = GN_CONFIG_STATUS_NOT_INITIALIZED;
-
 	return _conf;
 }
 
-gn_config_status_t gn_get_config_status(gn_config_handle_t config) {
-	if (!config) return GN_CONFIG_STATUS_ERROR;
-	return config->status;
-}
-
-
-esp_event_loop_handle_t gn_get_config_event_loop(gn_config_handle_t config) {
-	if (!config) return NULL;
-	return config->event_loop;
-}
-
-esp_err_t _gn_init_event_loop(gn_config_handle_t conf) {
+esp_err_t _gn_init_event_loop(gn_config_handle_intl_t config) {
 
 	esp_err_t ret = ESP_OK;
 
@@ -110,14 +286,14 @@ esp_err_t _gn_init_event_loop(gn_config_handle_t conf) {
 			fail, TAG, "error creating grownode event loop: %s",
 			esp_err_to_name(ret));
 
-	conf->event_loop = gn_event_loop;
+	config->event_loop = gn_event_loop;
 
 	fail: return ret;
 
 }
 
-gn_node_config_handle_t _gn_node_config_create() {
-	gn_node_config_handle_t _conf = (gn_node_config_handle_t) malloc(
+gn_node_config_handle_intl_t _gn_node_config_create() {
+	gn_node_config_handle_intl_t _conf = (gn_node_config_handle_intl_t) malloc(
 			sizeof(struct gn_node_config_t));
 	_conf->config = NULL;
 	//_conf->event_loop = NULL;
@@ -125,20 +301,29 @@ gn_node_config_handle_t _gn_node_config_create() {
 	return _conf;
 }
 
-char* gn_get_node_config_name(gn_node_config_handle_t node_config) {
-	if (!node_config) return NULL;
-	return node_config->name;
+gn_config_status_t gn_get_config_status(gn_config_handle_t config) {
+	if (!config)
+		return GN_CONFIG_STATUS_ERROR;
+	return ((gn_config_handle_intl_t) config)->status;
+}
+
+esp_event_loop_handle_t gn_get_config_event_loop(gn_config_handle_t config) {
+	if (!config)
+		return NULL;
+	return ((gn_config_handle_intl_t) config)->event_loop;
 }
 
 gn_node_config_handle_t gn_node_create(gn_config_handle_t config,
 		const char *name) {
 
-	if (config == NULL || config->mqtt_client == NULL || name == NULL) {
+	if (config == NULL
+			|| ((gn_config_handle_intl_t) config)->mqtt_client == NULL
+			|| name == NULL) {
 		ESP_LOGE(TAG, "gn_create_node failed. parameters not correct");
 		return NULL;
 	}
 
-	gn_node_config_handle_t n_c = _gn_node_config_create();
+	gn_node_config_handle_intl_t n_c = _gn_node_config_create();
 
 	strncpy(n_c->name, name, GN_NODE_NAME_SIZE);
 	//n_c->event_loop = config->event_loop;
@@ -148,15 +333,15 @@ gn_node_config_handle_t gn_node_create(gn_config_handle_t config,
 	gn_leaves_list leaves = { .size = 5, .last = 0 };
 
 	n_c->leaves = leaves;
-	config->node_config = n_c;
+	((gn_config_handle_intl_t) config)->node_config = n_c;
 
 	return n_c;
 }
 
 esp_err_t gn_node_destroy(gn_node_config_handle_t node) {
 
-	free(node->leaves.at);
-	free(node);
+	//free(((gn_node_config_handle_intl_t) node)->leaves->at); //TODO implement free of leaves
+	free((gn_node_config_handle_intl_t) node);
 
 	return ESP_OK;
 }
@@ -164,18 +349,18 @@ esp_err_t gn_node_destroy(gn_node_config_handle_t node) {
 esp_err_t gn_node_start(gn_node_config_handle_t node) {
 
 	esp_err_t ret = ESP_OK;
-	ESP_LOGD(TAG, "gn_start_node: %s", node->name);
+	ESP_LOGD(TAG, "gn_start_node: %s",
+			((gn_node_config_handle_intl_t )node)->name);
 
 	//publish node
 	if (gn_mqtt_send_node_config(node) != ESP_OK)
 		goto fail;
 
-
-
 	//run leaves
-	for (int i = 0; i < node->leaves.last; i++) {
+	for (int i = 0; i < ((gn_node_config_handle_intl_t) node)->leaves.last;
+			i++) {
 		ESP_LOGD(TAG, "starting leaf: %d", i);
-		_gn_leaf_start(node->leaves.at[i]);
+		_gn_leaf_start(((gn_node_config_handle_intl_t) node)->leaves.at[i]);
 	}
 
 	return ret;
@@ -183,8 +368,8 @@ esp_err_t gn_node_start(gn_node_config_handle_t node) {
 
 }
 
-gn_leaf_config_handle_t _gn_leaf_config_create() {
-	gn_leaf_config_handle_t _conf = (gn_leaf_config_handle_t) malloc(
+gn_leaf_config_handle_intl_t _gn_leaf_config_create() {
+	gn_leaf_config_handle_intl_t _conf = (gn_leaf_config_handle_intl_t) malloc(
 			sizeof(struct gn_leaf_config_t));
 	//_conf->callback = NULL;
 	strcpy(_conf->name, "");
@@ -194,18 +379,77 @@ gn_leaf_config_handle_t _gn_leaf_config_create() {
 	return _conf;
 }
 
+char* gn_get_node_config_name(gn_node_config_handle_t node_config) {
+	if (!node_config)
+		return NULL;
+	return ((gn_node_config_handle_intl_t) node_config)->name;
+}
+
+gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
+		const char *name, gn_leaf_task_callback task,
+		gn_leaf_display_config_callback display_config) { //, gn_leaf_display_task_t display_task) {
+
+	gn_node_config_handle_intl_t node_cfg =
+			(gn_node_config_handle_intl_t) node_config;
+	gn_config_handle_intl_t cfg = (gn_config_handle_intl_t) node_cfg->config;
+
+	if (node_cfg == NULL || node_cfg->config == NULL || name == NULL
+			|| task == NULL || cfg->mqtt_client == NULL) {
+		ESP_LOGE(TAG, "gn_create_leaf failed. parameters not correct");
+		return NULL;
+	}
+
+	gn_leaf_config_handle_intl_t l_c = _gn_leaf_config_create();
+
+	strncpy(l_c->name, name, GN_LEAF_NAME_SIZE);
+	l_c->node_config = node_cfg;
+	l_c->task_cb = task;
+	l_c->display_config_cb = display_config;
+	//l_c->display_task = display_task;
+	/*
+	 l_c->xLeafTaskEventQueue = xQueueCreate(10, sizeof(gn_event_t));
+	 if (l_c->xLeafTaskEventQueue == NULL) {
+	 return NULL;
+	 }
+	 */
+	l_c->event_loop = gn_event_loop;
+
+	gn_node_config_handle_intl_t n_c = l_c->node_config;
+
+	//TODO add leaf to node. implement dynamic array
+	if (n_c->leaves.last >= n_c->leaves.size - 1) {
+		ESP_LOGE(TAG,
+				"gn_create_leaf failed. not possible to add more than 5 leaves to a node");
+		return NULL;
+	}
+
+	n_c->leaves.at[n_c->leaves.last] = l_c;
+	n_c->leaves.last++;
+
+	return l_c;
+}
+
+esp_err_t gn_leaf_destroy(gn_leaf_config_handle_t leaf) {
+
+	//vQueueDelete(leaf->xLeafTaskEventQueue);;
+	free(leaf);
+
+	return ESP_OK;
+
+}
 
 char* gn_get_leaf_config_name(gn_leaf_config_handle_t leaf_config) {
-	if (!leaf_config) return NULL;
-	return leaf_config->name;
+	if (!leaf_config)
+		return NULL;
+	return ((gn_leaf_config_handle_intl_t) leaf_config)->name;
 }
 
-esp_event_loop_handle_t gn_get_leaf_config_event_loop(gn_leaf_config_handle_t leaf_config) {
-	if (!leaf_config) return NULL;
-	return leaf_config->event_loop;
+esp_event_loop_handle_t gn_get_leaf_config_event_loop(
+		gn_leaf_config_handle_t leaf_config) {
+	if (!leaf_config)
+		return NULL;
+	return ((gn_leaf_config_handle_intl_t) leaf_config)->event_loop;
 }
-
-
 
 gn_leaf_param_handle_t gn_leaf_param_create(const char *name,
 		const gn_val_type_t type, const gn_val_t val) {
@@ -215,7 +459,8 @@ gn_leaf_param_handle_t gn_leaf_param_create(const char *name,
 		return NULL;
 	}
 
-	gn_leaf_param_handle_t _ret = (gn_leaf_param_handle_t) malloc(sizeof(gn_leaf_param_t));
+	gn_leaf_param_handle_t _ret = (gn_leaf_param_handle_t) malloc(
+			sizeof(gn_leaf_param_t));
 	_ret->next = NULL;
 
 	char *_name = strdup(name);
@@ -348,12 +593,14 @@ esp_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
 		return ESP_ERR_INVALID_ARG;
 	}
 
-	gn_leaf_param_handle_t _param = leaf->params;
+	gn_leaf_param_handle_t _param =
+			((gn_leaf_config_handle_intl_t) leaf)->params;
 
 	while (_param) {
 		if (strcmp(_param->name, new_param->name) == 0) {
 			ESP_LOGE(TAG, "Parameter with name %s already exists in Leaf %s",
-					new_param->name, leaf->name);
+					new_param->name,
+					((gn_leaf_config_handle_intl_t )leaf)->name);
 			return ESP_ERR_INVALID_ARG;
 		}
 		if (_param->next) {
@@ -367,22 +614,25 @@ esp_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
 	if (_param) {
 		_param->next = new_param;
 	} else {
-		leaf->params = new_param;
+		((gn_leaf_config_handle_intl_t) leaf)->params = new_param;
 	}
 
-
 	if (gn_mqtt_subscribe_leaf_param(new_param) != ESP_OK) {
-		ESP_LOGE(TAG, "gn_leaf_param_add failed to add param %s to leaf %s", new_param->name, leaf->name);
+		ESP_LOGE(TAG, "gn_leaf_param_add failed to add param %s to leaf %s",
+				new_param->name, ((gn_leaf_config_handle_intl_t )leaf)->name);
 		return ESP_FAIL;
 	}
 
-	ESP_LOGD(TAG, "Param %s added in %s", new_param->name, leaf->name);
+	ESP_LOGD(TAG, "Param %s added in %s", new_param->name,
+			((gn_leaf_config_handle_intl_t )leaf)->name);
 	return ESP_OK;
 }
 
-gn_leaf_param_handle_t gn_get_leaf_config_params(gn_leaf_config_handle_t leaf_config) {
-	if (!leaf_config) return NULL;
-	return leaf_config->params;
+gn_leaf_param_handle_t gn_get_leaf_config_params(
+		gn_leaf_config_handle_t leaf_config) {
+	if (!leaf_config)
+		return NULL;
+	return ((gn_leaf_config_handle_intl_t) leaf_config)->params;
 }
 
 gn_leaf_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf,
@@ -391,7 +641,7 @@ gn_leaf_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf,
 		ESP_LOGE(TAG, "gn_leaf_param_get incorrect parameters");
 		return NULL;
 	}
-	gn_leaf_param_handle_t param = leaf->params;
+	gn_leaf_param_handle_t param = ((gn_leaf_config_handle_intl_t) leaf)->params;
 	while (param) {
 		if (strcmp(param->name, param_name) == 0) {
 			break;
@@ -399,53 +649,6 @@ gn_leaf_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf,
 		param = param->next;
 	}
 	return param;
-}
-
-gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_cfg,
-		const char *name, gn_leaf_task_callback task, gn_leaf_display_config_callback display_config) { //, gn_leaf_display_task_t display_task) {
-
-	if (node_cfg == NULL || node_cfg->config == NULL
-			|| node_cfg->config->mqtt_client == NULL || name == NULL
-			|| task == NULL) {
-		ESP_LOGE(TAG, "gn_create_leaf failed. parameters not correct");
-		return NULL;
-	}
-
-	gn_leaf_config_handle_t l_c = _gn_leaf_config_create();
-
-	strncpy(l_c->name, name, GN_LEAF_NAME_SIZE);
-	l_c->node_config = node_cfg;
-	l_c->task_cb = task;
-	l_c->display_config_cb = display_config;
-	//l_c->display_task = display_task;
-	/*
-	 l_c->xLeafTaskEventQueue = xQueueCreate(10, sizeof(gn_event_t));
-	 if (l_c->xLeafTaskEventQueue == NULL) {
-	 return NULL;
-	 }
-	 */
-	l_c->event_loop = gn_event_loop;
-
-	//TODO add leaf to node. implement dynamic array
-	if (l_c->node_config->leaves.last >= l_c->node_config->leaves.size - 1) {
-		ESP_LOGE(TAG,
-				"gn_create_leaf failed. not possible to add more than 5 leaves to a node");
-		return NULL;
-	}
-
-	l_c->node_config->leaves.at[l_c->node_config->leaves.last] = l_c;
-	l_c->node_config->leaves.last++;
-
-	return l_c;
-}
-
-esp_err_t gn_leaf_destroy(gn_leaf_config_handle_t leaf) {
-
-	//vQueueDelete(leaf->xLeafTaskEventQueue);;
-	free(leaf);
-
-	return ESP_OK;
-
 }
 
 /*
@@ -490,98 +693,6 @@ esp_err_t gn_leaf_destroy(gn_leaf_config_handle_t leaf) {
  }
  */
 
-esp_err_t _gn_leaf_start(gn_leaf_config_handle_t leaf_config) {
-
-	int ret = ESP_OK;
-	ESP_LOGI(TAG, "_gn_start_leaf %s", leaf_config->name);
-
-	gn_display_leaf_start(leaf_config);
-
-//TODO not valid to pass the entire context, as the leaf can do everything. better pass only name and us grownode functions to protect context
-	if (xTaskCreate((void*) leaf_config->task_cb, leaf_config->name, 2048,
-			leaf_config, 1,
-			NULL) != pdPASS) {
-		ESP_LOGE(TAG, "failed to create lef task for %s", leaf_config->name);
-		goto fail;
-	}
-
-	//notice network of the leaf added
-	gn_mqtt_subscribe_leaf(leaf_config);
-
-	return ret;
-
-	fail: return ESP_FAIL;
-
-}
-
-esp_err_t _gn_init_flash(gn_config_handle_t conf) {
-
-	esp_err_t ret = ESP_OK;
-	/* Initialize NVS partition */
-	ret = nvs_flash_init();
-
-	if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-		/* NVS partition was truncated
-		 * and needs to be erased */
-		ESP_GOTO_ON_ERROR(nvs_flash_erase(), err, TAG,
-				"error erasing flash: %s", esp_err_to_name(ret));
-		/* Retry nvs_flash_init */
-		ESP_GOTO_ON_ERROR(nvs_flash_init(), err, TAG, "error init flash: %s",
-				esp_err_to_name(ret));
-
-	}
-
-#ifdef CONFIG_GROWNODE_RESET_PROVISIONED
-	ESP_GOTO_ON_ERROR(nvs_flash_erase(), fail, TAG, "error erasing flash", esp_err_to_name(ret));
-	/* Retry nvs_flash_init */
-	ESP_GOTO_ON_ERROR(nvs_flash_init(), fail, TAG, "error init flash", esp_err_to_name(ret));
-#endif
-
-	err: return ret;
-
-}
-
-esp_err_t _gn_init_spiffs(gn_config_handle_t conf) {
-
-	esp_vfs_spiffs_conf_t vfs_conf;
-	vfs_conf.base_path = "/spiffs";
-	vfs_conf.partition_label = NULL;
-	vfs_conf.max_files = 6;
-	vfs_conf.format_if_mount_failed = true;
-
-	conf->spiffs_conf = vfs_conf;
-
-	// Use settings defined above to initialize and mount SPIFFS filesystem.
-	// Note: esp_vfs_spiffs_register is anall-in-one convenience function.
-	esp_err_t ret = ESP_OK;
-
-	ret = esp_vfs_spiffs_register(&vfs_conf);
-
-	if (ret != ESP_OK) {
-		if (ret == ESP_FAIL) {
-			ESP_LOGE(TAG, "Failed to mount or format filesystem");
-		} else if (ret == ESP_ERR_NOT_FOUND) {
-			ESP_LOGE(TAG, "Failed to find SPIFFS partition");
-		} else {
-			ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)",
-					esp_err_to_name(ret));
-		}
-		return ret;
-	}
-
-	size_t total = 0, used = 0;
-	ret = esp_spiffs_info(NULL, &total, &used);
-	if (ret != ESP_OK) {
-		ESP_LOGE(TAG, "Failed to get SPIFFS partition information (%s)",
-				esp_err_to_name(ret));
-	} else {
-		ESP_LOGD(TAG, "Partition size: total: %d, used: %d", total, used);
-	}
-
-	return ret;
-
-}
-
 esp_err_t gn_message_display(char *message) {
 
 	esp_err_t ret = ESP_OK;
@@ -604,104 +715,15 @@ esp_err_t gn_message_send_text(gn_leaf_config_handle_t leaf, const char *msg) {	
 
 }
 
-void _gn_firmware_update() {
+esp_err_t gn_firmware_update() {
 	xTaskCreate(_gn_ota_task, "gn_ota_task", 8196, NULL, 10, NULL);
-}
-
-#define TIMER_DIVIDER         (16)  //  Hardware timer clock divider
-#define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-
-static bool IRAM_ATTR _gn_timer_callback_isr(void *args) {
-	BaseType_t high_task_awoken = pdFALSE;
-	esp_event_isr_post_to(gn_event_loop, GN_BASE_EVENT,
-			GN_KEEPALIVE_START_EVENT, NULL, 0, &high_task_awoken);
-	return high_task_awoken == pdTRUE;
-}
-
-void _gn_keepalive_start() {
-
-	timer_start(TIMER_GROUP_0, TIMER_0);
-	ESP_LOGD(TAG, "timer started");
-}
-
-void _gn_keepalive_stop() {
-	timer_pause(TIMER_GROUP_0, TIMER_0);
-	ESP_LOGD(TAG, "timer paused");
-}
-
-void _gn_evt_handler(void *handler_args, esp_event_base_t base, int32_t id,
-		void *event_data) {
-
-	//if (pdTRUE == xSemaphoreTake(_gn_xEvtSemaphore, portMAX_DELAY)) {
-
-	ESP_LOGD(TAG, "_gn_evt_handler event: %d", id);
-
-	switch (id) {
-	case GN_NET_OTA_START:
-		_gn_firmware_update();
-		break;
-
-	case GN_NET_RST_START:
-		nvs_flash_erase();
-		esp_restart();
-		break;
-
-	case GN_NETWORK_CONNECTED_EVENT:
-
-		break;
-	case GN_NETWORK_DISCONNECTED_EVENT:
-
-		break;
-	case GN_SERVER_CONNECTED_EVENT:
-		//start keepalive service
-		_gn_keepalive_start();
-		break;
-	case GN_SERVER_DISCONNECTED_EVENT:
-		//stop keepalive service
-		_gn_keepalive_stop();
-		break;
-
-	case GN_KEEPALIVE_START_EVENT:
-		//publish node
-		gn_mqtt_send_node_config(_gn_default_conf->node_config);
-		break;
-
-	default:
-		break;
-	}
-
-	//xSemaphoreGive(_gn_xEvtSemaphore);
-	//}
-}
-
-void _gn_evt_reset_start_handler(void *handler_args, esp_event_base_t base,
-		int32_t id, void *event_data) {
-
-}
-
-esp_err_t _gn_evt_handlers_register(gn_config_handle_t conf) {
-
-	ESP_ERROR_CHECK(
-			esp_event_handler_instance_register_with(conf->event_loop, GN_BASE_EVENT, GN_EVENT_ANY_ID, _gn_evt_handler, conf, NULL));
-
 	return ESP_OK;
-
 }
 
-esp_err_t _gn_init_keepalive_timer(gn_config_handle_t conf) {
-
-	timer_config_t config = { .divider = TIMER_DIVIDER, .counter_dir =
-			TIMER_COUNT_UP, .counter_en = TIMER_PAUSE, .alarm_en =
-			TIMER_ALARM_EN, .auto_reload = 1, }; // default clock source is APB
-	timer_init(TIMER_GROUP_0, TIMER_0, &config);
-	timer_set_counter_value(TIMER_GROUP_0, TIMER_0, 0);
-	timer_set_alarm_value(TIMER_GROUP_0, TIMER_0,
-	CONFIG_GROWNODE_KEEPALIVE_TIMER_SEC * TIMER_SCALE); //TODO timer configurable from kconfig
-	timer_enable_intr(TIMER_GROUP_0, TIMER_0);
-	return timer_isr_callback_add(TIMER_GROUP_0, TIMER_0,
-			_gn_timer_callback_isr,
-			NULL, 0);
-
+esp_err_t gn_reset() {
+	nvs_flash_erase();
+	esp_restart();
+	return ESP_OK;
 }
 
 gn_config_handle_t gn_init() { //TODO make the node working even without network

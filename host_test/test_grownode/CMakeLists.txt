@@ -1,10 +1,13 @@
 cmake_minimum_required(VERSION 3.5)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-#set(EXTRA_COMPONENT_DIRS $ENV{IDF_PATH}/components)
-set(EXTRA_COMPONENT_DIRS ../../../../components)
-#idf_component_set_property(mqtt USE_MOCK 1)
+set(EXTRA_COMPONENT_DIRS $ENV{IDF_PATH}/components)
+#set(EXTRA_COMPONENT_DIRS ../../components)
+#idf_component_set_property(spi_flash USE_MOCK 1)
+#idf_build_set_property(USE_MOCK 1)
 set(COMPONENTS main)
+
+#idf_component_set_property(spi_flash USE_MOCK 1)
 idf_build_set_property(COMPILE_DEFINITIONS "-DNO_DEBUG_STORAGE" APPEND)
 project(grownode_host_test)
 

@@ -13,6 +13,11 @@ extern "C" {
 
 #include "esp_heap_caps.h"
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/event_groups.h"
+#include "freertos/semphr.h"
+
 #include "gn_display.h"
 #include "gn_commons.h"
 #include "grownode_intl.h"
@@ -343,7 +348,7 @@ void gn_display_leaf_start(gn_leaf_config_handle_t leaf_config) {
 	//lv_obj_set_height(log_cont, 260);
 	lv_cont_set_layout(_a_leaf_cont, LV_LAYOUT_COLUMN_LEFT);
 
-	leaf_config->display_config_cb(leaf_config, _a_leaf_cont);
+	((gn_leaf_config_handle_intl_t)leaf_config)->display_config_cb(leaf_config, _a_leaf_cont);
 
 }
 
@@ -444,7 +449,9 @@ void _gn_display_gui_task(void *pvParameter) {
 	vTaskDelete(NULL);
 }
 
-esp_err_t gn_init_display(gn_config_handle_t conf) {
+esp_err_t gn_init_display(gn_config_handle_t config) {
+
+	gn_config_handle_intl_t conf = (gn_config_handle_intl_t)config;
 
 	esp_err_t ret = ESP_OK;
 

@@ -9,9 +9,9 @@ set(EXTRA_COMPONENT_DIRS "../components")
 # This can be overriden from CMake cache:
 # - when invoking CMake directly: cmake -D TEST_COMPONENTS="xxxxx" ..
 # - when using idf.py: idf.py -T xxxxx build
-#
+
 set(TEST_COMPONENTS "grownode" CACHE STRING "List of components to test")
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-set(COMPONENTS main)
+#set(COMPONENTS main)
 project(test_grownode)

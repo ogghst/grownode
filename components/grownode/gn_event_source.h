@@ -1,30 +1,27 @@
 #ifndef EVENT_SOURCE_H_
 #define EVENT_SOURCE_H_
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/event_groups.h"
-#include "freertos/semphr.h"
-
+/*
+ #include "freertos/FreeRTOS.h"
+ #include "freertos/task.h"
+ #include "freertos/event_groups.h"
+ #include "freertos/semphr.h"
+ */
 #include "esp_event_base.h"
 #include "esp_event.h"
-#include "esp_timer.h"
-
-
+//#include "esp_timer.h"
 
 // Declare an event base
-ESP_EVENT_DECLARE_BASE (GN_BASE_EVENT); // @suppress("Type cannot be resolved")
-ESP_EVENT_DECLARE_BASE (GN_LEAF_EVENT); // @suppress("Type cannot be resolved")
+extern esp_event_base_t GN_BASE_EVENT; // @suppress("Type cannot be resolved")
+extern esp_event_base_t GN_LEAF_EVENT; // @suppress("Type cannot be resolved")
 
 #define GN_EVENT_ANY_ID       ESP_EVENT_ANY_ID
 
-typedef enum  {
+typedef enum {
 
 	GN_LEAF_INIT_REQUEST_EVENT, //used internally to leaf event queue
 	GN_LEAF_MESSAGE_RECEIVED_EVENT,
@@ -45,7 +42,6 @@ typedef enum  {
 	GN_NET_RST_START,
 
 	GN_KEEPALIVE_START_EVENT
-
 
 } gn_event_id_t;
 

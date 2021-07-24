@@ -44,7 +44,7 @@ const int GN_PROV_END_EVENT = BIT1;
 
 EventGroupHandle_t _gn_event_group_wifi;
 
-gn_config_handle_t _conf;
+gn_config_handle_intl_t _conf;
 
 void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		int32_t event_id, void *event_data) {
@@ -167,7 +167,7 @@ esp_err_t _gn_wifi_custom_prov_data_handler(uint32_t session_id,
 	return ESP_OK;
 }
 
-esp_err_t _gn_init_wifi(gn_config_handle_t conf) {
+esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
 
 	_conf = conf;
 

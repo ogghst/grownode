@@ -14,6 +14,11 @@ extern "C" {
 #include "driver/mcpwm.h"
 #include "soc/mcpwm_periph.h"
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/event_groups.h"
+#include "freertos/semphr.h"
+
 #include "gn_pump.h"
 
 #define GN_PUMP_STATE_STOP 0

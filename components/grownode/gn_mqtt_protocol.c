@@ -38,7 +38,7 @@ EventGroupHandle_t _gn_event_group_mqtt;
 const int _GN_MQTT_CONNECTED_OK_EVENT_BIT = BIT0;
 const int _GN_MQTT_CONNECTED_KO_EVENT_BIT = BIT1;
 
-gn_config_handle_t _config; //TODO shared pointer, dangerous
+gn_config_handle_intl_t _config; //TODO shared pointer, dangerous
 
 char _gn_cmd_topic[_GN_MQTT_MAX_TOPIC_LENGTH],
 		_gn_sts_topic[_GN_MQTT_MAX_TOPIC_LENGTH];
@@ -60,18 +60,21 @@ typedef struct {
 
 typedef gn_mqtt_node_config_message_t *gn_mqtt_node_config_message_handle_t;
 
-void _gn_mqtt_build_leaf_command_topic(gn_leaf_config_handle_t leaf_config,
+void _gn_mqtt_build_leaf_command_topic(gn_leaf_config_handle_t _leaf_config,
 		char *buf) {
+
+	gn_leaf_config_handle_intl_t leaf_config =
+			(gn_leaf_config_handle_intl_t) _leaf_config;
+	gn_node_config_handle_intl_t node_config =
+			(gn_node_config_handle_intl_t) leaf_config->node_config;
+	gn_config_handle_intl_t config =
+			(gn_config_handle_intl_t) node_config->config;
 
 	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
-	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X",
-			leaf_config->node_config->config->macAddress[0],
-			leaf_config->node_config->config->macAddress[1],
-			leaf_config->node_config->config->macAddress[2],
-			leaf_config->node_config->config->macAddress[3],
-			leaf_config->node_config->config->macAddress[4],
-			leaf_config->node_config->config->macAddress[5]);
+	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X", config->macAddress[0],
+			config->macAddress[1], config->macAddress[2], config->macAddress[3],
+			config->macAddress[4], config->macAddress[5]);
 	strncat(buf, __mac, 12);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -82,17 +85,20 @@ void _gn_mqtt_build_leaf_command_topic(gn_leaf_config_handle_t leaf_config,
 }
 
 void _gn_mqtt_build_leaf_parameter_command_topic(
-		gn_leaf_config_handle_t leaf_config, char *param_name, char *buf) {
+		gn_leaf_config_handle_t _leaf_config, char *param_name, char *buf) {
+
+	gn_leaf_config_handle_intl_t leaf_config =
+			(gn_leaf_config_handle_intl_t) _leaf_config;
+	gn_node_config_handle_intl_t node_config =
+			(gn_node_config_handle_intl_t) leaf_config->node_config;
+	gn_config_handle_intl_t config =
+			(gn_config_handle_intl_t) node_config->config;
 
 	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
-	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X",
-			leaf_config->node_config->config->macAddress[0],
-			leaf_config->node_config->config->macAddress[1],
-			leaf_config->node_config->config->macAddress[2],
-			leaf_config->node_config->config->macAddress[3],
-			leaf_config->node_config->config->macAddress[4],
-			leaf_config->node_config->config->macAddress[5]);
+	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X", config->macAddress[0],
+			config->macAddress[1], config->macAddress[2], config->macAddress[3],
+			config->macAddress[4], config->macAddress[5]);
 	strncat(buf, __mac, 12);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -105,17 +111,20 @@ void _gn_mqtt_build_leaf_parameter_command_topic(
 }
 
 void _gn_mqtt_build_leaf_parameter_status_topic(
-		gn_leaf_config_handle_t leaf_config, char *param_name, char *buf) {
+		gn_leaf_config_handle_t _leaf_config, char *param_name, char *buf) {
+
+	gn_leaf_config_handle_intl_t leaf_config =
+			(gn_leaf_config_handle_intl_t) _leaf_config;
+	gn_node_config_handle_intl_t node_config =
+			(gn_node_config_handle_intl_t) leaf_config->node_config;
+	gn_config_handle_intl_t config =
+			(gn_config_handle_intl_t) node_config->config;
 
 	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
-	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X",
-			leaf_config->node_config->config->macAddress[0],
-			leaf_config->node_config->config->macAddress[1],
-			leaf_config->node_config->config->macAddress[2],
-			leaf_config->node_config->config->macAddress[3],
-			leaf_config->node_config->config->macAddress[4],
-			leaf_config->node_config->config->macAddress[5]);
+	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X", config->macAddress[0],
+			config->macAddress[1], config->macAddress[2], config->macAddress[3],
+			config->macAddress[4], config->macAddress[5]);
 	strncat(buf, __mac, 12);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -127,17 +136,21 @@ void _gn_mqtt_build_leaf_parameter_status_topic(
 
 }
 
-void _gn_mqtt_build_leaf_status_topic(gn_leaf_config_handle_t leaf_config,
+void _gn_mqtt_build_leaf_status_topic(gn_leaf_config_handle_t _leaf_config,
 		char *buf) {
+
+	gn_leaf_config_handle_intl_t leaf_config =
+			(gn_leaf_config_handle_intl_t) _leaf_config;
+	gn_node_config_handle_intl_t node_config =
+			(gn_node_config_handle_intl_t) leaf_config->node_config;
+	gn_config_handle_intl_t config =
+			(gn_config_handle_intl_t) node_config->config;
+
 	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
-	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X",
-			leaf_config->node_config->config->macAddress[0],
-			leaf_config->node_config->config->macAddress[1],
-			leaf_config->node_config->config->macAddress[2],
-			leaf_config->node_config->config->macAddress[3],
-			leaf_config->node_config->config->macAddress[4],
-			leaf_config->node_config->config->macAddress[5]);
+	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X", config->macAddress[0],
+			config->macAddress[1], config->macAddress[2], config->macAddress[3],
+			config->macAddress[4], config->macAddress[5]);
 	strncat(buf, __mac, 12);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -147,7 +160,8 @@ void _gn_mqtt_build_leaf_status_topic(gn_leaf_config_handle_t leaf_config,
 
 }
 
-void _gn_mqtt_build_status_topic(gn_config_handle_t config, char *buf) {
+void _gn_mqtt_build_status_topic(gn_config_handle_intl_t config, char *buf) {
+
 	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X", config->macAddress[0],
@@ -160,7 +174,7 @@ void _gn_mqtt_build_status_topic(gn_config_handle_t config, char *buf) {
 
 }
 
-void _gn_mqtt_build_command_topic(gn_config_handle_t config, char *buf) {
+void _gn_mqtt_build_command_topic(gn_config_handle_intl_t config, char *buf) {
 	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X", config->macAddress[0],
@@ -207,7 +221,14 @@ void _gn_mqtt_build_command_topic(gn_config_handle_t config, char *buf) {
  }
  */
 
-esp_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t leaf_config) {
+esp_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t _leaf_config) {
+
+	gn_leaf_config_handle_intl_t leaf_config =
+			(gn_leaf_config_handle_intl_t) _leaf_config;
+	gn_node_config_handle_intl_t node_config =
+			(gn_node_config_handle_intl_t) leaf_config->node_config;
+	gn_config_handle_intl_t config =
+			(gn_config_handle_intl_t) node_config->config;
 
 	ESP_LOGD(TAG, "subscribing leaf %s", leaf_config->name);
 
@@ -216,8 +237,7 @@ esp_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t leaf_config) {
 
 	ESP_LOGD(TAG, "gn_mqtt_subscribe_leaf. topic: %s", topic);
 
-	int msg_id = esp_mqtt_client_subscribe(
-			leaf_config->node_config->config->mqtt_client, topic, 0);
+	int msg_id = esp_mqtt_client_subscribe(config->mqtt_client, topic, 0);
 	ESP_LOGI(TAG, "sent subscribe successful, topic = %s, msg_id=%d", topic,
 			msg_id);
 
@@ -227,17 +247,22 @@ esp_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t leaf_config) {
 
 esp_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t param) {
 
-	ESP_LOGD(TAG, "subscribing param %s on %s", param->name,
-			param->leaf_config->name);
+	gn_leaf_config_handle_intl_t leaf_config =
+			(gn_leaf_config_handle_intl_t) param->leaf_config;
+	gn_node_config_handle_intl_t node_config =
+			(gn_node_config_handle_intl_t) leaf_config->node_config;
+	gn_config_handle_intl_t config =
+			(gn_config_handle_intl_t) node_config->config;
+
+	ESP_LOGD(TAG, "subscribing param %s on %s", param->name, leaf_config->name);
 
 	char topic[_GN_MQTT_MAX_TOPIC_LENGTH];
-	_gn_mqtt_build_leaf_parameter_command_topic(param->leaf_config, param->name,
+	_gn_mqtt_build_leaf_parameter_command_topic(leaf_config, param->name,
 			topic);
 
 	ESP_LOGD(TAG, "gn_mqtt_subscribe_leaf_param. topic: %s", topic);
 
-	int msg_id = esp_mqtt_client_subscribe(
-			param->leaf_config->node_config->config->mqtt_client, topic, 0);
+	int msg_id = esp_mqtt_client_subscribe(config->mqtt_client, topic, 0);
 	ESP_LOGI(TAG, "sent subscribe successful, topic = %s, msg_id=%d", topic,
 			msg_id);
 
@@ -245,7 +270,7 @@ esp_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t param) {
 
 }
 
-esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t config) {
+esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
 
 	//TODO merge in just one status message to be sent every time there is a change
 	int ret = ESP_OK;
@@ -255,8 +280,13 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t config) {
 			(gn_mqtt_node_config_message_handle_t) malloc(
 					sizeof(gn_mqtt_node_config_message_t));
 
-	msg->config = config;
+	msg->config = _node_config;
 	strncpy(msg->topic, _gn_sts_topic, _GN_MQTT_MAX_TOPIC_LENGTH);
+
+	gn_node_config_handle_intl_t node_config =
+			(gn_node_config_handle_intl_t) _node_config;
+	gn_config_handle_intl_t config =
+			(gn_config_handle_intl_t) node_config->config;
 
 	//payload
 	int msg_id = -1;
@@ -264,11 +294,12 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t config) {
 
 	cJSON *root, *leaves, *leaf, *leaf_name, *leaf_params, *leaf_param;
 	root = cJSON_CreateObject();
-	cJSON_AddStringToObject(root, "name", msg->config->name);
+	cJSON_AddStringToObject(root, "name", node_config->name);
 	leaves = cJSON_CreateArray();
 	cJSON_AddItemToObject(root, "leaves", leaves);
-	for (int i = 0; i < config->leaves.last; i++) {
-		gn_leaf_config_handle_t _leaf_config = config->leaves.at[i];
+	for (int i = 0; i < node_config->leaves.last; i++) {
+		gn_leaf_config_handle_intl_t _leaf_config =
+				(gn_leaf_config_handle_intl_t) node_config->leaves.at[i];
 		leaf = cJSON_CreateObject();
 		cJSON_AddItemToArray(leaves, leaf);
 		leaf_name = cJSON_CreateString(_leaf_config->name);
@@ -320,8 +351,8 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t config) {
 	cJSON_Delete(root);
 
 	//publish
-	msg_id = esp_mqtt_client_publish(msg->config->config->mqtt_client,
-			msg->topic, buf, 0, 2, 0);
+	msg_id = esp_mqtt_client_publish(config->mqtt_client, msg->topic, buf, 0, 2,
+			0);
 	ESP_LOGD(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s",
 			msg_id, msg->topic, buf);
 
@@ -360,7 +391,7 @@ esp_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t param) {
 		break;
 	case GN_VAL_TYPE_DOUBLE:
 
-		snprintf(buf,31, "%f", param->param_val->v.d);
+		snprintf(buf, 31, "%f", param->param_val->v.d);
 		//strncpy(buf, dbuf, 31);
 		break;
 	default:
@@ -369,10 +400,15 @@ esp_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t param) {
 		break;
 	}
 
+	gn_leaf_config_handle_intl_t leaf_config =
+			(gn_leaf_config_handle_intl_t) param->leaf_config;
+	gn_node_config_handle_intl_t node_config =
+			(gn_node_config_handle_intl_t) leaf_config->node_config;
+	gn_config_handle_intl_t config =
+			(gn_config_handle_intl_t) node_config->config;
+
 	//publish
-	msg_id = esp_mqtt_client_publish(
-			param->leaf_config->node_config->config->mqtt_client, _topic, buf,
-			0, 2, 0);
+	msg_id = esp_mqtt_client_publish(config->mqtt_client, _topic, buf, 0, 2, 0);
 	ESP_LOGD(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s",
 			msg_id, _topic, buf);
 
@@ -385,12 +421,15 @@ esp_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t param) {
 
 }
 
-esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t config) {
+esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t _config) {
+
+	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
 
 	//build
 	gn_mqtt_startup_message_handle_t msg =
 			(gn_mqtt_startup_message_handle_t) malloc(
 					sizeof(gn_mqtt_startup_message_t));
+
 	msg->config = config;
 	strncpy(msg->topic, _gn_sts_topic, _GN_MQTT_MAX_TOPIC_LENGTH);
 
@@ -400,7 +439,7 @@ esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t config) {
 
 	cJSON *root;
 	root = cJSON_CreateObject();
-	cJSON_AddStringToObject(root, "deviceName", msg->config->deviceName);
+	cJSON_AddStringToObject(root, "deviceName", config->deviceName);
 	if (!cJSON_PrintPreallocated(root, buf, _GN_MQTT_MAX_PAYLOAD_LENGTH,
 	false)) {
 		ESP_LOGE(TAG, "_gn_create_startup_message: cannot print json message");
@@ -410,8 +449,8 @@ esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t config) {
 	cJSON_Delete(root);
 
 	//publish
-	msg_id = esp_mqtt_client_publish(msg->config->mqtt_client, msg->topic, buf,
-			0, 2, 0);
+	msg_id = esp_mqtt_client_publish(config->mqtt_client, msg->topic, buf, 0, 2,
+			0);
 	ESP_LOGD(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s",
 			msg_id, msg->topic, buf);
 
@@ -422,17 +461,24 @@ esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t config) {
 	}
 }
 
-esp_err_t gn_mqtt_send_leaf_message(gn_leaf_config_handle_t leaf,
+esp_err_t gn_mqtt_send_leaf_message(gn_leaf_config_handle_t _leaf,
 		const char *msg) {
+
+	gn_leaf_config_handle_intl_t leaf_config =
+			(gn_leaf_config_handle_intl_t) _leaf;
+	gn_node_config_handle_intl_t node_config =
+			(gn_node_config_handle_intl_t) leaf_config->node_config;
+	gn_config_handle_intl_t config =
+			(gn_config_handle_intl_t) node_config->config;
 
 	//get the topic
 	char buf[_GN_MQTT_MAX_TOPIC_LENGTH];
-	_gn_mqtt_build_command_topic(leaf->node_config->config, buf);
+	_gn_mqtt_build_command_topic(node_config->config, buf);
 
 	//publish
 	ESP_LOGD(TAG, "publish topic %s, msg=%s", buf, msg);
-	int msg_id = esp_mqtt_client_publish(leaf->node_config->config->mqtt_client,
-			buf, msg, 0, 2, 0);
+	int msg_id = esp_mqtt_client_publish(config->mqtt_client, buf, msg, 0, 2,
+			0);
 
 	if (msg_id == -1)
 		return ESP_FAIL;
@@ -441,7 +487,9 @@ esp_err_t gn_mqtt_send_leaf_message(gn_leaf_config_handle_t leaf,
 
 }
 
-esp_err_t _gn_mqtt_on_connected(gn_config_handle_t config) {
+esp_err_t _gn_mqtt_on_connected(esp_mqtt_client_handle_t client) {
+
+	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
 
 	int msg_id = esp_mqtt_client_subscribe(config->mqtt_client, _gn_cmd_topic,
 	_GN_MQTT_DEFAULT_QOS);
@@ -461,7 +509,7 @@ esp_err_t _gn_mqtt_on_connected(gn_config_handle_t config) {
 	}
 
 	if (ESP_OK
-			!= esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
+			!= esp_event_post_to(config->event_loop, GN_BASE_EVENT,
 					GN_SERVER_CONNECTED_EVENT,
 					NULL, 0, portMAX_DELAY)) {
 		ESP_LOGE(TAG, "failed to send GN_SERVER_CONNECTED_EVENT event");
@@ -663,7 +711,9 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 
 }
 
-esp_err_t gn_mqtt_init(gn_config_handle_t conf) {
+esp_err_t gn_mqtt_init(gn_config_handle_t _conf) {
+
+	gn_config_handle_intl_t conf = (gn_config_handle_intl_t) _conf;
 
 	_gn_event_group_mqtt = xEventGroupCreate();
 
