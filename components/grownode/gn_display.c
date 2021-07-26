@@ -338,6 +338,8 @@ void _gn_display_create_gui() {
 
 void gn_display_leaf_start(gn_leaf_config_handle_t leaf_config) {
 
+#if CONFIG_GROWNODE_DISPLAY_ENABLED
+
 	//create a leaf container
 	//leaf container
 	lv_obj_t *_a_leaf_cont = lv_cont_create(leaf_cont, NULL);
@@ -349,6 +351,8 @@ void gn_display_leaf_start(gn_leaf_config_handle_t leaf_config) {
 	lv_cont_set_layout(_a_leaf_cont, LV_LAYOUT_COLUMN_LEFT);
 
 	((gn_leaf_config_handle_intl_t)leaf_config)->display_config_cb(leaf_config, _a_leaf_cont);
+
+#endif
 
 }
 
@@ -460,7 +464,7 @@ esp_err_t gn_init_display(gn_config_handle_t config) {
 
 	//TODO initialization guards
 
-#if !CONFIG_GROWNODE_DISPLAY_PRESENT
+#if CONFIG_GROWNODE_DISPLAY_ENABLED
 	return ESP_OK;
 #endif
 

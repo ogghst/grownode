@@ -10,12 +10,14 @@ extern "C" {
 #include "esp_check.h"
 #include "esp_log.h"
 #include "esp_system.h"
-#include "esp_wifi.h"
 #include "esp_event.h"
 //#include "esp_http_client.h"
 #include "esp_err.h"
 #include "esp_spiffs.h"
 #include "esp_vfs.h"
+
+#if CONFIG_GROWNODE_WIFI_ENABLED
+#include "esp_wifi.h"
 #include "esp_ota_ops.h"
 #include "esp_http_client.h"
 #include "esp_https_ota.h"
@@ -31,6 +33,7 @@ extern "C" {
 #include "wifi_provisioning/scheme_softap.h"
 #endif /* CONFIG_GROWNODE_PROV_TRANSPORT_SOFTAP */
 
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
 
 #include "lwip/apps/sntp.h"
 
@@ -48,6 +51,8 @@ gn_config_handle_intl_t _conf;
 
 void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		int32_t event_id, void *event_data) {
+
+#if CONFIG_GROWNODE_WIFI_ENABLED
 
 	ESP_LOGD(TAG, "_gn_wifi_event_handler");
 
@@ -130,20 +135,36 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 
 		esp_wifi_connect();
 	}
+
+#endif
+
 }
 
 void _gn_wifi_init_sta(void) {
+
+#if CONFIG_GROWNODE_WIFI_ENABLED
+
 	/* Start Wi-Fi in station mode */
 	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
 	ESP_ERROR_CHECK(esp_wifi_start());
+
+#endif
+
 }
 
 void _gn_wifi_get_device_service_name(char *service_name, size_t max) {
+
+
+#if CONFIG_GROWNODE_WIFI_ENABLED
+
 	uint8_t eth_mac[6];
 	const char *ssid_prefix = CONFIG_GROWNODE_PROV_SOFTAP_PREFIX;
 	esp_wifi_get_mac(WIFI_IF_STA, eth_mac);
 	snprintf(service_name, max, "%s%02X%02X%02X", ssid_prefix, eth_mac[3],
 			eth_mac[4], eth_mac[5]);
+
+#endif
+
 }
 
 /* Handler for the optional provisioning endpoint registered by the application.
@@ -153,6 +174,9 @@ void _gn_wifi_get_device_service_name(char *service_name, size_t max) {
 esp_err_t _gn_wifi_custom_prov_data_handler(uint32_t session_id,
 		const uint8_t *inbuf, ssize_t inlen, uint8_t **outbuf, ssize_t *outlen,
 		void *priv_data) {
+
+#if CONFIG_GROWNODE_WIFI_ENABLED
+
 	if (inbuf) {
 		ESP_LOGD(TAG, "Received data: %.*s", inlen, (char* ) inbuf);
 	}
@@ -164,10 +188,14 @@ esp_err_t _gn_wifi_custom_prov_data_handler(uint32_t session_id,
 	}
 	*outlen = strlen(response) + 1; /* +1 for NULL terminating byte */
 
+#endif
+
 	return ESP_OK;
 }
 
 esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
+
+#if CONFIG_GROWNODE_WIFI_ENABLED
 
 	_conf = conf;
 
@@ -347,11 +375,17 @@ esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
 
 	fail: return ret;
 
+#else
+	return ESP_OK;
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
+
 }
 
 static bool time_sync_init_done = false;
 
 esp_err_t _gn_init_time_sync(gn_config_handle_t conf) {
+
+#if CONFIG_GROWNODE_WIFI_ENABLED
 
 	if (sntp_enabled()) {
 		ESP_LOGD(TAG, "SNTP already initialized.");
@@ -367,10 +401,16 @@ esp_err_t _gn_init_time_sync(gn_config_handle_t conf) {
 	time_sync_init_done = true;
 	return ESP_OK;
 
+#else
+	return ESP_OK;
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
+
 }
 
 
 void _gn_ota_task(void *pvParameter) {
+
+#if CONFIG_GROWNODE_WIFI_ENABLED
 
 	//vTaskDelay(30000 / portTICK_PERIOD_MS);
 
@@ -403,6 +443,8 @@ void _gn_ota_task(void *pvParameter) {
 	}
 
 	vTaskDelete(NULL);
+
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
 
 }
 

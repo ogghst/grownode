@@ -368,6 +368,8 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
 
 esp_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t param) {
 
+#if CONFIG_GROWNODE_WIFI_ENABLED
+
 	int ret = ESP_OK;
 
 	int msg_id = -1;
@@ -419,9 +421,15 @@ esp_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t param) {
 
 	return ret;
 
+#else
+	return ESP_OK;
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
+
 }
 
 esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t _config) {
+
+#if CONFIG_GROWNODE_WIFI_ENABLED
 
 	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
 
@@ -459,10 +467,17 @@ esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t _config) {
 		free(msg);
 		return ((msg_id == -1) ? (ESP_FAIL) : (ESP_OK));
 	}
+
+#else
+	return ESP_OK;
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
+
 }
 
 esp_err_t gn_mqtt_send_leaf_message(gn_leaf_config_handle_t _leaf,
 		const char *msg) {
+
+#if CONFIG_GROWNODE_WIFI_ENABLED
 
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) _leaf;
@@ -485,9 +500,15 @@ esp_err_t gn_mqtt_send_leaf_message(gn_leaf_config_handle_t _leaf,
 
 	return ESP_OK;
 
+#else
+	return ESP_OK;
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
+
 }
 
 esp_err_t _gn_mqtt_on_connected(esp_mqtt_client_handle_t client) {
+
+#if CONFIG_GROWNODE_WIFI_ENABLED
 
 	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
 
@@ -524,9 +545,16 @@ esp_err_t _gn_mqtt_on_connected(esp_mqtt_client_handle_t client) {
 	//stop waiting for mqtt
 	xEventGroupSetBits(_gn_event_group_mqtt, _GN_MQTT_CONNECTED_KO_EVENT_BIT);
 	return ESP_FAIL;
+
+#else
+	return ESP_OK;
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
+
 }
 
 esp_err_t _gn_mqtt_on_disconnected(esp_mqtt_client_handle_t client) {
+
+#if CONFIG_GROWNODE_WIFI_ENABLED
 
 	if (ESP_OK
 			!= esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
@@ -541,6 +569,10 @@ esp_err_t _gn_mqtt_on_disconnected(esp_mqtt_client_handle_t client) {
 	xEventGroupSetBits(_gn_event_group_mqtt, _GN_MQTT_CONNECTED_KO_EVENT_BIT);
 	return ESP_FAIL;
 
+#else
+	return ESP_OK;
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
+
 }
 
 void log_error_if_nonzero(const char *message, int error_code) {
@@ -551,6 +583,8 @@ void log_error_if_nonzero(const char *message, int error_code) {
 
 void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 		int32_t event_id, void *event_data) {
+
+#if CONFIG_GROWNODE_WIFI_ENABLED
 
 	ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%d", base,
 			event_id);
@@ -709,9 +743,13 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 		break;
 	}
 
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
+
 }
 
 esp_err_t gn_mqtt_init(gn_config_handle_t _conf) {
+
+#if CONFIG_GROWNODE_WIFI_ENABLED
 
 	gn_config_handle_intl_t conf = (gn_config_handle_intl_t) _conf;
 
@@ -787,6 +825,10 @@ esp_err_t gn_mqtt_init(gn_config_handle_t _conf) {
 	//fail: return ESP_FAIL;
 	ESP_LOGE(TAG, "MQTT client error: should never reach here!"); //TODO improve flow
 	return ESP_FAIL;
+
+#else
+	return ESP_OK;
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
 
 }
 

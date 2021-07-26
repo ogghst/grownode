@@ -63,11 +63,17 @@ menu "GrowNode Configuration"
         help
             Default SNTP Server which is used for time synchronization.
            
-    config GROWNODE_DISPLAY_PRESENT
-    	bool "Init Display"
+    config GROWNODE_DISPLAY_ENABLED
+    	bool "Enable Display"
     	default true
     	help
     		If false, reduces memory consumption 
+    		
+    config GROWNODE_WIFI_ENABLED
+    	bool "Enable Networking"
+    	default true
+    	help
+    		If false, reduces memory consumption
 
 
 endmenu

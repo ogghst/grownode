@@ -25,21 +25,20 @@ extern "C" {
 #include "esp_log.h"
 
 #include "esp_system.h"
-#include "esp_wifi.h"
 #include "esp_event.h"
 //#include "esp_http_client.h"
 #include "esp_err.h"
 #include "esp_spiffs.h"
 #include "esp_vfs.h"
+
+
+#if CONFIG_GROWNODE_WIFI_ENABLED
+
 #include "esp_ota_ops.h"
+#include "esp_wifi.h"
 #include "esp_http_client.h"
 #include "esp_https_ota.h"
-//#include "esp_smartconfig.h"
 
-#include "nvs_flash.h"
-
-#include "driver/timer.h"
-#include "driver/gpio.h"
 
 #include "mqtt_client.h"
 
@@ -55,12 +54,25 @@ extern "C" {
 #include "wifi_provisioning/scheme_softap.h"
 #endif /* CONFIG_GROWNODE_PROV_TRANSPORT_SOFTAP */
 
+
+#endif
+//#include "esp_smartconfig.h"
+
+#include "nvs_flash.h"
+
+#include "driver/timer.h"
+#include "driver/gpio.h"
+
 #include "gn_display.h"
 #include "gn_commons.h"
-#include "gn_network.h"
+
 #include "gn_event_source.h"
-#include "gn_mqtt_protocol.h"
+
 #include "grownode_intl.h"
+
+#include "gn_network.h"
+#include "gn_mqtt_protocol.h"
+
 
 static const char *TAG = "grownode";
 
@@ -181,11 +193,14 @@ void _gn_keepalive_start() {
 
 	timer_start(TIMER_GROUP_0, TIMER_0);
 	ESP_LOGD(TAG, "timer started");
+
 }
 
 void _gn_keepalive_stop() {
+
 	timer_pause(TIMER_GROUP_0, TIMER_0);
 	ESP_LOGD(TAG, "timer paused");
+
 }
 
 void _gn_evt_handler(void *handler_args, esp_event_base_t base, int32_t id,
@@ -268,6 +283,7 @@ gn_config_handle_intl_t _gn_config_create() {
 			sizeof(struct gn_config_t));
 	_conf->status = GN_CONFIG_STATUS_NOT_INITIALIZED;
 	return _conf;
+
 }
 
 esp_err_t _gn_init_event_loop(gn_config_handle_intl_t config) {
@@ -293,24 +309,30 @@ esp_err_t _gn_init_event_loop(gn_config_handle_intl_t config) {
 }
 
 gn_node_config_handle_intl_t _gn_node_config_create() {
+
 	gn_node_config_handle_intl_t _conf = (gn_node_config_handle_intl_t) malloc(
 			sizeof(struct gn_node_config_t));
 	_conf->config = NULL;
 	//_conf->event_loop = NULL;
 	strcpy(_conf->name, "");
 	return _conf;
+
 }
 
 gn_config_status_t gn_get_config_status(gn_config_handle_t config) {
+
 	if (!config)
 		return GN_CONFIG_STATUS_ERROR;
 	return ((gn_config_handle_intl_t) config)->status;
+
 }
 
 esp_event_loop_handle_t gn_get_config_event_loop(gn_config_handle_t config) {
+
 	if (!config)
 		return NULL;
 	return ((gn_config_handle_intl_t) config)->event_loop;
+
 }
 
 gn_node_config_handle_t gn_node_create(gn_config_handle_t config,
@@ -336,6 +358,14 @@ gn_node_config_handle_t gn_node_create(gn_config_handle_t config,
 	((gn_config_handle_intl_t) config)->node_config = n_c;
 
 	return n_c;
+}
+
+size_t gn_node_get_size(gn_node_config_handle_t node_config) {
+
+	if (node_config == NULL)
+		return -1;
+
+	return ((gn_node_config_handle_intl_t) node_config)->leaves.last;
 }
 
 esp_err_t gn_node_destroy(gn_node_config_handle_t node) {
@@ -369,6 +399,7 @@ esp_err_t gn_node_start(gn_node_config_handle_t node) {
 }
 
 gn_leaf_config_handle_intl_t _gn_leaf_config_create() {
+
 	gn_leaf_config_handle_intl_t _conf = (gn_leaf_config_handle_intl_t) malloc(
 			sizeof(struct gn_leaf_config_t));
 	//_conf->callback = NULL;
@@ -377,12 +408,15 @@ gn_leaf_config_handle_intl_t _gn_leaf_config_create() {
 	_conf->task_cb = NULL;
 	_conf->params = NULL;
 	return _conf;
+
 }
 
 char* gn_get_node_config_name(gn_node_config_handle_t node_config) {
+
 	if (!node_config)
 		return NULL;
 	return ((gn_node_config_handle_intl_t) node_config)->name;
+
 }
 
 gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
@@ -427,28 +461,32 @@ gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
 	n_c->leaves.last++;
 
 	return l_c;
+
 }
 
 esp_err_t gn_leaf_destroy(gn_leaf_config_handle_t leaf) {
 
 	//vQueueDelete(leaf->xLeafTaskEventQueue);;
 	free(leaf);
-
 	return ESP_OK;
 
 }
 
 char* gn_get_leaf_config_name(gn_leaf_config_handle_t leaf_config) {
+
 	if (!leaf_config)
 		return NULL;
 	return ((gn_leaf_config_handle_intl_t) leaf_config)->name;
+
 }
 
 esp_event_loop_handle_t gn_get_leaf_config_event_loop(
 		gn_leaf_config_handle_t leaf_config) {
+
 	if (!leaf_config)
 		return NULL;
 	return ((gn_leaf_config_handle_intl_t) leaf_config)->event_loop;
+
 }
 
 gn_leaf_param_handle_t gn_leaf_param_create(const char *name,
@@ -498,6 +536,7 @@ gn_leaf_param_handle_t gn_leaf_param_create(const char *name,
 	_ret->param_val = _param_val;
 
 	return _ret;
+
 }
 /*
  esp_err_t gn_leaf_param_set(const gn_leaf_config_handle_t leaf,
@@ -584,10 +623,12 @@ esp_err_t gn_leaf_param_destroy(gn_leaf_param_handle_t new_param) {
 	free(new_param);
 
 	return ESP_OK;
+
 }
 
 esp_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
 		const gn_leaf_param_handle_t new_param) {
+
 	if (!leaf || !new_param) {
 		ESP_LOGE(TAG, "gn_leaf_param_add incorrect parameters");
 		return ESP_ERR_INVALID_ARG;
@@ -626,17 +667,21 @@ esp_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
 	ESP_LOGD(TAG, "Param %s added in %s", new_param->name,
 			((gn_leaf_config_handle_intl_t )leaf)->name);
 	return ESP_OK;
+
 }
 
 gn_leaf_param_handle_t gn_get_leaf_config_params(
 		gn_leaf_config_handle_t leaf_config) {
+
 	if (!leaf_config)
 		return NULL;
 	return ((gn_leaf_config_handle_intl_t) leaf_config)->params;
+
 }
 
 gn_leaf_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf,
 		const char *param_name) {
+
 	if (!leaf || !param_name) {
 		ESP_LOGE(TAG, "gn_leaf_param_get incorrect parameters");
 		return NULL;
@@ -649,6 +694,7 @@ gn_leaf_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf,
 		param = param->next;
 	}
 	return param;
+
 }
 
 /*
@@ -698,7 +744,7 @@ esp_err_t gn_message_display(char *message) {
 	esp_err_t ret = ESP_OK;
 
 	//void *ptr = const_cast<void*>(reinterpret_cast<void const*>(message));
-	ESP_LOGD(TAG, "gn_log_message '%s' (%i)", message, strlen(message));
+	ESP_LOGI(TAG, "%s", message);
 
 	//char *ptr = malloc(sizeof(char) * strlen(message) + 1);
 
@@ -707,6 +753,7 @@ esp_err_t gn_message_display(char *message) {
 
 	//free(ptr);
 	return ret;
+
 }
 
 esp_err_t gn_message_send_text(gn_leaf_config_handle_t leaf, const char *msg) {	//TODO remove leaf config
@@ -715,15 +762,39 @@ esp_err_t gn_message_send_text(gn_leaf_config_handle_t leaf, const char *msg) {	
 
 }
 
+esp_err_t gn_event_send_internal(gn_config_handle_t conf,
+		gn_leaf_event_handle_t event) {
+
+	gn_config_handle_intl_t _conf = (gn_config_handle_intl_t) conf;
+
+	esp_err_t ret = ESP_OK;
+
+	ret = esp_event_post_to(_conf->event_loop, GN_BASE_EVENT, event->id, event,
+			sizeof(event),
+			portMAX_DELAY);
+
+	if (ret != ESP_OK) {
+		ESP_LOGE(TAG, "failed to send internal event");
+	}
+	return ret;
+
+}
+
 esp_err_t gn_firmware_update() {
+
+#if CONFIG_GROWNODE_WIFI_ENABLED
 	xTaskCreate(_gn_ota_task, "gn_ota_task", 8196, NULL, 10, NULL);
+#endif
 	return ESP_OK;
+
 }
 
 esp_err_t gn_reset() {
+
 	nvs_flash_erase();
 	esp_restart();
 	return ESP_OK;
+
 }
 
 gn_config_handle_t gn_init() { //TODO make the node working even without network
@@ -758,10 +829,13 @@ gn_config_handle_t gn_init() { //TODO make the node working even without network
 	ESP_GOTO_ON_ERROR(_gn_init_keepalive_timer(_gn_default_conf), err, TAG,
 			"error on timer init: %s", esp_err_to_name(ret));
 
+#if CONFIG_GROWNODE_DISPLAY_ENABLED
 	//init display
 	ESP_GOTO_ON_ERROR(gn_init_display(_gn_default_conf), err, TAG,
 			"error on display init: %s", esp_err_to_name(ret));
+#endif
 
+#if CONFIG_GROWNODE_WIFI_ENABLED
 	//init wifi
 	ESP_GOTO_ON_ERROR(_gn_init_wifi(_gn_default_conf), err_net, TAG,
 			"error on display init: %s", esp_err_to_name(ret));
@@ -775,6 +849,14 @@ gn_config_handle_t gn_init() { //TODO make the node working even without network
 	ESP_GOTO_ON_ERROR(gn_mqtt_init(_gn_default_conf), err_srv, TAG,
 			"error on server init: %s", esp_err_to_name(ret));
 
+	err_net: _gn_default_conf->status = GN_CONFIG_STATUS_NETWORK_ERROR;
+	return _gn_default_conf;
+
+	err_srv: _gn_default_conf->status = GN_CONFIG_STATUS_SERVER_ERROR;
+	return _gn_default_conf;
+
+#endif
+
 	_gn_default_conf->status = GN_CONFIG_STATUS_OK;
 	initialized = true;
 	return _gn_default_conf;
@@ -782,11 +864,6 @@ gn_config_handle_t gn_init() { //TODO make the node working even without network
 	err: _gn_default_conf->status = GN_CONFIG_STATUS_ERROR;
 	return _gn_default_conf;
 
-	err_net: _gn_default_conf->status = GN_CONFIG_STATUS_NETWORK_ERROR;
-	return _gn_default_conf;
-
-	err_srv: _gn_default_conf->status = GN_CONFIG_STATUS_SERVER_ERROR;
-	return _gn_default_conf;
 
 }
 

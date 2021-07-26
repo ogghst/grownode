@@ -31,6 +31,8 @@ esp_err_t gn_node_destroy(gn_node_config_handle_t node);
 
 esp_err_t gn_node_start(gn_node_config_handle_t node);
 
+size_t gn_node_get_size(gn_node_config_handle_t config);
+
 gn_config_handle_t gn_init();
 
 esp_err_t gn_firmware_update();
@@ -65,6 +67,8 @@ esp_err_t gn_leaf_param_destroy(gn_leaf_param_handle_t new_param);
 esp_err_t gn_message_display(char *message);
 
 esp_err_t gn_message_send_text(gn_leaf_config_handle_t config, const char *msg);
+
+esp_err_t gn_event_send_internal(gn_config_handle_t conf, gn_leaf_event_handle_t event);
 
 gn_config_status_t gn_get_config_status(gn_config_handle_t config);
 

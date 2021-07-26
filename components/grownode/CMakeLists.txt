@@ -108,6 +108,8 @@ idf_component_register(SRCS
 					"cc_array.c"
 					"cc_common.c"
 					"cc_hashtable.c"
+					"gn_pump.c"
+					"gn_ds18b20.c"
 #					"hasht.c"
 #					"lookup3.c"
 					REQUIRES lvgl lvgl_esp32_drivers unity
