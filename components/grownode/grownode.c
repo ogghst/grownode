@@ -31,14 +31,12 @@ extern "C" {
 #include "esp_spiffs.h"
 #include "esp_vfs.h"
 
-
 #if CONFIG_GROWNODE_WIFI_ENABLED
 
 #include "esp_ota_ops.h"
 #include "esp_wifi.h"
 #include "esp_http_client.h"
 #include "esp_https_ota.h"
-
 
 #include "mqtt_client.h"
 
@@ -53,7 +51,6 @@ extern "C" {
 #ifdef CONFIG_GROWNODE_PROV_TRANSPORT_SOFTAP
 #include "wifi_provisioning/scheme_softap.h"
 #endif /* CONFIG_GROWNODE_PROV_TRANSPORT_SOFTAP */
-
 
 #endif
 //#include "esp_smartconfig.h"
@@ -72,7 +69,6 @@ extern "C" {
 
 #include "gn_network.h"
 #include "gn_mqtt_protocol.h"
-
 
 static const char *TAG = "grownode";
 
@@ -117,7 +113,9 @@ esp_err_t _gn_init_flash(gn_config_handle_t conf) {
 	/* Initialize NVS partition */
 	ret = nvs_flash_init();
 
+#ifndef CONFIG_GROWNODE_RESET_PROVISIONED
 	if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+#endif
 		/* NVS partition was truncated
 		 * and needs to be erased */
 		ESP_GOTO_ON_ERROR(nvs_flash_erase(), err, TAG,
@@ -125,13 +123,8 @@ esp_err_t _gn_init_flash(gn_config_handle_t conf) {
 		/* Retry nvs_flash_init */
 		ESP_GOTO_ON_ERROR(nvs_flash_init(), err, TAG, "error init flash: %s",
 				esp_err_to_name(ret));
-
+#ifndef CONFIG_GROWNODE_RESET_PROVISIONED
 	}
-
-#ifdef CONFIG_GROWNODE_RESET_PROVISIONED
-	ESP_GOTO_ON_ERROR(nvs_flash_erase(), fail, TAG, "error erasing flash", esp_err_to_name(ret));
-	/* Retry nvs_flash_init */
-	ESP_GOTO_ON_ERROR(nvs_flash_init(), fail, TAG, "error init flash", esp_err_to_name(ret));
 #endif
 
 	err: return ret;
@@ -863,7 +856,6 @@ gn_config_handle_t gn_init() { //TODO make the node working even without network
 
 	err: _gn_default_conf->status = GN_CONFIG_STATUS_ERROR;
 	return _gn_default_conf;
-
 
 }
 
