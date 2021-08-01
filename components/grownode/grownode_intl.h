@@ -59,6 +59,7 @@ struct gn_node_config_t {
 
 struct gn_leaf_config_t {
 	char name[GN_LEAF_NAME_SIZE];
+	size_t task_size;
 	gn_node_config_handle_intl_t node_config;
 	gn_leaf_task_callback task_cb;
 	gn_leaf_display_config_callback display_config_cb;

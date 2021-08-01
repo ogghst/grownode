@@ -41,7 +41,8 @@ esp_err_t gn_reset();
 
 gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
 		const char *name, gn_leaf_task_callback task,
-		gn_leaf_display_config_callback display_config); //, gn_leaf_display_task_t display_task);
+		gn_leaf_display_config_callback display_config,
+		size_t task_size); //, gn_leaf_display_task_t display_task);
 
 esp_err_t gn_leaf_destroy(gn_leaf_config_handle_t leaf);
 
@@ -61,6 +62,9 @@ esp_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf,
 
 esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf,
 		const char *name, const bool val);
+
+esp_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf,
+		const char *name, const gn_leaf_event_handle_t evt);
 
 esp_err_t gn_leaf_param_destroy(gn_leaf_param_handle_t new_param);
 

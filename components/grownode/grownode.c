@@ -88,7 +88,7 @@ esp_err_t _gn_leaf_start(gn_leaf_config_handle_intl_t leaf_config) {
 	int ret = ESP_OK;
 	ESP_LOGI(TAG, "_gn_start_leaf %s", leaf_config->name);
 
-	if (xTaskCreate((void*) leaf_config->task_cb, leaf_config->name, 2048,
+	if (xTaskCreate((void*) leaf_config->task_cb, leaf_config->name, leaf_config->task_size,
 			leaf_config, 1,
 			NULL) != pdPASS) {
 		ESP_LOGE(TAG, "failed to create lef task for %s", leaf_config->name);
@@ -289,7 +289,7 @@ esp_err_t _gn_init_event_loop(gn_config_handle_intl_t config) {
 	//user event loop
 	esp_event_loop_args_t event_loop_args = { .queue_size = 5, .task_name =
 			"gn_evt_loop", // task will be created
-			.task_priority = 0, .task_stack_size = 2048, .task_core_id = 1 };
+			.task_priority = 0, .task_stack_size = 4096, .task_core_id = 1 };
 	ESP_GOTO_ON_ERROR(esp_event_loop_create(&event_loop_args, &gn_event_loop),
 			fail, TAG, "error creating grownode event loop: %s",
 			esp_err_to_name(ret));
@@ -413,7 +413,8 @@ char* gn_get_node_config_name(gn_node_config_handle_t node_config) {
 
 gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
 		const char *name, gn_leaf_task_callback task,
-		gn_leaf_display_config_callback display_config) { //, gn_leaf_display_task_t display_task) {
+		gn_leaf_display_config_callback display_config,
+		size_t task_size) { //, gn_leaf_display_task_t display_task) {
 
 	gn_node_config_handle_intl_t node_cfg =
 			(gn_node_config_handle_intl_t) node_config;
@@ -430,6 +431,7 @@ gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
 	strncpy(l_c->name, name, GN_LEAF_NAME_SIZE);
 	l_c->node_config = node_cfg;
 	l_c->task_cb = task;
+	l_c->task_size = task_size;
 	l_c->display_config_cb = display_config;
 	//l_c->display_task = display_task;
 	/*
@@ -574,6 +576,8 @@ esp_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf,
 		return ESP_ERR_INVALID_ARG;
 
 	gn_leaf_param_handle_t _param = gn_leaf_param_get(leaf, name);
+	if (!_param)
+		return ESP_ERR_INVALID_ARG;
 
 	ESP_LOGD(TAG, "gn_leaf_param_set %s %s", name, val);
 	ESP_LOGD(TAG, "	old value %s", val);
@@ -594,11 +598,30 @@ esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf,
 		return ESP_ERR_INVALID_ARG;
 
 	gn_leaf_param_handle_t _param = gn_leaf_param_get(leaf, name);
+	if (!_param)
+		return ESP_ERR_INVALID_ARG;
 
 	ESP_LOGD(TAG, "gn_leaf_param_set %s %d", name, val);
 	ESP_LOGD(TAG, "	old value %d", val);
 	_param->param_val->v.b = val;
 	ESP_LOGD(TAG, "gn_leaf_param_set - result %d", _param->param_val->v.b);
+
+	return gn_mqtt_send_leaf_param(_param);
+
+}
+
+esp_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf,
+		const char *name, const gn_leaf_event_handle_t evt) {
+
+	if (!leaf || !name || !evt)
+		return ESP_ERR_INVALID_ARG;
+
+	gn_leaf_param_handle_t _param = gn_leaf_param_get(leaf, name);
+	if (!_param)
+		return ESP_ERR_INVALID_ARG;
+
+	double val = strtod(evt->data, NULL);
+	_param->param_val->v.d = val;
 
 	return gn_mqtt_send_leaf_param(_param);
 
@@ -853,7 +876,6 @@ gn_config_handle_t gn_init() { //TODO make the node working even without network
 
 	err_srv: _gn_default_conf->status = GN_CONFIG_STATUS_SERVER_ERROR;
 	return _gn_default_conf;
-
 
 }
 

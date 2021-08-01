@@ -47,7 +47,7 @@ void gn_pump_callback(void *handler_args, esp_event_base_t base, int32_t id,
 	gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t) handler_args;
 	gn_leaf_event_handle_t event;
 
-	char* leaf_name = gn_get_leaf_config_name(leaf_config);
+	char *leaf_name = gn_get_leaf_config_name(leaf_config);
 
 	ESP_LOGD(TAG, "gn_pump_callback (%s) event: %d", leaf_name, id);
 
@@ -57,13 +57,16 @@ void gn_pump_callback(void *handler_args, esp_event_base_t base, int32_t id,
 		event = (gn_leaf_event_handle_t) event_data;
 		if (strcmp(event->leaf_name, leaf_name) != 0)
 			break;
-		sprintf(gn_pump_buf, "message received: %.*s",
-				(event->data_size > 20 ? 20 : event->data_size),
-				(char*) event->data);
-		gn_message_display(gn_pump_buf);
-		break;
+		/*
+		 sprintf(gn_pump_buf, "message received: %.*s",
+		 (event->data_size > 20 ? 20 : event->data_size),
+		 (char*) event->data);
+		 gn_message_display(gn_pump_buf);
+		 break;
+		 */
 
 	case GN_LEAF_PARAM_MESSAGE_RECEIVED_EVENT: //TODO move to core and use callbacks
+
 		event = (gn_leaf_event_handle_t) event_data;
 		if (strcmp(event->leaf_name, leaf_name) != 0)
 			break;
@@ -84,9 +87,15 @@ void gn_pump_callback(void *handler_args, esp_event_base_t base, int32_t id,
 				break;
 			}
 
-		}
+		} else
 
-		//TODO set power
+		if (strcmp(event->param_name, "power") == 0) {
+
+			double ret = strtod(event->data, NULL);
+			if (ret >= 0 && ret <= 1024)
+				gn_leaf_param_set_double(leaf_config, "power", event);
+
+		}
 
 		break;
 
@@ -119,13 +128,13 @@ void gn_pump_callback(void *handler_args, esp_event_base_t base, int32_t id,
 
 void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 
-	char* leaf_name = gn_get_leaf_config_name(leaf_config);
+	char *leaf_name = gn_get_leaf_config_name(leaf_config);
 
 	sprintf(gn_pump_buf, "%.*s init", 30, leaf_name);
 	gn_message_display(gn_pump_buf);
 
 	//init variables. TODO make status and power stored in flash
-	double power = 1024;
+	double power = 0;
 	bool status = false;
 
 	gn_pump_state = GN_PUMP_STATE_RUNNING;
@@ -143,7 +152,8 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 	pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
 	mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0, &pwm_config); //Configure PWM0A & PWM0B with above settings
 
-	esp_event_loop_handle_t event_loop = gn_get_leaf_config_event_loop(leaf_config);
+	esp_event_loop_handle_t event_loop = gn_get_leaf_config_event_loop(
+			leaf_config);
 
 	ESP_ERROR_CHECK(
 			esp_event_handler_instance_register_with(event_loop, GN_BASE_EVENT, GN_EVENT_ANY_ID, gn_pump_callback, leaf_config, NULL));
@@ -161,54 +171,45 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 	//setup screen
 	gn_display_setup_leaf_display(leaf_config, gn_pump_display_config);
 
-	int cnt = 0;
+	bool change = true;
 
 	while (true) {
 
 		/*
-		//test code to see if display works
-		if (pdTRUE == gn_display_leaf_refresh_start()) {
+		 //test code to see if display works
+		 if (pdTRUE == gn_display_leaf_refresh_start()) {
 
-			if (cnt == 0) {
-				lv_label_set_text(label_pump, "+");
-				cnt = 1;
-			} else {
-				lv_label_set_text(label_pump, "X");
-				cnt = 0;
-			}
+		 if (cnt == 0) {
+		 lv_label_set_text(label_pump, "+");
+		 cnt = 1;
+		 } else {
+		 lv_label_set_text(label_pump, "X");
+		 cnt = 0;
+		 }
 
-			gn_display_leaf_refresh_end();
+		 gn_display_leaf_refresh_end();
 
-		}
-		*/
+		 }
+		 */
 
 		xEventGroupWaitBits(_gn_event_group_pump, GN_PUMP_EVENT, pdTRUE,
 		true, pdMS_TO_TICKS(100)); //portMAX_DELAY
-		ESP_LOGD(TAG, "gn_pump_loop event");
-
-		if (gn_pump_state != GN_PUMP_STATE_RUNNING) {
-			mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, 0);
-		}
 
 		status_param = gn_leaf_param_get(leaf_config, "status");
 
 		if (status_param->param_val->v.b != status) {
 			status = status_param->param_val->v.b;
 
-			if (status_param->param_val->v.b) {
-				mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, power);
-			} else {
-				mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, 0);
-			}
-
 			//show status
 			if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 				lv_label_set_text(label_status,
-						status_param->param_val->v.b ? "status: on" : "status: off");
+						status_param->param_val->v.b ?
+								"status: on" : "status: off");
 
 				lv_label_set_text(label_status,
-						status_param->param_val->v.b ? "status: on" : "status: off");
+						status_param->param_val->v.b ?
+								"status: on" : "status: off");
 
 				gn_display_leaf_refresh_end();
 			}
@@ -216,8 +217,9 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 
 		power_param = gn_leaf_param_get(leaf_config, "power");
 
-		if (power_param->param_val->v.d != power && status_param->param_val->v.b == true) {
-			mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, power);
+		if (power_param->param_val->v.d
+				!= power&& status_param->param_val->v.b == true) {
+
 			power = power_param->param_val->v.d;
 
 			//show power
@@ -231,6 +233,15 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 				gn_display_leaf_refresh_end();
 			}
 
+		}
+
+		if (gn_pump_state != GN_PUMP_STATE_RUNNING
+				|| !status_param->param_val->v.b) {
+			mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, 0);
+			change = false;
+		} else {
+			mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, power);
+			change = false;
 		}
 
 		/*
@@ -263,11 +274,11 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 void gn_pump_display_config(gn_leaf_config_handle_t leaf_config,
 		gn_display_handler_t leaf_container) {
 
-	lv_obj_t* _cnt = (lv_obj_t*) leaf_container;
-	char* leaf_name = gn_get_leaf_config_name(leaf_config);
+	lv_obj_t *_cnt = (lv_obj_t*) leaf_container;
+	char *leaf_name = gn_get_leaf_config_name(leaf_config);
 
 	//style
-	lv_style_t* style = lv_style_list_get_local_style(&_cnt->style_list);
+	lv_style_t *style = lv_style_list_get_local_style(&_cnt->style_list);
 
 	label_pump = lv_label_create(_cnt, NULL);
 	lv_label_set_text(label_pump, "PUMP");
