@@ -84,6 +84,8 @@ esp_event_loop_handle_t gn_get_leaf_config_event_loop(
 gn_leaf_param_handle_t gn_get_leaf_config_params(
 		gn_leaf_config_handle_t leaf_config);
 
+extern void gn_display_setup_leaf_display(gn_leaf_config_handle_t leaf_config, gn_display_handler_t display_handler);
+
 extern BaseType_t gn_display_leaf_refresh_start();
 
 extern BaseType_t gn_display_leaf_refresh_end();

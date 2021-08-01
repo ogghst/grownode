@@ -16,7 +16,7 @@ extern "C" {
 #include "esp_spiffs.h"
 #include "esp_vfs.h"
 
-#if CONFIG_GROWNODE_WIFI_ENABLED
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
 #include "esp_wifi.h"
 #include "esp_ota_ops.h"
 #include "esp_http_client.h"
@@ -52,7 +52,7 @@ gn_config_handle_intl_t _conf;
 void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		int32_t event_id, void *event_data) {
 
-#if CONFIG_GROWNODE_WIFI_ENABLED
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	ESP_LOGD(TAG, "_gn_wifi_event_handler");
 
@@ -142,7 +142,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 
 void _gn_wifi_init_sta(void) {
 
-#if CONFIG_GROWNODE_WIFI_ENABLED
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	/* Start Wi-Fi in station mode */
 	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
@@ -155,7 +155,7 @@ void _gn_wifi_init_sta(void) {
 void _gn_wifi_get_device_service_name(char *service_name, size_t max) {
 
 
-#if CONFIG_GROWNODE_WIFI_ENABLED
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	uint8_t eth_mac[6];
 	const char *ssid_prefix = CONFIG_GROWNODE_PROV_SOFTAP_PREFIX;
@@ -175,7 +175,7 @@ esp_err_t _gn_wifi_custom_prov_data_handler(uint32_t session_id,
 		const uint8_t *inbuf, ssize_t inlen, uint8_t **outbuf, ssize_t *outlen,
 		void *priv_data) {
 
-#if CONFIG_GROWNODE_WIFI_ENABLED
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	if (inbuf) {
 		ESP_LOGD(TAG, "Received data: %.*s", inlen, (char* ) inbuf);
@@ -195,7 +195,7 @@ esp_err_t _gn_wifi_custom_prov_data_handler(uint32_t session_id,
 
 esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
 
-#if CONFIG_GROWNODE_WIFI_ENABLED
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	_conf = conf;
 
@@ -385,7 +385,7 @@ static bool time_sync_init_done = false;
 
 esp_err_t _gn_init_time_sync(gn_config_handle_t conf) {
 
-#if CONFIG_GROWNODE_WIFI_ENABLED
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	if (sntp_enabled()) {
 		ESP_LOGD(TAG, "SNTP already initialized.");
@@ -410,7 +410,7 @@ esp_err_t _gn_init_time_sync(gn_config_handle_t conf) {
 
 void _gn_ota_task(void *pvParameter) {
 
-#if CONFIG_GROWNODE_WIFI_ENABLED
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	//vTaskDelay(30000 / portTICK_PERIOD_MS);
 

@@ -368,7 +368,7 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
 
 esp_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t param) {
 
-#if CONFIG_GROWNODE_WIFI_ENABLED
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	int ret = ESP_OK;
 
@@ -429,7 +429,7 @@ esp_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t param) {
 
 esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t _config) {
 
-#if CONFIG_GROWNODE_WIFI_ENABLED
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
 
@@ -477,7 +477,7 @@ esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t _config) {
 esp_err_t gn_mqtt_send_leaf_message(gn_leaf_config_handle_t _leaf,
 		const char *msg) {
 
-#if CONFIG_GROWNODE_WIFI_ENABLED
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) _leaf;
@@ -508,7 +508,7 @@ esp_err_t gn_mqtt_send_leaf_message(gn_leaf_config_handle_t _leaf,
 
 esp_err_t _gn_mqtt_on_connected(esp_mqtt_client_handle_t client) {
 
-#if CONFIG_GROWNODE_WIFI_ENABLED
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
 
@@ -554,7 +554,7 @@ esp_err_t _gn_mqtt_on_connected(esp_mqtt_client_handle_t client) {
 
 esp_err_t _gn_mqtt_on_disconnected(esp_mqtt_client_handle_t client) {
 
-#if CONFIG_GROWNODE_WIFI_ENABLED
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	if (ESP_OK
 			!= esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
@@ -584,7 +584,7 @@ void log_error_if_nonzero(const char *message, int error_code) {
 void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 		int32_t event_id, void *event_data) {
 
-#if CONFIG_GROWNODE_WIFI_ENABLED
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%d", base,
 			event_id);
@@ -749,7 +749,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 
 esp_err_t gn_mqtt_init(gn_config_handle_t _conf) {
 
-#if CONFIG_GROWNODE_WIFI_ENABLED
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	gn_config_handle_intl_t conf = (gn_config_handle_intl_t) _conf;
 

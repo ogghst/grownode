@@ -88,15 +88,14 @@ esp_err_t _gn_leaf_start(gn_leaf_config_handle_intl_t leaf_config) {
 	int ret = ESP_OK;
 	ESP_LOGI(TAG, "_gn_start_leaf %s", leaf_config->name);
 
-	gn_display_leaf_start(leaf_config);
-
-//TODO not valid to pass the entire context, as the leaf can do everything. better pass only name and us grownode functions to protect context
 	if (xTaskCreate((void*) leaf_config->task_cb, leaf_config->name, 2048,
 			leaf_config, 1,
 			NULL) != pdPASS) {
 		ESP_LOGE(TAG, "failed to create lef task for %s", leaf_config->name);
 		goto fail;
 	}
+
+	//gn_display_leaf_start(leaf_config);
 
 	//notice network of the leaf added
 	gn_mqtt_subscribe_leaf(leaf_config);
@@ -822,11 +821,9 @@ gn_config_handle_t gn_init() { //TODO make the node working even without network
 	ESP_GOTO_ON_ERROR(_gn_init_keepalive_timer(_gn_default_conf), err, TAG,
 			"error on timer init: %s", esp_err_to_name(ret));
 
-#if CONFIG_GROWNODE_DISPLAY_ENABLED
 	//init display
 	ESP_GOTO_ON_ERROR(gn_init_display(_gn_default_conf), err, TAG,
 			"error on display init: %s", esp_err_to_name(ret));
-#endif
 
 #if CONFIG_GROWNODE_WIFI_ENABLED
 	//init wifi
@@ -842,12 +839,6 @@ gn_config_handle_t gn_init() { //TODO make the node working even without network
 	ESP_GOTO_ON_ERROR(gn_mqtt_init(_gn_default_conf), err_srv, TAG,
 			"error on server init: %s", esp_err_to_name(ret));
 
-	err_net: _gn_default_conf->status = GN_CONFIG_STATUS_NETWORK_ERROR;
-	return _gn_default_conf;
-
-	err_srv: _gn_default_conf->status = GN_CONFIG_STATUS_SERVER_ERROR;
-	return _gn_default_conf;
-
 #endif
 
 	_gn_default_conf->status = GN_CONFIG_STATUS_OK;
@@ -856,6 +847,13 @@ gn_config_handle_t gn_init() { //TODO make the node working even without network
 
 	err: _gn_default_conf->status = GN_CONFIG_STATUS_ERROR;
 	return _gn_default_conf;
+
+	err_net: _gn_default_conf->status = GN_CONFIG_STATUS_NETWORK_ERROR;
+	return _gn_default_conf;
+
+	err_srv: _gn_default_conf->status = GN_CONFIG_STATUS_SERVER_ERROR;
+	return _gn_default_conf;
+
 
 }
 

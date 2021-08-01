@@ -67,6 +67,7 @@ struct gn_leaf_config_t {
 	//QueueHandle_t xLeafTaskEventQueue;
 	esp_event_loop_handle_t event_loop;
 	gn_leaf_param_handle_t params;
+	gn_display_handler_t display_handler;
 };
 
 

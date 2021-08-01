@@ -31,6 +31,8 @@ typedef void *gn_leaf_config_handle_t;
 typedef void *gn_node_config_handle_t;
 typedef void *gn_config_handle_t;
 
+typedef void* gn_display_handler_t;
+
 typedef struct {
 	gn_event_id_t id;
 	char leaf_name[GN_LEAF_NAME_SIZE];
@@ -53,7 +55,7 @@ typedef gn_node_event_t *gn_node_event_handle_t;
 typedef void (*gn_leaf_task_callback)(gn_leaf_config_handle_t leaf_config);
 
 typedef void (*gn_leaf_display_config_callback)(
-		gn_leaf_config_handle_t leaf_config, void *leaf_container);
+		gn_leaf_config_handle_t leaf_config, gn_display_handler_t display_handler);
 
 //typedef void (*gn_leaf_display_task_t)(gn_leaf_config_handle_t leaf_config);
 

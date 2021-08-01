@@ -34,8 +34,11 @@ const int GN_EVT_GROUP_GUI_COMPLETED_EVENT = BIT0;
 EventGroupHandle_t _gn_gui_event_group;
 
 //TODO revise log structure with structs
-lv_obj_t *statusLabel[10];
-char rawMessages[10][30];
+
+#define SLSIZE 4
+
+lv_obj_t *statusLabel[SLSIZE];
+char rawMessages[SLSIZE][30];
 int rawIdx = 0;
 
 //lv_obj_t *network_status_label, *server_status_label;
@@ -90,14 +93,14 @@ void _gn_display_log_system_handler(void *handler_args, esp_event_base_t base,
 		//lv_label_set_text(statusLabel, message.c_str());
 		//const char *t = text.c_str();
 
-		if (rawIdx > 9) {
+		if (rawIdx > SLSIZE-1) {
 
 			//scroll messages
-			for (int row = 1; row < 10; row++) {
+			for (int row = 1; row < SLSIZE; row++) {
 				//ESP_LOGI(TAG, "scrolling %i from %s to %s", row, rawMessages[row], rawMessages[row - 1]);
 				strncpy(rawMessages[row - 1], rawMessages[row], 30);
 			}
-			strncpy(rawMessages[9], message, 30);
+			strncpy(rawMessages[SLSIZE-1], message, 30);
 		} else {
 			//ESP_LOGI(TAG, "setting %i", rawIdx);
 			strncpy(rawMessages[rawIdx], message, 30);
@@ -106,7 +109,7 @@ void _gn_display_log_system_handler(void *handler_args, esp_event_base_t base,
 
 		//ESP_LOGI(TAG, "printing %s", message);
 		//print
-		for (int row = 0; row < 10; row++) {
+		for (int row = 0; row < SLSIZE; row++) {
 			//ESP_LOGI(TAG, "label %i to %s", 9 - row, rawMessages[row]);
 			lv_label_set_text(statusLabel[row], rawMessages[row]);
 		}
@@ -167,22 +170,23 @@ void _gn_display_create_gui() {
 	lv_style_set_text_color(&style, LV_STATE_DEFAULT, LV_COLOR_WHITE);
 	lv_style_set_bg_color(&style, LV_STATE_PRESSED, LV_COLOR_BLACK);
 	lv_style_set_text_color(&style, LV_STATE_PRESSED, LV_COLOR_WHITE);
-	//lv_style_set_border_color(&style, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+	lv_style_set_border_color(&style, LV_STATE_DEFAULT, LV_COLOR_WHITE);
 	lv_style_set_border_width(&style, LV_STATE_DEFAULT, 0);
 	lv_style_set_margin_all(&style, LV_STATE_DEFAULT, 0);
-	lv_style_set_pad_all(&style, LV_STATE_DEFAULT, 2);
-	//lv_style_set_radius(&style, LV_STATE_DEFAULT, 0);
+	lv_style_set_pad_all(&style, LV_STATE_DEFAULT, 1);
+	lv_style_set_radius(&style, LV_STATE_DEFAULT, 0);
 
 	static lv_style_t style_log;
-	lv_style_init(&style_log);
+	lv_style_copy(&style_log, &style);
+	//lv_style_init(&style_log);
 	//lv_style_set_bg_opa(&style_log, LV_STATE_DEFAULT, LV_OPA_COVER);
-	lv_style_set_bg_color(&style_log, LV_STATE_DEFAULT, LV_COLOR_BLACK);
-	lv_style_set_text_color(&style_log, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+	//lv_style_set_bg_color(&style_log, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+	//lv_style_set_text_color(&style_log, LV_STATE_DEFAULT, LV_COLOR_WHITE);
 	//lv_style_set_border_color(&style_log, LV_STATE_DEFAULT, LV_COLOR_WHITE);
 	//lv_style_set_radius(&style_log, LV_STATE_DEFAULT, 0);
 
 	static lv_style_t style_btn;
-	lv_style_init(&style_btn);
+	//lv_style_init(&style_btn);
 	lv_style_copy(&style_btn, &style);
 	lv_style_set_bg_opa(&style_btn, LV_STATE_DEFAULT, LV_OPA_COVER);
 
@@ -197,7 +201,7 @@ void _gn_display_create_gui() {
 	lv_style_set_radius(&style_btn, LV_STATE_DEFAULT, 5);
 
 	static lv_style_t style_led;
-	lv_style_init(&style_led);
+	//lv_style_init(&style_led);
 	lv_style_copy(&style_led, &style);
 	lv_style_set_bg_opa(&style_led, LV_STATE_DEFAULT, LV_OPA_COVER);
 	lv_style_set_bg_color(&style_led, LV_STATE_DEFAULT, LV_COLOR_GREEN);
@@ -207,7 +211,7 @@ void _gn_display_create_gui() {
 	//main container
 	lv_obj_t *cont = lv_cont_create(scr, NULL);
 	lv_obj_add_style(cont, LV_CONT_PART_MAIN, &style);
-	lv_obj_set_style_local_radius(cont, LV_CONT_PART_MAIN, LV_STATE_DEFAULT, 0);
+	//lv_obj_set_style_local_radius(cont, LV_CONT_PART_MAIN, LV_STATE_DEFAULT, 0);
 	lv_obj_align(cont, scr, LV_ALIGN_IN_TOP_MID, 0, 0);
 	lv_cont_set_fit(cont, LV_FIT_MAX);
 	lv_cont_set_layout(cont, LV_LAYOUT_COLUMN_MID);
@@ -228,7 +232,7 @@ void _gn_display_create_gui() {
 	lv_obj_align(log_cont, title_cont, LV_ALIGN_IN_TOP_MID, 0, 0);
 	lv_cont_set_fit2(log_cont, LV_FIT_MAX, LV_FIT_TIGHT);
 	//lv_obj_set_width(log_cont, 240);
-	//lv_obj_set_height(log_cont, 260);
+	lv_obj_set_height(log_cont, 260);
 	lv_cont_set_layout(log_cont, LV_LAYOUT_COLUMN_LEFT);
 
 	//leaf container
@@ -239,6 +243,13 @@ void _gn_display_create_gui() {
 	//lv_obj_set_width(log_cont, 240);
 	//lv_obj_set_height(log_cont, 260);
 	lv_cont_set_layout(leaf_cont, LV_LAYOUT_COLUMN_LEFT);
+
+	//label leave
+	lv_obj_t *label_leaf_cont = lv_label_create(leaf_cont, NULL);
+	lv_obj_add_style(label_leaf_cont, LV_LABEL_PART_MAIN, &style_log);
+	lv_label_set_text(label_leaf_cont, "Leaves");
+
+
 
 	//bottom container
 	lv_obj_t *bottom_cont = lv_cont_create(cont, NULL);
@@ -257,7 +268,7 @@ void _gn_display_create_gui() {
 
 	//log labels
 
-	for (int row = 0; row < 10; row++) {
+	for (int row = 0; row < SLSIZE; row++) {
 
 		//log labels
 		statusLabel[row] = lv_label_create(log_cont, NULL);
@@ -336,9 +347,10 @@ void _gn_display_create_gui() {
 	 */
 }
 
+/*
 void gn_display_leaf_start(gn_leaf_config_handle_t leaf_config) {
 
-#if CONFIG_GROWNODE_DISPLAY_ENABLED
+#ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 
 	//create a leaf container
 	//leaf container
@@ -350,10 +362,30 @@ void gn_display_leaf_start(gn_leaf_config_handle_t leaf_config) {
 	//lv_obj_set_height(log_cont, 260);
 	lv_cont_set_layout(_a_leaf_cont, LV_LAYOUT_COLUMN_LEFT);
 
-	((gn_leaf_config_handle_intl_t)leaf_config)->display_config_cb(leaf_config, _a_leaf_cont);
+	//((gn_leaf_config_handle_intl_t)leaf_config)->display_config_cb(leaf_config, _a_leaf_cont);
+	((gn_leaf_config_handle_intl_t)leaf_config)->display_handler = _a_leaf_cont;
 
 #endif
 
+}
+*/
+
+void gn_display_setup_leaf_display(gn_leaf_config_handle_t leaf_config, gn_display_handler_t display_handler) {
+
+#ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
+	//create a leaf container
+	//leaf container
+	lv_obj_t *_a_leaf_cont = lv_cont_create(leaf_cont, NULL);
+	lv_obj_add_style(_a_leaf_cont, LV_CONT_PART_MAIN, &style);
+	lv_obj_align(_a_leaf_cont, leaf_cont, LV_ALIGN_IN_TOP_MID, 0, 0);
+	lv_cont_set_fit2(_a_leaf_cont, LV_FIT_MAX, LV_FIT_TIGHT);
+	//lv_obj_set_width(log_cont, 240);
+	//lv_obj_set_height(log_cont, 260);
+	lv_cont_set_layout(_a_leaf_cont, LV_LAYOUT_COLUMN_LEFT);
+
+	((gn_leaf_config_handle_intl_t)leaf_config)->display_handler = _a_leaf_cont;
+	((gn_leaf_config_handle_intl_t)leaf_config)->display_config_cb(leaf_config, _a_leaf_cont);
+#endif
 }
 
 void _gn_display_gui_task(void *pvParameter) {
@@ -438,10 +470,11 @@ void _gn_display_gui_task(void *pvParameter) {
 		vTaskDelay(pdMS_TO_TICKS(10));
 
 		/* Try to take the semaphore, call lvgl related function on success */
-		if (pdTRUE == xSemaphoreTake(_gn_xGuiSemaphore, portMAX_DELAY)) {
+		if (pdTRUE == gn_display_leaf_refresh_start()) {
+			//ESP_LOGE(TAG, "LVGL handle");
 			lv_task_handler();
 
-			xSemaphoreGive(_gn_xGuiSemaphore);
+			gn_display_leaf_refresh_end();
 		}
 	}
 
@@ -464,7 +497,7 @@ esp_err_t gn_init_display(gn_config_handle_t config) {
 
 	//TODO initialization guards
 
-#if CONFIG_GROWNODE_DISPLAY_ENABLED
+#ifndef CONFIG_GROWNODE_DISPLAY_ENABLED
 	return ESP_OK;
 #endif
 
