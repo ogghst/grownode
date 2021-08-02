@@ -579,8 +579,8 @@ esp_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf,
 	if (!_param)
 		return ESP_ERR_INVALID_ARG;
 
-	ESP_LOGD(TAG, "gn_leaf_param_set %s %s", name, val);
-	ESP_LOGD(TAG, "	old value %s", val);
+	ESP_LOGD(TAG, "gn_leaf_param_set_string - param:%s value:%s", name, val);
+	ESP_LOGD(TAG, "	old value %s", _param->param_val->v.s);
 	_param->param_val->v.s = (char*) realloc(_param->param_val->v.s,
 			sizeof(char) * (strlen(val) + 1));
 	memset(_param->param_val->v.s, 0, sizeof(char) * (strlen(val) + 1));
@@ -601,8 +601,8 @@ esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf,
 	if (!_param)
 		return ESP_ERR_INVALID_ARG;
 
-	ESP_LOGD(TAG, "gn_leaf_param_set %s %d", name, val);
-	ESP_LOGD(TAG, "	old value %d", val);
+	ESP_LOGD(TAG, "gn_leaf_param_set_bool %s %d", name, val);
+	ESP_LOGD(TAG, "	old value %d", _param->param_val->v.b);
 	_param->param_val->v.b = val;
 	ESP_LOGD(TAG, "gn_leaf_param_set - result %d", _param->param_val->v.b);
 
@@ -611,19 +611,90 @@ esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf,
 }
 
 esp_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf,
-		const char *name, const gn_leaf_event_handle_t evt) {
+		const char *name, const double val) {
 
-	if (!leaf || !name || !evt)
+	if (!leaf || !name)
 		return ESP_ERR_INVALID_ARG;
 
 	gn_leaf_param_handle_t _param = gn_leaf_param_get(leaf, name);
 	if (!_param)
 		return ESP_ERR_INVALID_ARG;
 
-	double val = strtod(evt->data, NULL);
+	ESP_LOGD(TAG, "gn_leaf_param_set_double %s %g", name, val);
+	ESP_LOGD(TAG, "	old value %g", _param->param_val->v.d);
+
 	_param->param_val->v.d = val;
 
+	ESP_LOGD(TAG, "gn_leaf_param_set - result %g", _param->param_val->v.d);
+
 	return gn_mqtt_send_leaf_param(_param);
+
+}
+
+esp_err_t gn_leaf_parameter_update(gn_leaf_config_handle_t leaf_config,
+		char *param, char *data, int data_len) {
+
+	if (!leaf_config || !param || !data || data_len == 0)
+		return 1;
+
+	ESP_LOGD(TAG, "gn_leaf_parameter_update. param=%s data=%.*s data_len %d", param, data_len, data, data_len);
+
+	gn_leaf_param_handle_t leaf_params = gn_get_leaf_config_params(leaf_config);
+
+	while (leaf_params != NULL) {
+
+		//check param name
+		if (strcmp(param, leaf_params->name) == 0) {
+			//param is the one to update
+
+			//check type
+			switch (leaf_params->param_val->t) {
+
+			case GN_VAL_TYPE_STRING: {
+
+				char* pvs = leaf_params->param_val->v.s;
+
+				pvs = realloc(pvs, data_len+1);
+				strncpy(pvs, data, data_len);
+				//end with terminating character to be handled as string if not yet
+				pvs[data_len]='\0';
+
+			}
+				break;
+
+			case GN_VAL_TYPE_DOUBLE: {
+
+				double val = strtod(data, NULL);
+				gn_leaf_param_set_double(leaf_config, param, val);
+
+			}
+				break;
+
+			case GN_VAL_TYPE_BOOLEAN: {
+
+				if (strncmp(data, "1", data_len) == 0) {
+					//setting to true
+					gn_leaf_param_set_bool(leaf_config, param,
+					true);
+				} else {
+					//setting to false
+					gn_leaf_param_set_bool(leaf_config, param,
+					false);
+				}
+
+			}
+				break;
+
+			default:
+				break;
+			};
+
+		}
+
+		leaf_params = leaf_params->next;
+	}
+
+	return ESP_OK;
 
 }
 

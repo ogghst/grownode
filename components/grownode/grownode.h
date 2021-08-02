@@ -64,7 +64,10 @@ esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf,
 		const char *name, const bool val);
 
 esp_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf,
-		const char *name, const gn_leaf_event_handle_t evt);
+		const char *name, const double val);
+
+esp_err_t gn_leaf_parameter_update(gn_leaf_config_handle_t leaf_config,
+		char *param, char *data, int data_len);
 
 esp_err_t gn_leaf_param_destroy(gn_leaf_param_handle_t new_param);
 

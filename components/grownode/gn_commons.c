@@ -7,7 +7,6 @@ extern "C" {
 
 static const char *TAG = "gn_commons";
 
-
 #ifdef __cplusplus
 }
 #endif //__cplusplus

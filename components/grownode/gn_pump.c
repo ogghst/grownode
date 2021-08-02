@@ -71,32 +71,7 @@ void gn_pump_callback(void *handler_args, esp_event_base_t base, int32_t id,
 		if (strcmp(event->leaf_name, leaf_name) != 0)
 			break;
 
-		if (strcmp(event->param_name, "status") == 0) {
-
-			if (strncmp(event->data, "true", event->data_size) == 0) {
-				//setting to true
-				gn_leaf_param_set_bool(leaf_config, "status",
-				true);
-				xEventGroupSetBits(_gn_event_group_pump, GN_PUMP_EVENT);
-				break;
-			} else if (strncmp(event->data, "false", event->data_size) == 0) {
-				//setting to false
-				gn_leaf_param_set_bool(leaf_config, "status",
-				false);
-				xEventGroupSetBits(_gn_event_group_pump, GN_PUMP_EVENT);
-				break;
-			}
-
-		} else
-
-		if (strcmp(event->param_name, "power") == 0) {
-
-			double ret = strtod(event->data, NULL);
-			if (ret >= 0 && ret <= 1024)
-				gn_leaf_param_set_double(leaf_config, "power", event);
-
-		}
-
+		xEventGroupSetBits(_gn_event_group_pump, GN_PUMP_EVENT);
 		break;
 
 	case GN_NETWORK_CONNECTED_EVENT:
@@ -207,18 +182,13 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 						status_param->param_val->v.b ?
 								"status: on" : "status: off");
 
-				lv_label_set_text(label_status,
-						status_param->param_val->v.b ?
-								"status: on" : "status: off");
-
 				gn_display_leaf_refresh_end();
 			}
 		}
 
 		power_param = gn_leaf_param_get(leaf_config, "power");
 
-		if (power_param->param_val->v.d
-				!= power&& status_param->param_val->v.b == true) {
+		if (power_param->param_val->v.d) {
 
 			power = power_param->param_val->v.d;
 
@@ -235,8 +205,9 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 
 		}
 
-		if (gn_pump_state != GN_PUMP_STATE_RUNNING
-				|| !status_param->param_val->v.b) {
+		if (gn_pump_state != GN_PUMP_STATE_RUNNING) {
+			mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, 0);
+		} else if (!status_param->param_val->v.b) {
 			mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, 0);
 			change = false;
 		} else {

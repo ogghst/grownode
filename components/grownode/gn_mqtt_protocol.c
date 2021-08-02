@@ -370,6 +370,8 @@ esp_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t param) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
+	ESP_LOGD(TAG, "gn_mqtt_send_leaf_param %s", param->name);
+
 	int ret = ESP_OK;
 
 	int msg_id = -1;
@@ -383,9 +385,9 @@ esp_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t param) {
 	switch (param->param_val->t) {
 	case GN_VAL_TYPE_BOOLEAN:
 		if (param->param_val->v.b) {
-			strcpy(buf, "true");
+			strcpy(buf, "1");
 		} else {
-			strcpy(buf, "false");
+			strcpy(buf, "0");
 		}
 		break;
 	case GN_VAL_TYPE_STRING:
@@ -594,7 +596,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 	switch ((esp_mqtt_event_id_t) event_id) {
 	case MQTT_EVENT_CONNECTED:
 		ESP_LOGD(TAG, "MQTT_EVENT_CONNECTED");
-		_gn_mqtt_on_connected(_config); //TODO find a better way to get context, here the event mqtt client is not taken in consideration
+		_gn_mqtt_on_connected(client); //TODO find a better way to get context, here the event mqtt client is not taken in consideration
 
 		/*
 		 msg_id = esp_mqtt_client_publish(client, "/topic/qos1", "data_3", 0, 1,
@@ -696,6 +698,15 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 							param_topic);
 					if (strncmp(param_topic, event->topic, event->topic_len)
 							== 0) {
+
+						if(ESP_OK != gn_leaf_parameter_update(_config->node_config->leaves.at[i],
+								_param->name, event->data, event->data_len)) {
+							ESP_LOGE(TAG,
+									"error in updating parameter %s with value %s to leaf %s",
+									_param->name, event->data, _config->node_config->leaves.at[i]->name);
+							break;
+						}
+
 						evt.id = GN_LEAF_PARAM_MESSAGE_RECEIVED_EVENT;
 						strncpy(evt.leaf_name,
 								_config->node_config->leaves.at[i]->name,
@@ -746,6 +757,9 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 #endif /* CONFIG_GROWNODE_WIFI_ENABLED */
 
 }
+
+
+
 
 esp_err_t gn_mqtt_init(gn_config_handle_t _conf) {
 
