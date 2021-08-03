@@ -26,95 +26,98 @@ extern "C" {
 
 #define GPIO_PWM0A_OUT 32
 
-size_t gn_pump_state = GN_PUMP_STATE_STOP;
-
 static const char *TAG = "gn_pump";
 
 //static gn_leaf_config_handle_t _leaf_config;
-static char gn_pump_buf[60];
+//static char gn_pump_buf[60];
 
-static const int GN_PUMP_EVENT = BIT0;
-static EventGroupHandle_t _gn_event_group_pump;
-
-//static lv_obj_t *_cnt;
-static lv_obj_t *label_status;
-static lv_obj_t *label_power;
-static lv_obj_t *label_pump;
+//static const int GN_PUMP_EVENT = BIT0;
+//static EventGroupHandle_t _gn_event_group_pump;
 
 void gn_pump_callback(void *handler_args, esp_event_base_t base, int32_t id,
 		void *event_data) {
 
-	gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t) handler_args;
-	gn_leaf_event_handle_t event;
+	/*
 
-	char *leaf_name = gn_get_leaf_config_name(leaf_config);
+	 gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t) handler_args;
+	 //gn_leaf_event_handle_t event;
 
-	ESP_LOGD(TAG, "gn_pump_callback (%s) event: %d", leaf_name, id);
+	 char *leaf_name = gn_get_leaf_config_name(leaf_config);
 
-	switch (id) {
+	 ESP_LOGD(TAG, "gn_pump_callback (%s) event: %d", leaf_name, id);
 
-	case GN_LEAF_MESSAGE_RECEIVED_EVENT:
-		event = (gn_leaf_event_handle_t) event_data;
-		if (strcmp(event->leaf_name, leaf_name) != 0)
-			break;
-		/*
-		 sprintf(gn_pump_buf, "message received: %.*s",
-		 (event->data_size > 20 ? 20 : event->data_size),
-		 (char*) event->data);
-		 gn_message_display(gn_pump_buf);
-		 break;
-		 */
+	 switch (id) {
 
-	case GN_LEAF_PARAM_MESSAGE_RECEIVED_EVENT: //TODO move to core and use callbacks
 
-		event = (gn_leaf_event_handle_t) event_data;
-		if (strcmp(event->leaf_name, leaf_name) != 0)
-			break;
+	 //	 case GN_LEAF_MESSAGE_RECEIVED_EVENT:
+	 //	 event = (gn_leaf_event_handle_t) event_data;
+	 //	 if (strcmp(event->leaf_name, leaf_name) != 0)
+	 //	 break;
+	 //
+	 //	 sprintf(gn_pump_buf, "message received: %.*s",
+	 //	 (event->data_size > 20 ? 20 : event->data_size),
+	 //	 (char*) event->data);
+	 //	 gn_message_display(gn_pump_buf);
+	 //	 break;
 
-		xEventGroupSetBits(_gn_event_group_pump, GN_PUMP_EVENT);
-		break;
 
-	case GN_NETWORK_CONNECTED_EVENT:
-		//lv_label_set_text(network_status_label, "NET OK");
-		gn_pump_state = GN_PUMP_STATE_RUNNING;
-		break;
+	 case GN_LEAF_PARAM_MESSAGE_RECEIVED_EVENT: //TODO move to core and use callbacks
 
-	case GN_NETWORK_DISCONNECTED_EVENT:
-		//lv_label_set_text(network_status_label, "NET KO");
-		gn_pump_state = GN_PUMP_STATE_STOP;
-		break;
+	 //event = (gn_leaf_event_handle_t) event_data;
+	 //if (strcmp(event->leaf_name, leaf_name) != 0)
+	 //	break;
 
-	case GN_SERVER_CONNECTED_EVENT:
-		//lv_label_set_text(server_status_label, "SRV OK");
-		gn_pump_state = GN_PUMP_STATE_RUNNING;
-		break;
+	 xEventGroupSetBits(_gn_event_group_pump, GN_PUMP_EVENT);
+	 break;
 
-	case GN_SERVER_DISCONNECTED_EVENT:
-		//lv_label_set_text(server_status_label, "SRV_KO");
-		gn_pump_state = GN_PUMP_STATE_STOP;
-		break;
+	 case GN_NETWORK_CONNECTED_EVENT:
+	 //lv_label_set_text(network_status_label, "NET OK");
+	 gn_pump_state = GN_PUMP_STATE_RUNNING;
+	 break;
 
-	default:
-		break;
+	 case GN_NETWORK_DISCONNECTED_EVENT:
+	 //lv_label_set_text(network_status_label, "NET KO");
+	 gn_pump_state = GN_PUMP_STATE_STOP;
+	 break;
 
-	}
+	 case GN_SERVER_CONNECTED_EVENT:
+	 //lv_label_set_text(server_status_label, "SRV OK");
+	 gn_pump_state = GN_PUMP_STATE_RUNNING;
+	 break;
+
+	 case GN_SERVER_DISCONNECTED_EVENT:
+	 //lv_label_set_text(server_status_label, "SRV_KO");
+	 gn_pump_state = GN_PUMP_STATE_STOP;
+	 break;
+
+	 default:
+	 break;
+
+	 }
+	 */
 
 }
 
 void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 
-	char *leaf_name = gn_get_leaf_config_name(leaf_config);
-
-	sprintf(gn_pump_buf, "%.*s init", 30, leaf_name);
-	gn_message_display(gn_pump_buf);
+	//sprintf(gn_pump_buf, "%.*s init", 30, leaf_name);
+	//gn_message_display(gn_pump_buf);
 
 	//init variables. TODO make status and power stored in flash
-	double power = 0;
+
+	gn_leaf_context_add_to_leaf(leaf_config, "status", "0");
+	gn_leaf_context_add_to_leaf(leaf_config, "power", "0");
+
+	//20210802 TODO here. need to add value type parameters (at least string, double)
+
+	size_t gn_pump_state = GN_PUMP_STATE_RUNNING;
+	//char *leaf_name = gn_get_leaf_config_name(leaf_config);
+	float power = 0;
 	bool status = false;
+	bool change = true;
+	gn_leaf_event_t evt;
 
-	gn_pump_state = GN_PUMP_STATE_RUNNING;
-
-	_gn_event_group_pump = xEventGroupCreate();
+	//_gn_event_group_pump = xEventGroupCreate();
 
 	//setup pwm
 	mcpwm_pin_config_t pin_config = { .mcpwm0a_out_num = GPIO_PWM0A_OUT };
@@ -144,9 +147,43 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 	gn_leaf_param_add(leaf_config, power_param);
 
 	//setup screen
-	gn_display_setup_leaf_display(leaf_config, gn_pump_display_config);
 
-	bool change = true;
+#ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
+	static lv_obj_t *label_status;
+	static lv_obj_t *label_power;
+	static lv_obj_t *label_pump;
+
+	lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf_display(leaf_config);
+
+	if (_cnt) {
+		//char *leaf_name = gn_get_leaf_config_name(leaf_config);
+
+		//style
+		lv_style_t *style = lv_style_list_get_local_style(&_cnt->style_list);
+
+		label_pump = lv_label_create(_cnt, NULL);
+		lv_label_set_text(label_pump, "PUMP");
+		lv_obj_add_style(label_pump, LV_LABEL_PART_MAIN, style);
+
+		gn_leaf_param_handle_t power_param = gn_leaf_param_get(leaf_config,
+				"power");
+		gn_leaf_param_handle_t status_param = gn_leaf_param_get(leaf_config,
+				"status");
+
+		label_status = lv_label_create(_cnt, NULL);
+		lv_obj_add_style(label_status, LV_LABEL_PART_MAIN, style);
+		lv_label_set_text(label_status,
+				status_param->param_val->v.b ? "status: on" : "status: off");
+
+		label_power = lv_label_create(_cnt, NULL);
+		lv_obj_add_style(label_power, LV_LABEL_PART_MAIN, style);
+
+		char _p[21];
+		snprintf(_p, 20, "power: %f", power_param->param_val->v.d);
+		lv_label_set_text(label_power, _p);
+	}
+
+#endif
 
 	while (true) {
 
@@ -167,40 +204,78 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 		 }
 		 */
 
-		xEventGroupWaitBits(_gn_event_group_pump, GN_PUMP_EVENT, pdTRUE,
-		true, pdMS_TO_TICKS(100)); //portMAX_DELAY
+		/*
+		 xEventGroupWaitBits(_gn_event_group_pump, GN_PUMP_EVENT, pdTRUE,
+		 true, pdMS_TO_TICKS(100)); //portMAX_DELAY
+		 */
 
-		status_param = gn_leaf_param_get(leaf_config, "status");
+		if (xQueueReceive(gn_leaf_get_event_queue(leaf_config), &evt,
+				pdMS_TO_TICKS(100)) == pdPASS) {
 
-		if (status_param->param_val->v.b != status) {
-			status = status_param->param_val->v.b;
+			switch (evt.id) {
 
-			//show status
-			if (pdTRUE == gn_display_leaf_refresh_start()) {
+			case GN_LEAF_PARAM_MESSAGE_RECEIVED_EVENT:
 
-				lv_label_set_text(label_status,
-						status_param->param_val->v.b ?
-								"status: on" : "status: off");
+				status_param = gn_leaf_param_get(leaf_config, "status");
 
-				gn_display_leaf_refresh_end();
-			}
-		}
+				if (status_param->param_val->v.b != status) {
+					status = status_param->param_val->v.b;
 
-		power_param = gn_leaf_param_get(leaf_config, "power");
+#ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
+					if (pdTRUE == gn_display_leaf_refresh_start()) {
 
-		if (power_param->param_val->v.d) {
+						lv_label_set_text(label_status,
+								status_param->param_val->v.b ?
+										"status: on" : "status: off");
 
-			power = power_param->param_val->v.d;
+						gn_display_leaf_refresh_end();
+					}
+				}
+#endif
 
-			//show power
-			//if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) {
+				power_param = gn_leaf_param_get(leaf_config, "power");
 
-			if (pdTRUE == gn_display_leaf_refresh_start()) {
-				char _p[21];
-				snprintf(_p, 20, "power: %f", power_param->param_val->v.d);
-				lv_label_set_text(label_power, _p);
+				if (power_param->param_val->v.d) {
 
-				gn_display_leaf_refresh_end();
+					power = power_param->param_val->v.d;
+
+#ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
+					if (pdTRUE == gn_display_leaf_refresh_start()) {
+						char _p[21];
+						snprintf(_p, 20, "power: %f",
+								power_param->param_val->v.d);
+						lv_label_set_text(label_power, _p);
+
+						gn_display_leaf_refresh_end();
+					}
+#endif
+				}
+
+				break;
+
+			case GN_NETWORK_CONNECTED_EVENT:
+				//lv_label_set_text(network_status_label, "NET OK");
+				gn_pump_state = GN_PUMP_STATE_RUNNING;
+				break;
+
+			case GN_NETWORK_DISCONNECTED_EVENT:
+				//lv_label_set_text(network_status_label, "NET KO");
+				gn_pump_state = GN_PUMP_STATE_STOP;
+				break;
+
+			case GN_SERVER_CONNECTED_EVENT:
+				//lv_label_set_text(server_status_label, "SRV OK");
+				gn_pump_state = GN_PUMP_STATE_RUNNING;
+				break;
+
+			case GN_SERVER_DISCONNECTED_EVENT:
+				//lv_label_set_text(server_status_label, "SRV_KO");
+				gn_pump_state = GN_PUMP_STATE_STOP;
+				break;
+
+			default:
+				break;
+
 			}
 
 		}
@@ -242,37 +317,39 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 
 }
 
-void gn_pump_display_config(gn_leaf_config_handle_t leaf_config,
-		gn_display_handler_t leaf_container) {
+/*
+ void gn_pump_display_config(gn_leaf_config_handle_t leaf_config,
+ gn_display_handler_t leaf_container) {
 
-	lv_obj_t *_cnt = (lv_obj_t*) leaf_container;
-	char *leaf_name = gn_get_leaf_config_name(leaf_config);
+ lv_obj_t *_cnt = (lv_obj_t*) leaf_container;
+ char *leaf_name = gn_get_leaf_config_name(leaf_config);
 
-	//style
-	lv_style_t *style = lv_style_list_get_local_style(&_cnt->style_list);
+ //style
+ lv_style_t *style = lv_style_list_get_local_style(&_cnt->style_list);
 
-	label_pump = lv_label_create(_cnt, NULL);
-	lv_label_set_text(label_pump, "PUMP");
-	lv_obj_add_style(label_pump, LV_LABEL_PART_MAIN, style);
+ label_pump = lv_label_create(_cnt, NULL);
+ lv_label_set_text(label_pump, "PUMP");
+ lv_obj_add_style(label_pump, LV_LABEL_PART_MAIN, style);
 
-	gn_leaf_param_handle_t power_param = gn_leaf_param_get(leaf_config,
-			"power");
-	gn_leaf_param_handle_t status_param = gn_leaf_param_get(leaf_config,
-			"status");
+ gn_leaf_param_handle_t power_param = gn_leaf_param_get(leaf_config,
+ "power");
+ gn_leaf_param_handle_t status_param = gn_leaf_param_get(leaf_config,
+ "status");
 
-	label_status = lv_label_create(_cnt, NULL);
-	lv_obj_add_style(label_status, LV_LABEL_PART_MAIN, style);
-	lv_label_set_text(label_status,
-			status_param->param_val->v.b ? "status: on" : "status: off");
+ label_status = lv_label_create(_cnt, NULL);
+ lv_obj_add_style(label_status, LV_LABEL_PART_MAIN, style);
+ lv_label_set_text(label_status,
+ status_param->param_val->v.b ? "status: on" : "status: off");
 
-	label_power = lv_label_create(_cnt, NULL);
-	lv_obj_add_style(label_power, LV_LABEL_PART_MAIN, style);
+ label_power = lv_label_create(_cnt, NULL);
+ lv_obj_add_style(label_power, LV_LABEL_PART_MAIN, style);
 
-	char _p[21];
-	snprintf(_p, 20, "power: %f", power_param->param_val->v.d);
-	lv_label_set_text(label_power, _p);
+ char _p[21];
+ snprintf(_p, 20, "power: %f", power_param->param_val->v.d);
+ lv_label_set_text(label_power, _p);
 
-}
+ }
+ */
 
 /*
  void gn_pump_display_task(gn_leaf_config_handle_t leaf_config) {

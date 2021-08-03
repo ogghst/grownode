@@ -67,6 +67,8 @@ extern "C" {
 
 #include "grownode_intl.h"
 
+#include "gn_leaf_context.h"
+
 #include "gn_network.h"
 #include "gn_mqtt_protocol.h"
 
@@ -88,8 +90,8 @@ esp_err_t _gn_leaf_start(gn_leaf_config_handle_intl_t leaf_config) {
 	int ret = ESP_OK;
 	ESP_LOGI(TAG, "_gn_start_leaf %s", leaf_config->name);
 
-	if (xTaskCreate((void*) leaf_config->task_cb, leaf_config->name, leaf_config->task_size,
-			leaf_config, 1,
+	if (xTaskCreate((void*) leaf_config->task_cb, leaf_config->name,
+			leaf_config->task_size, leaf_config, 1,
 			NULL) != pdPASS) {
 		ESP_LOGE(TAG, "failed to create lef task for %s", leaf_config->name);
 		goto fail;
@@ -412,9 +414,7 @@ char* gn_get_node_config_name(gn_node_config_handle_t node_config) {
 }
 
 gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
-		const char *name, gn_leaf_task_callback task,
-		gn_leaf_display_config_callback display_config,
-		size_t task_size) { //, gn_leaf_display_task_t display_task) {
+		const char *name, gn_leaf_task_callback task, size_t task_size) { //, gn_leaf_display_task_t display_task) {
 
 	gn_node_config_handle_intl_t node_cfg =
 			(gn_node_config_handle_intl_t) node_config;
@@ -432,14 +432,12 @@ gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
 	l_c->node_config = node_cfg;
 	l_c->task_cb = task;
 	l_c->task_size = task_size;
-	l_c->display_config_cb = display_config;
+	l_c->leaf_context = gn_leaf_context_create(5);
 	//l_c->display_task = display_task;
-	/*
-	 l_c->xLeafTaskEventQueue = xQueueCreate(10, sizeof(gn_event_t));
-	 if (l_c->xLeafTaskEventQueue == NULL) {
-	 return NULL;
-	 }
-	 */
+	l_c->event_queue = xQueueCreate(10, sizeof(gn_leaf_event_t));
+	if (l_c->event_queue == NULL) {
+		return NULL;
+	}
 	l_c->event_loop = gn_event_loop;
 
 	gn_node_config_handle_intl_t n_c = l_c->node_config;
@@ -460,7 +458,9 @@ gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
 
 esp_err_t gn_leaf_destroy(gn_leaf_config_handle_t leaf) {
 
-	//vQueueDelete(leaf->xLeafTaskEventQueue);;
+	gn_leaf_config_handle_intl_t leaf_config = ((gn_leaf_config_handle_intl_t) leaf);
+	gn_leaf_context_destroy(leaf_config->leaf_context);
+	vQueueDelete(leaf_config->event_queue);;
 	free(leaf);
 	return ESP_OK;
 
@@ -480,6 +480,14 @@ esp_event_loop_handle_t gn_get_leaf_config_event_loop(
 	if (!leaf_config)
 		return NULL;
 	return ((gn_leaf_config_handle_intl_t) leaf_config)->event_loop;
+
+}
+
+QueueHandle_t gn_leaf_get_event_queue (gn_leaf_config_handle_t leaf_config) {
+
+	if (!leaf_config)
+		return NULL;
+	return ((gn_leaf_config_handle_intl_t) leaf_config)->event_queue;
 
 }
 
@@ -637,7 +645,8 @@ esp_err_t gn_leaf_parameter_update(gn_leaf_config_handle_t leaf_config,
 	if (!leaf_config || !param || !data || data_len == 0)
 		return 1;
 
-	ESP_LOGD(TAG, "gn_leaf_parameter_update. param=%s data=%.*s data_len %d", param, data_len, data, data_len);
+	ESP_LOGD(TAG, "gn_leaf_parameter_update. param=%s data=%.*s data_len %d",
+			param, data_len, data, data_len);
 
 	gn_leaf_param_handle_t leaf_params = gn_get_leaf_config_params(leaf_config);
 
@@ -652,12 +661,12 @@ esp_err_t gn_leaf_parameter_update(gn_leaf_config_handle_t leaf_config,
 
 			case GN_VAL_TYPE_STRING: {
 
-				char* pvs = leaf_params->param_val->v.s;
+				char *pvs = leaf_params->param_val->v.s;
 
-				pvs = realloc(pvs, data_len+1);
+				pvs = realloc(pvs, data_len + 1);
 				strncpy(pvs, data, data_len);
 				//end with terminating character to be handled as string if not yet
-				pvs[data_len]='\0';
+				pvs[data_len] = '\0';
 
 			}
 				break;
@@ -781,6 +790,54 @@ gn_leaf_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf,
 	}
 	return param;
 
+}
+
+void* gn_leaf_context_add_to_leaf(const gn_leaf_config_handle_t leaf, char *key,
+		void *value) {
+
+	if (!leaf || !key || !value) {
+		ESP_LOGE(TAG, "gn_leaf_context_add incorrect parameters");
+		return NULL;
+	}
+
+	gn_leaf_config_handle_intl_t leaf_config =
+			(gn_leaf_config_handle_intl_t) leaf;
+	if (!leaf_config->leaf_context)
+		return NULL;
+
+	return gn_leaf_context_set(leaf_config->leaf_context, key, value);
+}
+
+void* gn_leaf_context_remove_to_leaf(const gn_leaf_config_handle_t leaf,
+		char *key) {
+
+	if (!leaf || !key) {
+		ESP_LOGE(TAG, "gn_leaf_context_remove_to_leaf incorrect parameters");
+		return NULL;
+	}
+
+	gn_leaf_config_handle_intl_t leaf_config =
+			(gn_leaf_config_handle_intl_t) leaf;
+	if (!leaf_config->leaf_context)
+		return NULL;
+
+	return gn_leaf_context_delete(leaf_config->leaf_context, key);
+}
+
+void* gn_leaf_context_get_key_to_leaf(const gn_leaf_config_handle_t leaf,
+		char *key) {
+
+	if (!leaf || !key) {
+		ESP_LOGE(TAG, "gn_leaf_context_remove_to_leaf incorrect parameters");
+		return NULL;
+	}
+
+	gn_leaf_config_handle_intl_t leaf_config =
+			(gn_leaf_config_handle_intl_t) leaf;
+	if (!leaf_config->leaf_context)
+		return NULL;
+
+	return gn_leaf_context_get(leaf_config->leaf_context, key);
 }
 
 /*

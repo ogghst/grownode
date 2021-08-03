@@ -21,7 +21,7 @@ extern gn_node_config_handle_t node_config;
 
 gn_leaf_config_handle_t pump_config;
 
-TEST_CASE("gn_pump_init", "[pump]")
+TEST_CASE("gn_init_add_pump", "[pump]")
 {
 	config = gn_init();
 	TEST_ASSERT(config != NULL);
@@ -29,7 +29,7 @@ TEST_CASE("gn_pump_init", "[pump]")
 	TEST_ASSERT_EQUAL_STRING("node", gn_get_node_config_name(node_config));
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config),0);
 	pump_config = gn_leaf_create(node_config, "pump",
-		gn_pump_task, gn_pump_display_config, 4096);
+		gn_pump_task, 4096);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config),1);
 	esp_err_t ret = gn_node_start(node_config);
 	TEST_ASSERT_EQUAL(ret, ESP_OK);
@@ -39,13 +39,10 @@ TEST_CASE("gn_pump_init", "[pump]")
 TEST_CASE("gn_leaf_create pump", "[pump]")
 {
 pump_config = gn_leaf_create(node_config, "pump",
-	gn_pump_task, gn_pump_display_config, 4096);
+	gn_pump_task, 4096);
 
 TEST_ASSERT_EQUAL(gn_node_get_size(node_config),1);
-
-gn_leaf_config_handle_intl_t leaf = (gn_leaf_config_handle_intl_t)pump_config;
-
-TEST_ASSERT_EQUAL(gn_node_get_size(node_config),1);
+TEST_ASSERT(pump_config != NULL);
 
 
 }

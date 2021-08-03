@@ -370,7 +370,7 @@ void gn_display_leaf_start(gn_leaf_config_handle_t leaf_config) {
 }
 */
 
-void gn_display_setup_leaf_display(gn_leaf_config_handle_t leaf_config, gn_display_handler_t display_handler) {
+gn_display_container_t gn_display_setup_leaf_display(gn_leaf_config_handle_t leaf_config) {
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 	//create a leaf container
@@ -383,8 +383,11 @@ void gn_display_setup_leaf_display(gn_leaf_config_handle_t leaf_config, gn_displ
 	//lv_obj_set_height(log_cont, 260);
 	lv_cont_set_layout(_a_leaf_cont, LV_LAYOUT_COLUMN_LEFT);
 
-	((gn_leaf_config_handle_intl_t)leaf_config)->display_handler = _a_leaf_cont;
-	((gn_leaf_config_handle_intl_t)leaf_config)->display_config_cb(leaf_config, _a_leaf_cont);
+	//((gn_leaf_config_handle_intl_t)leaf_config)->display_handler = _a_leaf_cont;
+	//((gn_leaf_config_handle_intl_t)leaf_config)->display_config_cb(leaf_config, _a_leaf_cont);
+	return _a_leaf_cont;
+#else
+	return NULL;
 #endif
 }
 

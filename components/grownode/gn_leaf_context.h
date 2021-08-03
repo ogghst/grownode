@@ -22,21 +22,7 @@ void* gn_leaf_context_set(gn_leaf_context_handle_t context, char *key,
 
 void* gn_leaf_context_delete(gn_leaf_context_handle_t context, char *key);
 
-/*
- gn_leaf_context_handle_t gn_leaf_context_create(const char name[16],
- void *data);
+void* gn_leaf_context_get(gn_leaf_context_handle_t context, char *key);
 
- void gn_leaf_context_destroy(gn_leaf_context_handle_t context);
-
- int gn_leaf_context_size(gn_leaf_context_handle_t context);
-
- void gn_leaf_context_push(const gn_leaf_context_handle_t context, const char name[16], void *data);
-
- void gn_leaf_context_push_top(gn_leaf_context_handle_t * context, const char name[16], void *data);
-
- void* gn_leaf_context_pop(gn_leaf_context_handle_t * context);
-
- void gn_leaf_context_print(gn_leaf_context_handle_t context);
- */
 
 #endif

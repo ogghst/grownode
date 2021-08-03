@@ -16,6 +16,7 @@
 #include "esp_timer.h"
 
 #include "grownode.h"
+#include "gn_leaf_context.h"
 
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
@@ -62,13 +63,13 @@ struct gn_leaf_config_t {
 	size_t task_size;
 	gn_node_config_handle_intl_t node_config;
 	gn_leaf_task_callback task_cb;
-	gn_leaf_display_config_callback display_config_cb;
 	//gn_leaf_display_task_t display_task;
 	//gn_leaf_config_handle_t next;
-	//QueueHandle_t xLeafTaskEventQueue;
+	QueueHandle_t event_queue;
 	esp_event_loop_handle_t event_loop;
 	gn_leaf_param_handle_t params;
-	gn_display_handler_t display_handler;
+	//gn_display_handler_t display_handler;
+	gn_leaf_context_handle_t leaf_context;
 };
 
 

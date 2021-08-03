@@ -41,12 +41,13 @@ esp_err_t gn_reset();
 
 gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
 		const char *name, gn_leaf_task_callback task,
-		gn_leaf_display_config_callback display_config,
 		size_t task_size); //, gn_leaf_display_task_t display_task);
 
 esp_err_t gn_leaf_destroy(gn_leaf_config_handle_t leaf);
 
 //esp_err_t _gn_start_leaf(gn_leaf_config_handle_t leaf);
+
+QueueHandle_t gn_leaf_get_event_queue (gn_leaf_config_handle_t leaf_config);
 
 gn_leaf_param_handle_t gn_leaf_param_create(const char *name,
 		const gn_val_type_t type, const gn_val_t val);
@@ -71,6 +72,10 @@ esp_err_t gn_leaf_parameter_update(gn_leaf_config_handle_t leaf_config,
 
 esp_err_t gn_leaf_param_destroy(gn_leaf_param_handle_t new_param);
 
+void* gn_leaf_context_add_to_leaf(const gn_leaf_config_handle_t leaf, char *key, void *value);
+
+void* gn_leaf_context_get_key_to_leaf(const gn_leaf_config_handle_t leaf, char *key);
+
 esp_err_t gn_message_display(char *message);
 
 esp_err_t gn_message_send_text(gn_leaf_config_handle_t config, const char *msg);
@@ -91,7 +96,7 @@ esp_event_loop_handle_t gn_get_leaf_config_event_loop(
 gn_leaf_param_handle_t gn_get_leaf_config_params(
 		gn_leaf_config_handle_t leaf_config);
 
-extern void gn_display_setup_leaf_display(gn_leaf_config_handle_t leaf_config, gn_display_handler_t display_handler);
+extern gn_display_container_t gn_display_setup_leaf_display(gn_leaf_config_handle_t leaf_config);
 
 extern BaseType_t gn_display_leaf_refresh_start();
 

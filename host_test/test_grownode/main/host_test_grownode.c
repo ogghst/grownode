@@ -51,6 +51,33 @@ void test_gn_leaf_context_get_key_at_0() {
 
 	TEST_ASSERT(key == NULL);
 
+	char *ret = gn_leaf_context_set(context, "key 1", "value 1");
+	gn_leaf_context_print(context);
+	TEST_ASSERT(strcmp(ret, "key 1") == 0);
+	TEST_ASSERT(gn_leaf_context_size(context) == 1);
+
+	char *key = gn_leaf_context_get_key_at(context, 0);
+
+	TEST_ASSERT(strcmp("key 1", key) == 0);
+
+	gn_leaf_context_destroy(context);
+}
+
+void test_gn_leaf_context_get_key() {
+
+	context = gn_leaf_context_create(2);
+
+	char *ret = gn_leaf_context_set(context, "key 1", "value 1");
+	gn_leaf_context_print(context);
+	TEST_ASSERT(strcmp(ret, "key 1") == 0);
+	TEST_ASSERT(gn_leaf_context_size(context) == 1);
+
+	char *val = gn_leaf_context_get(context, "key 1");
+	TEST_ASSERT(strcmp("value 1", val) == 0);
+
+	char *val = gn_leaf_context_get(context, "key 2");
+	TEST_ASSERT(strcmp(NULL, val) == 0);
+
 	gn_leaf_context_destroy(context);
 }
 
@@ -149,6 +176,8 @@ int main(int argc, char **argv) {
 	RUN_TEST(test_gn_leaf_context_create);
 	ESP_LOGI(TAG, " * * * * * test_gn_leaf_context_get_key_at_0");
 	RUN_TEST(test_gn_leaf_context_get_key_at_0);
+	ESP_LOGI(TAG, " * * * * * test_gn_leaf_context_get_key");
+	RUN_TEST(test_gn_leaf_context_get_key);
 	ESP_LOGI(TAG, " * * * * * test_gn_leaf_context_add");
 	RUN_TEST(test_gn_leaf_context_add);
 	ESP_LOGI(TAG, " * * * * * test_gn_leaf_context_delete");

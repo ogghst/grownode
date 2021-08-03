@@ -40,7 +40,7 @@ void app_main(void) {
 
 	//create new leaf, controlling pump
 	gn_leaf_config_handle_t pump_config = gn_leaf_create(node_config, buf,
-			gn_pump_task, gn_pump_display_config, 4096); //, gn_pump_display_task);
+			gn_pump_task, 4096); //, gn_pump_display_task);
 
 	if (pump_config == NULL) {
 		ESP_LOGE("main", "leaf creation error");

@@ -678,13 +678,14 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 								_config->node_config->leaves.at[i]->name);
 					}
 
-					break;
+					if (xQueueSend(
+							_config->node_config->leaves.at[i]->event_queue,
+							&evt, 0) != pdTRUE) {
+						ESP_LOGE(TAG, "not possible to send message to leaf %s",
+								_config->node_config->leaves.at[i]->name);
+					}
 
-					/*
-					 if (xQueueSend(_config->node_config->leaves.at[i]->xLeafTaskEventQueue, &evt, 0) != pdTRUE) {
-					 ESP_LOGE(TAG,"not possible to send message to leaf %s",_config->node_config->leaves.at[i]->name);
-					 }
-					 */
+					break;
 
 					//_config->node_config->leaves.at[i]->callback(GN_LEAF_MESSAGE_RECEIVED_EVENT, _config->node_config->leaves.at[i], event); //TODO change in custom structure to not expose mqtt library
 				}
@@ -699,11 +700,15 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 					if (strncmp(param_topic, event->topic, event->topic_len)
 							== 0) {
 
-						if(ESP_OK != gn_leaf_parameter_update(_config->node_config->leaves.at[i],
-								_param->name, event->data, event->data_len)) {
+						if (ESP_OK
+								!= gn_leaf_parameter_update(
+										_config->node_config->leaves.at[i],
+										_param->name, event->data,
+										event->data_len)) {
 							ESP_LOGE(TAG,
 									"error in updating parameter %s with value %s to leaf %s",
-									_param->name, event->data, _config->node_config->leaves.at[i]->name);
+									_param->name, event->data,
+									_config->node_config->leaves.at[i]->name);
 							break;
 						}
 
@@ -723,6 +728,14 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 									"not possible to send param message to leaf %s",
 									_config->node_config->leaves.at[i]->name);
 						}
+
+						if (xQueueSend(
+								_config->node_config->leaves.at[i]->event_queue,
+								&evt, 0) != pdTRUE) {
+							ESP_LOGE(TAG, "not possible to send message to leaf %s",
+									_config->node_config->leaves.at[i]->name);
+						}
+
 						break;
 					}
 					_param = _param->next;
@@ -757,9 +770,6 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 #endif /* CONFIG_GROWNODE_WIFI_ENABLED */
 
 }
-
-
-
 
 esp_err_t gn_mqtt_init(gn_config_handle_t _conf) {
 
