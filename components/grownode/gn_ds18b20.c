@@ -182,7 +182,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 	ESP_ERROR_CHECK(
 			esp_event_handler_instance_register_with(gn_get_leaf_config_event_loop(leaf_config), GN_BASE_EVENT, GN_EVENT_ANY_ID, gn_ds18b20_callback, leaf_config, NULL));
 
-	gn_leaf_param_handle_t param = gn_leaf_param_create("temp", GN_VAL_TYPE_STRING,
+	gn_leaf_param_handle_t param = gn_leaf_param_create(leaf_config, "temp", GN_VAL_TYPE_STRING,
 			(gn_val_t) { .s = "" });
 	gn_leaf_param_add(leaf_config, param);
 

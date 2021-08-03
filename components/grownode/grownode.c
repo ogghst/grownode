@@ -56,6 +56,7 @@ extern "C" {
 //#include "esp_smartconfig.h"
 
 #include "nvs_flash.h"
+#include "nvs.h"
 
 #include "driver/timer.h"
 #include "driver/gpio.h"
@@ -458,9 +459,11 @@ gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
 
 esp_err_t gn_leaf_destroy(gn_leaf_config_handle_t leaf) {
 
-	gn_leaf_config_handle_intl_t leaf_config = ((gn_leaf_config_handle_intl_t) leaf);
+	gn_leaf_config_handle_intl_t leaf_config =
+			((gn_leaf_config_handle_intl_t) leaf);
 	gn_leaf_context_destroy(leaf_config->leaf_context);
-	vQueueDelete(leaf_config->event_queue);;
+	vQueueDelete(leaf_config->event_queue);
+	;
 	free(leaf);
 	return ESP_OK;
 
@@ -483,7 +486,7 @@ esp_event_loop_handle_t gn_get_leaf_config_event_loop(
 
 }
 
-QueueHandle_t gn_leaf_get_event_queue (gn_leaf_config_handle_t leaf_config) {
+QueueHandle_t gn_leaf_get_event_queue(gn_leaf_config_handle_t leaf_config) {
 
 	if (!leaf_config)
 		return NULL;
@@ -491,13 +494,64 @@ QueueHandle_t gn_leaf_get_event_queue (gn_leaf_config_handle_t leaf_config) {
 
 }
 
-gn_leaf_param_handle_t gn_leaf_param_create(const char *name,
-		const gn_val_type_t type, const gn_val_t val) {
+/**
+ * if parameter is stored, the value is overridden
+ */
+gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
+		const char *name, const gn_val_type_t type, gn_val_t val) {
 
 	if (!name) {
 		ESP_LOGE(TAG, "gn_leaf_param_create incorrect parameters");
 		return NULL;
 	}
+
+	gn_leaf_config_handle_intl_t _leaf_config =
+			(gn_leaf_config_handle_intl_t) leaf_config;
+
+	ESP_LOGD(TAG, "building storage tag..");
+	int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
+	ESP_LOGD(TAG, "..len: %i", _len);
+	char *_buf = (char*) malloc(_len * sizeof(char));
+
+	memcpy(_buf, _leaf_config->name, strlen(_leaf_config->name) * sizeof(char));
+	memcpy(_buf + strlen(_leaf_config->name) * sizeof(char), "_", 1 * sizeof(char));
+	memcpy(_buf + (strlen(_leaf_config->name) +1) * sizeof(char), name, strlen(name) * sizeof(char));
+
+	_buf[_len - 1] = '\0';
+
+	ESP_LOGD(TAG, ".. storage tag: %s", _buf);
+
+	void *value = 0;
+	//check if existing
+	ESP_LOGD(TAG, "check stored value for key %s",_buf);
+	gn_storage_get(_buf, (void**) &value);
+	if (value != 0) {
+		ESP_LOGD(TAG, "found stored value for key %s",_buf);
+
+		//not existing, overwrite val
+		switch (type) {
+		case GN_VAL_TYPE_STRING:
+			free(val.s);
+			val.s = strdup(value);
+			free(value);
+			break;
+		case GN_VAL_TYPE_BOOLEAN:
+			val.b = *((bool*)value);
+			free(value);
+			break;
+		case GN_VAL_TYPE_DOUBLE:
+			val.d = *((double*)value);
+			free(value);
+			break;
+		default:
+			ESP_LOGE(TAG, "param type not handled");
+			return NULL;
+			break;
+		}
+
+	}
+
+	free(_buf);
 
 	gn_leaf_param_handle_t _ret = (gn_leaf_param_handle_t) malloc(
 			sizeof(gn_leaf_param_t));
@@ -577,15 +631,34 @@ gn_leaf_param_handle_t gn_leaf_param_create(const char *name,
  }
  */
 
-esp_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf,
+esp_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf_config,
 		const char *name, const char *val) {
 
-	if (!leaf || !name || !val)
+	if (!leaf_config || !name || !val)
 		return ESP_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get(leaf, name);
+	gn_leaf_param_handle_t _param = gn_leaf_param_get(leaf_config, name);
 	if (!_param)
 		return ESP_ERR_INVALID_ARG;
+
+	gn_leaf_config_handle_intl_t _leaf_config =
+			(gn_leaf_config_handle_intl_t) leaf_config;
+
+	int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
+	char *_buf = (char*) malloc(_len * sizeof(char));
+
+	memcpy(_buf, _leaf_config->name, strlen(_leaf_config->name) * sizeof(char));
+	memcpy(_buf + strlen(_leaf_config->name) * sizeof(char), "_", 1 * sizeof(char));
+	memcpy(_buf + (strlen(_leaf_config->name) +1) * sizeof(char), name, strlen(name) * sizeof(char));
+
+	_buf[_len - 1] = '\0';
+
+	//check if existing
+	if (gn_storage_set(_buf, (void**) &val, strlen(val)) != ESP_OK) {
+		ESP_LOGW(TAG, "not possible to store leaf parameter value - key %s value %s", _buf, val);
+	}
+
+	free(_buf);
 
 	ESP_LOGD(TAG, "gn_leaf_param_set_string - param:%s value:%s", name, val);
 	ESP_LOGD(TAG, "	old value %s", _param->param_val->v.s);
@@ -599,15 +672,34 @@ esp_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf,
 
 }
 
-esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf,
+esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf_config,
 		const char *name, const bool val) {
 
-	if (!leaf || !name)
+	if (!leaf_config || !name)
 		return ESP_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get(leaf, name);
+	gn_leaf_param_handle_t _param = gn_leaf_param_get(leaf_config, name);
 	if (!_param)
 		return ESP_ERR_INVALID_ARG;
+
+	gn_leaf_config_handle_intl_t _leaf_config =
+			(gn_leaf_config_handle_intl_t) leaf_config;
+
+	int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
+	char *_buf = (char*) malloc(_len * sizeof(char));
+
+	memcpy(_buf, _leaf_config->name, strlen(_leaf_config->name) * sizeof(char));
+	memcpy(_buf + strlen(_leaf_config->name) * sizeof(char), "_", 1 * sizeof(char));
+	memcpy(_buf + (strlen(_leaf_config->name) +1) * sizeof(char), name, strlen(name) * sizeof(char));
+
+	_buf[_len - 1] = '\0';
+
+	//check if existing
+	if (gn_storage_set(_buf, (void**) &val, sizeof(bool)) != ESP_OK) {
+		ESP_LOGW(TAG, "not possible to store leaf parameter value - key %s value %i", _buf, val);
+	}
+
+	free(_buf);
 
 	ESP_LOGD(TAG, "gn_leaf_param_set_bool %s %d", name, val);
 	ESP_LOGD(TAG, "	old value %d", _param->param_val->v.b);
@@ -618,15 +710,34 @@ esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf,
 
 }
 
-esp_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf,
+esp_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf_config,
 		const char *name, const double val) {
 
-	if (!leaf || !name)
+	if (!leaf_config || !name)
 		return ESP_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get(leaf, name);
+	gn_leaf_param_handle_t _param = gn_leaf_param_get(leaf_config, name);
 	if (!_param)
 		return ESP_ERR_INVALID_ARG;
+
+	gn_leaf_config_handle_intl_t _leaf_config =
+			(gn_leaf_config_handle_intl_t) leaf_config;
+
+	int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
+	char *_buf = (char*) malloc(_len * sizeof(char));
+
+	memcpy(_buf, _leaf_config->name, strlen(_leaf_config->name) * sizeof(char));
+	memcpy(_buf + strlen(_leaf_config->name) * sizeof(char), "_", 1 * sizeof(char));
+	memcpy(_buf + (strlen(_leaf_config->name) +1) * sizeof(char), name, strlen(name) * sizeof(char));
+
+	_buf[_len - 1] = '\0';
+
+	//check if existing
+	if (gn_storage_set(_buf, (void**) &val, sizeof(double)) != ESP_OK) {
+		ESP_LOGW(TAG, "not possible to store leaf parameter value - key %s value %f", _buf, val);
+	}
+
+	free(_buf);
 
 	ESP_LOGD(TAG, "gn_leaf_param_set_double %s %g", name, val);
 	ESP_LOGD(TAG, "	old value %g", _param->param_val->v.d);
@@ -783,11 +894,11 @@ gn_leaf_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf,
 	}
 	gn_leaf_param_handle_t param = ((gn_leaf_config_handle_intl_t) leaf)->params;
 	while (param) {
-		if (strcmp(param->name, param_name) == 0) {
+		if (strcmp(param->name, param_name) == 0)
 			break;
-		}
 		param = param->next;
 	}
+
 	return param;
 
 }
@@ -892,7 +1003,8 @@ esp_err_t gn_message_display(char *message) {
 	//char *ptr = malloc(sizeof(char) * strlen(message) + 1);
 
 	ret = esp_event_post_to(gn_event_loop, GN_BASE_EVENT, GN_DISPLAY_LOG_EVENT,
-			message, strlen(message) + 1, portMAX_DELAY);
+			message, strlen(message) + 1,
+			portMAX_DELAY);
 
 	//free(ptr);
 	return ret;
@@ -935,6 +1047,13 @@ esp_err_t gn_firmware_update() {
 esp_err_t gn_reset() {
 
 	nvs_flash_erase();
+	esp_restart();
+	return ESP_OK;
+
+}
+
+esp_err_t gn_reboot() {
+
 	esp_restart();
 	return ESP_OK;
 
@@ -1005,6 +1124,75 @@ gn_config_handle_t gn_init() { //TODO make the node working even without network
 	err_srv: _gn_default_conf->status = GN_CONFIG_STATUS_SERVER_ERROR;
 	return _gn_default_conf;
 
+}
+
+#define STORAGE_NAMESPACE "grownode"
+
+esp_err_t gn_storage_set(char *key, void *value, size_t required_size) {
+
+	if (!key || !value)
+		return ESP_ERR_INVALID_ARG;
+
+	nvs_handle_t my_handle;
+	esp_err_t err;
+
+	// Open
+	err = nvs_open(STORAGE_NAMESPACE, NVS_READWRITE, &my_handle);
+	if (err != ESP_OK)
+		return err;
+
+	err = nvs_set_blob(my_handle, key, value, required_size);
+
+	if (err != ESP_OK)
+		return err;
+
+	// Commit
+	err = nvs_commit(my_handle);
+	if (err != ESP_OK)
+		return err;
+
+	// Close
+	nvs_close(my_handle);
+
+	return ESP_OK;
+
+}
+
+esp_err_t gn_storage_get(char *key, void **value) {
+
+	if (!key || !value)
+		return ESP_ERR_INVALID_ARG;
+
+	nvs_handle_t my_handle;
+	esp_err_t err;
+
+	// Open
+	err = nvs_open(STORAGE_NAMESPACE, NVS_READWRITE, &my_handle);
+	if (err != ESP_OK)
+		return err;
+
+	// Read the size of memory space required for blob
+	size_t required_size = 0; // value will default to 0, if not set yet in NVS
+	err = nvs_get_blob(my_handle, key, NULL, &required_size);
+	if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
+		return err;
+
+	if (required_size > 0) {
+
+		// Read previously saved blob if available
+		*value = malloc(required_size + sizeof(uint32_t));
+
+		err = nvs_get_blob(my_handle, key, *value, &required_size);
+		if (err != ESP_OK) {
+			free(*value);
+			return err;
+		}
+	}
+
+	// Close
+	nvs_close(my_handle);
+
+	return ESP_OK;
 }
 
 #ifdef __cplusplus

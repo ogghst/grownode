@@ -370,6 +370,10 @@ esp_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t param) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
+	if (!param) {
+		return ESP_FAIL;
+	}
+
 	ESP_LOGD(TAG, "gn_mqtt_send_leaf_param %s", param->name);
 
 	int ret = ESP_OK;
@@ -525,11 +529,13 @@ esp_err_t _gn_mqtt_on_connected(esp_mqtt_client_handle_t client) {
 	ESP_LOGD(TAG, "subscribing default topic %s, msg_id=%d", _gn_cmd_topic,
 			msg_id);
 
-	//send hello message
-	if (ESP_OK != _gn_mqtt_send_startup_message(config)) {
-		ESP_LOGE(TAG, "failed to send startup message");
-		goto fail;
-	}
+	/*
+	 //send hello message
+	 if (ESP_OK != _gn_mqtt_send_startup_message(config)) {
+	 ESP_LOGE(TAG, "failed to send startup message");
+	 goto fail;
+	 }
+	 */
 
 	if (ESP_OK
 			!= esp_event_post_to(config->event_loop, GN_BASE_EVENT,
@@ -732,7 +738,8 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 						if (xQueueSend(
 								_config->node_config->leaves.at[i]->event_queue,
 								&evt, 0) != pdTRUE) {
-							ESP_LOGE(TAG, "not possible to send message to leaf %s",
+							ESP_LOGE(TAG,
+									"not possible to send message to leaf %s",
 									_config->node_config->leaves.at[i]->name);
 						}
 
