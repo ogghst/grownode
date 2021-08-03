@@ -84,6 +84,8 @@ typedef gn_leaf_param_t *gn_leaf_param_handle_t;
 
 //typedef void* gn_leaf_context_handle_t;
 
+size_t gn_common_leaf_event_mask_param(gn_leaf_event_handle_t evt,
+		gn_leaf_param_handle_t param);
 
 
 #ifdef __cplusplus
