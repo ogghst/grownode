@@ -100,7 +100,7 @@ char* gn_leaf_context_get_key_at(gn_leaf_context_handle_t context,
 void* gn_leaf_context_get(gn_leaf_context_handle_t context, char *key) {
 
 	void* out = NULL;
-	enum cc_stat ret = cc_hashtable_get(context, key, out);
+	enum cc_stat ret = cc_hashtable_get(context, key, &out);
 	if (ret == CC_OK)
 		return out;
 	return NULL;

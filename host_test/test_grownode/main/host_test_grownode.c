@@ -56,7 +56,7 @@ void test_gn_leaf_context_get_key_at_0() {
 	TEST_ASSERT(strcmp(ret, "key 1") == 0);
 	TEST_ASSERT(gn_leaf_context_size(context) == 1);
 
-	char *key = gn_leaf_context_get_key_at(context, 0);
+	key = gn_leaf_context_get_key_at(context, 0);
 
 	TEST_ASSERT(strcmp("key 1", key) == 0);
 
@@ -68,15 +68,19 @@ void test_gn_leaf_context_get_key() {
 	context = gn_leaf_context_create(2);
 
 	char *ret = gn_leaf_context_set(context, "key 1", "value 1");
+
 	gn_leaf_context_print(context);
 	TEST_ASSERT(strcmp(ret, "key 1") == 0);
 	TEST_ASSERT(gn_leaf_context_size(context) == 1);
 
-	char *val = gn_leaf_context_get(context, "key 1");
+	char *val = (char*) gn_leaf_context_get(context, "key 1");
+
+	gn_leaf_context_print(context);
+	TEST_ASSERT(val != NULL);
 	TEST_ASSERT(strcmp("value 1", val) == 0);
 
-	char *val = gn_leaf_context_get(context, "key 2");
-	TEST_ASSERT(strcmp(NULL, val) == 0);
+	val = gn_leaf_context_get(context, "key 2");
+	TEST_ASSERT(val == NULL);
 
 	gn_leaf_context_destroy(context);
 }
