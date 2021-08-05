@@ -12,11 +12,13 @@
 extern "C" {
 #endif
 
-#include "gn_event_source.h"
-
 #define GN_NODE_NAME_SIZE 32
 #define GN_LEAF_NAME_SIZE 32
 #define GN_LEAF_PARAM_NAME_SIZE 32
+
+#include "esp_system.h"
+#include "esp_event.h"
+#include "gn_event_source.h"
 
 typedef enum {
 	GN_CONFIG_STATUS_NOT_INITIALIZED,

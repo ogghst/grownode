@@ -61,17 +61,15 @@ extern "C" {
 #include "driver/timer.h"
 #include "driver/gpio.h"
 
-#include "gn_display.h"
-#include "gn_commons.h"
 
 #include "gn_event_source.h"
-
+#include "gn_commons.h"
 #include "grownode_intl.h"
-
 #include "gn_leaf_context.h"
-
 #include "gn_network.h"
 #include "gn_mqtt_protocol.h"
+#include "gn_display.h"
+
 
 static const char *TAG = "grownode";
 
