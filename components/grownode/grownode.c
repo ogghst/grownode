@@ -61,7 +61,6 @@ extern "C" {
 #include "driver/timer.h"
 #include "driver/gpio.h"
 
-
 #include "gn_event_source.h"
 #include "gn_commons.h"
 #include "grownode_intl.h"
@@ -69,7 +68,6 @@ extern "C" {
 #include "gn_network.h"
 #include "gn_mqtt_protocol.h"
 #include "gn_display.h"
-
 
 static const char *TAG = "grownode";
 
@@ -376,8 +374,8 @@ esp_err_t gn_node_start(gn_node_config_handle_t node) {
 			((gn_node_config_handle_intl_t )node)->name);
 
 	//publish node
-	if (gn_mqtt_send_node_config(node) != ESP_OK)
-		goto fail;
+	//if (gn_mqtt_send_node_config(node) != ESP_OK)
+	//return ESP_FAIL;
 
 	//run leaves
 	for (int i = 0; i < ((gn_node_config_handle_intl_t) node)->leaves.last;
@@ -387,7 +385,6 @@ esp_err_t gn_node_start(gn_node_config_handle_t node) {
 	}
 
 	return ret;
-	fail: return ESP_FAIL;
 
 }
 
@@ -512,8 +509,10 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
 	char *_buf = (char*) malloc(_len * sizeof(char));
 
 	memcpy(_buf, _leaf_config->name, strlen(_leaf_config->name) * sizeof(char));
-	memcpy(_buf + strlen(_leaf_config->name) * sizeof(char), "_", 1 * sizeof(char));
-	memcpy(_buf + (strlen(_leaf_config->name) +1) * sizeof(char), name, strlen(name) * sizeof(char));
+	memcpy(_buf + strlen(_leaf_config->name) * sizeof(char), "_",
+			1 * sizeof(char));
+	memcpy(_buf + (strlen(_leaf_config->name) + 1) * sizeof(char), name,
+			strlen(name) * sizeof(char));
 
 	_buf[_len - 1] = '\0';
 
@@ -521,10 +520,10 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
 
 	void *value = 0;
 	//check if existing
-	ESP_LOGD(TAG, "check stored value for key %s",_buf);
+	ESP_LOGD(TAG, "check stored value for key %s", _buf);
 	gn_storage_get(_buf, (void**) &value);
 	if (value != 0) {
-		ESP_LOGD(TAG, "found stored value for key %s",_buf);
+		ESP_LOGD(TAG, "found stored value for key %s", _buf);
 
 		//not existing, overwrite val
 		switch (type) {
@@ -534,11 +533,11 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
 			free(value);
 			break;
 		case GN_VAL_TYPE_BOOLEAN:
-			val.b = *((bool*)value);
+			val.b = *((bool*) value);
 			free(value);
 			break;
 		case GN_VAL_TYPE_DOUBLE:
-			val.d = *((double*)value);
+			val.d = *((double*) value);
 			free(value);
 			break;
 		default:
@@ -646,14 +645,18 @@ esp_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf_config,
 	char *_buf = (char*) malloc(_len * sizeof(char));
 
 	memcpy(_buf, _leaf_config->name, strlen(_leaf_config->name) * sizeof(char));
-	memcpy(_buf + strlen(_leaf_config->name) * sizeof(char), "_", 1 * sizeof(char));
-	memcpy(_buf + (strlen(_leaf_config->name) +1) * sizeof(char), name, strlen(name) * sizeof(char));
+	memcpy(_buf + strlen(_leaf_config->name) * sizeof(char), "_",
+			1 * sizeof(char));
+	memcpy(_buf + (strlen(_leaf_config->name) + 1) * sizeof(char), name,
+			strlen(name) * sizeof(char));
 
 	_buf[_len - 1] = '\0';
 
 	//check if existing
 	if (gn_storage_set(_buf, (void**) &val, strlen(val)) != ESP_OK) {
-		ESP_LOGW(TAG, "not possible to store leaf parameter value - key %s value %s", _buf, val);
+		ESP_LOGW(TAG,
+				"not possible to store leaf parameter value - key %s value %s",
+				_buf, val);
 	}
 
 	free(_buf);
@@ -687,14 +690,18 @@ esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf_config,
 	char *_buf = (char*) malloc(_len * sizeof(char));
 
 	memcpy(_buf, _leaf_config->name, strlen(_leaf_config->name) * sizeof(char));
-	memcpy(_buf + strlen(_leaf_config->name) * sizeof(char), "_", 1 * sizeof(char));
-	memcpy(_buf + (strlen(_leaf_config->name) +1) * sizeof(char), name, strlen(name) * sizeof(char));
+	memcpy(_buf + strlen(_leaf_config->name) * sizeof(char), "_",
+			1 * sizeof(char));
+	memcpy(_buf + (strlen(_leaf_config->name) + 1) * sizeof(char), name,
+			strlen(name) * sizeof(char));
 
 	_buf[_len - 1] = '\0';
 
 	//check if existing
 	if (gn_storage_set(_buf, (void**) &val, sizeof(bool)) != ESP_OK) {
-		ESP_LOGW(TAG, "not possible to store leaf parameter value - key %s value %i", _buf, val);
+		ESP_LOGW(TAG,
+				"not possible to store leaf parameter value - key %s value %i",
+				_buf, val);
 	}
 
 	free(_buf);
@@ -725,14 +732,18 @@ esp_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf_config,
 	char *_buf = (char*) malloc(_len * sizeof(char));
 
 	memcpy(_buf, _leaf_config->name, strlen(_leaf_config->name) * sizeof(char));
-	memcpy(_buf + strlen(_leaf_config->name) * sizeof(char), "_", 1 * sizeof(char));
-	memcpy(_buf + (strlen(_leaf_config->name) +1) * sizeof(char), name, strlen(name) * sizeof(char));
+	memcpy(_buf + strlen(_leaf_config->name) * sizeof(char), "_",
+			1 * sizeof(char));
+	memcpy(_buf + (strlen(_leaf_config->name) + 1) * sizeof(char), name,
+			strlen(name) * sizeof(char));
 
 	_buf[_len - 1] = '\0';
 
 	//check if existing
 	if (gn_storage_set(_buf, (void**) &val, sizeof(double)) != ESP_OK) {
-		ESP_LOGW(TAG, "not possible to store leaf parameter value - key %s value %f", _buf, val);
+		ESP_LOGW(TAG,
+				"not possible to store leaf parameter value - key %s value %f",
+				_buf, val);
 	}
 
 	free(_buf);
@@ -1106,9 +1117,9 @@ gn_config_handle_t gn_init() { //TODO make the node working even without network
 	//init mqtt system
 	ESP_GOTO_ON_ERROR(gn_mqtt_init(_gn_default_conf), err_srv, TAG,
 			"error on server init: %s", esp_err_to_name(ret));
-
 #endif
 
+	ESP_LOGI(TAG, "grownode startup sequence completed!");
 	_gn_default_conf->status = GN_CONFIG_STATUS_OK;
 	initialized = true;
 	return _gn_default_conf;
@@ -1116,11 +1127,12 @@ gn_config_handle_t gn_init() { //TODO make the node working even without network
 	err: _gn_default_conf->status = GN_CONFIG_STATUS_ERROR;
 	return _gn_default_conf;
 
+#if CONFIG_GROWNODE_WIFI_ENABLED
 	err_net: _gn_default_conf->status = GN_CONFIG_STATUS_NETWORK_ERROR;
 	return _gn_default_conf;
-
 	err_srv: _gn_default_conf->status = GN_CONFIG_STATUS_SERVER_ERROR;
 	return _gn_default_conf;
+#endif
 
 }
 

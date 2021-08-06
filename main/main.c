@@ -71,7 +71,8 @@ void app_main(void) {
 	*/
 
 	//finally, start node
-	ESP_ERROR_CHECK(gn_node_start(node_config));
+	gn_node_start(node_config);
+
 
 	fail:
 

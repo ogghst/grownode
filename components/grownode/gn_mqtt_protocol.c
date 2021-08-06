@@ -223,6 +223,8 @@ void _gn_mqtt_build_command_topic(gn_config_handle_intl_t config, char *buf) {
 
 esp_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t _leaf_config) {
 
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
+
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) _leaf_config;
 	gn_node_config_handle_intl_t node_config =
@@ -243,9 +245,16 @@ esp_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t _leaf_config) {
 
 	return ESP_OK;
 
+
+#else
+	return ESP_OK;
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
+
 }
 
 esp_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t param) {
+
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) param->leaf_config;
@@ -268,9 +277,15 @@ esp_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t param) {
 
 	return ESP_OK;
 
+#else
+	return ESP_OK;
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
+
 }
 
 esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
+
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	//TODO merge in just one status message to be sent every time there is a change
 	int ret = ESP_OK;
@@ -363,6 +378,10 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
 	}
 
 	return ret;
+
+#else
+	return ESP_OK;
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
 
 }
 

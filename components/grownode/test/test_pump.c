@@ -215,18 +215,23 @@ TEST_CASE("gn_pump_mqtt_stress_test", "[pump]") {
 	esp_err_t ret = gn_node_start(node_config);
 	TEST_ASSERT_EQUAL(ret, ESP_OK);
 
+	esp_mqtt_event_handle_t event = (esp_mqtt_event_t*) malloc(
+			sizeof(esp_mqtt_event_t));
+	event->client = ((gn_config_handle_intl_t) config)->mqtt_client;
+	esp_mqtt_event_id_t event_id = MQTT_EVENT_DATA;
+	event->event_id = event_id;
+	char *topic = malloc(100 * sizeof(char));
+	esp_event_base_t base = "base";
+	void *handler_args = 0;
+	char data[10];
+
+	event->topic = (char*) malloc(100 * sizeof(char));
+	event->data = (char*) malloc(10 * sizeof(char));
+
 	for (size_t j = 0; j < 100; j++) {
 
 		for (size_t i = 0; i < 1000; i++) {
 
-			esp_mqtt_event_handle_t event = (esp_mqtt_event_t*) malloc(
-					sizeof(esp_mqtt_event_t));
-			event->client = ((gn_config_handle_intl_t) config)->mqtt_client;
-			esp_mqtt_event_id_t event_id = MQTT_EVENT_DATA;
-			event->event_id = event_id;
-			char *topic = malloc(100 * sizeof(char));
-
-			char data[10];
 
 			if (i % 10 == 0) {
 
@@ -247,28 +252,23 @@ TEST_CASE("gn_pump_mqtt_stress_test", "[pump]") {
 
 			}
 
-			event->topic = (char*) malloc(strlen(topic) * sizeof(char));
-			event->data = (char*) malloc(strlen(data) * sizeof(char));
 			event->topic_len = strlen(topic);
 			event->data_len = strlen(data);
 
 			strncpy(event->topic, topic, event->topic_len);
 			strncpy(event->data, data, event->data_len);
 
-			esp_event_base_t base = "base";
-			void *handler_args = 0;
-
 			_gn_mqtt_event_handler(handler_args, base, event_id, event);
-
-			free(event);
-			free(topic);
-			free(event->topic);
-			free(event->data);
 
 			vTaskDelay(pdMS_TO_TICKS(100));
 
 		}
 	}
+
+	free(event->topic);
+	free(event->data);
+	free(event);
+	free(topic);
 
 	TEST_ASSERT(true);
 }
