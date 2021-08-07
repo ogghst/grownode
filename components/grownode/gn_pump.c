@@ -43,13 +43,10 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 	const size_t GN_PUMP_STATE_RUNNING = 1;
 	const size_t GPIO_PWM0A_OUT = 32;
 
-	//sprintf(gn_pump_buf, "%.*s init", 30, leaf_name);
-	//gn_message_display(gn_pump_buf);
-
 	size_t gn_pump_state = GN_PUMP_STATE_RUNNING;
-	//bool change = true;
 	gn_leaf_event_t evt;
 
+	//parameter definition. if found in flash storage, they will be created with found values instead of default
 	gn_leaf_param_handle_t status_param = gn_leaf_param_create(leaf_config,
 			"status", GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b = false });
 	gn_leaf_param_add(leaf_config, status_param);
@@ -69,18 +66,18 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 	pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
 	mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0, &pwm_config); //Configure PWM0A & PWM0B with above settings
 
-	//setup screen
+	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 	static lv_obj_t *label_status;
 	static lv_obj_t *label_power;
 	static lv_obj_t *label_pump;
 
+	//parent container where adding elements
 	lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf_display(leaf_config);
 
 	if (_cnt) {
-		//char *leaf_name = gn_get_leaf_config_name(leaf_config);
 
-		//style
+		//style from the container
 		lv_style_t *style = lv_style_list_get_local_style(&_cnt->style_list);
 
 		label_pump = lv_label_create(_cnt, NULL);
@@ -108,11 +105,14 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 		//check for messages and cycle every 100ms
 		if (xQueueReceive(gn_leaf_get_event_queue(leaf_config), &evt,
 				pdMS_TO_TICKS(100)) == pdPASS) {
-			//event arrived
+
+			//event arrived for this node
 			switch (evt.id) {
 
+			//parameter change
 			case GN_LEAF_PARAM_MESSAGE_RECEIVED_EVENT:
 
+				//parameter is status
 				if (gn_common_leaf_event_mask_param(&evt, status_param) == 0) {
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
@@ -125,44 +125,42 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 						gn_display_leaf_refresh_end();
 					}
 #endif
+					//parameter is power
 				} else if (gn_common_leaf_event_mask_param(&evt, power_param)
 						== 0) {
 
-					if (power_param->param_val->v.d >= 0
-							&& power_param->param_val->v.d <= 1024) {
-
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
-						if (pdTRUE == gn_display_leaf_refresh_start()) {
-							char _p[21];
-							snprintf(_p, 20, "power: %f",
-									power_param->param_val->v.d);
-							lv_label_set_text(label_power, _p);
+					if (pdTRUE == gn_display_leaf_refresh_start()) {
+						char _p[21];
+						snprintf(_p, 20, "power: %f",
+								power_param->param_val->v.d);
+						lv_label_set_text(label_power, _p);
 
-							gn_display_leaf_refresh_end();
-						}
-#endif
+						gn_display_leaf_refresh_end();
 					}
+#endif
+
 				}
 
 				break;
 
+				//what to do when network is connected
 			case GN_NETWORK_CONNECTED_EVENT:
-				//lv_label_set_text(network_status_label, "NET OK");
 				gn_pump_state = GN_PUMP_STATE_RUNNING;
 				break;
 
+				//what to do when network is disconnected
 			case GN_NETWORK_DISCONNECTED_EVENT:
-				//lv_label_set_text(network_status_label, "NET KO");
 				gn_pump_state = GN_PUMP_STATE_STOP;
 				break;
 
+				//what to do when server is connected
 			case GN_SERVER_CONNECTED_EVENT:
-				//lv_label_set_text(server_status_label, "SRV OK");
 				gn_pump_state = GN_PUMP_STATE_RUNNING;
 				break;
 
+				//what to do when server is disconnected
 			case GN_SERVER_DISCONNECTED_EVENT:
-				//lv_label_set_text(server_status_label, "SRV_KO");
 				gn_pump_state = GN_PUMP_STATE_STOP;
 				break;
 
@@ -173,7 +171,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 
 		}
 
-		//update sensor
+		//finally, we update sensor using the parameter values
 		if (gn_pump_state != GN_PUMP_STATE_RUNNING) {
 			mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, 0);
 		} else if (!status_param->param_val->v.b) {
