@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.5)
 #
 set(EXTRA_COMPONENT_DIRS 
 					"../components"
-					"c:/Development/esp/esp-idf-lib/components")
+					"../../..//esp/esp-idf-lib/components")
 
 # Set the components to include the tests for.
 # This can be overriden from CMake cache:

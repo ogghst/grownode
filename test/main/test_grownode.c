@@ -15,12 +15,19 @@
 #include <stdio.h>
 #include <string.h>
 #include "unity.h"
+
+#include "esp_log.h"
+
 #include "grownode.h"
 
 static void print_banner(const char* text);
 
 void app_main(void)
 {
+
+	esp_log_level_set("gn_ds18b20", ESP_LOG_DEBUG);
+	esp_log_level_set("grownode", ESP_LOG_DEBUG);
+
     /* These are the different ways of running registered tests.
      * In practice, only one of them is usually needed.
      *

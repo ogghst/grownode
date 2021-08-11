@@ -22,7 +22,6 @@ extern "C" {
 #else
 #include "lvgl/lvgl.h"
 #endif
-
 #include "lvgl_helpers.h"
 
 #include "driver/mcpwm.h"
@@ -93,7 +92,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 		lv_obj_add_style(label_power, LV_LABEL_PART_MAIN, style);
 
 		char _p[21];
-		snprintf(_p, 20, "power: %f", power_param->param_val->v.d);
+		snprintf(_p, 20, "power: %4.0f", power_param->param_val->v.d);
 		lv_label_set_text(label_power, _p);
 	}
 
@@ -146,7 +145,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 
 				//what to do when network is connected
 			case GN_NETWORK_CONNECTED_EVENT:
-				gn_pump_state = GN_PUMP_STATE_RUNNING;
+				//gn_pump_state = GN_PUMP_STATE_RUNNING;
 				break;
 
 				//what to do when network is disconnected

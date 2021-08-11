@@ -45,12 +45,14 @@ EventGroupHandle_t _gn_event_group_mqtt;
 const int _GN_MQTT_CONNECTED_OK_EVENT_BIT = BIT0;
 const int _GN_MQTT_CONNECTED_KO_EVENT_BIT = BIT1;
 
+static gn_server_status_t status =  GN_SERVER_DISCONNECTED;
+
 gn_config_handle_intl_t _config; //TODO shared pointer, dangerous
 
 char _gn_cmd_topic[_GN_MQTT_MAX_TOPIC_LENGTH],
 		_gn_sts_topic[_GN_MQTT_MAX_TOPIC_LENGTH];
 
-char __mac[13];
+char __nodename[13] = "";
 
 typedef struct {
 	gn_config_handle_t config;
@@ -67,6 +69,24 @@ typedef struct {
 
 typedef gn_mqtt_node_config_message_t *gn_mqtt_node_config_message_handle_t;
 
+inline char* _gn_mqtt_build_node_name(gn_config_handle_intl_t config) {
+
+	if (strcmp(__nodename, "") != 0) {
+		return __nodename;
+	}
+
+	snprintf(__nodename, 13, "%02X%02X%02X%02X%02X%02X", config->macAddress[0],
+			config->macAddress[1], config->macAddress[2], config->macAddress[3],
+			config->macAddress[4], config->macAddress[5]);
+
+	return &__nodename[0];
+
+}
+
+gn_server_status_t gn_mqtt_get_status()  {
+	return status;
+}
+
 void _gn_mqtt_build_leaf_command_topic(gn_leaf_config_handle_t _leaf_config,
 		char *buf) {
 
@@ -79,10 +99,7 @@ void _gn_mqtt_build_leaf_command_topic(gn_leaf_config_handle_t _leaf_config,
 
 	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
-	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X", config->macAddress[0],
-			config->macAddress[1], config->macAddress[2], config->macAddress[3],
-			config->macAddress[4], config->macAddress[5]);
-	strncat(buf, __mac, 12);
+	strncat(buf, _gn_mqtt_build_node_name(config), 12);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -103,10 +120,7 @@ void _gn_mqtt_build_leaf_parameter_command_topic(
 
 	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
-	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X", config->macAddress[0],
-			config->macAddress[1], config->macAddress[2], config->macAddress[3],
-			config->macAddress[4], config->macAddress[5]);
-	strncat(buf, __mac, 12);
+	strncat(buf, _gn_mqtt_build_node_name(config), 12);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -129,10 +143,7 @@ void _gn_mqtt_build_leaf_parameter_status_topic(
 
 	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
-	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X", config->macAddress[0],
-			config->macAddress[1], config->macAddress[2], config->macAddress[3],
-			config->macAddress[4], config->macAddress[5]);
-	strncat(buf, __mac, 12);
+	strncat(buf, _gn_mqtt_build_node_name(config), 12);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -155,10 +166,7 @@ void _gn_mqtt_build_leaf_status_topic(gn_leaf_config_handle_t _leaf_config,
 
 	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
-	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X", config->macAddress[0],
-			config->macAddress[1], config->macAddress[2], config->macAddress[3],
-			config->macAddress[4], config->macAddress[5]);
-	strncat(buf, __mac, 12);
+	strncat(buf, _gn_mqtt_build_node_name(config), 12);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -171,10 +179,7 @@ void _gn_mqtt_build_status_topic(gn_config_handle_intl_t config, char *buf) {
 
 	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
-	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X", config->macAddress[0],
-			config->macAddress[1], config->macAddress[2], config->macAddress[3],
-			config->macAddress[4], config->macAddress[5]);
-	strncat(buf, __mac, 12);
+	strncat(buf, _gn_mqtt_build_node_name(config), 12);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, _GN_MQTT_STATUS_MESS, _GN_MQTT_MAX_TOPIC_LENGTH);
 	buf[_GN_MQTT_MAX_TOPIC_LENGTH - 1] = '\0';
@@ -184,10 +189,7 @@ void _gn_mqtt_build_status_topic(gn_config_handle_intl_t config, char *buf) {
 void _gn_mqtt_build_command_topic(gn_config_handle_intl_t config, char *buf) {
 	strncpy(buf, CONFIG_GROWNODE_MQTT_BASE_TOPIC, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
-	snprintf(__mac, 13, "%02X%02X%02X%02X%02X%02X", config->macAddress[0],
-			config->macAddress[1], config->macAddress[2], config->macAddress[3],
-			config->macAddress[4], config->macAddress[5]);
-	strncat(buf, __mac, 12);
+	strncat(buf, _gn_mqtt_build_node_name(config), 12);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, _GN_MQTT_COMMAND_MESS, _GN_MQTT_MAX_TOPIC_LENGTH);
 	buf[_GN_MQTT_MAX_TOPIC_LENGTH - 1] = '\0';
@@ -627,6 +629,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 	//int msg_id;
 	switch ((esp_mqtt_event_id_t) event_id) {
 	case MQTT_EVENT_CONNECTED:
+		status = GN_SERVER_CONNECTED;
 		ESP_LOGD(TAG, "MQTT_EVENT_CONNECTED");
 		_gn_mqtt_on_connected(client); //TODO find a better way to get context, here the event mqtt client is not taken in consideration
 
@@ -646,6 +649,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 		 */
 		break;
 	case MQTT_EVENT_DISCONNECTED:
+		status = GN_SERVER_DISCONNECTED;
 		ESP_LOGD(TAG, "MQTT_EVENT_DISCONNECTED");
 		_gn_mqtt_on_disconnected(client);
 		break;

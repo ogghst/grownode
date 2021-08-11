@@ -12,173 +12,106 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "gn_ds18b20.h"
+/* Littlevgl specific */
+#ifdef LV_LVGL_H_INCLUDE_SIMPLE
+#include "lvgl.h"
+#else
+#include "lvgl/lvgl.h"
+#endif
+#include "lvgl_helpers.h"
+
 #include "ds18x20.h"
+#include "gn_ds18b20.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define GN_DS18B20_STATE_STOP 0
-#define GN_DS18B20_STATE_RUNNING 1
+//#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
+#include "esp_log.h"
 
 static const char *TAG = "gn_ds18b20";
 
-//static const uint32_t LOOP_DELAY_MS = 500;
-#define MAX_SENSORS 8
-//static const int RESCAN_INTERVAL = 8;
-static const gpio_num_t SENSOR_GPIO = 27;
-//static const ds18x20_addr_t SENSOR_ADDR = 0x27041685c771ff28;
+#define MAX_SENSORS 4
+static const char sensor_names[MAX_SENSORS][6] = { "temp1", "temp2", "temp3",
+		"temp4" };
 
-static size_t gn_ds18b20_state = GN_DS18B20_STATE_STOP;
+const size_t GN_DS18B20_STATE_STOP = 0;
+const size_t GN_DS18B20_STATE_RUNNING = 1;
 
-static size_t sensor_count = 0;
-static ds18x20_addr_t addrs[MAX_SENSORS];
-static float temps[MAX_SENSORS];
-static esp_err_t res;
-static bool scanned = false;
+void _scan_sensors(int gpio, bool *scanned, size_t *sensor_count,
+		ds18x20_addr_t *addrs) {
 
-void gn_ds18b20_callback(void *handler_args, esp_event_base_t base, int32_t id,
-		void *event_data) {
-
-	gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t) handler_args;
-	gn_leaf_event_handle_t event;
-	char gn_ds18b20_buf[40];
-	char* leaf_name = gn_get_leaf_config_name(leaf_config);
-
-	ESP_LOGD(TAG, "callback (%s) event: %d", leaf_name , id);
-
-	switch (id) {
-
-	case GN_LEAF_MESSAGE_RECEIVED_EVENT: //TODO better use specific callbacks per events
-		event = (gn_leaf_event_handle_t) event_data;
-		if (strcmp(event->leaf_name, leaf_name) != 0)
-			break;
-		sprintf(gn_ds18b20_buf, "message received: %.*s",
-				(event->data_size > 20 ? 20 : event->data_size),
-				(char*) event->data);
-		gn_message_display(gn_ds18b20_buf);
-		break;
-
-	case GN_LEAF_PARAM_MESSAGE_RECEIVED_EVENT:
-		event = (gn_leaf_event_handle_t) event_data;
-		if (strcmp(event->leaf_name, leaf_name) != 0)
-			break;
-
-		gn_leaf_param_handle_t _param = gn_get_leaf_config_params(leaf_config);
-		while(_param) {
-			if (strcmp(event->param_name, _param->name) == 0) {
-
-				sprintf(gn_ds18b20_buf, "message received: %.*s",
-						(event->data_size > 20 ? 20 : event->data_size),
-						(char*) event->data);
-				gn_leaf_param_set_string(leaf_config, "temp", (char*) event->data);
-				gn_message_display(gn_ds18b20_buf);
-				break;
-			} else _param = _param->next;
-		}
-
-		break;
-
-	case GN_NETWORK_CONNECTED_EVENT:
-		//lv_label_set_text(network_status_label, "NET OK");
-		gn_ds18b20_state = GN_DS18B20_STATE_RUNNING;
-		break;
-
-	case GN_NETWORK_DISCONNECTED_EVENT:
-		//lv_label_set_text(network_status_label, "NET KO");
-		gn_ds18b20_state = GN_DS18B20_STATE_STOP;
-		break;
-
-	case GN_SERVER_CONNECTED_EVENT:
-		//lv_label_set_text(server_status_label, "SRV OK");
-		gn_ds18b20_state = GN_DS18B20_STATE_RUNNING;
-		break;
-
-	case GN_SERVER_DISCONNECTED_EVENT:
-		//lv_label_set_text(server_status_label, "SRV_KO");
-		gn_ds18b20_state = GN_DS18B20_STATE_STOP;
-		break;
-
-	default:
-		break;
-
-	}
-
-}
-
-void _scan_sensors() {
-
-	if (scanned)
+	if (*scanned == true)
 		return;
 
-	res = ds18x20_scan_devices(SENSOR_GPIO, addrs, MAX_SENSORS, &sensor_count);
+	esp_err_t res;
+	*scanned = false;
+	*sensor_count = 0;
+
+	res = ds18x20_scan_devices(gpio, addrs, MAX_SENSORS, sensor_count);
 	if (res != ESP_OK) {
-		ESP_LOGE(TAG, "Sensors scan error %d (%s)", res, esp_err_to_name(res));
+		ESP_LOGD(TAG, "Sensors scan error %d (%s)", res, esp_err_to_name(res));
 		return;
 	}
 
-	if (!sensor_count) {
-		ESP_LOGW(TAG, "No sensors detected!");
-		return;
-	}
-
-	ESP_LOGD(TAG, "%d sensors detected", sensor_count);
+	ESP_LOGD(TAG, "%d sensors detected", *sensor_count);
 
 	// If there were more sensors found than we have space to handle,
 	// just report the first MAX_SENSORS..
-	if (sensor_count > MAX_SENSORS)
-		sensor_count = MAX_SENSORS;
+	if (*sensor_count > MAX_SENSORS) {
+		*sensor_count = MAX_SENSORS;
+	}
 
-	scanned = true;
+	*scanned = true;
 }
 
-void __gn_ds18b20_loop(gn_leaf_config_handle_t leaf_config) {
+struct leaf_data {
+	gn_leaf_config_handle_t leaf_config;
+	size_t sensor_count;
+	ds18x20_addr_t addrs[MAX_SENSORS];
+	float temp[MAX_SENSORS];
+	gn_leaf_param_handle_t temp_param[MAX_SENSORS];
+	size_t gn_ds18b20_state;
+	bool scanned;
+	gn_leaf_param_handle_t update_time_param;
+	gn_leaf_param_handle_t gpio_param;
+};
 
-	char gn_ds18b20_buf[40];
+static void temp_sensor_collect(void *arg) {
 
-	if (gn_ds18b20_state == GN_DS18B20_STATE_RUNNING) {
+	ESP_LOGD(TAG, "temp_sensor_collect");
 
-		_scan_sensors();
+	struct leaf_data *data = (struct leaf_data*) arg;
 
-		res = ds18x20_measure_and_read_multi(SENSOR_GPIO, addrs, sensor_count,
-				temps);
+	esp_err_t res;
+
+	if (data->gn_ds18b20_state == GN_DS18B20_STATE_RUNNING) {
+
+		//read data from sensors using GPIO parameter
+		res = ds18x20_measure_and_read_multi(data->gpio_param->param_val->v.d,
+				data->addrs, data->sensor_count, data->temp);
+
 		if (res != ESP_OK) {
-			ESP_LOGE(TAG, "Sensors read error %d (%s)", res,
+			ESP_LOGD(TAG, "Sensors read error %d (%s)", res,
 					esp_err_to_name(res));
 			goto fail;
 		}
 
-		for (int j = 0; j < sensor_count; j++) {
-			float temp_c = temps[j];
+		for (int j = 0; j < data->sensor_count; j++) {
+			float temp_c = data->temp[j];
 			float temp_f = (temp_c * 1.8) + 32;
-			// Float is used in printf(). You need non-default configuration in
-			// sdkconfig for ESP8266, which is enabled by default for this
-			// example. See sdkconfig.defaults.esp8266
 			ESP_LOGD(TAG, "Sensor %08x%08x (%s) reports %.3f °C (%.3f °F)",
-					(uint32_t )(addrs[j] >> 32), (uint32_t )addrs[j],
-					(addrs[j] & 0xff) == DS18B20_FAMILY_ID ? "DS18B20" : "DS18S20",
+					(uint32_t )(data->addrs[j] >> 32),
+					(uint32_t )data->addrs[j],
+					(data->addrs[j] & 0xff) == DS18B20_FAMILY_ID ? "DS18B20" : "DS18S20",
 					temp_c, temp_f);
-			sprintf(gn_ds18b20_buf, "%.3f", temp_c);
 
-			gn_leaf_param_set_string(leaf_config, "temp", gn_ds18b20_buf);
-
-			//gn_param_handle_t temp = gn_leaf_param_get(leaf_config, "temp");
-			//temp->param_val->val.s = (char*) realloc(temp->param_val->val.s, sizeof(gn_ds18b20_buf));
-
-			gn_message_display(gn_ds18b20_buf);
+			//store parameter and notify network
+			gn_leaf_param_set_double(data->leaf_config,
+					data->temp_param[j]->name, temp_c);
 		}
 
-		/*
-		 if (res != ESP_OK)
-		 ESP_LOGE(TAG, "Could not read from sensor %08x%08x: %d (%s)",
-		 (uint32_t )(SENSOR_ADDR >> 32), (uint32_t )SENSOR_ADDR, res,
-		 esp_err_to_name(res));
-		 else
-		 ESP_LOGI(TAG, "Sensor %08x%08x: %.2fÂ°C",
-		 (uint32_t )(SENSOR_ADDR >> 32), (uint32_t )SENSOR_ADDR,
-		 temperature);
-		 */
 		fail: return;
 
 	}
@@ -186,26 +119,162 @@ void __gn_ds18b20_loop(gn_leaf_config_handle_t leaf_config) {
 
 void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 
-	char* leaf_name = gn_get_leaf_config_name(leaf_config);
-	gpio_set_pull_mode(SENSOR_GPIO, GPIO_PULLUP_ONLY);
-	gn_ds18b20_state = GN_DS18B20_STATE_RUNNING;
-	char gn_ds18b20_buf[GN_LEAF_NAME_SIZE + 10];
-	sprintf(gn_ds18b20_buf, "%.*s init", GN_LEAF_NAME_SIZE, leaf_name);
-	gn_message_display(gn_ds18b20_buf);
+	struct leaf_data data;
+	data.sensor_count = 0;
+	data.gn_ds18b20_state = GN_DS18B20_STATE_STOP;
+	data.scanned = false;
+	data.leaf_config = leaf_config;
 
-	ESP_ERROR_CHECK(
-			esp_event_handler_instance_register_with(gn_get_leaf_config_event_loop(leaf_config), GN_BASE_EVENT, GN_EVENT_ANY_ID, gn_ds18b20_callback, leaf_config, NULL));
+	gn_leaf_event_t evt;
 
-	gn_leaf_param_handle_t param = gn_leaf_param_create(leaf_config, "temp", GN_VAL_TYPE_STRING,
-			(gn_val_t) { .s = "" });
-	gn_leaf_param_add(leaf_config, param);
+	//create a timer to update temps
+	esp_timer_handle_t temp_sensor_timer;
+	const esp_timer_create_args_t temp_sensor_timer_args = { .callback =
+			&temp_sensor_collect, .arg = (void*) &data,
+	/* name is optional, but may help identify the timer when debugging */
+	.name = "periodic" };
+	ESP_ERROR_CHECK(esp_timer_create(&temp_sensor_timer_args, &temp_sensor_timer));
 
+	//parameter definition. if found in flash storage, they will be created with found values instead of default
+
+	//get update time in sec, default 30
+	data.update_time_param = gn_leaf_param_create(leaf_config,
+			"update_time_sec", GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 30 });
+	gn_leaf_param_add(leaf_config, data.update_time_param);
+
+	//get gpio from params. default 27
+	data.gpio_param = gn_leaf_param_create(leaf_config, "gpio",
+			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 27 });
+	gn_leaf_param_add(leaf_config, data.gpio_param);
+
+	//setup gpio
+	gpio_set_pull_mode(data.gpio_param->param_val->v.d, GPIO_PULLUP_ONLY);
+
+	//init sensors
+	_scan_sensors(data.gpio_param->param_val->v.d, &data.scanned,
+			&data.sensor_count, &data.addrs[0]);
+
+	//get params for temp. init to 0
+	for (int i = 0; i < data.sensor_count; i++) {
+		data.temp_param[i] = gn_leaf_param_create(leaf_config, sensor_names[i],
+				GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 });
+		gn_leaf_param_add(leaf_config, data.temp_param[i]);
+	}
+
+	//if mqtt is connected, start sensor callback
+	if (gn_mqtt_get_status() == GN_SERVER_CONNECTED) {
+		ESP_LOGD(TAG, "esp_timer_start, frequency %f sec", data.update_time_param->param_val->v.d);
+		data.gn_ds18b20_state = GN_DS18B20_STATE_RUNNING;
+		ESP_ERROR_CHECK(
+				esp_timer_start_periodic(temp_sensor_timer,
+						data.update_time_param->param_val->v.d
+								* 1000000));
+	}
+
+	//setup screen, if defined in sdkconfig
+#ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
+	static lv_obj_t *label_temp_names[MAX_SENSORS];
+	static lv_obj_t *label_temp[MAX_SENSORS];
+
+	//parent container where adding elements
+	lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf_display(leaf_config);
+
+	if (_cnt) {
+
+		//style from the container
+		lv_style_t *style = lv_style_list_get_local_style(&_cnt->style_list);
+
+		if (pdTRUE == gn_display_leaf_refresh_start()) {
+			for (int i = 0; i < data.sensor_count; i++) {
+				label_temp_names[i] = lv_label_create(_cnt, NULL);
+				lv_label_set_text(label_temp_names[i], sensor_names[i]);
+				lv_obj_add_style(label_temp_names[i], LV_LABEL_PART_MAIN,
+						style);
+
+				char _p[21];
+				snprintf(_p, 20, "temp: %4.2f",
+						data.temp_param[i]->param_val->v.d);
+				label_temp[i] = lv_label_create(_cnt, NULL);
+				lv_label_set_text(label_temp[i], _p);
+				lv_obj_add_style(label_temp[i], LV_LABEL_PART_MAIN, style);
+
+			}
+			gn_display_leaf_refresh_end();
+		}
+
+	}
+#endif
+
+	//task cycle
 	while (true) {
 
-		__gn_ds18b20_loop(leaf_config);
+		//check for messages and cycle every 100ms
+		if (xQueueReceive(gn_leaf_get_event_queue(leaf_config), &evt,
+				pdMS_TO_TICKS(100)) == pdPASS) {
 
-		vTaskDelay(pdMS_TO_TICKS(5000));
+			//event arrived for this node
+			switch (evt.id) {
+
+			//what to do when network is connected
+			case GN_NETWORK_CONNECTED_EVENT:
+
+				break;
+
+				//what to do when network is disconnected
+			case GN_NETWORK_DISCONNECTED_EVENT:
+				if (data.gn_ds18b20_state != GN_DS18B20_STATE_STOP) {
+					data.gn_ds18b20_state = GN_DS18B20_STATE_STOP;
+					//stop update cycle
+					ESP_LOGD(TAG, "esp_timer_stop");
+					ESP_ERROR_CHECK(esp_timer_stop(temp_sensor_timer));
+				}
+				break;
+
+				//what to do when server is connected
+			case GN_SERVER_CONNECTED_EVENT:
+				if (data.gn_ds18b20_state != GN_DS18B20_STATE_RUNNING) {
+					data.gn_ds18b20_state = GN_DS18B20_STATE_RUNNING;
+					//start update cycle
+					ESP_LOGD(TAG, "esp_timer_start, frequency %f sec", data.update_time_param->param_val->v.d);
+					ESP_ERROR_CHECK(
+							esp_timer_start_periodic(temp_sensor_timer,
+									data.update_time_param->param_val->v.d
+											* 1000000));
+
+				}
+				break;
+
+				//what to do when server is disconnected
+			case GN_SERVER_DISCONNECTED_EVENT:
+				if (data.gn_ds18b20_state != GN_DS18B20_STATE_STOP) {
+					data.gn_ds18b20_state = GN_DS18B20_STATE_STOP;
+					//stop update cycle
+					ESP_LOGD(TAG, "esp_timer_stop");
+					ESP_ERROR_CHECK(esp_timer_stop(temp_sensor_timer));
+				}
+				break;
+
+			default:
+				break;
+			}
+
+		}
+
+#ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
+		if (pdTRUE == gn_display_leaf_refresh_start()) {
+			for (int i = 0; i < data.sensor_count; i++) {
+				char _p[21];
+				snprintf(_p, 20, "temp: %4.2f",
+						data.temp_param[i]->param_val->v.d);
+				lv_label_set_text(label_temp[i], _p);
+			}
+			gn_display_leaf_refresh_end();
+		}
+#endif
+
 	}
+
+	ESP_ERROR_CHECK(esp_timer_stop(temp_sensor_timer));
 
 }
 

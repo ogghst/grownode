@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #ifndef MAIN_GN_COMMONS_H_
 #define MAIN_GN_COMMONS_H_
 
@@ -37,11 +36,16 @@ typedef enum {
 	GN_CONFIG_STATUS_OK
 } gn_config_status_t;
 
+typedef enum {
+	GN_SERVER_CONNECTED,
+	GN_SERVER_DISCONNECTED,
+} gn_server_status_t;
+
 typedef void *gn_leaf_config_handle_t;
 typedef void *gn_node_config_handle_t;
 typedef void *gn_config_handle_t;
 
-typedef void* gn_display_container_t;
+typedef void *gn_display_container_t;
 
 typedef struct {
 	gn_event_id_t id;
@@ -63,6 +67,8 @@ typedef struct {
 typedef gn_node_event_t *gn_node_event_handle_t;
 
 typedef void (*gn_leaf_task_callback)(gn_leaf_config_handle_t leaf_config);
+
+//parameters
 
 typedef enum {
 	GN_VAL_TYPE_STRING, GN_VAL_TYPE_BOOLEAN, GN_VAL_TYPE_DOUBLE,
@@ -98,9 +104,9 @@ size_t gn_common_leaf_event_mask_param(gn_leaf_event_handle_t evt,
 		gn_leaf_param_handle_t param);
 
 
+
 #ifdef __cplusplus
 }
 #endif //__cplusplus
-
 
 #endif /* MAIN_GN_COMMONS_H_ */

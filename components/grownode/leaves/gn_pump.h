@@ -20,13 +20,8 @@ extern "C" {
 #endif
 
 #include "grownode.h"
-//#include "gn_mqtt_protocol.h"
 
 void gn_pump_task(gn_leaf_config_handle_t leaf_config);
-
-void gn_pump_display_config(gn_leaf_config_handle_t leaf_config, void* leaf_container);
-
-//void gn_pump_display_task(gn_leaf_config_handle_t leaf_config);
 
 #ifdef __cplusplus
 }

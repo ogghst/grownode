@@ -108,14 +108,15 @@ idf_component_register(SRCS
 					"cc_array.c"
 					"cc_common.c"
 					"cc_hashtable.c"
-					"gn_pump.c"
-					"gn_ds18b20.c"
+					"leaves/gn_pump.c"
+					"leaves/gn_ds18b20.c"
 					"test/test_grownode.c"
 					"test/test_pump.c"
-#					"hasht.c"
-#					"lookup3.c"
+					"test/test_ds18b20.c"
 					REQUIRES lvgl lvgl_esp32_drivers unity
-                    INCLUDE_DIRS "."
+                    INCLUDE_DIRS 
+                    "."
+                    "leaves/"
                     EMBED_TXTFILES server_certs/ca_cert.pem)
 endif()
 

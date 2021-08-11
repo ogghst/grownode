@@ -19,9 +19,9 @@
 extern "C" {
 #endif
 
-#include <stddef.h>
+//#include <stddef.h>
 
-#include "esp_log.h"
+//#include "esp_log.h"
 #include "mqtt_client.h"
 #include "esp_wifi.h"
 #include "esp_spiffs.h"
@@ -83,7 +83,7 @@ esp_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf,
 		const char *name, const double val);
 
 esp_err_t gn_leaf_parameter_update(gn_leaf_config_handle_t leaf_config,
-		char *param, char *data, int data_len);
+		char *param, void *data, int data_len);
 
 esp_err_t gn_leaf_param_destroy(gn_leaf_param_handle_t new_param);
 
@@ -122,6 +122,8 @@ extern BaseType_t gn_display_leaf_refresh_start();
 extern BaseType_t gn_display_leaf_refresh_end();
 
 extern void gn_display_leaf_start(gn_leaf_config_handle_t leaf_config);
+
+extern gn_server_status_t gn_mqtt_get_status();
 
 esp_err_t gn_storage_set(char *key, void *value, size_t required_size);
 

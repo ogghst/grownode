@@ -79,7 +79,13 @@ struct gn_leaf_config_t {
 	gn_leaf_context_handle_t leaf_context;
 };
 
+typedef gn_param_val_t *gn_param_val_handle_int_t;
 
+
+
+//typedef struct gn_leaf_param gn_leaf_param_t;
+
+//typedef gn_leaf_param_t *gn_leaf_param_handle_t;
 
 /*
  typedef struct {
