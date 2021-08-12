@@ -21,6 +21,14 @@ extern "C" {
 
 #include "grownode.h"
 
+#define MAX_SENSORS 4
+
+//parameters
+const char *GN_DS18B20_PARAM_UPDATE_TIME_SEC = "update_time_sec";
+const char *GN_DS18B20_PARAM_GPIO = "gpio";
+const char GN_DS18B20_PARAM_SENSOR_NAMES[MAX_SENSORS][6] = { "temp1", "temp2",
+		"temp3", "temp4" };
+
 void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config);
 
 #ifdef __cplusplus

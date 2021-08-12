@@ -32,9 +32,7 @@ extern "C" {
 
 static const char *TAG = "gn_ds18b20";
 
-#define MAX_SENSORS 4
-static const char sensor_names[MAX_SENSORS][6] = { "temp1", "temp2", "temp3",
-		"temp4" };
+
 
 const size_t GN_DS18B20_STATE_STOP = 0;
 const size_t GN_DS18B20_STATE_RUNNING = 1;
@@ -51,7 +49,7 @@ void _scan_sensors(int gpio, bool *scanned, size_t *sensor_count,
 
 	res = ds18x20_scan_devices(gpio, addrs, MAX_SENSORS, sensor_count);
 	if (res != ESP_OK) {
-		ESP_LOGD(TAG, "Sensors scan error %d (%s)", res, esp_err_to_name(res));
+		ESP_LOGE(TAG, "Sensors scan error %d (%s)", res, esp_err_to_name(res));
 		return;
 	}
 
@@ -93,7 +91,7 @@ static void temp_sensor_collect(void *arg) {
 				data->addrs, data->sensor_count, data->temp);
 
 		if (res != ESP_OK) {
-			ESP_LOGD(TAG, "Sensors read error %d (%s)", res,
+			ESP_LOGE(TAG, "Sensors read error %d (%s)", res,
 					esp_err_to_name(res));
 			goto fail;
 		}
@@ -139,12 +137,12 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 
 	//get update time in sec, default 30
 	data.update_time_param = gn_leaf_param_create(leaf_config,
-			"update_time_sec", GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 30 });
+			GN_DS18B20_PARAM_UPDATE_TIME_SEC, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 30 }, GN_LEAF_PARAM_WRITE);
 	gn_leaf_param_add(leaf_config, data.update_time_param);
 
 	//get gpio from params. default 27
-	data.gpio_param = gn_leaf_param_create(leaf_config, "gpio",
-			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 27 });
+	data.gpio_param = gn_leaf_param_create(leaf_config, GN_DS18B20_PARAM_GPIO,
+			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 27 }, GN_LEAF_PARAM_WRITE);
 	gn_leaf_param_add(leaf_config, data.gpio_param);
 
 	//setup gpio
@@ -156,8 +154,8 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 
 	//get params for temp. init to 0
 	for (int i = 0; i < data.sensor_count; i++) {
-		data.temp_param[i] = gn_leaf_param_create(leaf_config, sensor_names[i],
-				GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 });
+		data.temp_param[i] = gn_leaf_param_create(leaf_config, GN_DS18B20_PARAM_SENSOR_NAMES[i],
+				GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_READ);
 		gn_leaf_param_add(leaf_config, data.temp_param[i]);
 	}
 
@@ -187,7 +185,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 		if (pdTRUE == gn_display_leaf_refresh_start()) {
 			for (int i = 0; i < data.sensor_count; i++) {
 				label_temp_names[i] = lv_label_create(_cnt, NULL);
-				lv_label_set_text(label_temp_names[i], sensor_names[i]);
+				lv_label_set_text(label_temp_names[i], GN_DS18B20_PARAM_SENSOR_NAMES[i]);
 				lv_obj_add_style(label_temp_names[i], LV_LABEL_PART_MAIN,
 						style);
 
@@ -261,6 +259,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 		}
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
+		//update GUI
 		if (pdTRUE == gn_display_leaf_refresh_start()) {
 			for (int i = 0; i < data.sensor_count; i++) {
 				char _p[21];
