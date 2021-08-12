@@ -500,7 +500,7 @@ QueueHandle_t gn_leaf_get_event_queue(gn_leaf_config_handle_t leaf_config) {
  * if parameter is stored, the value is overridden
  */
 gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
-		const char *name, const gn_val_type_t type, gn_val_t val) {
+		const char *name, const gn_val_type_t type, gn_val_t val, gn_leaf_param_access_t access) {
 
 	if (!name) {
 		ESP_LOGE(TAG, "gn_leaf_param_create incorrect parameters");
@@ -594,6 +594,7 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
 	memcpy(&_param_val->v, &_val, sizeof(_val));
 
 	_ret->param_val = _param_val;
+	_ret->access = access;
 
 	return _ret;
 
@@ -833,7 +834,13 @@ esp_err_t gn_leaf_param_get_double(const gn_leaf_config_handle_t leaf_config,
 
 }
 
-esp_err_t gn_leaf_parameter_update(gn_leaf_config_handle_t leaf_config,
+/**
+ * update the parameter value from the event supplied.
+ * this is called from event handling system. hence, the parameter value can be changed here only if it has WRITE access
+ *
+ * @return ESP_OK if parameter is changed,
+ */
+gn_err_t gn_leaf_parameter_update(gn_leaf_config_handle_t leaf_config,
 		char *param, void *data, int data_len) {
 
 	if (!leaf_config || !param || !data || data_len == 0)
@@ -848,6 +855,12 @@ esp_err_t gn_leaf_parameter_update(gn_leaf_config_handle_t leaf_config,
 		//check param name
 		if (strcmp(param, leaf_params->name) == 0) {
 			//param is the one to update
+
+			//check if has write access
+			if (leaf_params->access != GN_LEAF_PARAM_WRITE && leaf_params->access != GN_LEAF_PARAM_READWRITE) {
+				ESP_LOGD(TAG, "gn_leaf_parameter_update - paramater has no WRITE access, change discarded");
+				return GN_ERR_LEAF_PARAM_ACCESS_VIOLATION;
+			}
 
 			//check type
 			switch (leaf_params->param_val->t) {
@@ -896,7 +909,7 @@ esp_err_t gn_leaf_parameter_update(gn_leaf_config_handle_t leaf_config,
 		leaf_params = leaf_params->next;
 	}
 
-	return ESP_OK;
+	return GN_RET_OK;
 
 }
 

@@ -736,7 +736,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 					if (strncmp(param_topic, event->topic, event->topic_len)
 							== 0) {
 
-						if (ESP_OK
+						if (GN_RET_OK
 								!= gn_leaf_parameter_update(
 										_config->node_config->leaves.at[i],
 										_param->name, event->data,
@@ -757,6 +757,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 						evt.data = event->data;
 						evt.data_size = event->data_len;
 
+						//send event to the whole node
 						if (esp_event_post_to(_config->event_loop,
 								GN_BASE_EVENT, evt.id, &evt, sizeof(evt),
 								0) != ESP_OK) {
@@ -765,6 +766,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 									_config->node_config->leaves.at[i]->name);
 						}
 
+						//send message to the interested leaf
 						if (xQueueSend(
 								_config->node_config->leaves.at[i]->event_queue,
 								&evt, 0) != pdTRUE) {

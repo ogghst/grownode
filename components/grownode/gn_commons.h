@@ -41,6 +41,14 @@ typedef enum {
 	GN_SERVER_DISCONNECTED,
 } gn_server_status_t;
 
+/**
+ * error codes that the grownode functions can return
+ */
+typedef enum {
+	GN_RET_OK, /*!< Everything went OK */
+	GN_ERR_LEAF_PARAM_ACCESS_VIOLATION /*!< eg. parameter had no write access */
+} gn_err_t;
+
 typedef void *gn_leaf_config_handle_t;
 typedef void *gn_node_config_handle_t;
 typedef void *gn_config_handle_t;
@@ -74,6 +82,15 @@ typedef enum {
 	GN_VAL_TYPE_STRING, GN_VAL_TYPE_BOOLEAN, GN_VAL_TYPE_DOUBLE,
 } gn_val_type_t;
 
+/*
+ * type of parameter access
+ */
+typedef enum {
+	GN_LEAF_PARAM_WRITE, /*!< param can be modified only by network (eg. configuration settings from environment)*/
+	GN_LEAF_PARAM_READ, /*!< param can be modified only by the node (eg. sensor data)*/
+	GN_LEAF_PARAM_READWRITE /*!< param can be modified both by the node and network (eg. local configuration settings)*/
+} gn_leaf_param_access_t;
+
 typedef union {
 	char *s;
 	bool b;
@@ -89,9 +106,11 @@ typedef gn_param_val_t *gn_param_val_handle_t;
 
 struct gn_leaf_param {
 	char *name;
+	gn_leaf_param_access_t access;
 	gn_param_val_handle_t param_val;
 	gn_leaf_config_handle_t leaf_config;
 	struct gn_leaf_param *next;
+
 };
 
 typedef struct gn_leaf_param gn_leaf_param_t;

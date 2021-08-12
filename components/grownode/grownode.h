@@ -65,7 +65,7 @@ esp_err_t gn_leaf_destroy(gn_leaf_config_handle_t leaf);
 QueueHandle_t gn_leaf_get_event_queue(gn_leaf_config_handle_t leaf_config);
 
 gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
-		const char *name, const gn_val_type_t type, const gn_val_t val);
+		const char *name, const gn_val_type_t type, const gn_val_t val, gn_leaf_param_access_t access);
 
 esp_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
 		const gn_leaf_param_handle_t new_param);
@@ -82,7 +82,7 @@ esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf,
 esp_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf,
 		const char *name, const double val);
 
-esp_err_t gn_leaf_parameter_update(gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_parameter_update(gn_leaf_config_handle_t leaf_config,
 		char *param, void *data, int data_len);
 
 esp_err_t gn_leaf_param_destroy(gn_leaf_param_handle_t new_param);
