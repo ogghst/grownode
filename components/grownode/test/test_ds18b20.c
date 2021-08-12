@@ -84,7 +84,7 @@ TEST_CASE("gn_ds18b20_mqtt_stress_test", "[ds18b20]") {
 
 	//set gpio
 	_gn_mqtt_build_leaf_parameter_command_topic(ds18b20_config,
-			"gpio", topic);
+			GN_DS18B20_PARAM_GPIO, topic);
 	strcpy(data, "27");
 	event->topic_len = strlen(topic);
 	event->data_len = strlen(data);
@@ -92,7 +92,7 @@ TEST_CASE("gn_ds18b20_mqtt_stress_test", "[ds18b20]") {
 
 	//set update time
 	_gn_mqtt_build_leaf_parameter_command_topic(ds18b20_config,
-			"update_time_sec", topic);
+			GN_DS18B20_PARAM_UPDATE_TIME_SEC, topic);
 	strcpy(data, "5");
 	event->topic_len = strlen(topic);
 	event->data_len = strlen(data);
