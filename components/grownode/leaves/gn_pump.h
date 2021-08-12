@@ -22,8 +22,8 @@ extern "C" {
 #include "grownode.h"
 
 //parameters
-const char *GN_PUMP_PARAM_STATUS = "status";
-const char *GN_PUMP_PARAM_POWER = "power";
+const char *GN_PUMP_PARAM_STATUS = "status"; /*!< 0 = off, 1 = on */
+const char *GN_PUMP_PARAM_POWER = "power"; /*!< 0 = off, 1024 = maximum */
 
 void gn_pump_task(gn_leaf_config_handle_t leaf_config);
 
