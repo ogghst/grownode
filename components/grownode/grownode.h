@@ -130,9 +130,9 @@ extern void gn_display_leaf_start(gn_leaf_config_handle_t leaf_config);
 
 extern gn_server_status_t gn_mqtt_get_status();
 
-esp_err_t gn_storage_set(char *key, void *value, size_t required_size);
+esp_err_t gn_storage_set(const char *key, const char *value, size_t required_size);
 
-esp_err_t gn_storage_get(char *key, void **value);
+esp_err_t gn_storage_get(const char *key, char **value);
 
 #ifdef __cplusplus
 }
