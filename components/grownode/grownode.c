@@ -1431,22 +1431,27 @@ esp_err_t gn_storage_set(char *key, void *value, size_t required_size) {
 	// Open
 	err = nvs_open(STORAGE_NAMESPACE, NVS_READWRITE, &my_handle);
 	if (err != ESP_OK)
-		return err;
+		goto fail;
 
 	err = nvs_set_blob(my_handle, key, value, required_size);
 
 	if (err != ESP_OK)
-		return err;
+		goto fail;
 
 	// Commit
 	err = nvs_commit(my_handle);
 	if (err != ESP_OK)
-		return err;
+		goto fail;
 
 	// Close
 	nvs_close(my_handle);
 
 	return ESP_OK;
+
+	fail:
+	nvs_close(my_handle);
+	return err;
+
 
 }
 
@@ -1461,13 +1466,13 @@ esp_err_t gn_storage_get(char *key, void **value) {
 	// Open
 	err = nvs_open(STORAGE_NAMESPACE, NVS_READWRITE, &my_handle);
 	if (err != ESP_OK)
-		return err;
+		goto fail;
 
 	// Read the size of memory space required for blob
 	size_t required_size = 0; // value will default to 0, if not set yet in NVS
 	err = nvs_get_blob(my_handle, key, NULL, &required_size);
 	if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
-		return err;
+		goto fail;
 
 	if (required_size > 0) {
 
@@ -1477,7 +1482,7 @@ esp_err_t gn_storage_get(char *key, void **value) {
 		err = nvs_get_blob(my_handle, key, *value, &required_size);
 		if (err != ESP_OK) {
 			free(*value);
-			return err;
+			goto fail;
 		}
 	}
 
@@ -1485,6 +1490,12 @@ esp_err_t gn_storage_get(char *key, void **value) {
 	nvs_close(my_handle);
 
 	return ESP_OK;
+
+	fail:
+	// Close
+	nvs_close(my_handle);
+	return err;
+
 }
 
 #ifdef __cplusplus
