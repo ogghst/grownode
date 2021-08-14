@@ -216,11 +216,19 @@ gn_leaf_config_handle_intl_t _gn_leaf_get_by_name(char *leaf_name) {
 
 }
 
-
+/**
+ * send event to leaf using wqueuesend. the data will be null terminated.
+ *
+ * @return GN_ERR_EVENT_NOT_SENT if not possible to send event
+ */
 gn_err_t _gn_send_event_to_leaf(gn_leaf_config_handle_intl_t leaf_config,
 		gn_leaf_event_handle_t evt) {
-	ESP_LOGD(TAG, "_gn_send_event_to_leaf sending id: %d, param %s, leaf %s",
-			evt->id, evt->param_name, evt->leaf_name);
+	ESP_LOGD(TAG, "_gn_send_event_to_leaf - id: %d, param %s, leaf %s, data %.*s",
+			evt->id, evt->param_name, evt->leaf_name, evt->data_size, evt->data);
+
+	//make sure data will end with terminating char
+	evt->data[evt->data_size] = '\0';
+
 	if (xQueueSend(
 			leaf_config->event_queue,
 			evt, portMAX_DELAY) != pdTRUE) {
@@ -547,6 +555,8 @@ QueueHandle_t gn_leaf_get_event_queue(gn_leaf_config_handle_t leaf_config) {
 
 /**
  * if parameter is stored, the value is overridden
+ *
+ * @return a new object
  */
 gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
 		const char *name, const gn_val_type_t type, gn_val_t val,
@@ -600,6 +610,8 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
 			break;
 		default:
 			ESP_LOGE(TAG, "param type not handled");
+			free(value);
+			free(_buf);
 			return NULL;
 			break;
 		}

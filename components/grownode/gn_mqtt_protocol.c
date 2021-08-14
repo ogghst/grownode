@@ -705,8 +705,8 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 							_config->node_config->leaves.at[i]->name,
 							GN_LEAF_NAME_SIZE);
 					//evt.data = event->data;
-					memcpy(&evt.data[0], event->data, event->data_len);
-					evt.data_size = event->data_len;
+					memcpy(&evt.data[0], event->data, event->data_len > GN_LEAF_DATA_SIZE? GN_LEAF_DATA_SIZE : event -> data_len);
+					evt.data_size = event->data_len > GN_LEAF_DATA_SIZE? GN_LEAF_DATA_SIZE : event -> data_len;
 
 					if (esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
 							evt.id, &evt, sizeof(evt), 0) != ESP_OK) {

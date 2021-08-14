@@ -118,7 +118,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 			case GN_LEAF_PARAM_CHANGE_REQUEST_NETWORK_EVENT:
 			case GN_LEAF_PARAM_CHANGE_REQUEST_EVENT:
 
-				ESP_LOGD(TAG, "request to update param %s", evt.param_name);
+				ESP_LOGD(TAG, "request to update param %s, data = '%s'", evt.param_name, evt.data);
 
 				//parameter is status
 				if (gn_common_leaf_event_mask_param(&evt, status_param) == 0) {
@@ -144,16 +144,24 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 				} else if (gn_common_leaf_event_mask_param(&evt, power_param)
 						== 0) {
 
+					double pow = strtod(evt.data, NULL);
+					if (pow < 0) pow = 0;
+					if (pow > 1024) pow = 1024;
+
+					//execute change
+					gn_leaf_param_set_double(leaf_config, GN_PUMP_PARAM_STATUS, pow);
+
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 					if (pdTRUE == gn_display_leaf_refresh_start()) {
 						char _p[21];
 						snprintf(_p, 20, "power: %f",
-								power_param->param_val->v.d);
+								pow);
 						lv_label_set_text(label_power, _p);
 
 						gn_display_leaf_refresh_end();
 					}
 #endif
+
 
 				}
 
