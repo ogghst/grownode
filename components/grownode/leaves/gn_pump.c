@@ -63,7 +63,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 	mcpwm_set_pin(MCPWM_UNIT_0, &pin_config);
 	mcpwm_config_t pwm_config;
 	pwm_config.frequency = 3000; //TODO make configurable
-	pwm_config.cmpr_a = power_param->param_val->v.d;
+	pwm_config.cmpr_a = 0.0;
 	pwm_config.cmpr_b = 0.0;
 	pwm_config.counter_mode = MCPWM_UP_COUNTER;
 	pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
@@ -149,7 +149,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 					if (pow > 1024) pow = 1024;
 
 					//execute change
-					gn_leaf_param_set_double(leaf_config, GN_PUMP_PARAM_STATUS, pow);
+					gn_leaf_param_set_double(leaf_config, GN_PUMP_PARAM_POWER, pow);
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 					if (pdTRUE == gn_display_leaf_refresh_start()) {
