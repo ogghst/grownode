@@ -55,7 +55,7 @@ void app_main(void) {
 			gn_pump_task, 4096);
 
 	ESP_LOGI("main", "gn_create_leaf number - name %s on node %s",
-			gn_get_leaf_config_name(pump),
+			gn_leaf_get_config_name(pump),
 			gn_get_node_config_name(pump));
 	//finally, start node
 	gn_node_start(node);

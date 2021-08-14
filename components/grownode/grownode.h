@@ -104,9 +104,14 @@ gn_config_status_t gn_get_config_status(gn_config_handle_t config);
 
 esp_event_loop_handle_t gn_get_config_event_loop(gn_config_handle_t config);
 
+esp_event_loop_handle_t gn_leaf_get_config_event_loop(gn_config_handle_t config);
+
 char* gn_get_node_config_name(gn_node_config_handle_t node_config);
 
-char* gn_get_leaf_config_name(gn_leaf_config_handle_t leaf_config);
+char* gn_leaf_get_config_name(gn_leaf_config_handle_t leaf_config);
+
+gn_err_t gn_send_leaf_param_change_message(char *leaf_name, char *param_name,
+		void *message, size_t message_len);
 
 esp_event_loop_handle_t gn_get_leaf_config_event_loop(
 		gn_leaf_config_handle_t leaf_config);

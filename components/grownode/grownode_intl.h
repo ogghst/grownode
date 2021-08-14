@@ -107,7 +107,8 @@ typedef gn_param_val_t *gn_param_val_handle_int_t;
  typedef gn_leaf_config_t *gn_leaf_config_handle_t;
  */
 
-
+gn_err_t _gn_send_event_to_leaf(gn_leaf_config_handle_intl_t leaf_config,
+		gn_leaf_event_handle_t evt);
 
 
 #endif /* COMPONENTS_GROWNODE_SROWNODE_INTL_H_ */

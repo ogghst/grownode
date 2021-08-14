@@ -22,6 +22,7 @@ extern "C" {
 #define GN_NODE_NAME_SIZE 32
 #define GN_LEAF_NAME_SIZE 32
 #define GN_LEAF_PARAM_NAME_SIZE 32
+#define GN_LEAF_DATA_SIZE 512
 
 #include "esp_system.h"
 #include "esp_event.h"
@@ -46,7 +47,10 @@ typedef enum {
  */
 typedef enum {
 	GN_RET_OK, /*!< Everything went OK */
-	GN_ERR_LEAF_PARAM_ACCESS_VIOLATION /*!< eg. parameter had no write access */
+	GN_ERR_LEAF_PARAM_ACCESS_VIOLATION, /*!< eg. parameter had no write access */
+	GN_ERR_EVENT_LOOP_ERROR, /*!< impossible to send message to event loop */
+	GN_ERR_LEAF_NOT_FOUND,
+	GN_ERR_EVENT_NOT_SENT
 } gn_err_t;
 
 typedef void *gn_leaf_config_handle_t;
@@ -59,7 +63,7 @@ typedef struct {
 	gn_event_id_t id;
 	char leaf_name[GN_LEAF_NAME_SIZE];
 	char param_name[GN_LEAF_PARAM_NAME_SIZE];
-	void *data; /*!< Data associated with this event */
+	char data[GN_LEAF_DATA_SIZE]; /*!< Data associated with this event */
 	int data_size; /*!< Length of the data for this event */
 } gn_leaf_event_t;
 

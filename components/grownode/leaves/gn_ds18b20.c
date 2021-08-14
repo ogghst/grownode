@@ -47,7 +47,7 @@ void _scan_sensors(int gpio, bool *scanned, size_t *sensor_count,
 	*scanned = false;
 	*sensor_count = 0;
 
-	res = ds18x20_scan_devices(gpio, addrs, MAX_SENSORS, sensor_count);
+	res = ds18x20_scan_devices(gpio, addrs, GN_DS18B20_MAX_SENSORS, sensor_count);
 	if (res != ESP_OK) {
 		ESP_LOGE(TAG, "Sensors scan error %d (%s)", res, esp_err_to_name(res));
 		return;
@@ -57,8 +57,8 @@ void _scan_sensors(int gpio, bool *scanned, size_t *sensor_count,
 
 	// If there were more sensors found than we have space to handle,
 	// just report the first MAX_SENSORS..
-	if (*sensor_count > MAX_SENSORS) {
-		*sensor_count = MAX_SENSORS;
+	if (*sensor_count > GN_DS18B20_MAX_SENSORS) {
+		*sensor_count = GN_DS18B20_MAX_SENSORS;
 	}
 
 	*scanned = true;
@@ -67,9 +67,9 @@ void _scan_sensors(int gpio, bool *scanned, size_t *sensor_count,
 struct leaf_data {
 	gn_leaf_config_handle_t leaf_config;
 	size_t sensor_count;
-	ds18x20_addr_t addrs[MAX_SENSORS];
-	float temp[MAX_SENSORS];
-	gn_leaf_param_handle_t temp_param[MAX_SENSORS];
+	ds18x20_addr_t addrs[GN_DS18B20_MAX_SENSORS];
+	float temp[GN_DS18B20_MAX_SENSORS];
+	gn_leaf_param_handle_t temp_param[GN_DS18B20_MAX_SENSORS];
 	size_t gn_ds18b20_state;
 	bool scanned;
 	gn_leaf_param_handle_t update_time_param;
@@ -171,8 +171,8 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 
 	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
-	static lv_obj_t *label_temp_names[MAX_SENSORS];
-	static lv_obj_t *label_temp[MAX_SENSORS];
+	static lv_obj_t *label_temp_names[GN_DS18B20_MAX_SENSORS];
+	static lv_obj_t *label_temp[GN_DS18B20_MAX_SENSORS];
 
 	//parent container where adding elements
 	lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf_display(leaf_config);

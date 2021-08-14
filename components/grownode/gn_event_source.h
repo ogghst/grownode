@@ -39,7 +39,9 @@ typedef enum {
 
 	GN_LEAF_INIT_REQUEST_EVENT, //used internally to leaf event queue
 	GN_LEAF_MESSAGE_RECEIVED_EVENT,
-	GN_LEAF_PARAM_MESSAGE_RECEIVED_EVENT,
+	GN_LEAF_PARAM_CHANGE_REQUEST_NETWORK_EVENT, //generated when a parameter change is received from network
+	GN_LEAF_PARAM_CHANGED_EVENT, //generated when a parameter is internally changed
+	GN_LEAF_PARAM_CHANGE_REQUEST_EVENT, //generated when a parameter is requested to change
 	GN_SYSTEM_MESSAGE_RECEIVED_EVENT,
 
 	GN_LEAF_ADDED_EVENT,

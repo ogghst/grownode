@@ -25,8 +25,13 @@ static void print_banner(const char* text);
 void app_main(void)
 {
 
-	esp_log_level_set("gn_ds18b20", ESP_LOG_DEBUG);
+
 	esp_log_level_set("grownode", ESP_LOG_DEBUG);
+	//esp_log_level_set("gn_mqtt", ESP_LOG_DEBUG);
+
+	esp_log_level_set("gn_ds18b20", ESP_LOG_DEBUG);
+	esp_log_level_set("gn_pump", ESP_LOG_DEBUG);
+	esp_log_level_set("gn_pump_control", ESP_LOG_DEBUG);
 
     /* These are the different ways of running registered tests.
      * In practice, only one of them is usually needed.

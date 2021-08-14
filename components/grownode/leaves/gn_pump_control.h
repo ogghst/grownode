@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MAIN_GN_DS18B20_H_
-#define MAIN_GN_DS18B20_H_
+#ifndef MAIN_GN_PUMP_CONTROL_H_
+#define MAIN_GN_PUMP_CONTROL_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,18 +21,11 @@ extern "C" {
 
 #include "grownode.h"
 
-#define GN_DS18B20_MAX_SENSORS 4
 
-//parameters
-static const char *GN_DS18B20_PARAM_UPDATE_TIME_SEC = "update_time_sec"; /*!< seconds between sensor sampling */
-static const char *GN_DS18B20_PARAM_GPIO = "gpio"; /*!< GPIO connected to the temp sensor */
-static const char GN_DS18B20_PARAM_SENSOR_NAMES[GN_DS18B20_MAX_SENSORS][6] = { "temp1", "temp2",
-		"temp3", "temp4" };
-
-void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config);
+void gn_pump_control_task(gn_leaf_config_handle_t leaf_config);
 
 #ifdef __cplusplus
 }
 #endif //__cplusplus
 
-#endif /* MAIN_GN_DS18B20_H_ */
+#endif /* MAIN_GN_PUMP_CONTROL_H_ */

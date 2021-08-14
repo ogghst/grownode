@@ -16,6 +16,8 @@
 extern "C" {
 #endif
 
+#include "esp_log.h"
+
 /* Littlevgl specific */
 #ifdef LV_LVGL_H_INCLUDE_SIMPLE
 #include "lvgl.h"
@@ -47,11 +49,13 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 
 	//parameter definition. if found in flash storage, they will be created with found values instead of default
 	gn_leaf_param_handle_t status_param = gn_leaf_param_create(leaf_config,
-			GN_PUMP_PARAM_STATUS, GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b = false }, GN_LEAF_PARAM_WRITE);
+			GN_PUMP_PARAM_STATUS, GN_VAL_TYPE_BOOLEAN,
+			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_WRITE);
 	gn_leaf_param_add(leaf_config, status_param);
 
 	gn_leaf_param_handle_t power_param = gn_leaf_param_create(leaf_config,
-			GN_PUMP_PARAM_POWER, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_WRITE);
+			GN_PUMP_PARAM_POWER, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
+			GN_LEAF_PARAM_WRITE);
 	gn_leaf_param_add(leaf_config, power_param);
 
 	//setup pwm
@@ -105,14 +109,26 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 		if (xQueueReceive(gn_leaf_get_event_queue(leaf_config), &evt,
 				pdMS_TO_TICKS(100)) == pdPASS) {
 
+			ESP_LOGD(TAG, "received message: %d", evt.id);
+
 			//event arrived for this node
 			switch (evt.id) {
 
 			//parameter change
-			case GN_LEAF_PARAM_MESSAGE_RECEIVED_EVENT:
+			case GN_LEAF_PARAM_CHANGE_REQUEST_NETWORK_EVENT:
+			case GN_LEAF_PARAM_CHANGE_REQUEST_EVENT:
+
+				ESP_LOGD(TAG, "request to update param %s", evt.param_name);
 
 				//parameter is status
 				if (gn_common_leaf_event_mask_param(&evt, status_param) == 0) {
+
+					const bool ret =
+							strncmp((char*) evt.data, "0", evt.data_size) == 0 ?
+									false : true;
+
+					//execute change
+					gn_leaf_param_set_bool(leaf_config, GN_PUMP_PARAM_STATUS, ret);
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 					if (pdTRUE == gn_display_leaf_refresh_start()) {

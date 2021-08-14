@@ -32,7 +32,7 @@ extern "C" {
 static const char *TAG = "gn_mqtt";
 
 #define _GN_MQTT_MAX_TOPIC_LENGTH 80
-#define _GN_MQTT_MAX_PAYLOAD_LENGTH 255
+#define _GN_MQTT_MAX_PAYLOAD_LENGTH 1024
 
 #define _GN_MQTT_COMMAND_MESS "cmd"
 #define _GN_MQTT_STATUS_MESS "sts"
@@ -45,7 +45,7 @@ EventGroupHandle_t _gn_event_group_mqtt;
 const int _GN_MQTT_CONNECTED_OK_EVENT_BIT = BIT0;
 const int _GN_MQTT_CONNECTED_KO_EVENT_BIT = BIT1;
 
-static gn_server_status_t status =  GN_SERVER_DISCONNECTED;
+static gn_server_status_t status = GN_SERVER_DISCONNECTED;
 
 gn_config_handle_intl_t _config; //TODO shared pointer, dangerous
 
@@ -83,7 +83,7 @@ inline char* _gn_mqtt_build_node_name(gn_config_handle_intl_t config) {
 
 }
 
-gn_server_status_t gn_mqtt_get_status()  {
+gn_server_status_t gn_mqtt_get_status() {
 	return status;
 }
 
@@ -254,7 +254,6 @@ esp_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t _leaf_config) {
 
 	return ESP_OK;
 
-
 #else
 	return ESP_OK;
 #endif /* CONFIG_GROWNODE_WIFI_ENABLED */
@@ -367,7 +366,7 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
 	}
 	if (!cJSON_PrintPreallocated(root, buf, _GN_MQTT_MAX_PAYLOAD_LENGTH,
 	false)) {
-		ESP_LOGE(TAG, "_gn_create_startup_message: cannot print json message");
+		ESP_LOGE(TAG, "gn_mqtt_send_node_config: cannot print json message");
 		goto fail;
 		return ESP_FAIL;
 	}
@@ -705,7 +704,8 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 					strncpy(evt.leaf_name,
 							_config->node_config->leaves.at[i]->name,
 							GN_LEAF_NAME_SIZE);
-					evt.data = event->data;
+					//evt.data = event->data;
+					memcpy(&evt.data[0], event->data, event->data_len);
 					evt.data_size = event->data_len;
 
 					if (esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
@@ -714,12 +714,9 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 								_config->node_config->leaves.at[i]->name);
 					}
 
-					if (xQueueSend(
-							_config->node_config->leaves.at[i]->event_queue,
-							&evt, 0) != pdTRUE) {
-						ESP_LOGE(TAG, "not possible to send message to leaf %s",
-								_config->node_config->leaves.at[i]->name);
-					}
+					//send message to the interested leaf
+					_gn_send_event_to_leaf(_config->node_config->leaves.at[i],
+							&evt);
 
 					break;
 
@@ -748,32 +745,24 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 							break;
 						}
 
-						evt.id = GN_LEAF_PARAM_MESSAGE_RECEIVED_EVENT;
-						strncpy(evt.leaf_name,
-								_config->node_config->leaves.at[i]->name,
-								GN_LEAF_NAME_SIZE);
-						strncpy(evt.param_name, _param->name,
-						GN_LEAF_PARAM_NAME_SIZE);
-						evt.data = event->data;
-						evt.data_size = event->data_len;
+						/*
+						 evt.id = GN_LEAF_PARAM_MESSAGE_RECEIVED_EVENT;
+						 strncpy(evt.leaf_name,
+						 _config->node_config->leaves.at[i]->name,
+						 GN_LEAF_NAME_SIZE);
+						 strncpy(evt.param_name, _param->name,
+						 GN_LEAF_PARAM_NAME_SIZE);
+						 evt.data = event->data;
+						 evt.data_size = event->data_len;
 
-						//send event to the whole node
-						if (esp_event_post_to(_config->event_loop,
-								GN_BASE_EVENT, evt.id, &evt, sizeof(evt),
-								0) != ESP_OK) {
-							ESP_LOGE(TAG,
-									"not possible to send param message to leaf %s",
-									_config->node_config->leaves.at[i]->name);
-						}
-
-						//send message to the interested leaf
-						if (xQueueSend(
-								_config->node_config->leaves.at[i]->event_queue,
-								&evt, 0) != pdTRUE) {
-							ESP_LOGE(TAG,
-									"not possible to send message to leaf %s",
-									_config->node_config->leaves.at[i]->name);
-						}
+						 //send event to the whole node
+						 if (esp_event_post_to(_config->event_loop,
+						 GN_BASE_EVENT, evt.id, &evt, sizeof(evt),
+						 0) != ESP_OK) {
+						 ESP_LOGE(TAG,
+						 "not possible to send param message to event loop");
+						 }
+						 */
 
 						break;
 					}
