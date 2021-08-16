@@ -50,12 +50,12 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 	//parameter definition. if found in flash storage, they will be created with found values instead of default
 	gn_leaf_param_handle_t status_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_PARAM_STATUS, GN_VAL_TYPE_BOOLEAN,
-			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_WRITE);
+			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_ALWAYS);
 	gn_leaf_param_add(leaf_config, status_param);
 
 	gn_leaf_param_handle_t power_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_PARAM_POWER, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
-			GN_LEAF_PARAM_WRITE);
+			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_ALWAYS);
 	gn_leaf_param_add(leaf_config, power_param);
 
 	//setup pwm

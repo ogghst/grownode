@@ -29,7 +29,7 @@ extern "C" {
 #include "grownode_intl.h"
 #include "gn_mqtt_protocol.h"
 
-static const char *TAG = "gn_mqtt";
+static const char TAG[8] = "gn_mqtt";
 
 #define _GN_MQTT_MAX_TOPIC_LENGTH 80
 #define _GN_MQTT_MAX_PAYLOAD_LENGTH 1024
@@ -109,7 +109,7 @@ void _gn_mqtt_build_leaf_command_topic(gn_leaf_config_handle_t _leaf_config,
 }
 
 void _gn_mqtt_build_leaf_parameter_command_topic(
-		gn_leaf_config_handle_t _leaf_config, char *param_name, char *buf) {
+		const gn_leaf_config_handle_t _leaf_config, const char *param_name, char *buf) {
 
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) _leaf_config;
@@ -292,6 +292,9 @@ esp_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t param) {
 }
 
 esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
+
+	if (!_node_config)
+		return ESP_OK;
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 

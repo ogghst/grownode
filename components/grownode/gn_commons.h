@@ -23,6 +23,7 @@ extern "C" {
 #define GN_LEAF_NAME_SIZE 32
 #define GN_LEAF_PARAM_NAME_SIZE 32
 #define GN_LEAF_DATA_SIZE 512
+#define GN_NODE_DATA_SIZE 512
 
 #include "esp_system.h"
 #include "esp_event.h"
@@ -34,7 +35,8 @@ typedef enum {
 	GN_CONFIG_STATUS_ERROR,
 	GN_CONFIG_STATUS_NETWORK_ERROR,
 	GN_CONFIG_STATUS_SERVER_ERROR,
-	GN_CONFIG_STATUS_OK
+	GN_CONFIG_STATUS_COMPLETED,
+	GN_CONFIG_STATUS_STARTED
 } gn_config_status_t;
 
 typedef enum {
@@ -69,10 +71,11 @@ typedef struct {
 
 typedef gn_leaf_event_t *gn_leaf_event_handle_t;
 
+
 typedef struct {
 	gn_event_id_t id;
 	char node_name[GN_NODE_NAME_SIZE];
-	void *data; /*!< Data associated with this event */
+	void *data[GN_NODE_DATA_SIZE]; /*!< Data associated with this event */
 	int data_size; /*!< Length of the data for this event */
 } gn_node_event_t;
 
@@ -90,10 +93,18 @@ typedef enum {
  * type of parameter access
  */
 typedef enum {
-	GN_LEAF_PARAM_WRITE, /*!< param can be modified only by network (eg. configuration settings from environment)*/
-	GN_LEAF_PARAM_READ, /*!< param can be modified only by the node (eg. sensor data)*/
-	GN_LEAF_PARAM_READWRITE /*!< param can be modified both by the node and network (eg. local configuration settings)*/
+	GN_LEAF_PARAM_ACCESS_WRITE, /*!< param can be modified only by network (eg. configuration settings from environment)*/
+	GN_LEAF_PARAM_ACCESS_READ, /*!< param can be modified only by the node (eg. sensor data)*/
+	GN_LEAF_PARAM_ACCESS_READWRITE /*!< param can be modified both by the node and network (eg. local configuration settings)*/
 } gn_leaf_param_access_t;
+
+/*
+ * storage policy
+ */
+typedef enum {
+	GN_LEAF_PARAM_STORAGE_ALWAYS, /*!< param is stored in NVS flash every time it changes*/
+	GN_LEAF_PARAM_STORAGE_VOLATILE /*< param is never stored in NVS flash*/
+} gn_leaf_param_storage_t;
 
 typedef union {
 	char *s;
@@ -111,13 +122,13 @@ typedef gn_param_val_t *gn_param_val_handle_t;
 struct gn_leaf_param {
 	char *name;
 	gn_leaf_param_access_t access;
+	gn_leaf_param_storage_t storage;
 	gn_param_val_handle_t param_val;
 	gn_leaf_config_handle_t leaf_config;
 	struct gn_leaf_param *next;
-
 };
 
-typedef struct gn_leaf_param gn_leaf_param_t;
+typedef struct gn_leaf_param gn_leaf_param_t;//  = {NULL, GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_ALWAYS, NULL, NULL, NULL};
 
 typedef gn_leaf_param_t *gn_leaf_param_handle_t;
 

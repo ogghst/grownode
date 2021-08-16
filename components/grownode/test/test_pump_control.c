@@ -24,7 +24,7 @@
 #include "gn_ds18b20.h"
 #include "gn_pump_control.h"
 
-static const char *TAG = "test_pump";
+//static const char TAG[10] = "test_pump";
 
 //functions hidden to be tested
 void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,

@@ -65,7 +65,7 @@ esp_err_t gn_leaf_destroy(gn_leaf_config_handle_t leaf);
 QueueHandle_t gn_leaf_get_event_queue(gn_leaf_config_handle_t leaf_config);
 
 gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
-		const char *name, const gn_val_type_t type, const gn_val_t val, gn_leaf_param_access_t access);
+		const char *name, const gn_val_type_t type, const gn_val_t val, gn_leaf_param_access_t access, gn_leaf_param_storage_t storage);
 
 esp_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
 		const gn_leaf_param_handle_t new_param);
@@ -82,8 +82,8 @@ esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf,
 esp_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf,
 		const char *name, const double val);
 
-gn_err_t gn_leaf_parameter_update(gn_leaf_config_handle_t leaf_config,
-		char *param, void *data, int data_len);
+gn_err_t gn_leaf_parameter_update(const gn_leaf_config_handle_t leaf_config,
+		const char *param, const void *data, const int data_len);
 
 esp_err_t gn_leaf_param_destroy(gn_leaf_param_handle_t new_param);
 
@@ -110,7 +110,7 @@ char* gn_get_node_config_name(gn_node_config_handle_t node_config);
 
 char* gn_leaf_get_config_name(gn_leaf_config_handle_t leaf_config);
 
-gn_err_t gn_send_leaf_param_change_message(char *leaf_name, char *param_name,
+gn_err_t gn_send_leaf_param_change_message(const char *leaf_name, const char *param_name,
 		void *message, size_t message_len);
 
 esp_event_loop_handle_t gn_get_leaf_config_event_loop(
@@ -130,9 +130,9 @@ extern void gn_display_leaf_start(gn_leaf_config_handle_t leaf_config);
 
 extern gn_server_status_t gn_mqtt_get_status();
 
-esp_err_t gn_storage_set(const char *key, const char *value, size_t required_size);
+esp_err_t gn_storage_set(const char *key, const void *value, size_t required_size);
 
-esp_err_t gn_storage_get(const char *key, char **value);
+esp_err_t gn_storage_get(const char *key, void **value);
 
 #ifdef __cplusplus
 }

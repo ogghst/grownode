@@ -22,14 +22,14 @@
 #include "gn_mqtt_protocol.h"
 #include "gn_ds18b20.h"
 
-static const char *TAG = "test_ds18b20";
+//static const char TAG[13] = "test_ds18b20";
 
 //functions hidden to be tested
 void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 		int32_t event_id, void *event_data);
 
 void _gn_mqtt_build_leaf_parameter_command_topic(
-		gn_leaf_config_handle_t _leaf_config, char *param_name, char *buf);
+		const gn_leaf_config_handle_t _leaf_config, const char *param_name, char *buf);
 
 extern gn_config_handle_t config;
 extern gn_node_config_handle_t node_config;

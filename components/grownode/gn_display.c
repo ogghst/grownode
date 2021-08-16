@@ -42,7 +42,7 @@ extern "C" {
 
 #define LV_TICK_PERIOD_MS 1
 
-static const char *TAG = "grownode";
+static const char TAG[11] = "gn_display";
 
 gn_config_handle_t _config;
 
@@ -110,14 +110,14 @@ void _gn_display_log_system_handler(void *handler_args, esp_event_base_t base,
 		//lv_label_set_text(statusLabel, message.c_str());
 		//const char *t = text.c_str();
 
-		if (rawIdx > SLSIZE-1) {
+		if (rawIdx > SLSIZE - 1) {
 
 			//scroll messages
 			for (int row = 1; row < SLSIZE; row++) {
 				//ESP_LOGI(TAG, "scrolling %i from %s to %s", row, rawMessages[row], rawMessages[row - 1]);
 				strncpy(rawMessages[row - 1], rawMessages[row], 30);
 			}
-			strncpy(rawMessages[SLSIZE-1], message, 30);
+			strncpy(rawMessages[SLSIZE - 1], message, 30);
 		} else {
 			//ESP_LOGI(TAG, "setting %i", rawIdx);
 			strncpy(rawMessages[rawIdx], message, 30);
@@ -266,8 +266,6 @@ void _gn_display_create_gui() {
 	lv_obj_add_style(label_leaf_cont, LV_LABEL_PART_MAIN, &style_log);
 	lv_label_set_text(label_leaf_cont, "Leaves");
 
-
-
 	//bottom container
 	lv_obj_t *bottom_cont = lv_cont_create(cont, NULL);
 	lv_obj_add_style(bottom_cont, LV_CONT_PART_MAIN, &style);
@@ -365,29 +363,30 @@ void _gn_display_create_gui() {
 }
 
 /*
-void gn_display_leaf_start(gn_leaf_config_handle_t leaf_config) {
+ void gn_display_leaf_start(gn_leaf_config_handle_t leaf_config) {
 
-#ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
+ #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 
-	//create a leaf container
-	//leaf container
-	lv_obj_t *_a_leaf_cont = lv_cont_create(leaf_cont, NULL);
-	lv_obj_add_style(_a_leaf_cont, LV_CONT_PART_MAIN, &style);
-	lv_obj_align(_a_leaf_cont, leaf_cont, LV_ALIGN_IN_TOP_MID, 0, 0);
-	lv_cont_set_fit2(_a_leaf_cont, LV_FIT_MAX, LV_FIT_TIGHT);
-	//lv_obj_set_width(log_cont, 240);
-	//lv_obj_set_height(log_cont, 260);
-	lv_cont_set_layout(_a_leaf_cont, LV_LAYOUT_COLUMN_LEFT);
+ //create a leaf container
+ //leaf container
+ lv_obj_t *_a_leaf_cont = lv_cont_create(leaf_cont, NULL);
+ lv_obj_add_style(_a_leaf_cont, LV_CONT_PART_MAIN, &style);
+ lv_obj_align(_a_leaf_cont, leaf_cont, LV_ALIGN_IN_TOP_MID, 0, 0);
+ lv_cont_set_fit2(_a_leaf_cont, LV_FIT_MAX, LV_FIT_TIGHT);
+ //lv_obj_set_width(log_cont, 240);
+ //lv_obj_set_height(log_cont, 260);
+ lv_cont_set_layout(_a_leaf_cont, LV_LAYOUT_COLUMN_LEFT);
 
-	//((gn_leaf_config_handle_intl_t)leaf_config)->display_config_cb(leaf_config, _a_leaf_cont);
-	((gn_leaf_config_handle_intl_t)leaf_config)->display_handler = _a_leaf_cont;
+ //((gn_leaf_config_handle_intl_t)leaf_config)->display_config_cb(leaf_config, _a_leaf_cont);
+ ((gn_leaf_config_handle_intl_t)leaf_config)->display_handler = _a_leaf_cont;
 
-#endif
+ #endif
 
-}
-*/
+ }
+ */
 
-gn_display_container_t gn_display_setup_leaf_display(gn_leaf_config_handle_t leaf_config) {
+gn_display_container_t gn_display_setup_leaf_display(
+		gn_leaf_config_handle_t leaf_config) {
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 	//create a leaf container
@@ -481,7 +480,10 @@ void _gn_display_gui_task(void *pvParameter) {
 	ESP_ERROR_CHECK(
 			esp_timer_start_periodic(periodic_timer, LV_TICK_PERIOD_MS * 1000));
 
-	_gn_display_create_gui();
+	if (pdTRUE == gn_display_leaf_refresh_start()) {
+		_gn_display_create_gui();
+		gn_display_leaf_refresh_end();
+	}
 
 	xEventGroupSetBits(_gn_gui_event_group, GN_EVT_GROUP_GUI_COMPLETED_EVENT);
 
@@ -508,7 +510,7 @@ void _gn_display_gui_task(void *pvParameter) {
 
 esp_err_t gn_init_display(gn_config_handle_t config) {
 
-	gn_config_handle_intl_t conf = (gn_config_handle_intl_t)config;
+	gn_config_handle_intl_t conf = (gn_config_handle_intl_t) config;
 
 	esp_err_t ret = ESP_OK;
 

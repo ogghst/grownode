@@ -37,7 +37,7 @@ extern "C" {
 //#include "hasht.h"
 #include "cc_hashtable.h"
 
-static const char *TAG = "gn_leaf_context";
+static const char TAG[16] = "gn_leaf_context";
 
 typedef struct CC_HashTable *gn_leaf_context_handle_int_t;
 

@@ -30,7 +30,7 @@ extern "C" {
 //#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 #include "esp_log.h"
 
-static const char *TAG = "gn_ds18b20";
+static const char TAG[11] = "gn_ds18b20";
 
 
 
@@ -76,11 +76,11 @@ struct leaf_data {
 	gn_leaf_param_handle_t gpio_param;
 };
 
-static void temp_sensor_collect(void *arg) {
+static void temp_sensor_collect(struct leaf_data *data) {
 
 	ESP_LOGD(TAG, "temp_sensor_collect");
 
-	struct leaf_data *data = (struct leaf_data*) arg;
+	//struct leaf_data *data = (struct leaf_data*) arg;
 
 	esp_err_t res;
 
@@ -115,6 +115,9 @@ static void temp_sensor_collect(void *arg) {
 	}
 }
 
+/**
+ * helper to move data through callbacks
+ */
 void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 
 	struct leaf_data data;
@@ -128,7 +131,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 	//create a timer to update temps
 	esp_timer_handle_t temp_sensor_timer;
 	const esp_timer_create_args_t temp_sensor_timer_args = { .callback =
-			&temp_sensor_collect, .arg = (void*) &data,
+			&temp_sensor_collect, .arg = &data,
 	/* name is optional, but may help identify the timer when debugging */
 	.name = "periodic" };
 	ESP_ERROR_CHECK(esp_timer_create(&temp_sensor_timer_args, &temp_sensor_timer));
@@ -137,12 +140,12 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 
 	//get update time in sec, default 30
 	data.update_time_param = gn_leaf_param_create(leaf_config,
-			GN_DS18B20_PARAM_UPDATE_TIME_SEC, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 30 }, GN_LEAF_PARAM_WRITE);
+			GN_DS18B20_PARAM_UPDATE_TIME_SEC, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 30 }, GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_ALWAYS);
 	gn_leaf_param_add(leaf_config, data.update_time_param);
 
 	//get gpio from params. default 27
 	data.gpio_param = gn_leaf_param_create(leaf_config, GN_DS18B20_PARAM_GPIO,
-			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 27 }, GN_LEAF_PARAM_WRITE);
+			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 27 }, GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_ALWAYS);
 	gn_leaf_param_add(leaf_config, data.gpio_param);
 
 	//setup gpio
@@ -155,9 +158,12 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 	//get params for temp. init to 0
 	for (int i = 0; i < data.sensor_count; i++) {
 		data.temp_param[i] = gn_leaf_param_create(leaf_config, GN_DS18B20_PARAM_SENSOR_NAMES[i],
-				GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_READ);
+				GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_READ, GN_LEAF_PARAM_STORAGE_VOLATILE);
 		gn_leaf_param_add(leaf_config, data.temp_param[i]);
 	}
+
+	//collect initial data
+	temp_sensor_collect(&data);
 
 	//if mqtt is connected, start sensor callback
 	if (gn_mqtt_get_status() == GN_SERVER_CONNECTED) {

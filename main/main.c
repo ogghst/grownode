@@ -34,7 +34,7 @@ void app_main(void) {
 	gn_config_handle_t config = gn_init();
 
 	//waits until the config process ends
-	while (gn_get_config_status(config) != GN_CONFIG_STATUS_OK) {
+	while (gn_get_config_status(config) != GN_CONFIG_STATUS_COMPLETED) {
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 		ESP_LOGI("main", "grownode startup sequence code: %d",
 				gn_get_config_status(config));

@@ -40,7 +40,7 @@ extern "C" {
 #include "gn_ds18b20.h"
 #include "gn_pump.h"
 
-static const char *TAG = "gn_pump_control";
+static const char TAG[16] = "gn_pump_control";
 
 size_t pump_status = 0;
 
@@ -77,7 +77,7 @@ void gn_pump_control_task_event_handler(void *handler_args,
 					if (pump_status == 0 && temp > 26) {
 						//send message to pump
 						if (gn_send_leaf_param_change_message("pump",
-								GN_PUMP_PARAM_STATUS, &"1", 2) != GN_RET_OK) {
+								GN_PUMP_PARAM_STATUS, (const char*)&"1", 2) != GN_RET_OK) {
 							ESP_LOGE(TAG,
 									"impossible to update parameter %s on leaf %s",
 									GN_PUMP_PARAM_STATUS, "pump");

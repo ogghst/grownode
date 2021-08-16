@@ -90,6 +90,7 @@ TEST_CASE("gn_get_blob_string", "[gn_storage]")
 	TEST_ASSERT(strcmp(value, retval) == 0);
 }
 
+
 TEST_CASE("gn_set_blob_double", "[gn_storage]")
 {
 	char key[] = "test";
