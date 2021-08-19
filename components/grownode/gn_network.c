@@ -53,7 +53,8 @@ extern "C" {
 
 #include "grownode_intl.h"
 
-static const char TAG[8] = "network";
+//static const char TAG[8] = "network";
+#define TAG "network"
 
 /* Signal Wi-Fi events on this event-group */
 const int GN_WIFI_CONNECTED_EVENT = BIT0;

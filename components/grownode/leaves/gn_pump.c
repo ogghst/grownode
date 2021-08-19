@@ -81,19 +81,19 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 	if (_cnt) {
 
 		//style from the container
-		lv_style_t *style = lv_style_list_get_local_style(&_cnt->style_list);
+		lv_style_t *style = _cnt->styles->style;
 
-		label_pump = lv_label_create(_cnt, NULL);
+		label_pump = lv_label_create(_cnt);
 		lv_label_set_text(label_pump, "PUMP");
-		lv_obj_add_style(label_pump, LV_LABEL_PART_MAIN, style);
+		lv_obj_add_style(label_pump, style, 0);
 
-		label_status = lv_label_create(_cnt, NULL);
-		lv_obj_add_style(label_status, LV_LABEL_PART_MAIN, style);
+		label_status = lv_label_create(_cnt);
+		lv_obj_add_style(label_status, style, 0);
 		lv_label_set_text(label_status,
 				status_param->param_val->v.b ? "status: on" : "status: off");
 
-		label_power = lv_label_create(_cnt, NULL);
-		lv_obj_add_style(label_power, LV_LABEL_PART_MAIN, style);
+		label_power = lv_label_create(_cnt);
+		lv_obj_add_style(label_power, style, 0);
 
 		char _p[21];
 		snprintf(_p, 20, "power: %4.0f", power_param->param_val->v.d);
