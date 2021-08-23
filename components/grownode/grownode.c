@@ -732,7 +732,7 @@ esp_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf_config,
 	if (!leaf_config || !name || !val)
 		return ESP_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get(leaf_config, name);
+	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config, name);
 	if (!_param)
 		return ESP_ERR_INVALID_ARG;
 
@@ -799,7 +799,7 @@ esp_err_t gn_leaf_param_get_string(const gn_leaf_config_handle_t leaf_config,
 	if (!leaf_config || !name)
 		return ESP_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get(leaf_config, name);
+	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config, name);
 	if (!_param) {
 		return ESP_FAIL;
 	}
@@ -820,7 +820,7 @@ esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf_config,
 	if (!leaf_config || !name)
 		return ESP_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get(leaf_config, name);
+	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config, name);
 	if (!_param)
 		return ESP_ERR_INVALID_ARG;
 
@@ -890,7 +890,7 @@ esp_err_t gn_leaf_param_get_bool(const gn_leaf_config_handle_t leaf_config,
 	if (!leaf_config || !name)
 		return ESP_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get(leaf_config, name);
+	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config, name);
 	if (!_param) {
 		return ESP_FAIL;
 	}
@@ -910,7 +910,7 @@ esp_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf_config,
 	if (!leaf_config || !name)
 		return ESP_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get(leaf_config, name);
+	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config, name);
 	if (!_param)
 		return ESP_ERR_INVALID_ARG;
 
@@ -989,7 +989,7 @@ esp_err_t gn_leaf_param_get_double(const gn_leaf_config_handle_t leaf_config,
 	if (!leaf_config || !name)
 		return ESP_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get(leaf_config, name);
+	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config, name);
 	if (!_param) {
 		return ESP_FAIL;
 	}
@@ -1009,7 +1009,7 @@ esp_err_t gn_leaf_param_get_double(const gn_leaf_config_handle_t leaf_config,
  *
  * @return ESP_OK if parameter is changed,
  */
-gn_err_t gn_leaf_parameter_update(const gn_leaf_config_handle_t leaf_config,
+gn_err_t _gn_leaf_parameter_update(const gn_leaf_config_handle_t leaf_config,
 		const char *param, const void *data, const int data_len) {
 
 	if (!leaf_config || !param || !data || data_len == 0)
@@ -1191,7 +1191,7 @@ gn_err_t gn_send_leaf_param_change_message(const char *leaf_name,
 
 		if (strcmp(leaves.at[i]->name, leaf_name) == 0) {
 
-			return gn_leaf_parameter_update(leaves.at[i], param_name, message,
+			return _gn_leaf_parameter_update(leaves.at[i], param_name, message,
 					message_len);
 
 			/*
@@ -1221,7 +1221,7 @@ gn_leaf_param_handle_t gn_get_leaf_config_params(
 
 }
 
-gn_leaf_param_handle_t gn_leaf_param_get(const gn_leaf_config_handle_t leaf,
+gn_leaf_param_handle_t gn_leaf_param_get_param_handle(const gn_leaf_config_handle_t leaf,
 		const char *param_name) {
 
 	if (!leaf || !param_name) {
@@ -1329,7 +1329,7 @@ void* gn_leaf_context_get_key_to_leaf(const gn_leaf_config_handle_t leaf,
  }
  */
 
-esp_err_t gn_message_display(char *message) {
+esp_err_t gn_log(char *message) {
 
 	esp_err_t ret = ESP_OK;
 
@@ -1344,12 +1344,6 @@ esp_err_t gn_message_display(char *message) {
 
 	//free(ptr);
 	return ret;
-
-}
-
-esp_err_t gn_message_send_text(gn_leaf_config_handle_t leaf, const char *msg) {	//TODO remove leaf config
-
-	return gn_mqtt_send_leaf_message(leaf, msg);
 
 }
 

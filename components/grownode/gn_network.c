@@ -74,7 +74,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 	if (event_base == WIFI_PROV_EVENT) {
 		switch (event_id) {
 		case WIFI_PROV_START:
-			gn_message_display("Provisioning Started");
+			gn_log("Provisioning Started");
 			break;
 		case WIFI_PROV_CRED_RECV: {
 			wifi_sta_config_t *wifi_sta_cfg = (wifi_sta_config_t*) event_data;
@@ -99,7 +99,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 			break;
 		case WIFI_PROV_END:
 			ESP_LOGD(TAG, "WIFI_PROV_END");
-			gn_message_display("Provisioning OK");
+			gn_log("Provisioning OK");
 			break;
 		default:
 			break;
@@ -122,7 +122,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		strcpy(_conf->deviceName, deviceName);
 
 		sprintf(log, "%s-%d.%d.%d.%d", deviceName, IP2STR(&event->ip_info.ip));
-		gn_message_display(log);
+		gn_log(log);
 
 		//ESP_LOGI(TAG, "IP : " IPSTR, IP2STR(&event->ip_info.ip));
 
@@ -433,7 +433,7 @@ void _gn_ota_task(void *pvParameter) {
 	//x.type = screenPayloadType::LOG;
 	//strcpy(x.text, "Firmware update start");
 	//xQueueSend(screenEventQueue, &x, 0);
-	gn_message_display("Firmware update in progress..");
+	gn_log("Firmware update in progress..");
 
 	esp_wifi_set_ps(WIFI_PS_NONE);
 
@@ -445,14 +445,14 @@ void _gn_ota_task(void *pvParameter) {
 	esp_err_t ret = esp_https_ota(&config);
 	if (ret == ESP_OK) {
 
-		gn_message_display("Firmware updated. Rebooting..");
+		gn_log("Firmware updated. Rebooting..");
 		vTaskDelay(5000 / portTICK_PERIOD_MS);
 		esp_restart();
 
 	} else {
 
 		//screen->log("Firmware Not Updated");
-		gn_message_display("Firmware upgrade failed.");
+		gn_log("Firmware upgrade failed.");
 		//vTaskDelay(5000 / portTICK_PERIOD_MS);
 		//esp_restart();
 	}

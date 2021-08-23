@@ -737,7 +737,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 							== 0) {
 
 						if (GN_RET_OK
-								!= gn_leaf_parameter_update(
+								!= _gn_leaf_parameter_update(
 										_config->node_config->leaves.at[i],
 										_param->name, event->data,
 										event->data_len)) {

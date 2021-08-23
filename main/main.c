@@ -46,7 +46,7 @@ void app_main(void) {
 			gn_get_node_config_name(node));
 
 	//send log to screen
-	gn_message_display("initialized");
+	gn_log("initialized");
 
 	char buf[5] = "pump";
 
