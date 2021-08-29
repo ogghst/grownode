@@ -113,4 +113,11 @@ TEST_CASE("gn_get_blob_double", "[gn_storage]")
 }
 
 
+TEST_CASE("gn_test_log", "[gn_display]")
+{
+	char key[] = "test";
+	TEST_ASSERT_EQUAL(gn_log(key), ESP_OK);
+}
+
+
 

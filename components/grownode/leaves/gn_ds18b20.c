@@ -12,6 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+//#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
+#include "esp_log.h"
+
 /* Littlevgl specific */
 #ifdef LV_LVGL_H_INCLUDE_SIMPLE
 #include "lvgl.h"
@@ -23,16 +32,7 @@
 #include "ds18x20.h"
 #include "gn_ds18b20.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-//#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
-#include "esp_log.h"
-
-static const char TAG[11] = "gn_ds18b20";
-
-
+#define TAG "gn_ds18b20"
 
 const size_t GN_DS18B20_STATE_STOP = 0;
 const size_t GN_DS18B20_STATE_RUNNING = 1;
@@ -47,7 +47,8 @@ void _scan_sensors(int gpio, bool *scanned, size_t *sensor_count,
 	*scanned = false;
 	*sensor_count = 0;
 
-	res = ds18x20_scan_devices(gpio, addrs, GN_DS18B20_MAX_SENSORS, sensor_count);
+	res = ds18x20_scan_devices(gpio, addrs, GN_DS18B20_MAX_SENSORS,
+			sensor_count);
 	if (res != ESP_OK) {
 		ESP_LOGE(TAG, "Sensors scan error %d (%s)", res, esp_err_to_name(res));
 		return;
@@ -134,18 +135,22 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 			&temp_sensor_collect, .arg = &data,
 	/* name is optional, but may help identify the timer when debugging */
 	.name = "periodic" };
-	ESP_ERROR_CHECK(esp_timer_create(&temp_sensor_timer_args, &temp_sensor_timer));
+	ESP_ERROR_CHECK(
+			esp_timer_create(&temp_sensor_timer_args, &temp_sensor_timer));
 
 	//parameter definition. if found in flash storage, they will be created with found values instead of default
 
 	//get update time in sec, default 30
 	data.update_time_param = gn_leaf_param_create(leaf_config,
-			GN_DS18B20_PARAM_UPDATE_TIME_SEC, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 30 }, GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_ALWAYS);
+			GN_DS18B20_PARAM_UPDATE_TIME_SEC, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
+							.d = 30 }, GN_LEAF_PARAM_ACCESS_WRITE,
+			GN_LEAF_PARAM_STORAGE_ALWAYS);
 	gn_leaf_param_add(leaf_config, data.update_time_param);
 
 	//get gpio from params. default 27
 	data.gpio_param = gn_leaf_param_create(leaf_config, GN_DS18B20_PARAM_GPIO,
-			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 27 }, GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_ALWAYS);
+			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 27 },
+			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_ALWAYS);
 	gn_leaf_param_add(leaf_config, data.gpio_param);
 
 	//setup gpio
@@ -157,50 +162,68 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 
 	//get params for temp. init to 0
 	for (int i = 0; i < data.sensor_count; i++) {
-		data.temp_param[i] = gn_leaf_param_create(leaf_config, GN_DS18B20_PARAM_SENSOR_NAMES[i],
-				GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_READ, GN_LEAF_PARAM_STORAGE_VOLATILE);
+		data.temp_param[i] = gn_leaf_param_create(leaf_config,
+				GN_DS18B20_PARAM_SENSOR_NAMES[i], GN_VAL_TYPE_DOUBLE,
+				(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_READ,
+				GN_LEAF_PARAM_STORAGE_VOLATILE);
 		gn_leaf_param_add(leaf_config, data.temp_param[i]);
 	}
 
 	//collect initial data
+	data.gn_ds18b20_state = GN_DS18B20_STATE_RUNNING;
 	temp_sensor_collect(&data);
 
+
+	/*
 	//if mqtt is connected, start sensor callback
 	if (gn_mqtt_get_status() == GN_SERVER_CONNECTED) {
-		ESP_LOGD(TAG, "esp_timer_start, frequency %f sec", data.update_time_param->param_val->v.d);
+		ESP_LOGD(TAG, "esp_timer_start, frequency %f sec",
+				data.update_time_param->param_val->v.d);
 		data.gn_ds18b20_state = GN_DS18B20_STATE_RUNNING;
+	*/
 		ESP_ERROR_CHECK(
 				esp_timer_start_periodic(temp_sensor_timer,
-						data.update_time_param->param_val->v.d
-								* 1000000));
+						data.update_time_param->param_val->v.d * 1000000));
+	/*
 	}
+	*/
 
 	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
-	static lv_obj_t *label_temp_names[GN_DS18B20_MAX_SENSORS];
-	static lv_obj_t *label_temp[GN_DS18B20_MAX_SENSORS];
+	lv_obj_t *label_temp_names[GN_DS18B20_MAX_SENSORS];
+	lv_obj_t *label_temp[GN_DS18B20_MAX_SENSORS];
+	lv_obj_t *label_title;
 
 	//parent container where adding elements
 	lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf_display(leaf_config);
 
 	if (_cnt) {
 
-		//style from the container
-		lv_style_t *style = &_cnt->styles->style;
-
 		if (pdTRUE == gn_display_leaf_refresh_start()) {
+
+			//style from the container
+			lv_style_t *style = _cnt->styles->style;
+
+			label_title = lv_label_create(_cnt);
+			lv_label_set_text(label_title,
+					gn_leaf_get_config_name(leaf_config));
+			lv_obj_add_style(label_title, style, 0);
+			lv_obj_align_to(label_title, _cnt, LV_ALIGN_TOP_MID, 0, 0);
+
 			for (int i = 0; i < data.sensor_count; i++) {
 				label_temp_names[i] = lv_label_create(_cnt);
-				lv_label_set_text(label_temp_names[i], GN_DS18B20_PARAM_SENSOR_NAMES[i]);
-				lv_obj_add_style(label_temp_names[i],
-						style, 0);
+				lv_label_set_text(label_temp_names[i],
+						GN_DS18B20_PARAM_SENSOR_NAMES[i]);
+				lv_obj_add_style(label_temp_names[i], style, 0);
+				lv_obj_align_to(label_temp_names[i], _cnt, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 25 * (i+1));
 
 				char _p[21];
-				snprintf(_p, 20, "temp: %4.2f",
-						data.temp_param[i]->param_val->v.d);
+				snprintf(_p, 20, ": %4.2f", data.temp_param[i]->param_val->v.d);
 				label_temp[i] = lv_label_create(_cnt);
 				lv_label_set_text(label_temp[i], _p);
 				lv_obj_add_style(label_temp[i], style, 0);
+				lv_obj_align_to(label_temp[i], label_temp_names[i],
+						LV_ALIGN_RIGHT_MID, 0, 5);
 
 			}
 			gn_display_leaf_refresh_end();
@@ -226,36 +249,43 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 
 				//what to do when network is disconnected
 			case GN_NETWORK_DISCONNECTED_EVENT:
+				/*
 				if (data.gn_ds18b20_state != GN_DS18B20_STATE_STOP) {
 					data.gn_ds18b20_state = GN_DS18B20_STATE_STOP;
 					//stop update cycle
 					ESP_LOGD(TAG, "esp_timer_stop");
 					ESP_ERROR_CHECK(esp_timer_stop(temp_sensor_timer));
 				}
+				*/
 				break;
 
 				//what to do when server is connected
 			case GN_SERVER_CONNECTED_EVENT:
+				/*
 				if (data.gn_ds18b20_state != GN_DS18B20_STATE_RUNNING) {
 					data.gn_ds18b20_state = GN_DS18B20_STATE_RUNNING;
 					//start update cycle
-					ESP_LOGD(TAG, "esp_timer_start, frequency %f sec", data.update_time_param->param_val->v.d);
+					ESP_LOGD(TAG, "esp_timer_start, frequency %f sec",
+							data.update_time_param->param_val->v.d);
 					ESP_ERROR_CHECK(
 							esp_timer_start_periodic(temp_sensor_timer,
 									data.update_time_param->param_val->v.d
 											* 1000000));
 
 				}
+				*/
 				break;
 
 				//what to do when server is disconnected
 			case GN_SERVER_DISCONNECTED_EVENT:
+				/*
 				if (data.gn_ds18b20_state != GN_DS18B20_STATE_STOP) {
 					data.gn_ds18b20_state = GN_DS18B20_STATE_STOP;
 					//stop update cycle
 					ESP_LOGD(TAG, "esp_timer_stop");
 					ESP_ERROR_CHECK(esp_timer_stop(temp_sensor_timer));
 				}
+				*/
 				break;
 
 			default:

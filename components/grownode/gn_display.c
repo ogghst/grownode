@@ -42,9 +42,9 @@ extern "C" {
 
 #define LV_TICK_PERIOD_MS 1
 
-static const char TAG[11] = "gn_display";
+#define TAG "gn_display"
 
-gn_config_handle_t _config;
+gn_config_handle_intl_t _config;
 
 //event groups
 const int GN_EVT_GROUP_GUI_COMPLETED_EVENT = BIT0;
@@ -52,66 +52,199 @@ EventGroupHandle_t _gn_gui_event_group;
 
 //TODO revise log structure with structs
 
-#define SLSIZE 4
+#define LOG_MESSAGES 14
 
 #define GN_DISPLAY_HOR_RES 240
 #define GN_DISPLAY_VER_RES 320
 
-lv_obj_t *statusLabel[SLSIZE];
-char rawMessages[SLSIZE][30];
-int rawIdx = 0;
+lv_obj_t *statusLabel[LOG_MESSAGES];
+char rawMessages[LOG_MESSAGES][30];
+size_t rawIdx = 0;
+gn_leaf_config_handle_intl_t _current_leaf = NULL;
 
 //lv_obj_t *network_status_label, *server_status_label;
-lv_obj_t *network_led, *server_led;
+//lv_obj_t *network_led, *server_led;
 
-static lv_obj_t *leaf_cont;
 bool _initialized = false;
 
 ////////////////////////////////////////////////////////////////////
 
 static lv_style_t gn_style_base, gn_style_leaf_panel,
 		gn_style_leaf_panel_nav_buttons, gn_style_leaf, gn_style_bottom,
-		gn_style_bottom_element;
+		gn_style_bottom_element, gn_style_action_button_element;
 static lv_obj_t *grownode_scr, *main_scr;
-static lv_obj_t *status_bar, *leaf_panel, *bottom_panel, *log_panel,
-		*action_panel;
+static lv_obj_t *status_bar, *bottom_panel, *log_panel, *action_panel,
+		*leaf_panel;
+
+static lv_obj_t *net_label, *srv_label;
 
 static void scroll_left_button_event_handler(lv_event_t *e) {
 
-	lv_obj_t *button = lv_event_get_target(e);
+	ESP_LOGD(TAG, "scroll_left_button_event_handler");
+
+	if (e->code != LV_EVENT_CLICKED)
+		return;
+
+	//only 1 or 0 panels, no effects
+	if (!_config || !_config->node_config
+			|| _config->node_config->leaves.last < 2)
+		return;
+
+	if (pdTRUE == gn_display_leaf_refresh_start()) {
+
+		size_t found = 0;
+
+		for (size_t i = 0; i < _config->node_config->leaves.last; i++) {
+
+			gn_leaf_config_handle_intl_t _p =
+					(gn_leaf_config_handle_intl_t) _config->node_config->leaves.at[i];
+			if (_p == _current_leaf) {
+				ESP_LOGD(TAG, "found leaf at %d", i);
+				found = 1;
+				lv_obj_add_flag(_current_leaf->display_container,
+						LV_OBJ_FLAG_HIDDEN);
+				//show the previous panel
+				if (i == 0)
+					_current_leaf =
+							_config->node_config->leaves.at[_config->node_config->leaves.last
+									- 1];
+				else
+					_current_leaf = _config->node_config->leaves.at[i - 1];
+
+			}
+
+		}
+		//make it visible if found
+		if (found == 1)
+			lv_obj_clear_flag(_current_leaf->display_container,
+					LV_OBJ_FLAG_HIDDEN);
+
+		gn_display_leaf_refresh_end();
+
+	}
 
 }
 
 static void scroll_right_button_event_handler(lv_event_t *e) {
 
-	lv_obj_t *button = lv_event_get_target(e);
+	ESP_LOGD(TAG, "scroll_right_button_event_handler");
+
+	if (e->code != LV_EVENT_CLICKED)
+		return;
+
+	//only 1 or 0 panels, no effects
+	if (!_config || !_config->node_config
+			|| _config->node_config->leaves.last < 2)
+		return;
+
+	if (pdTRUE == gn_display_leaf_refresh_start()) {
+
+		size_t found = 0;
+
+		for (size_t i = 0; i < _config->node_config->leaves.last; i++) {
+
+			gn_leaf_config_handle_intl_t _p =
+					(gn_leaf_config_handle_intl_t) _config->node_config->leaves.at[i];
+			if (_p == _current_leaf) {
+				ESP_LOGD(TAG, "found leaf at %d", i);
+				found = 1;
+				lv_obj_add_flag(_current_leaf->display_container,
+						LV_OBJ_FLAG_HIDDEN);
+				//show the next panel
+				if (i == _config->node_config->leaves.last - 1)
+					_current_leaf = _config->node_config->leaves.at[0];
+				else
+					_current_leaf = _config->node_config->leaves.at[i + 1];
+
+			}
+
+		}
+		//make it visible if found
+		if (found == 1)
+			lv_obj_clear_flag(_current_leaf->display_container,
+					LV_OBJ_FLAG_HIDDEN);
+
+		gn_display_leaf_refresh_end();
+
+	}
 
 }
 
 static void log_button_event_handler(lv_event_t *e) {
 
-	lv_obj_t *button = lv_event_get_target(e);
+	ESP_LOGD(TAG, "log_button_event_handler");
+
+	if (e->code != LV_EVENT_CLICKED)
+		return;
+
+	//lv_obj_t *button = lv_event_get_target(e);
 	lv_obj_add_flag(leaf_panel, LV_OBJ_FLAG_HIDDEN);
 	lv_obj_add_flag(action_panel, LV_OBJ_FLAG_HIDDEN);
+
 	lv_obj_clear_flag(log_panel, LV_OBJ_FLAG_HIDDEN);
 
 }
 
 static void leaf_button_event_handler(lv_event_t *e) {
 
-	lv_obj_t *button = lv_event_get_target(e);
+	ESP_LOGD(TAG, "leaf_button_event_handler");
+
+	if (e->code != LV_EVENT_CLICKED)
+		return;
+
+	//lv_obj_t *button = lv_event_get_target(e);
 	lv_obj_add_flag(log_panel, LV_OBJ_FLAG_HIDDEN);
 	lv_obj_add_flag(action_panel, LV_OBJ_FLAG_HIDDEN);
+
 	lv_obj_clear_flag(leaf_panel, LV_OBJ_FLAG_HIDDEN);
 
 }
 
 static void action_button_event_handler(lv_event_t *e) {
 
-	lv_obj_t *button = lv_event_get_target(e);
+	ESP_LOGD(TAG, "action_button_event_handler");
+
+	if (e->code != LV_EVENT_CLICKED)
+		return;
+
+	//lv_obj_t *button = lv_event_get_target(e);
 	lv_obj_add_flag(leaf_panel, LV_OBJ_FLAG_HIDDEN);
 	lv_obj_add_flag(log_panel, LV_OBJ_FLAG_HIDDEN);
+
 	lv_obj_clear_flag(action_panel, LV_OBJ_FLAG_HIDDEN);
+
+}
+
+static void ota_button_event_handler(lv_event_t *e) {
+
+	ESP_LOGD(TAG, "ota_button_event_handler");
+
+	if (e->code != LV_EVENT_CLICKED)
+		return;
+
+	gn_firmware_update();
+
+}
+
+static void reset_button_event_handler(lv_event_t *e) {
+
+	ESP_LOGD(TAG, "reset_button_event_handler");
+
+	if (e->code != LV_EVENT_CLICKED)
+		return;
+
+	gn_reset();
+
+}
+
+static void reboot_button_event_handler(lv_event_t *e) {
+
+	ESP_LOGD(TAG, "reboot_button_event_handler");
+
+	if (e->code != LV_EVENT_CLICKED)
+		return;
+
+	gn_reboot();
 
 }
 
@@ -178,9 +311,21 @@ void style_init() {
 			lv_palette_main(LV_PALETTE_CYAN));
 	lv_style_set_pad_all(&gn_style_bottom_element, 5);
 	lv_style_set_radius(&gn_style_bottom_element, 10);
+//lv_style_set_height(&gn_style_bottom_element,lv_pct(100));
+//lv_style_set_width(&gn_style_bottom_element, lv_pct(30));
+	lv_style_set_align(&gn_style_bottom_element, LV_ALIGN_CENTER);
+
+	lv_style_init(&gn_style_action_button_element);
+	lv_style_set_bg_color(&gn_style_action_button_element,
+			lv_palette_main(LV_PALETTE_BLUE_GREY));
+	lv_style_set_border_width(&gn_style_action_button_element, 1);
+	lv_style_set_border_color(&gn_style_action_button_element,
+			lv_palette_main(LV_PALETTE_CYAN));
+	lv_style_set_pad_all(&gn_style_action_button_element, 5);
+	lv_style_set_radius(&gn_style_action_button_element, 10);
 	//lv_style_set_height(&gn_style_bottom_element,lv_pct(100));
 	//lv_style_set_width(&gn_style_bottom_element, lv_pct(30));
-	lv_style_set_align(&gn_style_bottom_element, LV_ALIGN_CENTER);
+	lv_style_set_align(&gn_style_action_button_element, LV_ALIGN_CENTER);
 
 }
 
@@ -202,7 +347,7 @@ void grownode_scr_init(lv_obj_t *scr) {
 
 lv_obj_t* build_status_bar(lv_obj_t *parent, lv_obj_t *align_to) {
 
-	//status bar
+//status bar
 	lv_obj_t *status_bar = lv_obj_create(parent);
 	lv_obj_set_size(status_bar, GN_DISPLAY_HOR_RES, GN_DISPLAY_VER_RES * 0.05);
 	lv_obj_set_flex_flow(status_bar, LV_FLEX_FLOW_ROW);
@@ -210,22 +355,22 @@ lv_obj_t* build_status_bar(lv_obj_t *parent, lv_obj_t *align_to) {
 			LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_START);
 	lv_obj_add_style(status_bar, &gn_style_base, 0);
 
-	//name label
+//name label
 	lv_obj_t *name_label = lv_label_create(status_bar);
-	lv_label_set_text(name_label, "Node1");
-	//lv_obj_align(name_label, LV_ALIGN_TOP_LEFT, 0, 0);
+	lv_label_set_text(name_label, "");
+//lv_obj_align(name_label, LV_ALIGN_TOP_LEFT, 0, 0);
 	lv_obj_add_style(name_label, &gn_style_base, 0);
 
-	//network label
-	lv_obj_t *net_label = lv_label_create(status_bar);
-	lv_label_set_text(net_label, "NET");
-	//lv_obj_align_to(net_label, status_bar, LV_ALIGN_RIGHT_MID, 40, 0);
+//network label
+	net_label = lv_label_create(status_bar);
+	lv_label_set_text(net_label, "");
+//lv_obj_align_to(net_label, status_bar, LV_ALIGN_RIGHT_MID, 40, 0);
 	lv_obj_add_style(net_label, &gn_style_base, 0);
 
-	//server label
-	lv_obj_t *srv_label = lv_label_create(status_bar);
-	lv_label_set_text(srv_label, "SRV");
-	//lv_obj_align_to(srv_label, status_bar, LV_ALIGN_LEFT_MID, 10, 0);
+//server label
+	srv_label = lv_label_create(status_bar);
+	lv_label_set_text(srv_label, "");
+//lv_obj_align_to(srv_label, status_bar, LV_ALIGN_LEFT_MID, 10, 0);
 	lv_obj_add_style(srv_label, &gn_style_base, 0);
 
 	return status_bar;
@@ -234,7 +379,8 @@ lv_obj_t* build_status_bar(lv_obj_t *parent, lv_obj_t *align_to) {
 
 lv_obj_t* build_leaf_panel(lv_obj_t *parent, lv_obj_t *align_to) {
 
-	//leaf panel
+//leaf panel
+	ESP_LOGD(TAG, "build_leaf_panel - lv_obj_create");
 	lv_obj_t *leaf_panel = lv_obj_create(parent);
 	lv_obj_align_to(leaf_panel, align_to, LV_ALIGN_TOP_LEFT, 0,
 	GN_DISPLAY_VER_RES * 0.05);
@@ -243,30 +389,33 @@ lv_obj_t* build_leaf_panel(lv_obj_t *parent, lv_obj_t *align_to) {
 	lv_obj_set_height(leaf_panel, lv_pct(80));
 	lv_obj_set_width(leaf_panel, GN_DISPLAY_HOR_RES);
 
-	//leaf panel scroll buttons
+	ESP_LOGD(TAG, "build_leaf_panel - scroll_left_button");
 	lv_obj_t *scroll_left_button = lv_btn_create(parent);
 	lv_obj_add_event_cb(scroll_left_button, scroll_left_button_event_handler,
-			LV_EVENT_ALL, NULL);
+			LV_EVENT_CLICKED, NULL);
 	lv_obj_add_style(scroll_left_button, &gn_style_base, 0);
 	lv_obj_add_style(scroll_left_button, &gn_style_leaf_panel, 0);
 	lv_obj_add_style(scroll_left_button, &gn_style_leaf_panel_nav_buttons, 0);
 	lv_obj_set_height(scroll_left_button, lv_pct(20));
-	lv_obj_align(scroll_left_button, LV_ALIGN_LEFT_MID, -5, 0);
+	lv_obj_align(scroll_left_button, LV_ALIGN_LEFT_MID, 0, 0);
 	lv_obj_t *scroll_left_button_label = lv_label_create(scroll_left_button);
 	lv_label_set_text(scroll_left_button_label, "<");
 	lv_obj_center(scroll_left_button_label);
 
+	ESP_LOGD(TAG, "build_leaf_panel - scroll_right_button");
 	lv_obj_t *scroll_right_button = lv_btn_create(parent);
 	lv_obj_add_event_cb(scroll_right_button, scroll_right_button_event_handler,
-			LV_EVENT_ALL, NULL);
+			LV_EVENT_CLICKED, NULL);
 	lv_obj_add_style(scroll_right_button, &gn_style_base, 0);
 	lv_obj_add_style(scroll_right_button, &gn_style_leaf_panel, 0);
 	lv_obj_add_style(scroll_right_button, &gn_style_leaf_panel_nav_buttons, 0);
 	lv_obj_set_height(scroll_right_button, lv_pct(20));
-	lv_obj_align(scroll_right_button, LV_ALIGN_RIGHT_MID, 5, 0);
+	lv_obj_align(scroll_right_button, LV_ALIGN_RIGHT_MID, 0, 0);
 	lv_obj_t *scroll_right_button_label = lv_label_create(scroll_right_button);
 	lv_label_set_text(scroll_right_button_label, ">");
 	lv_obj_center(scroll_right_button_label);
+
+	ESP_LOGD(TAG, "build_leaf_panel - end");
 
 	return leaf_panel;
 
@@ -276,16 +425,29 @@ lv_obj_t* build_log_panel(lv_obj_t *parent, lv_obj_t *align_to) {
 
 	//log panel
 	lv_obj_t *log_panel = lv_obj_create(parent);
-	lv_obj_align_to(log_panel, align_to, LV_ALIGN_TOP_LEFT, 0,
-	GN_DISPLAY_VER_RES * 0.05);
+	lv_obj_align_to(log_panel, align_to, LV_ALIGN_TOP_LEFT, 0, lv_pct(5));
 	lv_obj_add_style(log_panel, &gn_style_base, 0);
 	lv_obj_add_style(log_panel, &gn_style_leaf_panel, 0);
 	lv_obj_set_height(log_panel, lv_pct(80));
 	lv_obj_set_width(log_panel, GN_DISPLAY_HOR_RES);
 
-	lv_obj_t *test_label = lv_label_create(log_panel);
-	lv_label_set_text(test_label, "TEST");
-	lv_obj_center(test_label);
+	for (int row = 0; row < LOG_MESSAGES; row++) {
+
+		//log labels
+		statusLabel[row] = lv_label_create(log_panel);
+		lv_obj_add_style(statusLabel[row], &gn_style_base, 0);
+		lv_label_set_text(statusLabel[row], "");
+
+		if (row == 0) {
+			lv_obj_align_to(statusLabel[row], log_panel, LV_ALIGN_TOP_LEFT, 0,
+					0);
+
+		} else {
+			lv_obj_align_to(statusLabel[row], statusLabel[row - 1],
+					LV_ALIGN_OUT_BOTTOM_LEFT, 0, 0);
+		}
+
+	}
 
 	return log_panel;
 
@@ -293,25 +455,55 @@ lv_obj_t* build_log_panel(lv_obj_t *parent, lv_obj_t *align_to) {
 
 lv_obj_t* build_action_panel(lv_obj_t *parent, lv_obj_t *align_to) {
 
-	//log panel
 	lv_obj_t *action_panel = lv_obj_create(parent);
-	lv_obj_align_to(action_panel, align_to, LV_ALIGN_TOP_LEFT, 0,
-	GN_DISPLAY_VER_RES * 0.05);
+	lv_obj_align_to(action_panel, align_to, LV_ALIGN_TOP_LEFT, 0, lv_pct(5));
 	lv_obj_add_style(action_panel, &gn_style_base, 0);
-	lv_obj_add_style(action_panel, &gn_style_leaf_panel, 0);
 	lv_obj_set_height(action_panel, lv_pct(80));
 	lv_obj_set_width(action_panel, GN_DISPLAY_HOR_RES);
 
-	lv_obj_t *test_label = lv_label_create(action_panel);
-	lv_label_set_text(test_label, "ACTIONS");
-	lv_obj_center(test_label);
+	lv_obj_t *ota_button = lv_obj_create(action_panel);
+	lv_obj_add_style(ota_button, &gn_style_base, 0);
+	lv_obj_add_style(ota_button, &gn_style_action_button_element, 0);
+	lv_obj_add_event_cb(ota_button, ota_button_event_handler, LV_EVENT_CLICKED,
+			NULL);
+	lv_obj_align_to(ota_button, action_panel, LV_ALIGN_TOP_LEFT, 5,
+			15);
+	lv_obj_set_size(ota_button, LV_PCT(90), LV_PCT(11));
+
+	lv_obj_t *ota_button_label = lv_label_create(ota_button);
+	lv_label_set_text(ota_button_label, "Over The Air Update");
+	lv_obj_center(ota_button_label);
+
+	lv_obj_t *reboot_button = lv_obj_create(action_panel);
+	lv_obj_add_style(reboot_button, &gn_style_base, 0);
+	lv_obj_add_style(reboot_button, &gn_style_action_button_element, 0);
+	lv_obj_add_event_cb(reboot_button, reboot_button_event_handler,
+			LV_EVENT_CLICKED, NULL);
+	lv_obj_align_to(reboot_button, ota_button, LV_ALIGN_TOP_LEFT, 0, 35);
+	lv_obj_set_size(reboot_button, LV_PCT(90), LV_PCT(11));
+
+	lv_obj_t *reboot_button_label = lv_label_create(reboot_button);
+	lv_label_set_text(reboot_button_label, "Reboot");
+	lv_obj_center(reboot_button_label);
+
+	lv_obj_t *reset_button = lv_obj_create(action_panel);
+	lv_obj_add_style(reset_button, &gn_style_base, 0);
+	lv_obj_add_style(reset_button, &gn_style_action_button_element, 0);
+	lv_obj_add_event_cb(reset_button, reset_button_event_handler,
+			LV_EVENT_CLICKED, NULL);
+	lv_obj_align_to(reset_button, reboot_button, LV_ALIGN_TOP_LEFT, 0, 35);
+	lv_obj_set_size(reset_button, LV_PCT(90), LV_PCT(11));
+
+	lv_obj_t *reset_button_label = lv_label_create(reset_button);
+	lv_label_set_text(reset_button_label, "Reset Configuration");
+	lv_obj_center(reset_button_label);
 
 	return action_panel;
 
 }
 
 lv_obj_t* build_bottom_panel(lv_obj_t *parent, lv_obj_t *align_to) {
-	//bottom scrolling panel
+//bottom scrolling panel
 	lv_obj_t *bottom_panel = lv_obj_create(parent);
 	lv_obj_set_size(bottom_panel, GN_DISPLAY_HOR_RES,
 	GN_DISPLAY_VER_RES * 0.15);
@@ -327,12 +519,16 @@ lv_obj_t* build_bottom_panel(lv_obj_t *parent, lv_obj_t *align_to) {
 	lv_obj_add_style(leaf_button, &gn_style_bottom, 0);
 	lv_obj_add_style(leaf_button, &gn_style_bottom_element, 0);
 	lv_obj_add_event_cb(leaf_button, leaf_button_event_handler,
-			LV_EVENT_CLICKED, NULL);
+			LV_EVENT_CLICKED,
+			NULL);
 	lv_obj_set_size(leaf_button, LV_PCT(30), LV_PCT(90));
 
 	lv_obj_t *leaf_button_label = lv_label_create(leaf_button);
 	lv_label_set_text(leaf_button_label, "LEAVES");
 	lv_obj_center(leaf_button_label);
+	lv_obj_add_event_cb(leaf_button_label, leaf_button_event_handler,
+			LV_EVENT_CLICKED,
+			NULL);
 
 	lv_obj_t *log_button = lv_obj_create(bottom_panel);
 	lv_obj_add_style(log_button, &gn_style_base, 0);
@@ -361,18 +557,6 @@ lv_obj_t* build_bottom_panel(lv_obj_t *parent, lv_obj_t *align_to) {
 	return bottom_panel;
 }
 
-lv_obj_t* log_scr_init(lv_obj_t *scr) {
-
-	lv_obj_t *cont = lv_obj_create(scr);
-	lv_obj_set_size(cont, GN_DISPLAY_HOR_RES, GN_DISPLAY_VER_RES);
-	lv_obj_align(cont, LV_ALIGN_CENTER, 0, 0);
-	lv_obj_add_style(cont, &gn_style_base, 0);
-	lv_obj_set_scrollbar_mode(cont, LV_SCROLLBAR_MODE_OFF);
-
-	return cont;
-
-}
-
 lv_obj_t* main_scr_init(lv_obj_t *scr) {
 
 	lv_obj_t *cont = lv_obj_create(scr);
@@ -381,7 +565,7 @@ lv_obj_t* main_scr_init(lv_obj_t *scr) {
 	lv_obj_add_style(cont, &gn_style_base, 0);
 	lv_obj_set_scrollbar_mode(cont, LV_SCROLLBAR_MODE_OFF);
 
-	//lv_obj_align_to(log_button, bottom_panel, LV_ALIGN_CENTER, 0, 0);
+//lv_obj_align_to(log_button, bottom_panel, LV_ALIGN_CENTER, 0, 0);
 
 	return cont;
 
@@ -389,7 +573,7 @@ lv_obj_t* main_scr_init(lv_obj_t *scr) {
 
 void init_grownode_elements() {
 
-	//sample leaf
+//sample leaf
 	lv_obj_t *sample_leaf = lv_obj_create(leaf_panel);
 	lv_obj_add_style(sample_leaf, &gn_style_base, 0);
 	lv_obj_add_style(sample_leaf, &gn_style_leaf_panel, 0);
@@ -450,21 +634,21 @@ void _gn_display_lv_tick_task(void *arg) {
 void _gn_display_log_system_handler(void *handler_args, esp_event_base_t base,
 		int32_t id, void *event_data) {
 
-	if (pdTRUE == xSemaphoreTake(_gn_xGuiSemaphore, portMAX_DELAY)) {
+	if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 		char *message = (char*) event_data;
 
 		//lv_label_set_text(statusLabel, message.c_str());
 		//const char *t = text.c_str();
 
-		if (rawIdx > SLSIZE - 1) {
+		if (rawIdx > LOG_MESSAGES - 1) {
 
 			//scroll messages
-			for (int row = 1; row < SLSIZE; row++) {
+			for (int row = 1; row < LOG_MESSAGES; row++) {
 				//ESP_LOGI(TAG, "scrolling %i from %s to %s", row, rawMessages[row], rawMessages[row - 1]);
 				strncpy(rawMessages[row - 1], rawMessages[row], 30);
 			}
-			strncpy(rawMessages[SLSIZE - 1], message, 30);
+			strncpy(rawMessages[LOG_MESSAGES - 1], message, 30);
 		} else {
 			//ESP_LOGI(TAG, "setting %i", rawIdx);
 			strncpy(rawMessages[rawIdx], message, 30);
@@ -473,12 +657,12 @@ void _gn_display_log_system_handler(void *handler_args, esp_event_base_t base,
 
 		//ESP_LOGI(TAG, "printing %s", message);
 		//print
-		for (int row = 0; row < SLSIZE; row++) {
+		for (int row = 0; row < LOG_MESSAGES; row++) {
 			//ESP_LOGI(TAG, "label %i to %s", 9 - row, rawMessages[row]);
 			lv_label_set_text(statusLabel[row], rawMessages[row]);
 		}
 
-		xSemaphoreGive(_gn_xGuiSemaphore);
+		gn_display_leaf_refresh_end();
 	}
 
 }
@@ -486,31 +670,27 @@ void _gn_display_log_system_handler(void *handler_args, esp_event_base_t base,
 void _gn_display_net_mqtt_handler(void *handler_args, esp_event_base_t base,
 		int32_t id, void *event_data) {
 
-	//TODO pass wifi info to the event
-	//char *message = (char*) event_data;
+//TODO pass wifi info to the event
+//char *message = (char*) event_data;
 
-	if (pdTRUE == xSemaphoreTake(_gn_xGuiSemaphore, portMAX_DELAY)) {
+	if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 		switch (id) {
 		case GN_NETWORK_CONNECTED_EVENT:
-			//lv_label_set_text(network_status_label, "NET OK");
-			lv_led_on(network_led);
+			lv_label_set_text(net_label, "NETOK");
 			break;
 		case GN_NETWORK_DISCONNECTED_EVENT:
-			//lv_label_set_text(network_status_label, "NET KO");
-			lv_led_off(network_led);
+			lv_label_set_text(net_label, "NETKO");
 			break;
 		case GN_SERVER_CONNECTED_EVENT:
-			//lv_label_set_text(server_status_label, "SRV OK");
-			lv_led_on(server_led);
+			lv_label_set_text(srv_label, "SRVOK");
 			break;
 		case GN_SERVER_DISCONNECTED_EVENT:
-			//lv_label_set_text(server_status_label, "SRV_KO");
-			lv_led_off(server_led);
+			lv_label_set_text(srv_label, "SRVKO");
 			break;
 		}
 
-		xSemaphoreGive(_gn_xGuiSemaphore);
+		gn_display_leaf_refresh_end();
 	}
 
 }
@@ -710,20 +890,50 @@ BaseType_t gn_display_leaf_refresh_end() {
  }
  */
 
+/**
+ * prepare a container where to draw the display components of the leaf
+ *
+ * @return a pointer to lv_obj_t (to be casted)
+ */
 gn_display_container_t gn_display_setup_leaf_display(
 		gn_leaf_config_handle_t leaf_config) {
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
-	//create a leaf container
-	//leaf container
-	lv_obj_t *_a_leaf_cont = lv_obj_create(leaf_cont);
-	lv_obj_add_style(_a_leaf_cont, &gn_style_base, 0);
-	lv_obj_add_style(_a_leaf_cont, &gn_style_leaf_panel, 0);
-	lv_obj_add_style(_a_leaf_cont, &gn_style_leaf, 0);
-	lv_obj_align_to(_a_leaf_cont, leaf_cont, LV_ALIGN_TOP_MID, 0, 0);
-	lv_obj_set_flex_flow(_a_leaf_cont, LV_FLEX_FLOW_ROW);
-	lv_obj_set_flex_align(_a_leaf_cont, LV_FLEX_ALIGN_START,
-			LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
+
+	ESP_LOGD(TAG, "gn_display_setup_leaf_display - %s",
+			((gn_leaf_config_handle_intl_t )leaf_config)->name);
+
+	gn_leaf_config_handle_intl_t _leaf_config =
+			(gn_leaf_config_handle_intl_t) leaf_config;
+
+	if (_leaf_config->display_container != NULL)
+		return _leaf_config->display_container;
+
+	lv_obj_t *_a_leaf_cont = NULL;
+
+	if (pdTRUE == gn_display_leaf_refresh_start()) {
+
+		//create a leaf container
+		_a_leaf_cont = lv_obj_create(leaf_panel);
+		lv_obj_add_style(_a_leaf_cont, &gn_style_base, 0);
+		lv_obj_add_style(_a_leaf_cont, &gn_style_leaf_panel, 0);
+		lv_obj_add_style(_a_leaf_cont, &gn_style_leaf, 0);
+		lv_obj_align_to(_a_leaf_cont, leaf_panel, LV_ALIGN_TOP_MID, 0, 0);
+		lv_obj_set_flex_flow(_a_leaf_cont, LV_FLEX_FLOW_ROW);
+		lv_obj_set_flex_align(_a_leaf_cont, LV_FLEX_ALIGN_START,
+				LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
+
+		_leaf_config->display_container = _a_leaf_cont;
+		if (_current_leaf) {
+			//hide the previous panel
+			lv_obj_add_flag(_current_leaf->display_container,
+					LV_OBJ_FLAG_HIDDEN);
+		}
+		_current_leaf = _leaf_config;
+
+		gn_display_leaf_refresh_end();
+
+	}
 
 	return _a_leaf_cont;
 #else
@@ -793,38 +1003,42 @@ void _gn_display_gui_task(void *pvParameter) {
 		ESP_LOGD(TAG, "style init");
 		style_init();
 
-		ESP_LOGD(TAG, "obj create");
+		ESP_LOGD(TAG, "create screen");
 		grownode_scr = lv_obj_create(NULL);
 		main_scr = lv_obj_create(NULL);
 
-		ESP_LOGD(TAG, "scr init");
+		ESP_LOGD(TAG, "init screen");
 		grownode_scr_init(grownode_scr);
 		lv_obj_t *cont = main_scr_init(main_scr);
 
+		ESP_LOGD(TAG, "building status bar");
 		status_bar = build_status_bar(cont, cont);
+		ESP_LOGD(TAG, "building bottom panel");
 		bottom_panel = build_bottom_panel(cont, cont);
+		ESP_LOGD(TAG, "building leaf panel");
 		leaf_panel = build_leaf_panel(cont, status_bar);
 		//lv_obj_add_flag(leaf_panel, LV_OBJ_FLAG_HIDDEN);
+		ESP_LOGD(TAG, "building action panel");
 		action_panel = build_action_panel(cont, status_bar);
 		lv_obj_add_flag(action_panel, LV_OBJ_FLAG_HIDDEN);
+		ESP_LOGD(TAG, "building log panel");
 		log_panel = build_log_panel(cont, status_bar);
 		lv_obj_add_flag(log_panel, LV_OBJ_FLAG_HIDDEN);
 
-		init_grownode_elements();
+		ESP_LOGD(TAG, "load screen");
+		//init_grownode_elements();
 
 		lv_scr_load(grownode_scr);
 
-
-		 const esp_timer_create_args_t main_panel_timer_args = { .callback =
-		 &main_panel_open, .name = "_gn_display_main_panel_open" };
-		 esp_timer_handle_t main_panel_timer;
-		 ESP_ERROR_CHECK(esp_timer_create(&main_panel_timer_args, &main_panel_timer));
-		 ESP_ERROR_CHECK(
-		 esp_timer_start_once(main_panel_timer, 4000 * 1000));
-
-
 ///////////////////////////////////////////////////////////////
 		gn_display_leaf_refresh_end();
+
+		const esp_timer_create_args_t main_panel_timer_args = { .callback =
+				&main_panel_open, .name = "_gn_display_main_panel_open" };
+		esp_timer_handle_t main_panel_timer;
+		ESP_ERROR_CHECK(
+				esp_timer_create(&main_panel_timer_args, &main_panel_timer));
+		ESP_ERROR_CHECK(esp_timer_start_once(main_panel_timer, 4000 * 1000));
 
 	}
 
@@ -850,44 +1064,56 @@ void _gn_display_gui_task(void *pvParameter) {
 	vTaskDelete(NULL);
 }
 
+/**
+ * starts the display resources:
+ * - initialize all objects
+ * - listen to events in order to
+ *
+ * this should be called only into the node config init.
+ * a second inizialization request has no effects. *
+ *
+ * @param config the node configuration
+ *
+ * @return the status of the initialization. ESP_OK if everything went well.
+ *
+ */
 esp_err_t gn_init_display(gn_config_handle_t config) {
-
-	gn_config_handle_intl_t conf = (gn_config_handle_intl_t) config;
 
 	esp_err_t ret = ESP_OK;
 
 	if (_initialized)
 		return ret;
 
-	//TODO initialization guards
+//TODO initialization guards
 
 #ifndef CONFIG_GROWNODE_DISPLAY_ENABLED
 	return ESP_OK;
 #endif
+
+//TODO dangerous, better update through events
+	_config = (gn_config_handle_intl_t) config;
 
 	_gn_gui_event_group = xEventGroupCreate();
 
 	ESP_LOGI(TAG, "gn_init_display");
 
 	xTaskCreatePinnedToCore(_gn_display_gui_task, "_gn_display_gui_task",
-			4096 * 2, NULL, 1, NULL, 1);
+			4096 * 2,
+			NULL, 1, NULL, 1);
 
 	ESP_LOGD(TAG, "_gn_display_gui_task created");
 
 	xEventGroupWaitBits(_gn_gui_event_group, GN_EVT_GROUP_GUI_COMPLETED_EVENT,
 	pdTRUE, pdTRUE, portMAX_DELAY);
 
-	//add event handlers
+//add event handlers
 	ESP_ERROR_CHECK(
-			esp_event_handler_instance_register_with(conf->event_loop, GN_BASE_EVENT, GN_DISPLAY_LOG_EVENT, _gn_display_log_system_handler, NULL, NULL));
+			esp_event_handler_instance_register_with(_config->event_loop, GN_BASE_EVENT, GN_DISPLAY_LOG_EVENT, _gn_display_log_system_handler, NULL, NULL));
 
 	ESP_ERROR_CHECK(
-			esp_event_handler_instance_register_with(conf->event_loop, GN_BASE_EVENT, GN_EVENT_ANY_ID, _gn_display_net_mqtt_handler, NULL, NULL));
+			esp_event_handler_instance_register_with(_config->event_loop, GN_BASE_EVENT, GN_EVENT_ANY_ID, _gn_display_net_mqtt_handler, NULL, NULL));
 
 	ESP_LOGD(TAG, "gn_init_display done");
-
-	//TODO dangerous, better update through events
-	_config = conf;
 
 	_initialized = true;
 

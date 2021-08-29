@@ -40,7 +40,7 @@ extern "C" {
 #include "gn_ds18b20.h"
 #include "gn_pump.h"
 
-static const char TAG[16] = "gn_pump_control";
+#define TAG "gn_pump_control"
 
 size_t pump_status = 0;
 

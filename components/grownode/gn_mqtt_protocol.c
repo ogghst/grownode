@@ -29,7 +29,7 @@ extern "C" {
 #include "grownode_intl.h"
 #include "gn_mqtt_protocol.h"
 
-static const char TAG[8] = "gn_mqtt";
+#define TAG "gn_mqtt"
 
 #define _GN_MQTT_MAX_TOPIC_LENGTH 80
 #define _GN_MQTT_MAX_PAYLOAD_LENGTH 1024
@@ -109,7 +109,8 @@ void _gn_mqtt_build_leaf_command_topic(gn_leaf_config_handle_t _leaf_config,
 }
 
 void _gn_mqtt_build_leaf_parameter_command_topic(
-		const gn_leaf_config_handle_t _leaf_config, const char *param_name, char *buf) {
+		const gn_leaf_config_handle_t _leaf_config, const char *param_name,
+		char *buf) {
 
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) _leaf_config;
@@ -546,9 +547,7 @@ esp_err_t _gn_mqtt_on_connected(esp_mqtt_client_handle_t client) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
-	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
-
-	int msg_id = esp_mqtt_client_subscribe(config->mqtt_client, _gn_cmd_topic,
+	int msg_id = esp_mqtt_client_subscribe(_config->mqtt_client, _gn_cmd_topic,
 	_GN_MQTT_DEFAULT_QOS);
 
 	if (msg_id == -1) {
@@ -568,7 +567,7 @@ esp_err_t _gn_mqtt_on_connected(esp_mqtt_client_handle_t client) {
 	 */
 
 	if (ESP_OK
-			!= esp_event_post_to(config->event_loop, GN_BASE_EVENT,
+			!= esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
 					GN_SERVER_CONNECTED_EVENT,
 					NULL, 0, portMAX_DELAY)) {
 		ESP_LOGE(TAG, "failed to send GN_SERVER_CONNECTED_EVENT event");
@@ -708,8 +707,12 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 							_config->node_config->leaves.at[i]->name,
 							GN_LEAF_NAME_SIZE);
 					//evt.data = event->data;
-					memcpy(&evt.data[0], event->data, event->data_len > GN_LEAF_DATA_SIZE? GN_LEAF_DATA_SIZE : event -> data_len);
-					evt.data_size = event->data_len > GN_LEAF_DATA_SIZE? GN_LEAF_DATA_SIZE : event -> data_len;
+					memcpy(&evt.data[0], event->data,
+							event->data_len > GN_LEAF_DATA_SIZE ?
+									GN_LEAF_DATA_SIZE : event->data_len);
+					evt.data_size =
+							event->data_len > GN_LEAF_DATA_SIZE ?
+									GN_LEAF_DATA_SIZE : event->data_len;
 
 					if (esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
 							evt.id, &evt, sizeof(evt), 0) != ESP_OK) {

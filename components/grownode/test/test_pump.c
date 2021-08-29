@@ -35,7 +35,6 @@ void _gn_mqtt_build_leaf_parameter_command_topic(
 
 extern gn_config_handle_t config;
 extern gn_node_config_handle_t node_config;
-
 gn_leaf_config_handle_t pump_config;
 
 TEST_CASE("gn_init_add_pump", "[pump]") {
@@ -52,9 +51,10 @@ TEST_CASE("gn_init_add_pump", "[pump]") {
 }
 
 TEST_CASE("gn_leaf_create pump", "[pump]") {
-	pump_config = gn_leaf_create(node_config, "pump", gn_pump_task, 4096);
 
-	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 1);
+	size_t oldsize = gn_node_get_size(node_config);
+	pump_config = gn_leaf_create(node_config, "pump", gn_pump_task, 4096);
+	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), oldsize+1);
 	TEST_ASSERT(pump_config != NULL);
 
 }
@@ -273,6 +273,8 @@ TEST_CASE("gn_pump_mqtt_stress_test", "[pump]") {
 
 			strncpy(event->topic, topic, event->topic_len);
 			strncpy(event->data, data, event->data_len);
+
+			ESP_LOGD(TAG, "sending command - topic %s, data %s", topic, data);
 
 			_gn_mqtt_event_handler(handler_args, base, event_id, event);
 

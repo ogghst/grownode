@@ -53,7 +53,6 @@ extern "C" {
 
 #include "grownode_intl.h"
 
-//static const char TAG[8] = "network";
 #define TAG "network"
 
 /* Signal Wi-Fi events on this event-group */
@@ -385,8 +384,8 @@ esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
 	ESP_LOGD(TAG, "Wait for Wi-Fi connection");
 
 	/* Wait for Wi-Fi connection */
-	xEventGroupWaitBits(_gn_event_group_wifi, GN_WIFI_CONNECTED_EVENT, false,
-	true, portMAX_DELAY);
+	//xEventGroupWaitBits(_gn_event_group_wifi, GN_WIFI_CONNECTED_EVENT, false,
+	//true, portMAX_DELAY);
 
 	fail: return ret;
 

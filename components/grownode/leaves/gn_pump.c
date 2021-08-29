@@ -36,7 +36,7 @@ extern "C" {
 
 #include "gn_pump.h"
 
-static const char *TAG = "gn_pump";
+#define TAG "gn_pump"
 
 void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 
@@ -50,7 +50,8 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 	//parameter definition. if found in flash storage, they will be created with found values instead of default
 	gn_leaf_param_handle_t status_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_PARAM_STATUS, GN_VAL_TYPE_BOOLEAN,
-			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_ALWAYS);
+			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_WRITE,
+			GN_LEAF_PARAM_STORAGE_ALWAYS);
 	gn_leaf_param_add(leaf_config, status_param);
 
 	gn_leaf_param_handle_t power_param = gn_leaf_param_create(leaf_config,
@@ -71,33 +72,47 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 
 	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
-	static lv_obj_t *label_status;
-	static lv_obj_t *label_power;
-	static lv_obj_t *label_pump;
+	lv_obj_t *label_status = NULL;
+	lv_obj_t *label_power = NULL;
+	lv_obj_t *label_title = NULL;
 
 	//parent container where adding elements
 	lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf_display(leaf_config);
 
 	if (_cnt) {
 
-		//style from the container
-		lv_style_t *style = _cnt->styles->style;
+		if (pdTRUE == gn_display_leaf_refresh_start()) {
 
-		label_pump = lv_label_create(_cnt);
-		lv_label_set_text(label_pump, "PUMP");
-		lv_obj_add_style(label_pump, style, 0);
+			//style from the container
+			lv_style_t *style = _cnt->styles->style;
 
-		label_status = lv_label_create(_cnt);
-		lv_obj_add_style(label_status, style, 0);
-		lv_label_set_text(label_status,
-				status_param->param_val->v.b ? "status: on" : "status: off");
+			label_title = lv_label_create(_cnt);
+			lv_label_set_text(label_title,
+					gn_leaf_get_config_name(leaf_config));
+			lv_obj_add_style(label_title, style, 0);
+			lv_obj_align_to(label_title, _cnt, LV_ALIGN_TOP_MID, 0, LV_PCT(10));
 
-		label_power = lv_label_create(_cnt);
-		lv_obj_add_style(label_power, style, 0);
+			label_status = lv_label_create(_cnt);
+			lv_obj_add_style(label_status, style, 0);
+			lv_label_set_text(label_status,
+					status_param->param_val->v.b ?
+							"status: on" : "status: off");
+			lv_obj_align_to(label_status, label_title, LV_ALIGN_BOTTOM_LEFT,
+					LV_PCT(10), LV_PCT(10));
 
-		char _p[21];
-		snprintf(_p, 20, "power: %4.0f", power_param->param_val->v.d);
-		lv_label_set_text(label_power, _p);
+			label_power = lv_label_create(_cnt);
+			lv_obj_add_style(label_power, style, 0);
+
+			char _p[21];
+			snprintf(_p, 20, "power: %4.0f", power_param->param_val->v.d);
+			lv_label_set_text(label_power, _p);
+			lv_obj_align_to(label_power, label_status, LV_ALIGN_TOP_LEFT, 0,
+					LV_PCT(10));
+
+			gn_display_leaf_refresh_end();
+
+		}
+
 	}
 
 #endif
@@ -118,7 +133,8 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 			case GN_LEAF_PARAM_CHANGE_REQUEST_NETWORK_EVENT:
 			case GN_LEAF_PARAM_CHANGE_REQUEST_EVENT:
 
-				ESP_LOGD(TAG, "request to update param %s, data = '%s'", evt.param_name, evt.data);
+				ESP_LOGD(TAG, "request to update param %s, data = '%s'",
+						evt.param_name, evt.data);
 
 				//parameter is status
 				if (gn_common_leaf_event_mask_param(&evt, status_param) == 0) {
@@ -128,7 +144,8 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 									false : true;
 
 					//execute change
-					gn_leaf_param_set_bool(leaf_config, GN_PUMP_PARAM_STATUS, ret);
+					gn_leaf_param_set_bool(leaf_config, GN_PUMP_PARAM_STATUS,
+							ret);
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 					if (pdTRUE == gn_display_leaf_refresh_start()) {
@@ -145,23 +162,24 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 						== 0) {
 
 					double pow = strtod(evt.data, NULL);
-					if (pow < 0) pow = 0;
-					if (pow > 1024) pow = 1024;
+					if (pow < 0)
+						pow = 0;
+					if (pow > 1024)
+						pow = 1024;
 
 					//execute change
-					gn_leaf_param_set_double(leaf_config, GN_PUMP_PARAM_POWER, pow);
+					gn_leaf_param_set_double(leaf_config, GN_PUMP_PARAM_POWER,
+							pow);
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 					if (pdTRUE == gn_display_leaf_refresh_start()) {
 						char _p[21];
-						snprintf(_p, 20, "power: %f",
-								pow);
+						snprintf(_p, 20, "power: %f", pow);
 						lv_label_set_text(label_power, _p);
 
 						gn_display_leaf_refresh_end();
 					}
 #endif
-
 
 				}
 

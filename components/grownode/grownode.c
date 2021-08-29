@@ -76,7 +76,7 @@ extern "C" {
 #include "gn_mqtt_protocol.h"
 #include "gn_display.h"
 
-static const char TAG[9] = "grownode";
+#define TAG "grownode"
 
 esp_event_loop_handle_t gn_event_loop;
 
@@ -218,7 +218,7 @@ gn_leaf_config_handle_intl_t _gn_leaf_get_by_name(char *leaf_name) {
 }
 
 /**
- * send event to leaf using wqueuesend. the data will be null terminated.
+ * send event to leaf using xQueueSend. the data will be null terminated.
  *
  * @return GN_ERR_EVENT_NOT_SENT if not possible to send event
  */
@@ -523,8 +523,9 @@ gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
 	l_c->task_cb = task;
 	l_c->task_size = task_size;
 	l_c->leaf_context = gn_leaf_context_create(5);
+	l_c->display_container = NULL;
 	//l_c->display_task = display_task;
-	l_c->event_queue = xQueueCreate(10, sizeof(gn_leaf_event_t));
+	l_c->event_queue = xQueueCreate(1, sizeof(gn_leaf_event_t));
 	if (l_c->event_queue == NULL) {
 		return NULL;
 	}
@@ -542,6 +543,7 @@ gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
 	n_c->leaves.at[n_c->leaves.last] = l_c;
 	n_c->leaves.last++;
 
+	ESP_LOGD(TAG, "gn_create_leaf success");
 	return l_c;
 
 }

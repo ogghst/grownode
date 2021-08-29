@@ -77,6 +77,7 @@ struct gn_leaf_config_t {
 	gn_leaf_param_handle_t params;
 	//gn_display_handler_t display_handler;
 	gn_leaf_context_handle_t leaf_context;
+	gn_display_container_t display_container;
 };
 
 typedef gn_param_val_t *gn_param_val_handle_int_t;
