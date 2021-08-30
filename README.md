@@ -3,6 +3,8 @@
 
 GrowNode is a vertical framework to build IoT devices targeted to growing plants in a controlled environment.
 
+![GrowNode Main Screen with a Temperature Leaf](/docs/resources/main_screen.png "Main Screen")
+
 # Architecture
 
 GrowNode aims to use most common development tools. Actual release is composed by:
