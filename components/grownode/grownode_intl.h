@@ -73,7 +73,7 @@ struct gn_leaf_config_t {
 	//gn_leaf_config_handle_t next;
 	gn_leaf_task_callback task_cb;
 	QueueHandle_t event_queue;
-	esp_event_loop_handle_t event_loop;
+	//esp_event_loop_handle_t event_loop;
 	gn_leaf_param_handle_t params;
 	//gn_display_handler_t display_handler;
 	gn_leaf_context_handle_t leaf_context;
@@ -110,6 +110,10 @@ typedef gn_param_val_t *gn_param_val_handle_int_t;
 
 gn_err_t _gn_send_event_to_leaf(gn_leaf_config_handle_intl_t leaf_config,
 		gn_leaf_event_handle_t evt);
+
+gn_err_t _gn_leaf_parameter_update(const gn_leaf_config_handle_t leaf_config,
+		const char *param, const void *data, const int data_len);
+
 
 
 #endif /* COMPONENTS_GROWNODE_SROWNODE_INTL_H_ */

@@ -89,9 +89,16 @@ bool initialized = false;
 ESP_EVENT_DEFINE_BASE(GN_BASE_EVENT);
 ESP_EVENT_DEFINE_BASE(GN_LEAF_EVENT);
 
-esp_err_t _gn_leaf_start(gn_leaf_config_handle_intl_t leaf_config) {
+/**
+ * @brief 	start the leaf by starting a new task and subscribing to network messages
+ *
+ * @param 	leaf_config	the leaf to start
+ *
+ * @return 	status of the operation
+ */
+gn_err_t _gn_leaf_start(gn_leaf_config_handle_intl_t leaf_config) {
 
-	int ret = ESP_OK;
+	int ret = GN_RET_OK;
 	ESP_LOGI(TAG, "_gn_start_leaf %s", leaf_config->name);
 
 	if (xTaskCreate((void*) leaf_config->task_cb, leaf_config->name,
@@ -106,23 +113,22 @@ esp_err_t _gn_leaf_start(gn_leaf_config_handle_intl_t leaf_config) {
 	//gn_display_leaf_start(leaf_config);
 
 	//notice network of the leaf added
-	gn_mqtt_subscribe_leaf(leaf_config);
+	ret = gn_mqtt_subscribe_leaf(leaf_config);
 	ESP_LOGI(TAG, "_gn_start_leaf %s completed", leaf_config->name);
 	return ret;
 
-	fail: return ESP_FAIL;
+	fail: return GN_RET_ERR_LEAF_NOT_STARTED;
 
 }
 
-esp_err_t _gn_init_flash(gn_config_handle_t conf) {
+gn_err_t _gn_init_flash(gn_config_handle_t conf) {
 
 	esp_err_t ret = ESP_OK;
 	/* Initialize NVS partition */
 	ret = nvs_flash_init();
 
 #ifndef CONFIG_GROWNODE_RESET_PROVISIONED
-	if (ret == ESP_ERR_NVS_NO_FREE_PAGES
-			|| ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+	if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
 #endif
 		/* NVS partition was truncated
 		 * and needs to be erased */
@@ -135,7 +141,8 @@ esp_err_t _gn_init_flash(gn_config_handle_t conf) {
 	}
 #endif
 
-	err: return ret;
+	return GN_RET_OK;
+	err: return GN_RET_ERR;
 
 }
 
@@ -218,12 +225,16 @@ gn_leaf_config_handle_intl_t _gn_leaf_get_by_name(char *leaf_name) {
 }
 
 /**
- * send event to leaf using xQueueSend. the data will be null terminated.
+ * @brief	send event to leaf using xQueueSend. the data will be null terminated.
  *
- * @return GN_ERR_EVENT_NOT_SENT if not possible to send event
+ *	@param	leaf_config the leaf from where the event is sent
+ *	@param	evt			the event to send
+ *
+ * @return 	GN_ERR_EVENT_NOT_SENT if not possible to send event
  */
 gn_err_t _gn_send_event_to_leaf(gn_leaf_config_handle_intl_t leaf_config,
 		gn_leaf_event_handle_t evt) {
+
 	ESP_LOGD(TAG,
 			"_gn_send_event_to_leaf - id: %d, param %s, leaf %s, data %.*s",
 			evt->id, evt->param_name, evt->leaf_name, evt->data_size,
@@ -237,7 +248,7 @@ gn_err_t _gn_send_event_to_leaf(gn_leaf_config_handle_intl_t leaf_config,
 			evt, portMAX_DELAY) != pdTRUE) {
 		ESP_LOGE(TAG, "not possible to send message to leaf %s",
 				leaf_config->name);
-		return GN_ERR_EVENT_NOT_SENT;
+		return GN_RET_ERR_EVENT_NOT_SENT;
 	}
 	ESP_LOGD(TAG, "_gn_send_event_to_leaf OK");
 	return GN_RET_OK;
@@ -313,11 +324,6 @@ void _gn_evt_handler(void *handler_args, esp_event_base_t base, int32_t id,
 	//}
 }
 
-void _gn_evt_reset_start_handler(void *handler_args, esp_event_base_t base,
-		int32_t id, void *event_data) {
-
-}
-
 esp_err_t _gn_evt_handlers_register(gn_config_handle_intl_t conf) {
 
 	ESP_ERROR_CHECK(
@@ -385,6 +391,14 @@ gn_node_config_handle_intl_t _gn_node_config_create() {
 
 }
 
+/**
+ * 	@brief retrieves the configuration status
+ *
+ * 	@param config	the configuration handle to check
+ *
+ * 	@return GN_CONFIG_STATUS_ERROR if config is NULL
+ * 	@return the configuration status
+ */
 gn_config_status_t gn_get_config_status(gn_config_handle_t config) {
 
 	if (!config)
@@ -393,6 +407,14 @@ gn_config_status_t gn_get_config_status(gn_config_handle_t config) {
 
 }
 
+/**
+ * 	@brief retrieves the event loop starting from the config handle
+ *
+ * 	@param config	the config handle
+ *
+ * 	@return the event loop
+ * 	@return NULL if config not valid
+ */
 esp_event_loop_handle_t gn_get_config_event_loop(gn_config_handle_t config) {
 
 	if (!config)
@@ -401,15 +423,32 @@ esp_event_loop_handle_t gn_get_config_event_loop(gn_config_handle_t config) {
 
 }
 
+/**
+ * 	@brief retrieves the event loop starting from the leaf config handle
+ *
+ * 	@param leaf_config	the leaf config handle
+ *
+ * 	@return the event loop
+ * 	@return NULL if leaf config not valid
+ */
 esp_event_loop_handle_t gn_leaf_get_config_event_loop(
-		gn_leaf_config_handle_t config) {
+		gn_leaf_config_handle_t leaf_config) {
 
-	if (!config)
+	if (!leaf_config)
 		return NULL;
-	return ((gn_leaf_config_handle_intl_t) config)->node_config->config->event_loop;
+	return ((gn_leaf_config_handle_intl_t) leaf_config)->node_config->config->event_loop;
 
 }
 
+
+/**
+ * 	@brief		create a new node with specified configuration and name
+ *
+ * 	@param		config	the config handle to use
+ * 	@param		name	name of the node. MUST BE null terminated
+ *
+ * 	@return		the node handle created.
+ */
 gn_node_config_handle_t gn_node_create(gn_config_handle_t config,
 		const char *name) {
 
@@ -435,6 +474,13 @@ gn_node_config_handle_t gn_node_create(gn_config_handle_t config,
 	return n_c;
 }
 
+/**
+ * @brief		number of leaves into the node
+ *
+ * @param		node_config 	the node to be inspected
+ *
+ * @return		number of leaves into the node, -1 in case node_config is NULL
+ */
 size_t gn_node_get_size(gn_node_config_handle_t node_config) {
 
 	if (node_config == NULL)
@@ -443,32 +489,47 @@ size_t gn_node_get_size(gn_node_config_handle_t node_config) {
 	return ((gn_node_config_handle_intl_t) node_config)->leaves.last;
 }
 
-esp_err_t gn_node_destroy(gn_node_config_handle_t node) {
+/**
+ * @brief		removes the node from the config
+ *
+ * @param		node 	the node to be removed
+ *
+ * @return		GN_RET_OK if operation had succeded
+ */
+gn_err_t gn_node_destroy(gn_node_config_handle_t node) {
 
 	//free(((gn_node_config_handle_intl_t) node)->leaves->at); //TODO implement free of leaves
 	free((gn_node_config_handle_intl_t) node);
 
-	return ESP_OK;
+	return GN_RET_OK;
 }
 
-esp_err_t gn_node_start(gn_node_config_handle_t node) {
+/**
+ * @brief		starts the node by starting the leaves tasks
+ *
+ * At the end of the process, it sets the node status to GN_CONFIG_STATUS_STARTED and sends a GN_NODE_STARTED_EVENT event
+ *
+ * @param		node 	the node to be started
+ *
+ * @return		GN_RET_OK if operation had succeded, GN_RET_ERR_NODE_NOT_STARTED in case of issues
+ */
+gn_err_t gn_node_start(gn_node_config_handle_t node) {
 
 	gn_node_config_handle_intl_t _node = (gn_node_config_handle_intl_t) node;
 
-	esp_err_t ret = ESP_OK;
-	ESP_LOGD(TAG, "gn_start_node: %s",
-			_node->name);
+	esp_err_t ret = GN_RET_OK;
 
+	ESP_LOGD(TAG, "gn_start_node: %s", _node->name);
 
 	//publish node
 	//if (gn_mqtt_send_node_config(node) != ESP_OK)
 	//return ESP_FAIL;
 
 	//run leaves
-	for (int i = 0; i < _node->leaves.last;
-			i++) {
+	for (int i = 0; i < _node->leaves.last; i++) {
 		ESP_LOGD(TAG, "starting leaf: %d", i);
-		_gn_leaf_start(_node->leaves.at[i]);
+		if (_gn_leaf_start(_node->leaves.at[i]) != GN_RET_OK)
+			return GN_RET_ERR_NODE_NOT_STARTED;
 	}
 
 	_node->config->status = GN_CONFIG_STATUS_STARTED;
@@ -478,7 +539,9 @@ esp_err_t gn_node_start(gn_node_config_handle_t node) {
 					GN_NODE_STARTED_EVENT,
 					NULL, 0, portMAX_DELAY)) {
 		ESP_LOGE(TAG, "failed to send GN_SERVER_CONNECTED_EVENT event");
+		return GN_RET_ERR_EVENT_LOOP_ERROR;
 	}
+
 	return ret;
 
 }
@@ -496,6 +559,14 @@ gn_leaf_config_handle_intl_t _gn_leaf_config_create() {
 
 }
 
+/**
+ * 	@brief gets the name from the node config
+ *
+ * 	@param node_config	the node config to search for
+ *
+ * 	@return the node config name (null terminated)
+ * 	@return	NULL if node config not found
+ */
 char* gn_get_node_config_name(gn_node_config_handle_t node_config) {
 
 	if (!node_config)
@@ -504,6 +575,20 @@ char* gn_get_node_config_name(gn_node_config_handle_t node_config) {
 
 }
 
+/**
+ *	@brief		creates the leaf
+ *
+ *	initializes the leaf structure. the returned handle is not active and need to be started by the gn_node_start() function
+ *  @see gn_node_start()
+ *	@param		node_config	the configuration handle to create the leaf to
+ *	@param		name		the name of the leaf to be created
+ *	@param		task		callback function of the leaf task
+ *	@param		task_size	the size of the task to be memory allocated
+ *
+ *	@return		an handle to the leaf config
+ *	@return		NULL if the handle cannot be created
+ *
+ */
 gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
 		const char *name, gn_leaf_task_callback task, size_t task_size) { //, gn_leaf_display_task_t display_task) {
 
@@ -529,7 +614,7 @@ gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
 	if (l_c->event_queue == NULL) {
 		return NULL;
 	}
-	l_c->event_loop = gn_event_loop;
+	//l_c->event_loop = gn_event_loop;
 
 	gn_node_config_handle_intl_t n_c = l_c->node_config;
 
@@ -548,28 +633,45 @@ gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
 
 }
 
-esp_err_t gn_leaf_destroy(gn_leaf_config_handle_t leaf) {
+gn_err_t _gn_leaf_destroy(gn_leaf_config_handle_t leaf_config) {
 
-	gn_leaf_config_handle_intl_t leaf_config =
-			((gn_leaf_config_handle_intl_t) leaf);
-	gn_leaf_context_destroy(leaf_config->leaf_context);
-	vQueueDelete(leaf_config->event_queue);
+	gn_leaf_config_handle_intl_t _leaf_config =
+			((gn_leaf_config_handle_intl_t) leaf_config);
+	gn_leaf_context_destroy(_leaf_config->leaf_context);
+	vQueueDelete(_leaf_config->event_queue);
 	;
-	free(leaf);
-	return ESP_OK;
+	free(leaf_config);
+	return GN_RET_OK;
 
 }
 
+/**
+ *	@brief		gets the name of the leaf referenced by the handle
+ *
+ *	@param		leaf_config	the handle to be queried
+ *
+ *	@return		a pointer to the leaf name.
+ *	@return		NULL if the handle is not valid
+ *
+ */
 char* gn_leaf_get_config_name(gn_leaf_config_handle_t leaf_config) {
-
+//TODO danger, one can change the name. change to char buffer as parameter
 	if (!leaf_config)
 		return NULL;
 	return ((gn_leaf_config_handle_intl_t) leaf_config)->name;
 
 }
 
+/**
+ * 	@brief gets the leaf queue handle
+ *
+ * 	@param leaf_config the leaf to be queried
+ *
+ * 	@return	the queue handle
+ * 	@return NULL if leaf not found
+ */
 QueueHandle_t gn_leaf_get_event_queue(gn_leaf_config_handle_t leaf_config) {
-
+//TODO find a way to hide the freertos structure
 	if (!leaf_config)
 		return NULL;
 	return ((gn_leaf_config_handle_intl_t) leaf_config)->event_queue;
@@ -577,9 +679,19 @@ QueueHandle_t gn_leaf_get_event_queue(gn_leaf_config_handle_t leaf_config) {
 }
 
 /**
- * if parameter is stored, the value is overridden
+ * 	@brief	creates a parameter on the leaf
  *
- * @return a new object
+ * 	NOTE: if parameter is stored, the value is overridden
+ *
+ *	@param	leaf_config		the leaf to be queried
+ *	@param	name			the name of the parameter (null terminated char array)
+ *	@param	type			the type of parameter
+ *	@param	val				the value of parameter
+ *	@param	access			access type of parameter
+ *	@param	storage			storage type of parameter
+
+ * @return 	the new parameter handle
+ * @return	NULL in case of errors
  */
 gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
 		const char *name, const gn_val_type_t type, gn_val_t val,
@@ -628,11 +740,11 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
 				free(value);
 				break;
 			case GN_VAL_TYPE_BOOLEAN:
-			val.b = *((bool*) value);
+				val.b = *((bool*) value);
 				free(value);
 				break;
 			case GN_VAL_TYPE_DOUBLE:
-			val.d = *((double*) value);
+				val.d = *((double*) value);
 				free(value);
 				break;
 			default:
@@ -691,52 +803,30 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
 	return _ret;
 
 }
-/*
- esp_err_t gn_leaf_param_set(const gn_leaf_config_handle_t leaf,
- const char *name, const gn_val_t *val) {
 
- if (!leaf || !name || !val)
- return ESP_ERR_INVALID_ARG;
-
- gn_param_handle_t _param = gn_leaf_param_get(leaf, name);
-
- switch (_param->param_val->t) {
-
- case GN_VAL_TYPE_STRING:
- ESP_LOGD(TAG, "gn_leaf_param_set %s %s", name, val->s);
- ESP_LOGD(TAG, "	old value %s", val->s);
- _param->param_val->v.s = (char*) realloc(_param->param_val->v.s,
- sizeof(char) * (strlen(val->s) + 1));
- memset(_param->param_val->v.s, 0, sizeof(char) * (strlen(val->s) + 1));
- strncpy(_param->param_val->v.s, val->s, strlen(val->s));
- ESP_LOGD(TAG, "gn_leaf_param_set - result %s", _param->param_val->v.s);
- break;
- case GN_VAL_TYPE_BOOLEAN:
- ESP_LOGD(TAG, "gn_leaf_param_set %s %d", name, val->b);
- ESP_LOGD(TAG, "	old value %d", val->b);
- _param->param_val->v.b = val->b;
- ESP_LOGD(TAG, "gn_leaf_param_set - result %d", _param->param_val->v.b);
- break;
- default:
- ESP_LOGE(TAG, "param type not supported");
- break;
-
- }
-
- return gn_mqtt_send_node_config(leaf->node_config);
-
- }
+/**
+ * 	@brief	updates the parameter with new value
+ *
+ * 	the parameter value will be copied to the corresponding handle.
+ * 	after the change the parameter change will be propagated to the event system through a GN_LEAF_PARAM_CHANGED_EVENT and to the server.
+ *
+ * 	@param leaf_config	the leaf handle to be queried
+ * 	@param name			the name of the parameter (null terminated)
+ * 	@param val			the value to set (null terminated)
+ *
+ * 	@return GN_RET_OK if the parameter is set
+ * 	@return GN_RET_ERR_INVALID_ARG in case of input errors
  */
-
-esp_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf_config,
 		const char *name, const char *val) {
 
 	if (!leaf_config || !name || !val)
-		return ESP_ERR_INVALID_ARG;
+		return GN_RET_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config, name);
+	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config,
+			name);
 	if (!_param)
-		return ESP_ERR_INVALID_ARG;
+		return GN_RET_ERR_INVALID_ARG;
 
 	ESP_LOGD(TAG, "gn_leaf_param_set_string - param:%s value:%s", name, val);
 	ESP_LOGD(TAG, "	old value %s", _param->param_val->v.s);
@@ -759,12 +849,12 @@ esp_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf_config,
 		_buf[_len] = '\0';
 
 		//check if existing
-	if (gn_storage_set(_buf, (void**) &val, strlen(val)) != ESP_OK) {
+		if (gn_storage_set(_buf, (void**) &val, strlen(val)) != ESP_OK) {
 			ESP_LOGW(TAG,
 					"not possible to store leaf parameter value - key %s value %s",
 					_buf, val);
 			free(_buf);
-			return ESP_FAIL;
+			return GN_RET_ERR;
 		}
 
 		free(_buf);
@@ -788,7 +878,7 @@ esp_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf_config,
 	if (esp_event_post_to(_leaf_config->node_config->config->event_loop,
 			GN_BASE_EVENT, evt.id, &evt, sizeof(evt), 0) != ESP_OK) {
 		ESP_LOGE(TAG, "not possible to send param message to event loop");
-		return ESP_FAIL;
+		return GN_RET_ERR;
 	}
 
 	return gn_mqtt_send_leaf_param(_param);
@@ -801,7 +891,8 @@ esp_err_t gn_leaf_param_get_string(const gn_leaf_config_handle_t leaf_config,
 	if (!leaf_config || !name)
 		return ESP_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config, name);
+	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config,
+			name);
 	if (!_param) {
 		return ESP_FAIL;
 	}
@@ -816,15 +907,29 @@ esp_err_t gn_leaf_param_get_string(const gn_leaf_config_handle_t leaf_config,
 
 }
 
-esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf_config,
+/**
+ * 	@brief	updates the parameter with new value
+ *
+ * 	the parameter value will be copied to the corresponding handle.
+ * 	after the change the parameter change will be propagated to the event system through a GN_LEAF_PARAM_CHANGED_EVENT and to the server.
+ *
+ * 	@param leaf_config	the leaf handle to be queried
+ * 	@param name			the name of the parameter (null terminated)
+ * 	@param val			the value to set (null terminated)
+ *
+ * 	@return GN_RET_OK if the parameter is set
+ * 	@return GN_RET_ERR_INVALID_ARG in case of input errors
+ */
+gn_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf_config,
 		const char *name, const bool val) {
 
 	if (!leaf_config || !name)
-		return ESP_ERR_INVALID_ARG;
+		return GN_RET_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config, name);
+	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config,
+			name);
 	if (!_param)
-		return ESP_ERR_INVALID_ARG;
+		return GN_RET_ERR_INVALID_ARG;
 
 	ESP_LOGD(TAG, "gn_leaf_param_set_bool %s %d", name, val);
 	ESP_LOGD(TAG, "	old value %d", _param->param_val->v.b);
@@ -847,12 +952,12 @@ esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf_config,
 		_buf[_len - 1] = '\0';
 
 		//check if existing
-	if (gn_storage_set(_buf, (void**) &val, sizeof(bool)) != ESP_OK) {
+		if (gn_storage_set(_buf, (void**) &val, sizeof(bool)) != ESP_OK) {
 			ESP_LOGW(TAG,
 					"not possible to store leaf parameter value - key %s value %i",
 					_buf, val);
 			free(_buf);
-			return ESP_FAIL;
+			return GN_RET_ERR;
 		}
 
 		free(_buf);
@@ -867,8 +972,6 @@ esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf_config,
 	strcpy(evt.leaf_name, _leaf_config->name);
 	strcpy(evt.param_name, _param->name);
 	evt.id = GN_LEAF_PARAM_CHANGED_EVENT;
-	//evt.data = malloc(sizeof(bool));
-	//memcpy(evt.data, &_param->param_val->v.b, sizeof(bool));
 	evt.data_size = 1;
 	if (!_param->param_val->v.b) {
 		evt.data[0] = '0';
@@ -879,7 +982,7 @@ esp_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf_config,
 	if (esp_event_post_to(_leaf_config->node_config->config->event_loop,
 			GN_BASE_EVENT, evt.id, &evt, sizeof(evt), 0) != ESP_OK) {
 		ESP_LOGE(TAG, "not possible to send param message to event loop");
-		return ESP_FAIL;
+		return GN_RET_ERR;
 	}
 
 	return gn_mqtt_send_leaf_param(_param);
@@ -892,7 +995,8 @@ esp_err_t gn_leaf_param_get_bool(const gn_leaf_config_handle_t leaf_config,
 	if (!leaf_config || !name)
 		return ESP_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config, name);
+	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config,
+			name);
 	if (!_param) {
 		return ESP_FAIL;
 	}
@@ -906,13 +1010,27 @@ esp_err_t gn_leaf_param_get_bool(const gn_leaf_config_handle_t leaf_config,
 
 }
 
-esp_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf_config,
+/**
+ * 	@brief	updates the parameter with new value
+ *
+ * 	the parameter value will be copied to the corresponding handle.
+ * 	after the change the parameter change will be propagated to the event system through a GN_LEAF_PARAM_CHANGED_EVENT and to the server.
+ *
+ * 	@param leaf_config	the leaf handle to be queried
+ * 	@param name			the name of the parameter (null terminated)
+ * 	@param val			the value to set
+ *
+ * 	@return GN_RET_OK if the parameter is set
+ * 	@return GN_RET_ERR_INVALID_ARG in case of input errors
+ */
+gn_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf_config,
 		const char *name, const double val) {
 
 	if (!leaf_config || !name)
 		return ESP_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config, name);
+	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config,
+			name);
 	if (!_param)
 		return ESP_ERR_INVALID_ARG;
 
@@ -937,12 +1055,12 @@ esp_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf_config,
 		_buf[_len - 1] = '\0';
 
 		//check if existing
-	if (gn_storage_set(_buf, (void**) &val, sizeof(double)) != ESP_OK) {
+		if (gn_storage_set(_buf, (void**) &val, sizeof(double)) != ESP_OK) {
 			ESP_LOGW(TAG,
 					"not possible to store leaf parameter value - key %s value %f",
 					_buf, val);
 			free(_buf);
-			return ESP_FAIL;
+			return GN_RET_ERR;
 		}
 
 		free(_buf);
@@ -958,28 +1076,14 @@ esp_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf_config,
 	strcpy(evt.leaf_name, _leaf_config->name);
 	strcpy(evt.param_name, _param->name);
 	evt.id = GN_LEAF_PARAM_CHANGED_EVENT;
-	//evt.data = (double*) malloc(sizeof(double));
-	//memcpy(evt.data, &_param->param_val->v.d, sizeof(double));
-	//evt.data_size = sizeof(double);
 	evt.data_size = sprintf(&evt.data[0], "%f", _param->param_val->v.d) + 1;
 
 	if (esp_event_post_to(_leaf_config->node_config->config->event_loop,
 			GN_BASE_EVENT, evt.id, &evt, sizeof(evt),
 			portMAX_DELAY) != ESP_OK) {
 		ESP_LOGE(TAG, "not possible to send param message to event loop");
-		return ESP_FAIL;
+		return GN_RET_ERR;
 	}
-
-	/*
-	 ESP_LOGD(TAG, "sending event to %s: %d", _leaf_config->name, evt.id);
-
-	 if (xQueueSend(
-	 _leaf_config->event_queue,
-	 &evt, 0) != pdTRUE) {
-	 ESP_LOGE(TAG, "not possible to send message to leaf %s",
-	 _leaf_config->name);
-	 }
-	 */
 
 	return gn_mqtt_send_leaf_param(_param);
 
@@ -991,7 +1095,8 @@ esp_err_t gn_leaf_param_get_double(const gn_leaf_config_handle_t leaf_config,
 	if (!leaf_config || !name)
 		return ESP_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config, name);
+	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config,
+			name);
 	if (!_param) {
 		return ESP_FAIL;
 	}
@@ -1015,7 +1120,7 @@ gn_err_t _gn_leaf_parameter_update(const gn_leaf_config_handle_t leaf_config,
 		const char *param, const void *data, const int data_len) {
 
 	if (!leaf_config || !param || !data || data_len == 0)
-		return 1;
+		return GN_RET_ERR_INVALID_ARG;
 
 	ESP_LOGD(TAG, "gn_leaf_parameter_update. param=%s", param);
 
@@ -1035,7 +1140,7 @@ gn_err_t _gn_leaf_parameter_update(const gn_leaf_config_handle_t leaf_config,
 					&& leaf_params->access != GN_LEAF_PARAM_ACCESS_READWRITE) {
 				ESP_LOGE(TAG,
 						"gn_leaf_parameter_update - paramater has no WRITE access, change discarded");
-				return GN_ERR_LEAF_PARAM_ACCESS_VIOLATION;
+				return GN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION;
 			}
 
 			//build event
@@ -1049,51 +1154,6 @@ gn_err_t _gn_leaf_parameter_update(const gn_leaf_config_handle_t leaf_config,
 			memcpy(&evt.data[0], data, data_len);
 			evt.data_size = data_len;
 
-			/*
-			 //check type
-			 switch (leaf_params->param_val->t) {
-
-			 case GN_VAL_TYPE_STRING: {
-
-			 strncpy(&evt.data[0], data, data_len);
-			 evt.data[data_len] = '\0';
-			 evt.data_size = data_len;
-
-			 }
-			 break;
-
-			 case GN_VAL_TYPE_DOUBLE: {
-
-			 double val = strtod(data, NULL);
-			 evt.data = &val;
-			 evt.data_size = sizeof(double);
-
-			 }
-			 break;
-
-			 case GN_VAL_TYPE_BOOLEAN: {
-
-			 if (strncmp(data, "0", data_len) == 0) {
-
-			 bool ret = false;
-			 //setting to false
-			 evt.data = &ret;
-			 evt.data_size = sizeof(bool);
-			 } else {
-			 //setting to true
-			 bool ret = true;
-			 evt.data = &ret;
-			 evt.data_size = sizeof(bool);
-			 }
-
-			 }
-			 break;
-
-			 default:
-			 break;
-			 };
-			 */
-
 			//send message to the interested leaf
 			return _gn_send_event_to_leaf(_leaf_config, &evt);
 
@@ -1106,26 +1166,37 @@ gn_err_t _gn_leaf_parameter_update(const gn_leaf_config_handle_t leaf_config,
 
 }
 
-esp_err_t gn_leaf_param_destroy(gn_leaf_param_handle_t new_param) {
+gn_err_t _gn_leaf_param_destroy(gn_leaf_param_handle_t new_param) {
 
 	if (!new_param)
-		return ESP_ERR_INVALID_ARG;
+		return GN_RET_ERR_INVALID_ARG;
 
 	free(new_param->param_val->v.s);
 	free(new_param->param_val);
 	free(new_param->name);
 	free(new_param);
 
-	return ESP_OK;
+	return GN_RET_OK;
 
 }
 
-esp_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
+/**
+ * @brief 	add a parameter to the leaf.
+ *
+ * the parameter will then listen to server changes
+ *
+ * @param leaf 			the leaf handle
+ * @param new_param		the param to add to the leaf. the leaf will point at it upon method return
+ *
+ * @return   	GN_RET_ERR_INVALID_ARG	in case of parameter errors
+ * @return		GN_RET_OK				upon success
+ */
+gn_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
 		const gn_leaf_param_handle_t new_param) {
 
 	if (!leaf || !new_param) {
 		ESP_LOGE(TAG, "gn_leaf_param_add incorrect parameters");
-		return ESP_ERR_INVALID_ARG;
+		return GN_RET_ERR_INVALID_ARG;
 	}
 
 	gn_leaf_param_handle_t _param =
@@ -1136,7 +1207,7 @@ esp_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
 			ESP_LOGE(TAG, "Parameter with name %s already exists in Leaf %s",
 					new_param->name,
 					((gn_leaf_config_handle_intl_t )leaf)->name);
-			return ESP_ERR_INVALID_ARG;
+			return GN_RET_ERR_INVALID_ARG;
 		}
 		if (_param->next) {
 			_param = _param->next;
@@ -1155,37 +1226,32 @@ esp_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
 	if (gn_mqtt_subscribe_leaf_param(new_param) != ESP_OK) {
 		ESP_LOGE(TAG, "gn_leaf_param_add failed to add param %s to leaf %s",
 				new_param->name, ((gn_leaf_config_handle_intl_t )leaf)->name);
-		return ESP_FAIL;
+		return GN_RET_ERR;
 	}
 
 	ESP_LOGD(TAG, "Param %s added in %s", new_param->name,
 			((gn_leaf_config_handle_intl_t )leaf)->name);
-	return ESP_OK;
+	return GN_RET_OK;
 
 }
 
+/**
+ * 	@brief send a request to change a parameter name
+ *
+ * 	It sends a GN_LEAF_PARAM_CHANGE_REQUEST_EVENT to the leaf parameter, if the parameter is modifiable
+ *
+ * 	@param leaf_name 	the leaf name (null terminated) to send the request to
+ * 	@param param_name	the parameter name to change (null terminated)
+ * 	@param message		a pointer to the payload
+ * 	@param message_len	size of the payload
+ *
+ * 	@return GN_RET_ERR_LEAF_NOT_FOUND if the leaf is not found
+ * 	@return GN_RET_ERR_INVALID_ARG in case of input parameter error
+ * 	@return GN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION in case the parameter access is not write enable
+ *
+ */
 gn_err_t gn_send_leaf_param_change_message(const char *leaf_name,
-		const char *param_name, void *message, size_t message_len) {
-
-	//"pump",GN_PUMP_PARAM_STATUS, &"0"
-
-	/*
-	 gn_leaf_event_t evt;
-	 strncpy(evt.leaf_name, leaf_name, GN_LEAF_NAME_SIZE);
-	 strncpy(evt.param_name, param_name, GN_LEAF_PARAM_NAME_SIZE);
-	 evt.data = malloc(message_len);
-	 memcpy(evt.data, message, message_len);
-	 evt.data_size = message_len;
-	 evt.id = GN_LEAF_PARAM_CHANGE_EVENT;
-
-	 ESP_LOGD(TAG, "posting event: %d", evt.id);
-
-	 if (esp_event_post_to(_gn_default_conf->event_loop, GN_BASE_EVENT, evt.id,
-	 &evt, sizeof(evt), 0) != ESP_OK) {
-	 ESP_LOGE(TAG, "not possible to send param message to event loop");
-	 return GN_ERR_EVENT_LOOP_ERROR;
-	 }
-	 */
+		const char *param_name, const void *message, size_t message_len) {
 
 	gn_leaves_list leaves = _gn_default_conf->node_config->leaves;
 
@@ -1196,24 +1262,20 @@ gn_err_t gn_send_leaf_param_change_message(const char *leaf_name,
 			return _gn_leaf_parameter_update(leaves.at[i], param_name, message,
 					message_len);
 
-			/*
-			 ESP_LOGD(TAG, "sending event to %s: %d", leaf_name, evt.id);
-
-			 if (xQueueSend(
-			 leaves.at[i]->event_queue,
-			 &evt, 0) != pdTRUE) {
-			 ESP_LOGE(TAG, "not possible to send message to leaf %s",
-			 leaves.at[i]->name);
-			 }
-			 */
-
 		}
-
 	}
 
-	return GN_ERR_LEAF_NOT_FOUND;
+	return GN_RET_ERR_LEAF_NOT_FOUND;
 }
 
+/**
+ * 	@brief returns the first parameter associated to the leaf
+ *
+ *	@param leaf_config the leaf handle to search within
+ *
+ *	@return NULL if leaf_config is not found
+ *	@return the first parameter handle
+ */
 gn_leaf_param_handle_t gn_get_leaf_config_params(
 		gn_leaf_config_handle_t leaf_config) {
 
@@ -1223,25 +1285,34 @@ gn_leaf_param_handle_t gn_get_leaf_config_params(
 
 }
 
-gn_leaf_param_handle_t gn_leaf_param_get_param_handle(const gn_leaf_config_handle_t leaf,
-		const char *param_name) {
+/**
+ * @brief returns the specific parameter associated to the leaf
+ *
+ *	@param 	leaf_config the leaf handle to search within
+ *	@param	param_name the name of the parameter (null terminated)
+ *
+ *	@return NULL if leaf_config or the parameter is not found
+ *	@return the found parameter handle
+ */
+gn_leaf_param_handle_t gn_leaf_param_get_param_handle(
+		const gn_leaf_config_handle_t leaf_config, const char *param_name) {
 
-	if (!leaf || !param_name) {
+	if (!leaf_config || !param_name) {
 		ESP_LOGE(TAG, "gn_leaf_param_get incorrect parameters");
 		return NULL;
 	}
-	gn_leaf_param_handle_t param = ((gn_leaf_config_handle_intl_t) leaf)->params;
+	gn_leaf_param_handle_t param = ((gn_leaf_config_handle_intl_t) leaf_config)->params;
 	while (param) {
 		if (strcmp(param->name, param_name) == 0)
-			break;
+			return param;
 		param = param->next;
 	}
 
-	return param;
+	return NULL;
 
 }
 
-void* gn_leaf_context_add_to_leaf(const gn_leaf_config_handle_t leaf, char *key,
+void* _gn_leaf_context_add_to_leaf(const gn_leaf_config_handle_t leaf, char *key,
 		void *value) {
 
 	if (!leaf || !key || !value) {
@@ -1257,7 +1328,7 @@ void* gn_leaf_context_add_to_leaf(const gn_leaf_config_handle_t leaf, char *key,
 	return gn_leaf_context_set(leaf_config->leaf_context, key, value);
 }
 
-void* gn_leaf_context_remove_to_leaf(const gn_leaf_config_handle_t leaf,
+void* _gn_leaf_context_remove_to_leaf(const gn_leaf_config_handle_t leaf,
 		char *key) {
 
 	if (!leaf || !key) {
@@ -1273,7 +1344,7 @@ void* gn_leaf_context_remove_to_leaf(const gn_leaf_config_handle_t leaf,
 	return gn_leaf_context_delete(leaf_config->leaf_context, key);
 }
 
-void* gn_leaf_context_get_key_to_leaf(const gn_leaf_config_handle_t leaf,
+void* _gn_leaf_context_get_key_to_leaf(const gn_leaf_config_handle_t leaf,
 		char *key) {
 
 	if (!leaf || !key) {
@@ -1331,12 +1402,27 @@ void* gn_leaf_context_get_key_to_leaf(const gn_leaf_config_handle_t leaf,
  }
  */
 
-esp_err_t gn_log(char *message) {
+/**
+ * 	@brief send a message to the display
+ *
+ *	implemented by sending an internal GN_DISPLAY_LOG_EVENT event
+ * 	NOTE: data will be truncated depending on display size
+ *
+ * 	@param	message	the message to send (null terminated)
+ *
+ * 	@return GN_RET_OK if event is dispatched
+ * 	@return GN_RET_ERR if the event dispatch encounters a problem
+ * 	@return GN_RET_ERR_INVALID_ARG if message is NULL or zero length
+ */
+gn_err_t gn_log(char *message) {
+
+	if (!message || strlen(message) == 0)
+		return GN_RET_ERR_INVALID_ARG;
 
 	esp_err_t ret = ESP_OK;
 
 	//void *ptr = const_cast<void*>(reinterpret_cast<void const*>(message));
-	ESP_LOGI(TAG, "%s", message);
+	ESP_LOGI(TAG, "gn_log: %s", message);
 
 	//char *ptr = malloc(sizeof(char) * strlen(message) + 1);
 
@@ -1345,7 +1431,7 @@ esp_err_t gn_log(char *message) {
 			portMAX_DELAY);
 
 	//free(ptr);
-	return ret;
+	return ret == ESP_OK? GN_RET_OK: GN_RET_ERR;
 
 }
 
@@ -1367,33 +1453,69 @@ esp_err_t gn_event_send_internal(gn_config_handle_t conf,
 
 }
 
-esp_err_t gn_firmware_update() {
+/**
+ * @brief		starts the OTA firmware upgrade
+ *
+ * it starts the OTA tasks so it returns immediately
+ *
+ * @return		GN_RET_OK
+ */
+gn_err_t gn_firmware_update() {
 
 #if CONFIG_GROWNODE_WIFI_ENABLED
 	xTaskCreate(_gn_ota_task, "gn_ota_task", 8196, NULL, 10, NULL);
 #endif
-	return ESP_OK;
+	return GN_RET_OK;
 
 }
 
-esp_err_t gn_reset() {
+/**
+ * @brief		reset the flash content and restart the board immediately
+ *
+ * @return		GN_RET_OK
+ */
+gn_err_t gn_reset() {
 
 	nvs_flash_erase();
 	esp_restart();
-	return ESP_OK;
+	return GN_RET_OK;
 
 }
 
-esp_err_t gn_reboot() {
+/**
+ * @brief		reboot the board
+ *
+ * @return		GN_RET_OK
+ */
+gn_err_t gn_reboot() {
 
 	esp_restart();
-	return ESP_OK;
+	return GN_RET_OK;
 
 }
 
-gn_config_handle_t gn_init() { //TODO make the node working even without network
+/**
+ * 	@brief		performs the initialization workflow
+ *
+ * 	- creates the configuration handle
+ * 	- initializes hardware (flash, storage)
+ * 	- initializes event loop and handlers
+ * 	- initializes display if configured
+ * 	- initializes network if configured (starting provisioning is not set)
+ * 	- initializes server connection
+ *
+ * 	this is a process that will continue even after the function returns, eg for network/server connection
+ *
+ * 	when everything is OK it sets the status of the config handle to GN_CONFIG_STATUS_ERROR
+ *
+ * 	NOTE: if called several times, it returns always the same handle
+ *
+ * 	@return		an handle to the config data structure
+ *
+ */
+gn_config_handle_t gn_init() {
 
-	esp_err_t ret = ESP_OK;
+	gn_err_t ret = GN_RET_OK;
 
 	if (initialized)
 		return _gn_default_conf;
@@ -1461,14 +1583,27 @@ gn_config_handle_t gn_init() { //TODO make the node working even without network
 
 #define STORAGE_NAMESPACE "grownode"
 
-esp_err_t gn_storage_set(const char *key, const void *value,
+/**
+ *	@brief stores the key into the NVS flash
+ *
+ *	internally, this is implemented by copying raw bytes to the flash storage
+ *
+ *	@param key name (null terminated)
+ *	@param value	pointer to data
+ *	@param required_size	bytes to write
+ *
+ *	@return GN_RET_ERR_INVALID_ARG if input params are not valid
+ *	@return GN_RET_OK if key is stored successfully
+ *
+ */
+gn_err_t gn_storage_set(const char *key, const void *value,
 		size_t required_size) {
 
-	if (!key || !value)
-		return ESP_ERR_INVALID_ARG;
+	if (!key || !value || required_size == 0)
+		return GN_RET_ERR_INVALID_ARG;
 
 	nvs_handle_t my_handle;
-	esp_err_t err = ESP_OK;
+	esp_err_t err = GN_RET_OK;
 
 	// Open
 	err = nvs_open(STORAGE_NAMESPACE, NVS_READWRITE, &my_handle);
@@ -1489,23 +1624,35 @@ esp_err_t gn_storage_set(const char *key, const void *value,
 	// Close
 	nvs_close(my_handle);
 	ESP_LOGD(TAG, "gn_storage_set(%s) - ESP_OK", key);
-	return ESP_OK;
+	return GN_RET_OK;
 
 	fail:
-		ESP_LOGD(TAG, "gn_storage_set(%s) - FAIL", key);
+	ESP_LOGD(TAG, "gn_storage_set(%s) - FAIL", key);
 
 	nvs_close(my_handle);
-	return err;
+	return err == GN_RET_OK || ESP_OK? GN_RET_OK : GN_RET_ERR;
 
 }
 
-esp_err_t gn_storage_get(const char *key, void **value) {
+/**
+ *	@brief retrieves the key from the NVS flash
+ *
+ *	internally, this is implemented by retrieving raw bytes to the flash storage
+ *
+ *	@param key name (null terminated)
+ *	@param value	pointer where the pointer of the data acquired will be stored
+ *
+ *	@return GN_RET_ERR_INVALID_ARG if input params are not valid
+ *	@return GN_RET_OK if key is stored successfully
+ *
+ */
+gn_err_t gn_storage_get(const char *key, void **value) {
 
 	if (!key || !value)
-		return ESP_ERR_INVALID_ARG;
+		return GN_RET_ERR_INVALID_ARG;
 
 	nvs_handle_t my_handle;
-	esp_err_t err = ESP_OK;
+	esp_err_t err = GN_RET_OK;
 
 	// Open
 	err = nvs_open(STORAGE_NAMESPACE, NVS_READWRITE, &my_handle);
@@ -1535,14 +1682,13 @@ esp_err_t gn_storage_get(const char *key, void **value) {
 
 	// Close
 	nvs_close(my_handle);
-
-	return ESP_OK;
+	return GN_RET_OK;
 
 	fail:
 	// Close
-			ESP_LOGD(TAG, "gn_storage_get(%s) - FAIL", key);
+	ESP_LOGD(TAG, "gn_storage_get(%s) - FAIL", key);
 	nvs_close(my_handle);
-	return err;
+	return err == GN_RET_OK || ESP_OK? GN_RET_OK : GN_RET_ERR;
 
 }
 

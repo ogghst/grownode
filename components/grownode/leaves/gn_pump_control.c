@@ -49,7 +49,7 @@ void gn_pump_control_task_event_handler(void *handler_args,
 
 	ESP_LOGD(TAG, "Pump Control received event: %d", event_id);
 
-	gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t) handler_args;
+	//gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t) handler_args;
 
 	gn_leaf_event_t *evt = (gn_leaf_event_t*) event_data;
 	switch (event_id) {

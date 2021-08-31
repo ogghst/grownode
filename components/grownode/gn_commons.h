@@ -45,14 +45,21 @@ typedef enum {
 } gn_server_status_t;
 
 /**
- * error codes that the grownode functions can return
+ * @brief error codes that the grownode functions can return.
+ *
+ * The GN_RET_OK and GN_RET_ERR are mapped like ESP_OK and ESP_FAIL for compatibility across platforms
  */
 typedef enum {
-	GN_RET_OK, /*!< Everything went OK */
-	GN_ERR_LEAF_PARAM_ACCESS_VIOLATION, /*!< eg. parameter had no write access */
-	GN_ERR_EVENT_LOOP_ERROR, /*!< impossible to send message to event loop */
-	GN_ERR_LEAF_NOT_FOUND,
-	GN_ERR_EVENT_NOT_SENT
+	GN_RET_OK								= 0, 	/*!< Everything went OK */
+	GN_RET_ERR								= -1, 	/*!< General error */
+	GN_RET_ERR_INVALID_ARG					= 0x201,
+	GN_RET_ERR_LEAF_NOT_STARTED				= 0x202,/*!< Not possible to start leaf */
+	GN_RET_ERR_NODE_NOT_STARTED				= 0x203,
+	GN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION	= 0x204,/*!< eg. parameter had no write access */
+	GN_RET_ERR_EVENT_LOOP_ERROR				= 0x205,/*!< impossible to send message to event loop */
+	GN_RET_ERR_LEAF_NOT_FOUND				= 0x206,
+	GN_RET_ERR_EVENT_NOT_SENT				= 0x207,
+	GN_RET_ERR_MQTT_SUBSCRIBE				= 0x208
 } gn_err_t;
 
 typedef void *gn_leaf_config_handle_t;

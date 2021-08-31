@@ -19,11 +19,11 @@
 extern "C" {
 #endif
 
-#include "grownode.h"
+#include "gn_commons.h"
 //#include "esp_log.h"
 
 
-esp_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t leaf_config);
+gn_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t leaf_config);
 
 esp_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t param);
 
@@ -33,7 +33,7 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t conf);
 
 esp_err_t gn_mqtt_send_leaf_message(gn_leaf_config_handle_t leaf, const char* msg);
 
-esp_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t config);
+gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t config);
 
 gn_server_status_t gn_mqtt_get_status();
 

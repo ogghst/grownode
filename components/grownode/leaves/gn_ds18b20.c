@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -173,20 +171,19 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 	data.gn_ds18b20_state = GN_DS18B20_STATE_RUNNING;
 	temp_sensor_collect(&data);
 
-
 	/*
-	//if mqtt is connected, start sensor callback
-	if (gn_mqtt_get_status() == GN_SERVER_CONNECTED) {
-		ESP_LOGD(TAG, "esp_timer_start, frequency %f sec",
-				data.update_time_param->param_val->v.d);
-		data.gn_ds18b20_state = GN_DS18B20_STATE_RUNNING;
-	*/
-		ESP_ERROR_CHECK(
-				esp_timer_start_periodic(temp_sensor_timer,
-						data.update_time_param->param_val->v.d * 1000000));
+	 //if mqtt is connected, start sensor callback
+	 if (gn_mqtt_get_status() == GN_SERVER_CONNECTED) {
+	 ESP_LOGD(TAG, "esp_timer_start, frequency %f sec",
+	 data.update_time_param->param_val->v.d);
+	 data.gn_ds18b20_state = GN_DS18B20_STATE_RUNNING;
+	 */
+	ESP_ERROR_CHECK(
+			esp_timer_start_periodic(temp_sensor_timer,
+					data.update_time_param->param_val->v.d * 1000000));
 	/*
-	}
-	*/
+	 }
+	 */
 
 	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
@@ -194,12 +191,12 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 	lv_obj_t *label_temp[GN_DS18B20_MAX_SENSORS];
 	lv_obj_t *label_title;
 
-	//parent container where adding elements
-	lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf_display(leaf_config);
+	if (pdTRUE == gn_display_leaf_refresh_start()) {
 
-	if (_cnt) {
+		//parent container where adding elements
+		lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf_display(leaf_config);
 
-		if (pdTRUE == gn_display_leaf_refresh_start()) {
+		if (_cnt) {
 
 			//style from the container
 			lv_style_t *style = _cnt->styles->style;
@@ -215,7 +212,8 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 				lv_label_set_text(label_temp_names[i],
 						GN_DS18B20_PARAM_SENSOR_NAMES[i]);
 				lv_obj_add_style(label_temp_names[i], style, 0);
-				lv_obj_align_to(label_temp_names[i], _cnt, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 25 * (i+1));
+				lv_obj_align_to(label_temp_names[i], _cnt,
+						LV_ALIGN_OUT_BOTTOM_LEFT, 0, 25 * (i + 1));
 
 				char _p[21];
 				snprintf(_p, 20, ": %4.2f", data.temp_param[i]->param_val->v.d);
@@ -226,9 +224,9 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 						LV_ALIGN_RIGHT_MID, 0, 5);
 
 			}
-			gn_display_leaf_refresh_end();
-		}
 
+		}
+		gn_display_leaf_refresh_end();
 	}
 #endif
 
@@ -250,42 +248,42 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 				//what to do when network is disconnected
 			case GN_NETWORK_DISCONNECTED_EVENT:
 				/*
-				if (data.gn_ds18b20_state != GN_DS18B20_STATE_STOP) {
-					data.gn_ds18b20_state = GN_DS18B20_STATE_STOP;
-					//stop update cycle
-					ESP_LOGD(TAG, "esp_timer_stop");
-					ESP_ERROR_CHECK(esp_timer_stop(temp_sensor_timer));
-				}
-				*/
+				 if (data.gn_ds18b20_state != GN_DS18B20_STATE_STOP) {
+				 data.gn_ds18b20_state = GN_DS18B20_STATE_STOP;
+				 //stop update cycle
+				 ESP_LOGD(TAG, "esp_timer_stop");
+				 ESP_ERROR_CHECK(esp_timer_stop(temp_sensor_timer));
+				 }
+				 */
 				break;
 
 				//what to do when server is connected
 			case GN_SERVER_CONNECTED_EVENT:
 				/*
-				if (data.gn_ds18b20_state != GN_DS18B20_STATE_RUNNING) {
-					data.gn_ds18b20_state = GN_DS18B20_STATE_RUNNING;
-					//start update cycle
-					ESP_LOGD(TAG, "esp_timer_start, frequency %f sec",
-							data.update_time_param->param_val->v.d);
-					ESP_ERROR_CHECK(
-							esp_timer_start_periodic(temp_sensor_timer,
-									data.update_time_param->param_val->v.d
-											* 1000000));
+				 if (data.gn_ds18b20_state != GN_DS18B20_STATE_RUNNING) {
+				 data.gn_ds18b20_state = GN_DS18B20_STATE_RUNNING;
+				 //start update cycle
+				 ESP_LOGD(TAG, "esp_timer_start, frequency %f sec",
+				 data.update_time_param->param_val->v.d);
+				 ESP_ERROR_CHECK(
+				 esp_timer_start_periodic(temp_sensor_timer,
+				 data.update_time_param->param_val->v.d
+				 * 1000000));
 
-				}
-				*/
+				 }
+				 */
 				break;
 
 				//what to do when server is disconnected
 			case GN_SERVER_DISCONNECTED_EVENT:
 				/*
-				if (data.gn_ds18b20_state != GN_DS18B20_STATE_STOP) {
-					data.gn_ds18b20_state = GN_DS18B20_STATE_STOP;
-					//stop update cycle
-					ESP_LOGD(TAG, "esp_timer_stop");
-					ESP_ERROR_CHECK(esp_timer_stop(temp_sensor_timer));
-				}
-				*/
+				 if (data.gn_ds18b20_state != GN_DS18B20_STATE_STOP) {
+				 data.gn_ds18b20_state = GN_DS18B20_STATE_STOP;
+				 //stop update cycle
+				 ESP_LOGD(TAG, "esp_timer_stop");
+				 ESP_ERROR_CHECK(esp_timer_stop(temp_sensor_timer));
+				 }
+				 */
 				break;
 
 			default:

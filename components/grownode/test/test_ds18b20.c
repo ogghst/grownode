@@ -19,7 +19,7 @@
 
 #include "grownode.h"
 #include "grownode_intl.h"
-#include "gn_mqtt_protocol.h"
+//#include "gn_mqtt_protocol.h"
 #include "gn_ds18b20.h"
 
 //static const char TAG[13] = "test_ds18b20";

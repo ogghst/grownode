@@ -83,6 +83,11 @@ inline char* _gn_mqtt_build_node_name(gn_config_handle_intl_t config) {
 
 }
 
+/**
+ * @brief returns the status of the server
+ *
+ * @return the current status
+ */
 gn_server_status_t gn_mqtt_get_status() {
 	return status;
 }
@@ -231,7 +236,14 @@ void _gn_mqtt_build_command_topic(gn_config_handle_intl_t config, char *buf) {
  }
  */
 
-esp_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t _leaf_config) {
+/**
+ * @brief 	subscribe leaf to the MQTT server in order to receive messages
+ *
+ * @param leaf_config	the leaf to start
+ *
+ * @return status of the operation
+ */
+gn_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t _leaf_config) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
@@ -249,14 +261,15 @@ esp_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t _leaf_config) {
 
 	ESP_LOGD(TAG, "gn_mqtt_subscribe_leaf. topic: %s", topic);
 
-	int msg_id = esp_mqtt_client_subscribe(config->mqtt_client, topic, 0);
-	ESP_LOGI(TAG, "sent subscribe successful, topic = %s, msg_id=%d", topic,
-			msg_id);
+	if(esp_mqtt_client_subscribe(config->mqtt_client, topic, 0) == -1)
+		return GN_RET_ERR_MQTT_SUBSCRIBE;
 
-	return ESP_OK;
+	ESP_LOGI(TAG, "sent subscribe successful, topic = %s", topic);
+
+	return GN_RET_OK;
 
 #else
-	return ESP_OK;
+	return GN_RET_OK;
 #endif /* CONFIG_GROWNODE_WIFI_ENABLED */
 
 }
@@ -397,17 +410,17 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
 
 }
 
-esp_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t param) {
+gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t param) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	if (!param) {
-		return ESP_FAIL;
+		return GN_RET_ERR_INVALID_ARG;
 	}
 
 	ESP_LOGD(TAG, "gn_mqtt_send_leaf_param %s", param->name);
 
-	int ret = ESP_OK;
+	int ret = GN_RET_OK;
 
 	int msg_id = -1;
 	char _topic[_GN_MQTT_MAX_TOPIC_LENGTH];
@@ -453,13 +466,13 @@ esp_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t param) {
 
 	fail: {
 		free(buf);
-		return ((msg_id == -1) ? (ESP_FAIL) : (ESP_OK));
+		return ((msg_id == -1) ? (GN_RET_ERR) : (GN_RET_OK));
 	}
 
 	return ret;
 
 #else
-	return ESP_OK;
+	return GN_RET_OK;
 #endif /* CONFIG_GROWNODE_WIFI_ENABLED */
 
 }

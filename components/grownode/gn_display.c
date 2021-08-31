@@ -465,9 +465,8 @@ lv_obj_t* build_action_panel(lv_obj_t *parent, lv_obj_t *align_to) {
 	lv_obj_add_style(ota_button, &gn_style_base, 0);
 	lv_obj_add_style(ota_button, &gn_style_action_button_element, 0);
 	lv_obj_add_event_cb(ota_button, ota_button_event_handler, LV_EVENT_CLICKED,
-			NULL);
-	lv_obj_align_to(ota_button, action_panel, LV_ALIGN_TOP_LEFT, 5,
-			15);
+	NULL);
+	lv_obj_align_to(ota_button, action_panel, LV_ALIGN_TOP_LEFT, 5, 15);
 	lv_obj_set_size(ota_button, LV_PCT(90), LV_PCT(11));
 
 	lv_obj_t *ota_button_label = lv_label_create(ota_button);
@@ -695,10 +694,24 @@ void _gn_display_net_mqtt_handler(void *handler_args, esp_event_base_t base,
 
 }
 
+/**
+ * 	@brief start of code guard to ensure the block will be executed outside display refresh task
+ *
+ * 	this is implemented with xSemaphoreTake
+ *
+ * 	@return result of the xSemaphoreTake function
+ */
 BaseType_t gn_display_leaf_refresh_start() {
 	return xSemaphoreTake(_gn_xGuiSemaphore, portMAX_DELAY);
 }
 
+/**
+  *	@brief end of code guard to ensure the block will be executed outside display refresh task
+  *
+  * this is implemented with xSemaphoreGive
+  *
+  *	@return result of the xSemaphoreTake function
+ */
 BaseType_t gn_display_leaf_refresh_end() {
 	return xSemaphoreGive(_gn_xGuiSemaphore);
 }
@@ -891,7 +904,10 @@ BaseType_t gn_display_leaf_refresh_end() {
  */
 
 /**
- * prepare a container where to draw the display components of the leaf
+ * @brief prepare a container where to draw the display components of the leaf
+ *
+ * this has to be called into the display refresh task
+ * @see gn_display_leaf_refresh_start()
  *
  * @return a pointer to lv_obj_t (to be casted)
  */
@@ -911,33 +927,26 @@ gn_display_container_t gn_display_setup_leaf_display(
 
 	lv_obj_t *_a_leaf_cont = NULL;
 
-	if (pdTRUE == gn_display_leaf_refresh_start()) {
+	//create a leaf container
+	_a_leaf_cont = lv_obj_create(leaf_panel);
+	lv_obj_add_style(_a_leaf_cont, &gn_style_base, 0);
+	lv_obj_add_style(_a_leaf_cont, &gn_style_leaf_panel, 0);
+	lv_obj_add_style(_a_leaf_cont, &gn_style_leaf, 0);
+	lv_obj_align_to(_a_leaf_cont, leaf_panel, LV_ALIGN_TOP_MID, 0, 0);
+	lv_obj_set_flex_flow(_a_leaf_cont, LV_FLEX_FLOW_ROW);
+	lv_obj_set_flex_align(_a_leaf_cont, LV_FLEX_ALIGN_START,
+			LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
 
-		//create a leaf container
-		_a_leaf_cont = lv_obj_create(leaf_panel);
-		lv_obj_add_style(_a_leaf_cont, &gn_style_base, 0);
-		lv_obj_add_style(_a_leaf_cont, &gn_style_leaf_panel, 0);
-		lv_obj_add_style(_a_leaf_cont, &gn_style_leaf, 0);
-		lv_obj_align_to(_a_leaf_cont, leaf_panel, LV_ALIGN_TOP_MID, 0, 0);
-		lv_obj_set_flex_flow(_a_leaf_cont, LV_FLEX_FLOW_ROW);
-		lv_obj_set_flex_align(_a_leaf_cont, LV_FLEX_ALIGN_START,
-				LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
-
-		_leaf_config->display_container = _a_leaf_cont;
-		if (_current_leaf) {
-			//hide the previous panel
-			lv_obj_add_flag(_current_leaf->display_container,
-					LV_OBJ_FLAG_HIDDEN);
-		}
-		_current_leaf = _leaf_config;
-
-		gn_display_leaf_refresh_end();
-
+	_leaf_config->display_container = _a_leaf_cont;
+	if (_current_leaf) {
+		//hide the previous panel
+		lv_obj_add_flag(_current_leaf->display_container, LV_OBJ_FLAG_HIDDEN);
 	}
+	_current_leaf = _leaf_config;
 
 	return _a_leaf_cont;
 #else
-	return NULL;
+return NULL;
 #endif
 }
 
