@@ -108,7 +108,7 @@ gn_err_t _gn_leaf_start(gn_leaf_config_handle_intl_t leaf_config) {
 		goto fail;
 	}
 
-	vTaskDelay(pdMS_TO_TICKS(500));
+	vTaskDelay(pdMS_TO_TICKS(2000));
 
 	//gn_display_leaf_start(leaf_config);
 
@@ -517,7 +517,7 @@ gn_err_t gn_node_start(gn_node_config_handle_t node) {
 
 	gn_node_config_handle_intl_t _node = (gn_node_config_handle_intl_t) node;
 
-	esp_err_t ret = GN_RET_OK;
+	gn_err_t ret = GN_RET_OK;
 
 	ESP_LOGD(TAG, "gn_start_node: %s", _node->name);
 
@@ -708,7 +708,7 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
 	ESP_LOGD(TAG, "gn_leaf_param_create %s ", name);
 	//ESP_LOGD(TAG, "building storage tag..");
 
-	if (storage == GN_LEAF_PARAM_STORAGE_ALWAYS) {
+	if (storage == GN_LEAF_PARAM_STORAGE_PERSISTED) {
 		//check parameter stored
 		int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
 		//ESP_LOGD(TAG, "..len: %i", _len);
@@ -834,7 +834,7 @@ gn_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf_config,
 	gn_leaf_config_handle_intl_t _leaf_config =
 			(gn_leaf_config_handle_intl_t) leaf_config;
 
-	if (_param->storage == GN_LEAF_PARAM_STORAGE_ALWAYS) {
+	if (_param->storage == GN_LEAF_PARAM_STORAGE_PERSISTED) {
 
 		int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
 		char *_buf = (char*) malloc(_len * sizeof(char));
@@ -937,7 +937,7 @@ gn_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf_config,
 	gn_leaf_config_handle_intl_t _leaf_config =
 			(gn_leaf_config_handle_intl_t) leaf_config;
 
-	if (_param->storage == GN_LEAF_PARAM_STORAGE_ALWAYS) {
+	if (_param->storage == GN_LEAF_PARAM_STORAGE_PERSISTED) {
 
 		int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
 		char *_buf = (char*) malloc(_len * sizeof(char));
@@ -1040,7 +1040,7 @@ gn_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf_config,
 	gn_leaf_config_handle_intl_t _leaf_config =
 			(gn_leaf_config_handle_intl_t) leaf_config;
 
-	if (_param->storage == GN_LEAF_PARAM_STORAGE_ALWAYS) {
+	if (_param->storage == GN_LEAF_PARAM_STORAGE_PERSISTED) {
 
 		int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
 		char *_buf = (char*) malloc(_len * sizeof(char));

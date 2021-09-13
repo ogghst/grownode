@@ -85,43 +85,41 @@ static void scroll_left_button_event_handler(lv_event_t *e) {
 	if (e->code != LV_EVENT_CLICKED)
 		return;
 
-	//only 1 or 0 panels, no effects
-	if (!_config || !_config->node_config
+	if (!_config || !_config->node_config || !_current_leaf
 			|| _config->node_config->leaves.last < 2)
 		return;
 
-	if (pdTRUE == gn_display_leaf_refresh_start()) {
+	ESP_LOGD(TAG, "current leaf: %s", _current_leaf->name);
 
-		size_t found = 0;
+	size_t found = 0;
 
-		for (size_t i = 0; i < _config->node_config->leaves.last; i++) {
+	for (size_t i = 0; i < _config->node_config->leaves.last; i++) {
 
-			gn_leaf_config_handle_intl_t _p =
-					(gn_leaf_config_handle_intl_t) _config->node_config->leaves.at[i];
-			if (_p == _current_leaf) {
-				ESP_LOGD(TAG, "found leaf at %d", i);
-				found = 1;
-				lv_obj_add_flag(_current_leaf->display_container,
-						LV_OBJ_FLAG_HIDDEN);
-				//show the previous panel
-				if (i == 0)
-					_current_leaf =
-							_config->node_config->leaves.at[_config->node_config->leaves.last
-									- 1];
-				else
-					_current_leaf = _config->node_config->leaves.at[i - 1];
-
-			}
-
-		}
-		//make it visible if found
-		if (found == 1)
-			lv_obj_clear_flag(_current_leaf->display_container,
+		gn_leaf_config_handle_intl_t _p =
+				(gn_leaf_config_handle_intl_t) _config->node_config->leaves.at[i];
+		ESP_LOGD(TAG, "checking %s", _p->name);
+		if (strcmp(_p->name, _current_leaf->name) == 0) {
+			ESP_LOGD(TAG, "found leaf at %d", i);
+			found = 1;
+			lv_obj_add_flag(_current_leaf->display_container,
 					LV_OBJ_FLAG_HIDDEN);
+			//show the previous panel
+			if (i == 0)
+				_current_leaf =
+						_config->node_config->leaves.at[_config->node_config->leaves.last
+								- 1];
+			else if (i > 0)
+				_current_leaf = _config->node_config->leaves.at[i - 1];
 
-		gn_display_leaf_refresh_end();
+			ESP_LOGD(TAG, "new leaf %s", _current_leaf->name);
+
+			break;
+		}
 
 	}
+	//make it visible if found
+	if (found == 1 && _current_leaf->display_container != NULL)
+		lv_obj_clear_flag(_current_leaf->display_container, LV_OBJ_FLAG_HIDDEN);
 
 }
 
@@ -132,41 +130,39 @@ static void scroll_right_button_event_handler(lv_event_t *e) {
 	if (e->code != LV_EVENT_CLICKED)
 		return;
 
-	//only 1 or 0 panels, no effects
-	if (!_config || !_config->node_config
+	if (!_config || !_config->node_config || !_current_leaf
 			|| _config->node_config->leaves.last < 2)
 		return;
 
-	if (pdTRUE == gn_display_leaf_refresh_start()) {
+	ESP_LOGD(TAG, "current leaf: %s", _current_leaf->name);
 
-		size_t found = 0;
+	size_t found = 0;
 
-		for (size_t i = 0; i < _config->node_config->leaves.last; i++) {
+	for (size_t i = 0; i < _config->node_config->leaves.last; i++) {
 
-			gn_leaf_config_handle_intl_t _p =
-					(gn_leaf_config_handle_intl_t) _config->node_config->leaves.at[i];
-			if (_p == _current_leaf) {
-				ESP_LOGD(TAG, "found leaf at %d", i);
-				found = 1;
-				lv_obj_add_flag(_current_leaf->display_container,
-						LV_OBJ_FLAG_HIDDEN);
-				//show the next panel
-				if (i == _config->node_config->leaves.last - 1)
-					_current_leaf = _config->node_config->leaves.at[0];
-				else
-					_current_leaf = _config->node_config->leaves.at[i + 1];
-
-			}
-
-		}
-		//make it visible if found
-		if (found == 1)
-			lv_obj_clear_flag(_current_leaf->display_container,
+		gn_leaf_config_handle_intl_t _p =
+				(gn_leaf_config_handle_intl_t) _config->node_config->leaves.at[i];
+		ESP_LOGD(TAG, "checking %s", _p->name);
+		if (strcmp(_p->name, _current_leaf->name) == 0) {
+			ESP_LOGD(TAG, "found leaf at %d", i);
+			found = 1;
+			lv_obj_add_flag(_current_leaf->display_container,
 					LV_OBJ_FLAG_HIDDEN);
+			//show the next panel
+			if (i == _config->node_config->leaves.last - 1)
+				_current_leaf = _config->node_config->leaves.at[0];
+			else if (i < _config->node_config->leaves.last)
+				_current_leaf = _config->node_config->leaves.at[i + 1];
 
-		gn_display_leaf_refresh_end();
+			ESP_LOGD(TAG, "new leaf %s", _current_leaf->name);
+
+			break;
+		}
 
 	}
+	//make it visible if found
+	if (found == 1 && _current_leaf->display_container != NULL)
+		lv_obj_clear_flag(_current_leaf->display_container, LV_OBJ_FLAG_HIDDEN);
 
 }
 
@@ -357,19 +353,19 @@ lv_obj_t* build_status_bar(lv_obj_t *parent, lv_obj_t *align_to) {
 
 //name label
 	lv_obj_t *name_label = lv_label_create(status_bar);
-	lv_label_set_text(name_label, "");
+	lv_label_set_text(name_label, "-");
 //lv_obj_align(name_label, LV_ALIGN_TOP_LEFT, 0, 0);
 	lv_obj_add_style(name_label, &gn_style_base, 0);
 
 //network label
 	net_label = lv_label_create(status_bar);
-	lv_label_set_text(net_label, "");
+	lv_label_set_text(net_label, "-");
 //lv_obj_align_to(net_label, status_bar, LV_ALIGN_RIGHT_MID, 40, 0);
 	lv_obj_add_style(net_label, &gn_style_base, 0);
 
 //server label
 	srv_label = lv_label_create(status_bar);
-	lv_label_set_text(srv_label, "");
+	lv_label_set_text(srv_label, "-");
 //lv_obj_align_to(srv_label, status_bar, LV_ALIGN_LEFT_MID, 10, 0);
 	lv_obj_add_style(srv_label, &gn_style_base, 0);
 
@@ -702,17 +698,19 @@ void _gn_display_net_mqtt_handler(void *handler_args, esp_event_base_t base,
  * 	@return result of the xSemaphoreTake function
  */
 BaseType_t gn_display_leaf_refresh_start() {
+	ESP_LOGD(TAG, "gn_display_leaf_refresh_start");
 	return xSemaphoreTake(_gn_xGuiSemaphore, portMAX_DELAY);
 }
 
 /**
-  *	@brief end of code guard to ensure the block will be executed outside display refresh task
-  *
-  * this is implemented with xSemaphoreGive
-  *
-  *	@return result of the xSemaphoreTake function
+ *	@brief end of code guard to ensure the block will be executed outside display refresh task
+ *
+ * this is implemented with xSemaphoreGive
+ *
+ *	@return result of the xSemaphoreTake function
  */
 BaseType_t gn_display_leaf_refresh_end() {
+	ESP_LOGD(TAG, "gn_display_leaf_refresh_end");
 	return xSemaphoreGive(_gn_xGuiSemaphore);
 }
 
@@ -938,7 +936,7 @@ gn_display_container_t gn_display_setup_leaf_display(
 			LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
 
 	_leaf_config->display_container = _a_leaf_cont;
-	if (_current_leaf) {
+	if (_current_leaf && strcmp(_current_leaf->name, _leaf_config->name) != 0) {
 		//hide the previous panel
 		lv_obj_add_flag(_current_leaf->display_container, LV_OBJ_FLAG_HIDDEN);
 	}
@@ -967,11 +965,11 @@ void _gn_display_gui_task(void *pvParameter) {
 
 	lvgl_driver_init();
 
-	lv_color_t *buf1 = heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t),
+	 lv_color_t *buf1 = heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t),
 	MALLOC_CAP_DMA);
 	assert(buf1 != NULL);
 
-	lv_color_t *buf2 = heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t),
+	 lv_color_t *buf2 = heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t),
 	MALLOC_CAP_DMA);
 	assert(buf2 != NULL);
 
@@ -981,7 +979,7 @@ void _gn_display_gui_task(void *pvParameter) {
 
 	lv_disp_draw_buf_init(&disp_buf, buf1, buf2, size_in_px);
 
-	lv_disp_drv_t disp_drv;
+	static lv_disp_drv_t disp_drv;
 	lv_disp_drv_init(&disp_drv);
 	disp_drv.flush_cb = disp_driver_flush;
 	disp_drv.hor_res = 240;
@@ -1004,7 +1002,7 @@ void _gn_display_gui_task(void *pvParameter) {
 	ESP_ERROR_CHECK(
 			esp_timer_start_periodic(periodic_timer, LV_TICK_PERIOD_MS * 1000));
 
-	if (pdTRUE == gn_display_leaf_refresh_start()) {
+	//if (pdTRUE == gn_display_leaf_refresh_start()) {
 		//_gn_display_create_gui();
 
 ///////////////////////////////////////////////////////////////
@@ -1040,7 +1038,7 @@ void _gn_display_gui_task(void *pvParameter) {
 		lv_scr_load(grownode_scr);
 
 ///////////////////////////////////////////////////////////////
-		gn_display_leaf_refresh_end();
+		//gn_display_leaf_refresh_end();
 
 		const esp_timer_create_args_t main_panel_timer_args = { .callback =
 				&main_panel_open, .name = "_gn_display_main_panel_open" };
@@ -1049,7 +1047,7 @@ void _gn_display_gui_task(void *pvParameter) {
 				esp_timer_create(&main_panel_timer_args, &main_panel_timer));
 		ESP_ERROR_CHECK(esp_timer_start_once(main_panel_timer, 4000 * 1000));
 
-	}
+	//}
 
 	xEventGroupSetBits(_gn_gui_event_group, GN_EVT_GROUP_GUI_COMPLETED_EVENT);
 
@@ -1058,10 +1056,10 @@ void _gn_display_gui_task(void *pvParameter) {
 		vTaskDelay(pdMS_TO_TICKS(10));
 
 		/* Try to take the semaphore, call lvgl related function on success */
-		if (pdTRUE == gn_display_leaf_refresh_start()) {
+		if (pdTRUE == xSemaphoreTake(_gn_xGuiSemaphore, portMAX_DELAY)) {
 			//ESP_LOGE(TAG, "LVGL handle");
 			lv_task_handler();
-			gn_display_leaf_refresh_end();
+			xSemaphoreGive(_gn_xGuiSemaphore);
 		}
 	}
 

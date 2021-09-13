@@ -738,8 +738,6 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 							&evt);
 
 					break;
-
-					//_config->node_config->leaves.at[i]->callback(GN_LEAF_MESSAGE_RECEIVED_EVENT, _config->node_config->leaves.at[i], event); //TODO change in custom structure to not expose mqtt library
 				}
 
 				gn_leaf_param_handle_t _param =

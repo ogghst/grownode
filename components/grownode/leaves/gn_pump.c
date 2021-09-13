@@ -42,25 +42,32 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 
 	const size_t GN_PUMP_STATE_STOP = 0;
 	const size_t GN_PUMP_STATE_RUNNING = 1;
-	const size_t GPIO_PWM0A_OUT = 32;
 
 	size_t gn_pump_state = GN_PUMP_STATE_RUNNING;
 	gn_leaf_event_t evt;
 
 	//parameter definition. if found in flash storage, they will be created with found values instead of default
-	gn_leaf_param_handle_t status_param = gn_leaf_param_create(leaf_config,
-			GN_PUMP_PARAM_STATUS, GN_VAL_TYPE_BOOLEAN,
+	gn_leaf_param_handle_t gn_pump_status_param = gn_leaf_param_create(
+			leaf_config, GN_PUMP_PARAM_STATUS, GN_VAL_TYPE_BOOLEAN,
 			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_WRITE,
-			GN_LEAF_PARAM_STORAGE_ALWAYS);
-	gn_leaf_param_add(leaf_config, status_param);
+			GN_LEAF_PARAM_STORAGE_PERSISTED);
+	gn_leaf_param_add(leaf_config, gn_pump_status_param);
 
-	gn_leaf_param_handle_t power_param = gn_leaf_param_create(leaf_config,
-			GN_PUMP_PARAM_POWER, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
-			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_ALWAYS);
-	gn_leaf_param_add(leaf_config, power_param);
+	gn_leaf_param_handle_t gn_pump_power_param = gn_leaf_param_create(
+			leaf_config, GN_PUMP_PARAM_POWER, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
+							.d = 0 }, GN_LEAF_PARAM_ACCESS_WRITE,
+			GN_LEAF_PARAM_STORAGE_PERSISTED);
+	gn_leaf_param_add(leaf_config, gn_pump_power_param);
+
+	gn_leaf_param_handle_t gn_pump_gpio_param = gn_leaf_param_create(
+			leaf_config, GN_PUMP_PARAM_GPIO, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
+							.d = 32 }, GN_LEAF_PARAM_ACCESS_WRITE,
+			GN_LEAF_PARAM_STORAGE_PERSISTED);
+	gn_leaf_param_add(leaf_config, gn_pump_gpio_param);
 
 	//setup pwm
-	mcpwm_pin_config_t pin_config = { .mcpwm0a_out_num = GPIO_PWM0A_OUT };
+	mcpwm_pin_config_t pin_config = { .mcpwm0a_out_num =
+			gn_pump_gpio_param->param_val->v.d };
 	mcpwm_set_pin(MCPWM_UNIT_0, &pin_config);
 	mcpwm_config_t pwm_config;
 	pwm_config.frequency = 3000; //TODO make configurable
@@ -76,42 +83,55 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 	lv_obj_t *label_power = NULL;
 	lv_obj_t *label_title = NULL;
 
-	//parent container where adding elements
-	lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf_display(leaf_config);
+	if (pdTRUE == gn_display_leaf_refresh_start()) {
 
-	if (_cnt) {
+		//parent container where adding elements
+		lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf_display(leaf_config);
 
-		if (pdTRUE == gn_display_leaf_refresh_start()) {
+		if (_cnt) {
 
 			//style from the container
 			lv_style_t *style = _cnt->styles->style;
 
+			lv_obj_set_layout(_cnt, LV_LAYOUT_GRID);
+			lv_coord_t col_dsc[] = { 90, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST };
+			lv_coord_t row_dsc[] = { 20, 20, 20, LV_GRID_FR(1),
+			LV_GRID_TEMPLATE_LAST };
+			lv_obj_set_grid_dsc_array(_cnt, col_dsc, row_dsc);
+
 			label_title = lv_label_create(_cnt);
 			lv_label_set_text(label_title,
 					gn_leaf_get_config_name(leaf_config));
-			lv_obj_add_style(label_title, style, 0);
-			lv_obj_align_to(label_title, _cnt, LV_ALIGN_TOP_MID, 0, LV_PCT(10));
+			//lv_obj_add_style(label_title, style, 0);
+			//lv_obj_align_to(label_title, _cnt, LV_ALIGN_TOP_MID, 0, LV_PCT(10));
+			lv_obj_set_grid_cell(label_title, LV_GRID_ALIGN_CENTER, 0, 2,
+					LV_GRID_ALIGN_STRETCH, 0, 1);
 
 			label_status = lv_label_create(_cnt);
-			lv_obj_add_style(label_status, style, 0);
+			//lv_obj_add_style(label_status, style, 0);
 			lv_label_set_text(label_status,
-					status_param->param_val->v.b ?
+					gn_pump_status_param->param_val->v.b ?
 							"status: on" : "status: off");
-			lv_obj_align_to(label_status, label_title, LV_ALIGN_BOTTOM_LEFT,
-					LV_PCT(10), LV_PCT(10));
+			//lv_obj_align_to(label_status, label_title, LV_ALIGN_BOTTOM_LEFT,
+			//		LV_PCT(10), LV_PCT(10));
+			lv_obj_set_grid_cell(label_status, LV_GRID_ALIGN_STRETCH, 0, 1,
+					LV_GRID_ALIGN_STRETCH, 1, 2);
 
 			label_power = lv_label_create(_cnt);
 			lv_obj_add_style(label_power, style, 0);
 
 			char _p[21];
-			snprintf(_p, 20, "power: %4.0f", power_param->param_val->v.d);
+			snprintf(_p, 20, "power: %4.0f",
+					gn_pump_power_param->param_val->v.d);
 			lv_label_set_text(label_power, _p);
-			lv_obj_align_to(label_power, label_status, LV_ALIGN_TOP_LEFT, 0,
-					LV_PCT(10));
-
-			gn_display_leaf_refresh_end();
+			//lv_obj_align_to(label_power, label_status, LV_ALIGN_TOP_LEFT, 0,
+			//		LV_PCT(10));
+			lv_obj_set_grid_cell(label_power, LV_GRID_ALIGN_STRETCH, 0, 1,
+					LV_GRID_ALIGN_STRETCH, 2, 2);
 
 		}
+
+		gn_display_leaf_refresh_end();
 
 	}
 
@@ -137,7 +157,8 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 						evt.param_name, evt.data);
 
 				//parameter is status
-				if (gn_common_leaf_event_mask_param(&evt, status_param) == 0) {
+				if (gn_common_leaf_event_mask_param(&evt, gn_pump_status_param)
+						== 0) {
 
 					const bool ret =
 							strncmp((char*) evt.data, "0", evt.data_size) == 0 ?
@@ -151,15 +172,16 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 					if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 						lv_label_set_text(label_status,
-								status_param->param_val->v.b ?
+								gn_pump_status_param->param_val->v.b ?
 										"status: on" : "status: off");
 
 						gn_display_leaf_refresh_end();
 					}
 #endif
+
 					//parameter is power
-				} else if (gn_common_leaf_event_mask_param(&evt, power_param)
-						== 0) {
+				} else if (gn_common_leaf_event_mask_param(&evt,
+						gn_pump_power_param) == 0) {
 
 					double pow = strtod(evt.data, NULL);
 					if (pow < 0)
@@ -215,16 +237,16 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 		//finally, we update sensor using the parameter values
 		if (gn_pump_state != GN_PUMP_STATE_RUNNING) {
 			mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, 0);
-		} else if (!status_param->param_val->v.b) {
+		} else if (!gn_pump_status_param->param_val->v.b) {
 			mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, 0);
 			//change = false;
 		} else {
 			mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A,
-					power_param->param_val->v.d);
+					gn_pump_power_param->param_val->v.d);
 			//change = false;
 		}
 
-		vTaskDelay(1);
+		vTaskDelay(1000 / portTICK_PERIOD_MS);
 	}
 
 }

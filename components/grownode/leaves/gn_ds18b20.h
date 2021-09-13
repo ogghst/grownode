@@ -24,7 +24,7 @@ extern "C" {
 #define GN_DS18B20_MAX_SENSORS 4
 
 //parameters
-static const char GN_DS18B20_PARAM_UPDATE_TIME_SEC[16] = "update_time_sec"; /*!< seconds between sensor sampling */
+static const char GN_DS18B20_PARAM_UPDATE_TIME_SEC[16] = "upd_time_sec"; /*!< seconds between sensor sampling */
 static const char GN_DS18B20_PARAM_GPIO[5] = "gpio"; /*!< GPIO connected to the temp sensor */
 static const char GN_DS18B20_PARAM_SENSOR_NAMES[GN_DS18B20_MAX_SENSORS][6] = { "temp1", "temp2",
 		"temp3", "temp4" };

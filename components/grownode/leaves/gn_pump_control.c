@@ -36,8 +36,8 @@ extern "C" {
 
 #include "gn_commons.h"
 
-#include "gn_pump_control.h"
 #include "gn_ds18b20.h"
+#include "gn_pump_control.h"
 #include "gn_pump.h"
 
 #define TAG "gn_pump_control"
@@ -77,7 +77,8 @@ void gn_pump_control_task_event_handler(void *handler_args,
 					if (pump_status == 0 && temp > 26) {
 						//send message to pump
 						if (gn_send_leaf_param_change_message("pump",
-								GN_PUMP_PARAM_STATUS, (const char*)&"1", 2) != GN_RET_OK) {
+								GN_PUMP_PARAM_STATUS, (const char*) &"1", 2)
+								!= GN_RET_OK) {
 							ESP_LOGE(TAG,
 									"impossible to update parameter %s on leaf %s",
 									GN_PUMP_PARAM_STATUS, "pump");
@@ -113,6 +114,38 @@ void gn_pump_control_task_event_handler(void *handler_args,
 }
 
 void gn_pump_control_task(gn_leaf_config_handle_t leaf_config) {
+
+	//setup screen, if defined in sdkconfig
+#ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
+	lv_obj_t *label_title = NULL;
+
+	if (pdTRUE == gn_display_leaf_refresh_start()) {
+
+		//parent container where adding elements
+		lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf_display(leaf_config);
+
+		if (_cnt) {
+
+			lv_obj_set_layout(_cnt, LV_LAYOUT_GRID);
+			lv_coord_t col_dsc[] = { 90, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST };
+			lv_coord_t row_dsc[] = { 20, 20, 20, LV_GRID_FR(1),
+			LV_GRID_TEMPLATE_LAST };
+			lv_obj_set_grid_dsc_array(_cnt, col_dsc, row_dsc);
+
+			label_title = lv_label_create(_cnt);
+			lv_label_set_text(label_title,
+					gn_leaf_get_config_name(leaf_config));
+			//lv_obj_add_style(label_title, style, 0);
+			//lv_obj_align_to(label_title, _cnt, LV_ALIGN_TOP_MID, 0, LV_PCT(10));
+			lv_obj_set_grid_cell(label_title, LV_GRID_ALIGN_CENTER, 0, 2,
+					LV_GRID_ALIGN_STRETCH, 0, 1);
+
+		}
+
+		gn_display_leaf_refresh_end();
+	}
+
+#endif
 
 	//gn_leaf_event_t evt;
 	//bool status = true;

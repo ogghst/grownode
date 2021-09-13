@@ -109,7 +109,7 @@ typedef enum {
  * storage policy
  */
 typedef enum {
-	GN_LEAF_PARAM_STORAGE_ALWAYS, /*!< param is stored in NVS flash every time it changes*/
+	GN_LEAF_PARAM_STORAGE_PERSISTED, /*!< param is stored in NVS flash every time it changes*/
 	GN_LEAF_PARAM_STORAGE_VOLATILE /*< param is never stored in NVS flash*/
 } gn_leaf_param_storage_t;
 

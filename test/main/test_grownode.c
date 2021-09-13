@@ -33,6 +33,7 @@ void app_main(void)
 	esp_log_level_set("gn_ds18b20", ESP_LOG_DEBUG);
 	esp_log_level_set("gn_pump", ESP_LOG_DEBUG);
 	esp_log_level_set("gn_pump_control", ESP_LOG_DEBUG);
+	esp_log_level_set("gn_capacitive_water_level", ESP_LOG_DEBUG);
 
 
     /* These are the different ways of running registered tests.

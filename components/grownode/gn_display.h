@@ -31,7 +31,7 @@ BaseType_t gn_display_leaf_refresh_start();
 
 BaseType_t gn_display_leaf_refresh_end();
 
-SemaphoreHandle_t _gn_xGuiSemaphore;
+static SemaphoreHandle_t _gn_xGuiSemaphore;
 
 #ifdef __cplusplus
 }
