@@ -112,10 +112,12 @@ idf_component_register(SRCS
 					"leaves/gn_ds18b20.c"
 					"leaves/gn_pump_control.c"
 					"leaves/gn_capacitive_water_level.c"
+					"leaves/gn_relay.c"
 					"test/test_grownode.c"
 					"test/test_pump.c"
 					"test/test_ds18b20.c"
 					"test/test_pump_control.c"
+					"test/test_relay.c"
 					
 					REQUIRES lvgl lvgl_esp32_drivers unity
                     INCLUDE_DIRS 
