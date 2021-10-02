@@ -68,6 +68,9 @@ struct leaf_data {
 	size_t sensor_count;
 	ds18x20_addr_t addrs[GN_DS18B20_MAX_SENSORS];
 	float temp[GN_DS18B20_MAX_SENSORS];
+
+	esp_timer_handle_t sensor_timer;
+
 	gn_leaf_param_handle_t temp_param[GN_DS18B20_MAX_SENSORS];
 	size_t gn_ds18b20_state;
 	bool scanned;
@@ -128,13 +131,11 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 	gn_leaf_event_t evt;
 
 	//create a timer to update temps
-	esp_timer_handle_t temp_sensor_timer;
-	const esp_timer_create_args_t temp_sensor_timer_args = { .callback =
-			&temp_sensor_collect, .arg = &data,
-	/* name is optional, but may help identify the timer when debugging */
-	.name = "periodic" };
-	ESP_ERROR_CHECK(
-			esp_timer_create(&temp_sensor_timer_args, &temp_sensor_timer));
+
+	esp_timer_create_args_t sensor_timer_args = { .callback =
+			&temp_sensor_collect, .arg = &data, .name = "ds18b20_periodic" };
+
+	ESP_ERROR_CHECK(esp_timer_create(&sensor_timer_args, &data.sensor_timer));
 
 	//parameter definition. if found in flash storage, they will be created with found values instead of default
 
@@ -179,7 +180,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 	 data.gn_ds18b20_state = GN_DS18B20_STATE_RUNNING;
 	 */
 	ESP_ERROR_CHECK(
-			esp_timer_start_periodic(temp_sensor_timer,
+			esp_timer_start_periodic(data.sensor_timer,
 					data.update_time_param->param_val->v.d * 1000000));
 	/*
 	 }
@@ -190,7 +191,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 	lv_obj_t *label_temp_names[GN_DS18B20_MAX_SENSORS];
 	lv_obj_t *label_temp[GN_DS18B20_MAX_SENSORS];
 	lv_obj_t *label_title;
-	lv_obj_t * obj;
+	lv_obj_t *obj;
 
 	if (pdTRUE == gn_display_leaf_refresh_start()) {
 
@@ -202,15 +203,15 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 			//style from the container
 			lv_style_t *style = _cnt->styles->style;
 
-
 			//lv_obj_set_layout(_cnt, LV_LAYOUT_GRID);
 			lv_coord_t col_dsc[] = { 90, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST };
-			lv_coord_t row_dsc[] = { 20, 20, 20, 20, 20, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST };
+			lv_coord_t row_dsc[] = { 20, 20, 20, 20, 20, LV_GRID_FR(1),
+			LV_GRID_TEMPLATE_LAST };
 			lv_obj_set_grid_dsc_array(_cnt, col_dsc, row_dsc);
 
 			//obj = lv_obj_create(_cnt);
 			//lv_obj_add_style(obj, style, 0);
-		    //lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+			//lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 			//lv_obj_set_grid_cell(obj, LV_GRID_ALIGN_STRETCH, 0, 2,
 			//		LV_GRID_ALIGN_STRETCH, 0, 1);
 
@@ -226,7 +227,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 
 				//obj = lv_obj_create(_cnt);
 				//lv_obj_add_style(obj, style, 0);
-			    //lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+				//lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 				//lv_obj_set_grid_cell(obj, LV_GRID_ALIGN_STRETCH, 0, 1,
 				//		LV_GRID_ALIGN_STRETCH, i+1, 1);
 
@@ -234,33 +235,29 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 				//lv_obj_add_style(label_temp_names[i], style, 0);
 				lv_label_set_text(label_temp_names[i],
 						GN_DS18B20_PARAM_SENSOR_NAMES[i]);
-				lv_obj_set_grid_cell(label_temp_names[i], LV_GRID_ALIGN_STRETCH, 0, 1,
-						LV_GRID_ALIGN_STRETCH, i+1, 1);
-
+				lv_obj_set_grid_cell(label_temp_names[i], LV_GRID_ALIGN_STRETCH,
+						0, 1, LV_GRID_ALIGN_STRETCH, i + 1, 1);
 
 				//lv_obj_align_to(label_temp_names[i], _cnt,
 				//		LV_ALIGN_OUT_BOTTOM_LEFT, 0, 25 * (i + 1));
-
 
 				char _p[21];
 				snprintf(_p, 20, ": %4.2f", data.temp_param[i]->param_val->v.d);
 
 				//obj = lv_obj_create(_cnt);
 				//lv_obj_add_style(obj, style, 0);
-			    //lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+				//lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 				//lv_obj_set_grid_cell(obj, LV_GRID_ALIGN_STRETCH, 1, 1,
 				//		LV_GRID_ALIGN_STRETCH, i+1, 1);
 
 				label_temp[i] = lv_label_create(_cnt);
 				//lv_obj_add_style(label_temp[i], style, 0);
 				lv_label_set_text(label_temp[i], _p);
-				lv_obj_set_grid_cell(label_temp[i] , LV_GRID_ALIGN_STRETCH, 1, 1,
-						LV_GRID_ALIGN_STRETCH, i+1, 1);
-
+				lv_obj_set_grid_cell(label_temp[i], LV_GRID_ALIGN_STRETCH, 1, 1,
+						LV_GRID_ALIGN_STRETCH, i + 1, 1);
 
 				//lv_obj_align_to(label_temp[i], label_temp_names[i],
 				//		LV_ALIGN_RIGHT_MID, 0, 5);
-
 
 			}
 
@@ -325,6 +322,30 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 				 */
 				break;
 
+				//parameter change
+			case GN_LEAF_PARAM_CHANGE_REQUEST_NETWORK_EVENT:
+			case GN_LEAF_PARAM_CHANGE_REQUEST_EVENT:
+
+				ESP_LOGD(TAG, "request to update param %s, data = '%s'",
+						evt.param_name, evt.data);
+
+				//parameter is update time
+				if (gn_common_leaf_event_mask_param(&evt,
+						data.update_time_param) == 0) {
+
+					//check limits
+					double updtime = strtod(evt.data, NULL);
+					if (updtime < 10)
+						updtime = 10;
+					if (updtime > 600)
+						updtime = 600;
+
+					//execute change
+					gn_leaf_param_set_double(leaf_config,
+							GN_DS18B20_PARAM_UPDATE_TIME_SEC, updtime);
+				}
+				break;
+
 			default:
 				break;
 			}
@@ -336,8 +357,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 		if (pdTRUE == gn_display_leaf_refresh_start()) {
 			for (int i = 0; i < data.sensor_count; i++) {
 				char _p[21];
-				snprintf(_p, 20, "%4.2f",
-						data.temp_param[i]->param_val->v.d);
+				snprintf(_p, 20, "%4.2f", data.temp_param[i]->param_val->v.d);
 				lv_label_set_text(label_temp[i], _p);
 			}
 			gn_display_leaf_refresh_end();
@@ -348,7 +368,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 
 	}
 
-	ESP_ERROR_CHECK(esp_timer_stop(temp_sensor_timer));
+	ESP_ERROR_CHECK(esp_timer_stop(data.sensor_timer));
 
 }
 

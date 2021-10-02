@@ -5,7 +5,9 @@ cmake_minimum_required(VERSION 3.5)
 #set(ENV{IOT_SOLUTION_PATH} C:/Development/esp/esp-iot-solution-master)
 #include($ENV{IOT_SOLUTION_PATH}/component.cmake)
 
-set(EXTRA_COMPONENT_DIRS C:/Development/esp/esp-idf-lib/components)
+set(EXTRA_COMPONENT_DIRS "C:/Development/esp/esp-idf-lib/components")
+#set(EXTRA_COMPONENT_DIRS "${EXTRA_COMPONENT_DIRS} ${IOT_SOLUTION_PATH}/components/sensors/pressure/bme280")
+
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #set(COMPONENTS main)
 project(GrowNode)

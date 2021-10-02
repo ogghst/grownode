@@ -17,4 +17,10 @@
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 		<nature>com.espressif.idf.core.idfNature</nature>
 	</natures>
+	<variableList>
+		<variable>
+			<name>IOT_SOLUTION_PATH</name>
+			<value>file:/C:/Development/esp/esp-iot-solution-master</value>
+		</variable>
+	</variableList>
 </projectDescription>
