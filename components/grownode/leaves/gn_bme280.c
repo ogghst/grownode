@@ -139,9 +139,19 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 	bmp280_init_default_params(&data.params);
 	memset(&data.dev, 0, sizeof(bmp280_t));
 
-	ESP_ERROR_CHECK(
-			bmp280_init_desc(&data.dev, BMP280_I2C_ADDRESS_0, 0, data.sda_param->param_val->v.d, data.scl_param->param_val->v.d));
-	ESP_ERROR_CHECK(bmp280_init(&data.dev, &data.params));
+	esp_err_t ret;
+	ret = bmp280_init_desc(&data.dev, BMP280_I2C_ADDRESS_0, 0, data.sda_param->param_val->v.d, data.scl_param->param_val->v.d);
+	if (ret != ESP_OK) {
+		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
+		ESP_LOGE(TAG, "failed to init bmp280 driver descriptor");
+		return;
+	}
+	ret = bmp280_init(&data.dev, &data.params);
+	if (ret != ESP_OK) {
+		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
+		ESP_LOGE(TAG, "failed to init bmp280 driver");
+		return;
+	}
 
 	bool bme280p = data.dev.id == BME280_CHIP_ID;
 	ESP_LOGD(TAG, "BMP280: found %s\n", bme280p ? "BME280" : "BMP280");
@@ -151,15 +161,24 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 			&bme280_sensor_collect, .arg = &data, .name =
 			"leaf_bme280_sensor_collect" };
 
-	ESP_ERROR_CHECK(
-			esp_timer_create(&bme280_sensor_timer_args,
-					&data.bme280_sensor_timer));
+	ret = esp_timer_create(&bme280_sensor_timer_args,
+					&data.bme280_sensor_timer);
+	if (ret != ESP_OK) {
+		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
+		ESP_LOGE(TAG, "failed to init bme280 leaf timer");
+		return;
+	}
 
 	//start timer if needed
 	if (data.active_param->param_val->v.b == true) {
-		ESP_ERROR_CHECK(
-				esp_timer_start_periodic(data.bme280_sensor_timer,
-						data.update_time_param->param_val->v.d * 1000000));
+		ret = esp_timer_start_periodic(data.bme280_sensor_timer,
+						data.update_time_param->param_val->v.d * 1000000);
+		if (ret != ESP_OK) {
+			gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
+			ESP_LOGE(TAG, "failed to start bme280 leaf timer");
+			return;
+		}
+
 	}
 
 //setup screen, if defined in sdkconfig

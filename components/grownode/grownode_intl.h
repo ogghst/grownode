@@ -37,7 +37,7 @@ typedef struct gn_config_t *gn_config_handle_intl_t;
 typedef struct {
 	size_t size;
 	size_t last;
-	gn_leaf_config_handle_intl_t at[5];
+	gn_leaf_config_handle_intl_t at[64];
 } gn_leaves_list;
 
 typedef struct {

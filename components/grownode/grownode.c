@@ -466,7 +466,7 @@ gn_node_config_handle_t gn_node_create(gn_config_handle_t config,
 	n_c->config = config;
 
 	//create leaves
-	gn_leaves_list leaves = { .size = 5, .last = 0 };
+	gn_leaves_list leaves = { .size = GN_NODE_LEAVES_MAX_SIZE, .last = 0 };
 
 	n_c->leaves = leaves;
 	((gn_config_handle_intl_t) config)->node_config = n_c;
@@ -519,7 +519,7 @@ gn_err_t gn_node_start(gn_node_config_handle_t node) {
 
 	gn_err_t ret = GN_RET_OK;
 
-	ESP_LOGD(TAG, "gn_start_node: %s", _node->name);
+	ESP_LOGD(TAG, "gn_start_node: %s, leaves: %d", _node->name, _node->leaves.last);
 
 	//publish node
 	//if (gn_mqtt_send_node_config(node) != ESP_OK)
@@ -597,7 +597,7 @@ gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
 
 	if (node_cfg == NULL || node_cfg->config == NULL || name == NULL
 			|| task == NULL || node_cfg->config->mqtt_client == NULL) {
-		ESP_LOGE(TAG, "gn_create_leaf failed. parameters not correct");
+		ESP_LOGE(TAG, "gn_leaf_create failed. parameters not correct");
 		return NULL;
 	}
 
@@ -607,7 +607,7 @@ gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
 	l_c->node_config = node_cfg;
 	l_c->task_cb = task;
 	l_c->task_size = task_size;
-	l_c->leaf_context = gn_leaf_context_create(5);
+	l_c->leaf_context = gn_leaf_context_create();
 	l_c->display_container = NULL;
 	//l_c->display_task = display_task;
 	l_c->event_queue = xQueueCreate(1, sizeof(gn_leaf_event_t));
@@ -621,7 +621,7 @@ gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
 	//TODO add leaf to node. implement dynamic array
 	if (n_c->leaves.last >= n_c->leaves.size - 1) {
 		ESP_LOGE(TAG,
-				"gn_create_leaf failed. not possible to add more than 5 leaves to a node");
+				"gn_leaf_create failed. not possible to add more than %d leaves to a node", n_c->leaves.size);
 		return NULL;
 	}
 

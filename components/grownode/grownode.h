@@ -37,6 +37,8 @@ extern "C" {
 #include "wifi_provisioning/scheme_softap.h"
 #endif /* CONFIG_GROWNODE_PROV_TRANSPORT_SOFTAP */
 
+#define GN_NODE_LEAVES_MAX_SIZE 64
+
 //functions
 gn_node_config_handle_t gn_node_create(gn_config_handle_t config,
 		const char *name);
