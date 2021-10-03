@@ -32,7 +32,7 @@ extern "C" {
 #define TAG "gn_mqtt"
 
 #define _GN_MQTT_MAX_TOPIC_LENGTH 80
-#define _GN_MQTT_MAX_PAYLOAD_LENGTH 1024
+#define _GN_MQTT_MAX_PAYLOAD_LENGTH 2048
 
 #define _GN_MQTT_COMMAND_MESS "cmd"
 #define _GN_MQTT_STATUS_MESS "sts"

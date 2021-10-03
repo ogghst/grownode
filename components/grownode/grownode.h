@@ -37,6 +37,8 @@ extern "C" {
 #include "wifi_provisioning/scheme_softap.h"
 #endif /* CONFIG_GROWNODE_PROV_TRANSPORT_SOFTAP */
 
+#define GN_NODE_LEAVES_MAX_SIZE 64
+
 //functions
 gn_node_config_handle_t gn_node_create(gn_config_handle_t config,
 		const char *name);
@@ -74,10 +76,19 @@ gn_leaf_param_handle_t gn_leaf_param_get_param_handle(const gn_leaf_config_handl
 gn_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf,
 		const char *name, const char *val);
 
+gn_err_t gn_leaf_param_init_string(const gn_leaf_config_handle_t leaf,
+		const char *name, const char *val);
+
 gn_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf,
 		const char *name, const bool val);
 
+gn_err_t gn_leaf_param_init_bool(const gn_leaf_config_handle_t leaf,
+		const char *name, const bool val);
+
 gn_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf,
+		const char *name, const double val);
+
+gn_err_t gn_leaf_param_init_double(const gn_leaf_config_handle_t leaf,
 		const char *name, const double val);
 
 //gn_err_t gn_leaf_param_destroy(gn_leaf_param_handle_t new_param);

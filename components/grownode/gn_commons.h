@@ -144,7 +144,9 @@ typedef gn_leaf_param_t *gn_leaf_param_handle_t;
 size_t gn_common_leaf_event_mask_param(gn_leaf_event_handle_t evt,
 		gn_leaf_param_handle_t param);
 
+uint64_t gn_common_hash ( const char * key);
 
+void gn_common_hash_str(const char *key, char* buf, size_t len);
 
 #ifdef __cplusplus
 }

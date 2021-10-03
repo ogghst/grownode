@@ -42,7 +42,7 @@ extern "C" {
 typedef struct CC_HashTable *gn_leaf_context_handle_int_t;
 
 
-gn_leaf_context_handle_t gn_leaf_context_create(size_t size) {
+gn_leaf_context_handle_t gn_leaf_context_create() {
 
 	CC_HashTable * string_table;
 	CC_HashTableConf config;

@@ -20,7 +20,7 @@
 
 typedef void *gn_leaf_context_handle_t;
 
-gn_leaf_context_handle_t gn_leaf_context_create(size_t size);
+gn_leaf_context_handle_t gn_leaf_context_create();
 
 size_t gn_leaf_context_size(gn_leaf_context_handle_t context);
 

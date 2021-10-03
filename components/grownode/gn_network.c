@@ -57,9 +57,11 @@ extern "C" {
 
 /* Signal Wi-Fi events on this event-group */
 const int GN_WIFI_CONNECTED_EVENT = BIT0;
+const int GN_WIFI_FAIL_EVENT = BIT2;
 const int GN_PROV_END_EVENT = BIT1;
 
 EventGroupHandle_t _gn_event_group_wifi;
+int s_retry_num = 0;
 
 gn_config_handle_intl_t _conf;
 
@@ -147,7 +149,15 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 			ESP_LOGE(TAG, "failed to send GN_NETWORK_DISCONNECTED_EVENT event");
 		}
 
-		esp_wifi_connect();
+        if (s_retry_num < 5) {
+            esp_wifi_connect();
+            s_retry_num++;
+            ESP_LOGI(TAG, "retry to connect to the AP");
+        } else {
+            xEventGroupSetBits(_gn_event_group_wifi, GN_WIFI_FAIL_EVENT);
+        }
+        ESP_LOGI(TAG,"connect to the AP fail");
+
 	}
 
 #endif
@@ -161,6 +171,20 @@ void _gn_wifi_init_sta(void) {
 	/* Start Wi-Fi in station mode */
 	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
 	ESP_ERROR_CHECK(esp_wifi_start());
+
+    EventBits_t bits = xEventGroupWaitBits(_gn_event_group_wifi,
+    		GN_WIFI_CONNECTED_EVENT | GN_WIFI_FAIL_EVENT,
+            pdFALSE,
+            pdFALSE,
+            portMAX_DELAY);
+
+    if (bits & GN_WIFI_CONNECTED_EVENT) {
+        ESP_LOGI(TAG, "connected to AP");
+    } else if (bits & GN_WIFI_FAIL_EVENT) {
+        ESP_LOGI(TAG, "Failed to connect to AP");
+    } else {
+        ESP_LOGE(TAG, "UNEXPECTED EVENT");
+    }
 
 #endif
 

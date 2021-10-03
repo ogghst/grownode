@@ -158,7 +158,14 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 
 	//setup capacitive pin
 	ESP_LOGI(TAG, "Initializing capactivite water level sensor..");
-	ESP_ERROR_CHECK(touch_pad_init());
+
+	esp_err_t ret;
+
+	ret = touch_pad_init();
+	if (ret != ESP_OK) {
+		ESP_LOGE(TAG, "failed to init capacitive water level sensor");
+		return;
+	}
 
 	// Set reference voltage for charging/discharging
 	// For most usage scenarios, we recommend using the following combination:
@@ -260,12 +267,18 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 	const esp_timer_create_args_t water_sensor_timer_args = { .callback =
 			&gn_cwl_sensor_collect, .arg = &data, .name = "cwl_timer" };
 
-	ESP_ERROR_CHECK(
-			esp_timer_create(&water_sensor_timer_args, &water_sensor_timer));
+	ret = esp_timer_create(&water_sensor_timer_args, &water_sensor_timer);
+	if (ret != ESP_OK) {
+		ESP_LOGE(TAG, "failed to init capacitive water level timer");
+		return;
+	}
 	//start sensor callback
-	ESP_ERROR_CHECK(
-			esp_timer_start_periodic(water_sensor_timer,
-					data.upd_time_sec_param->param_val->v.d * 1000000));
+	ret = esp_timer_start_periodic(water_sensor_timer,
+					data.upd_time_sec_param->param_val->v.d * 1000000);
+	if (ret != ESP_OK) {
+		ESP_LOGE(TAG, "failed to start capacitive water level timer");
+		return;
+	}
 
 	ESP_LOGD(TAG, "Listening to events..");
 
