@@ -53,7 +53,7 @@ extern "C" {
 
 #include "grownode_intl.h"
 
-#define TAG "network"
+#define TAG "gn_network"
 
 /* Signal Wi-Fi events on this event-group */
 const int GN_WIFI_CONNECTED_EVENT = BIT0;

@@ -40,7 +40,7 @@ extern "C" {
 #include "gn_pump_control.h"
 #include "gn_pump.h"
 
-#define TAG "gn_pump_control"
+#define TAG "gn_leaf_pump_control"
 
 size_t pump_status = 0;
 

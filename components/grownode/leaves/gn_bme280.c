@@ -16,6 +16,8 @@
 extern "C" {
 #endif
 
+//switch from LOGI to LOGD
+//#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 #include "esp_log.h"
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
@@ -37,10 +39,16 @@ extern "C" {
 
 #include "gn_bme280.h"
 
-#define TAG "gn_bme280"
+#define TAG "gn_leaf_bme280"
+
+#ifndef APP_CPU_NUM
+#define APP_CPU_NUM PRO_CPU_NUM
+#endif
 
 struct leaf_data {
+
 	gn_leaf_config_handle_t leaf_config;
+
 	bmp280_params_t params;
 	bmp280_t dev;
 
@@ -53,42 +61,47 @@ struct leaf_data {
 	gn_leaf_param_handle_t temp_param;
 	gn_leaf_param_handle_t press_param;
 	gn_leaf_param_handle_t hum_param;
+
 };
 
-void bme280_sensor_collect(struct leaf_data *data) {
+void bme280_sensor_collect(void *_data) {
+
+	struct leaf_data *data = (struct leaf_data*) _data;
 
 	ESP_LOGD(TAG, "bme280_sensor_collect");
 
 	//struct leaf_data *data = (struct leaf_data*) arg;
 
-	if (data->active_param->param_val->v.d == true) {
+	float pressure, temperature, humidity;
 
-		float pressure, temperature, humidity;
+	esp_err_t res = bmp280_read_float(&data->dev, &temperature, &pressure,
+			&humidity);
 
-		esp_err_t res = bmp280_read_float(&data->dev, &temperature, &pressure,
-				&humidity);
-
-		//read data from sensors using GPIO parameter
-		if (res != ESP_OK) {
-			ESP_LOGE(TAG, "Sensors read error %d (%s)", res,
-					esp_err_to_name(res));
-			goto fail;
-		}
-
-		//store parameter and notify network
-		gn_leaf_param_set_double(data->leaf_config, data->temp_param->name,
-				temperature);
-		gn_leaf_param_set_double(data->leaf_config, data->hum_param->name,
-				humidity);
-		gn_leaf_param_set_double(data->leaf_config, data->press_param->name,
-				pressure);
-
-		fail: return;
-
+	//read data from sensors using GPIO parameter
+	if (res != ESP_OK) {
+		ESP_LOGE(TAG, "Sensors read error %d (%s)", res, esp_err_to_name(res));
+		goto fail;
 	}
+
+	ESP_LOGD(TAG, "Pressure: %.2f Pa, Temperature: %.2f C, Humidity: %.2f\n",
+			pressure, temperature, humidity);
+
+	//store parameter and notify network
+	gn_leaf_param_set_double(data->leaf_config, data->temp_param->name,
+			temperature);
+	gn_leaf_param_set_double(data->leaf_config, data->hum_param->name,
+			humidity);
+	gn_leaf_param_set_double(data->leaf_config, data->press_param->name,
+			pressure);
+
+	fail: return;
+
 }
 
 void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
+
+	//TODO change
+	//esp_log_level_set(TAG, ESP_LOG_DEBUG);
 
 	gn_leaf_event_t evt;
 
@@ -103,12 +116,12 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 	gn_leaf_param_add(leaf_config, data.active_param);
 
 	data.sda_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_SDA,
-			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 16 },
+			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 21 },
 			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED);
 	gn_leaf_param_add(leaf_config, data.sda_param);
 
 	data.scl_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_SCL,
-			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 17 },
+			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 22 },
 			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED);
 	gn_leaf_param_add(leaf_config, data.scl_param);
 
@@ -136,16 +149,31 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 	gn_leaf_param_add(leaf_config, data.press_param);
 
 	//setup sensor
-	bmp280_init_default_params(&data.params);
-	memset(&data.dev, 0, sizeof(bmp280_t));
 
 	esp_err_t ret;
-	ret = bmp280_init_desc(&data.dev, BMP280_I2C_ADDRESS_0, 0, data.sda_param->param_val->v.d, data.scl_param->param_val->v.d);
+
+	ret = bmp280_init_default_params(&data.params);
+	if (ret != ESP_OK) {
+		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
+		ESP_LOGE(TAG, "failed to init bmp280 default parameters");
+		return;
+	}
+
+	memset(&data.dev, 0, sizeof(bmp280_t));
+
+	ret = bmp280_init_desc(&data.dev, BMP280_I2C_ADDRESS_0, 0,
+			data.sda_param->param_val->v.d, data.scl_param->param_val->v.d);
+	//ret = bmp280_init_desc(&data.dev, BMP280_I2C_ADDRESS_0, 0, 21, 22);
 	if (ret != ESP_OK) {
 		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
 		ESP_LOGE(TAG, "failed to init bmp280 driver descriptor");
 		return;
 	}
+
+	ESP_LOGD(TAG, "initializing BME280, SDA = %d, SCL = %d, port = %d",
+			data.dev.i2c_dev.cfg.sda_io_num, data.dev.i2c_dev.cfg.scl_io_num,
+			data.dev.i2c_dev.port);
+
 	ret = bmp280_init(&data.dev, &data.params);
 	if (ret != ESP_OK) {
 		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
@@ -156,13 +184,14 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 	bool bme280p = data.dev.id == BME280_CHIP_ID;
 	ESP_LOGD(TAG, "BMP280: found %s\n", bme280p ? "BME280" : "BMP280");
 
+	ESP_LOGD(TAG, "creating timer...");
 	//create a timer to update temps
 	esp_timer_create_args_t bme280_sensor_timer_args = { .callback =
 			&bme280_sensor_collect, .arg = &data, .name =
 			"leaf_bme280_sensor_collect" };
 
 	ret = esp_timer_create(&bme280_sensor_timer_args,
-					&data.bme280_sensor_timer);
+			&data.bme280_sensor_timer);
 	if (ret != ESP_OK) {
 		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
 		ESP_LOGE(TAG, "failed to init bme280 leaf timer");
@@ -171,8 +200,10 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 
 	//start timer if needed
 	if (data.active_param->param_val->v.b == true) {
+		ESP_LOGD(TAG, "starting timer, polling at %f sec",
+				data.update_time_param->param_val->v.d);
 		ret = esp_timer_start_periodic(data.bme280_sensor_timer,
-						data.update_time_param->param_val->v.d * 1000000);
+				data.update_time_param->param_val->v.d * 1000000);
 		if (ret != ESP_OK) {
 			gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
 			ESP_LOGE(TAG, "failed to start bme280 leaf timer");
@@ -314,6 +345,8 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 							GN_BME280_PARAM_UPDATE_TIME_SEC, updtime);
 
 					if (data.active_param->param_val->v.b == true) {
+						esp_timer_stop(data.bme280_sensor_timer);
+
 						esp_timer_start_periodic(data.bme280_sensor_timer,
 								data.update_time_param->param_val->v.d
 										* 1000000);

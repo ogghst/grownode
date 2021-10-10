@@ -36,7 +36,7 @@ extern "C" {
 
 #include "gn_pump.h"
 
-#define TAG "gn_pump"
+#define TAG "gn_leaf_pump"
 
 void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 

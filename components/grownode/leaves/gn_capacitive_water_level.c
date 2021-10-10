@@ -37,7 +37,7 @@ extern "C" {
 
 #include "gn_capacitive_water_level.h"
 
-#define TAG "gn_capacitive_water_level"
+#define TAG "gn_leaf_cwl"
 
 //#define GN_CWL_TOUCH_CHANNEL   (1)			//GPIO4
 #define GN_CWL_TOUCH_THRESH   (0)
@@ -157,7 +157,7 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 	gn_leaf_event_t evt;
 
 	//setup capacitive pin
-	ESP_LOGI(TAG, "Initializing capactivite water level sensor..");
+	ESP_LOGD(TAG, "Initializing capactivite water level sensor..");
 
 	esp_err_t ret;
 

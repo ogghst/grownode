@@ -10,4 +10,4 @@ set(EXTRA_COMPONENT_DIRS "C:/Development/esp/esp-idf-lib/components")
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #set(COMPONENTS main)
-project(GrowNode)
+project(GrowNode_HydroNode1)

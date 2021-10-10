@@ -30,7 +30,7 @@ extern "C" {
 #include "ds18x20.h"
 #include "gn_ds18b20.h"
 
-#define TAG "gn_ds18b20"
+#define TAG "gn_leaf_ds18b20"
 
 const size_t GN_DS18B20_STATE_STOP = 0;
 const size_t GN_DS18B20_STATE_RUNNING = 1;

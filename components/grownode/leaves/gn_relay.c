@@ -16,6 +16,7 @@
 extern "C" {
 #endif
 
+#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 #include "esp_log.h"
 
 /* Littlevgl specific */
@@ -36,9 +37,11 @@ extern "C" {
 
 #include "gn_relay.h"
 
-#define TAG "gn_relay"
+#define TAG "gn_leaf_relay"
 
 void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
+
+	ESP_LOGD(TAG, "Initializing relay leaf..");
 
 	const size_t GN_RELAY_STATE_STOP = 0;
 	const size_t GN_RELAY_STATE_RUNNING = 1;
@@ -60,8 +63,9 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 	gn_leaf_param_add(leaf_config, gn_relay_gpio_param);
 
 	//setup relay
-    gpio_set_direction(gn_relay_gpio_param->param_val->v.d, GPIO_MODE_OUTPUT);
-    gpio_set_level(gn_relay_gpio_param->param_val->v.d, gn_relay_status_param->param_val->v.b?1:0);
+	gpio_set_direction(gn_relay_gpio_param->param_val->v.d, GPIO_MODE_OUTPUT);
+	gpio_set_level(gn_relay_gpio_param->param_val->v.d,
+			gn_relay_status_param->param_val->v.b ? 1 : 0);
 
 	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
@@ -113,6 +117,8 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 	//task cycle
 	while (true) {
 
+		ESP_LOGD(TAG, "task cycle..");
+
 		//check for messages and cycle every 100ms
 		if (xQueueReceive(gn_leaf_get_event_queue(leaf_config), &evt,
 				pdMS_TO_TICKS(100)) == pdPASS) {
@@ -133,17 +139,16 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 				if (gn_common_leaf_event_mask_param(&evt, gn_relay_status_param)
 						== 0) {
 
-					const bool ret =
-							strncmp((char*) evt.data, "0", evt.data_size) == 0 ?
-									false : true;
+					int active = atoi(evt.data);
 
-					//execute change
+					//notify change
 					gn_leaf_param_set_bool(leaf_config, GN_RELAY_PARAM_STATUS,
-							ret);
+							active == 0 ? false : true);
 
-					//finally, we update sensor using the parameter values
+					//update sensor using the parameter values
 					if (gn_relay_state == GN_RELAY_STATE_RUNNING) {
-					    gpio_set_level(gn_relay_gpio_param->param_val->v.d, gn_relay_status_param->param_val->v.b?1:0);
+						gpio_set_level(gn_relay_gpio_param->param_val->v.d,
+								gn_relay_status_param->param_val->v.b ? 1 : 0);
 					}
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
@@ -156,7 +161,6 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 						gn_display_leaf_refresh_end();
 					}
 #endif
-
 
 				}
 

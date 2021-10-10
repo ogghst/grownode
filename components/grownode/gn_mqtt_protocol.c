@@ -824,7 +824,9 @@ esp_err_t gn_mqtt_init(gn_config_handle_t _conf) {
 
 	_gn_event_group_mqtt = xEventGroupCreate();
 
-	esp_mqtt_client_config_t mqtt_cfg = { .uri = CONFIG_GROWNODE_MQTT_URL };
+	esp_mqtt_client_config_t mqtt_cfg = { .uri = CONFIG_GROWNODE_MQTT_URL,
+		.buffer_size = 4096,
+		};
 
 	esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
 
