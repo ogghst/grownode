@@ -17,7 +17,11 @@ extern "C" {
 #endif
 
 //switch from LOGI to LOGD
+<<<<<<< HEAD
 //#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
+=======
+//#define LOG_LOCAL_LEVEL ESP_LOG_DEBUG
+>>>>>>> 38b4aedb27d10d029af067afd6f44735f968dc1b
 #include "esp_log.h"
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
@@ -40,6 +44,10 @@ extern "C" {
 #include "gn_bme280.h"
 
 #define TAG "gn_leaf_bme280"
+
+#ifndef APP_CPU_NUM
+#define APP_CPU_NUM PRO_CPU_NUM
+#endif
 
 #ifndef APP_CPU_NUM
 #define APP_CPU_NUM PRO_CPU_NUM
@@ -101,7 +109,11 @@ void bme280_sensor_collect(void *_data) {
 void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 
 	//TODO change
+<<<<<<< HEAD
 	//esp_log_level_set(TAG, ESP_LOG_DEBUG);
+=======
+	esp_log_level_set(TAG, ESP_LOG_DEBUG);
+>>>>>>> 38b4aedb27d10d029af067afd6f44735f968dc1b
 
 	gn_leaf_event_t evt;
 
@@ -200,8 +212,12 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 
 	//start timer if needed
 	if (data.active_param->param_val->v.b == true) {
+<<<<<<< HEAD
 		ESP_LOGD(TAG, "starting timer, polling at %f sec",
 				data.update_time_param->param_val->v.d);
+=======
+		ESP_LOGD(TAG, "starting timer, polling at %f sec", data.update_time_param->param_val->v.d);
+>>>>>>> 38b4aedb27d10d029af067afd6f44735f968dc1b
 		ret = esp_timer_start_periodic(data.bme280_sensor_timer,
 				data.update_time_param->param_val->v.d * 1000000);
 		if (ret != ESP_OK) {

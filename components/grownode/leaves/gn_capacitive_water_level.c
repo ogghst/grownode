@@ -157,7 +157,11 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 	gn_leaf_event_t evt;
 
 	//setup capacitive pin
+<<<<<<< HEAD
 	ESP_LOGD(TAG, "Initializing capactivite water level sensor..");
+=======
+	ESP_LOGI(TAG, "Initializing capactivite water level sensor..");
+>>>>>>> 38b4aedb27d10d029af067afd6f44735f968dc1b
 
 	esp_err_t ret;
 
