@@ -848,14 +848,11 @@ gn_err_t gn_leaf_param_init_string(const gn_leaf_config_handle_t leaf_config,
 
 	_buf[_len - 1] = '\0';
 
-<<<<<<< HEAD
 	//if already set keep old value
 	if (gn_storage_get(_buf, (void**) &val) == ESP_OK) {
 		return GN_RET_OK;
 	}
 
-=======
->>>>>>> 38b4aedb27d10d029af067afd6f44735f968dc1b
 	//store the parameter
 	if (gn_storage_set(_buf, (void**) &val, strlen(val)) != ESP_OK) {
 		ESP_LOGW(TAG,
@@ -1014,14 +1011,11 @@ gn_err_t gn_leaf_param_init_bool(const gn_leaf_config_handle_t leaf_config,
 
 	_buf[_len - 1] = '\0';
 
-<<<<<<< HEAD
 	//if already set keep old value
 	if (gn_storage_get(_buf, (void**) &val) == ESP_OK) {
 		return GN_RET_OK;
 	}
 
-=======
->>>>>>> 38b4aedb27d10d029af067afd6f44735f968dc1b
 	//store the parameter
 	if (gn_storage_set(_buf, (void**) &val, sizeof(bool)) != ESP_OK) {
 		ESP_LOGW(TAG,
@@ -1181,14 +1175,11 @@ gn_err_t gn_leaf_param_init_double(const gn_leaf_config_handle_t leaf_config,
 
 	_buf[_len - 1] = '\0';
 
-<<<<<<< HEAD
 	//if already set keep old value
 	if (gn_storage_get(_buf, (void**) &val) == ESP_OK) {
 		return GN_RET_OK;
 	}
 
-=======
->>>>>>> 38b4aedb27d10d029af067afd6f44735f968dc1b
 	//store the parameter
 	if (gn_storage_set(_buf, (void**) &val, sizeof(double)) != ESP_OK) {
 		ESP_LOGW(TAG,
@@ -1717,12 +1708,6 @@ gn_config_handle_t gn_init() {
 	if (initialized)
 		return _gn_default_conf;
 
-<<<<<<< HEAD
-=======
-//TODO change
-	esp_log_level_set(TAG, ESP_LOG_DEBUG);
-
->>>>>>> 38b4aedb27d10d029af067afd6f44735f968dc1b
 //_gn_xEvtSemaphore = xSemaphoreCreateMutex();
 
 	_gn_default_conf = _gn_config_create();
