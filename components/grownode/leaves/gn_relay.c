@@ -39,6 +39,42 @@ extern "C" {
 
 #define TAG "gn_leaf_relay"
 
+void gn_relay_task(gn_leaf_config_handle_t leaf_config);
+
+typedef struct {
+	gn_leaf_param_handle_t gn_relay_status_param;
+	gn_leaf_param_handle_t gn_relay_gpio_param;
+} gn_relay_data_t;
+
+gn_leaf_descriptor_handle_t gn_relay_config(gn_leaf_config_handle_t leaf_config) {
+
+	gn_leaf_descriptor_handle_t descriptor =
+			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
+	strncpy(descriptor->type, GN_LEAF_RELAY_TYPE, GN_LEAF_DESC_TYPE_SIZE);
+	descriptor->callback = gn_relay_task;
+	descriptor->status = GN_LEAF_STATUS_NOT_INITIALIZED;
+
+	gn_relay_data_t* data = malloc(sizeof(gn_relay_data_t));
+
+	data->gn_relay_status_param = gn_leaf_param_create(leaf_config,
+					GN_RELAY_PARAM_STATUS, GN_VAL_TYPE_BOOLEAN, (gn_val_t ) {
+									.b = false }, GN_LEAF_PARAM_ACCESS_WRITE,
+					GN_LEAF_PARAM_STORAGE_PERSISTED);
+
+	data->gn_relay_gpio_param = gn_leaf_param_create(leaf_config,
+					GN_RELAY_PARAM_GPIO, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d =
+									32 }, GN_LEAF_PARAM_ACCESS_WRITE,
+					GN_LEAF_PARAM_STORAGE_PERSISTED);
+
+	gn_leaf_param_add(leaf_config, data->gn_relay_status_param);
+	gn_leaf_param_add(leaf_config, data->gn_relay_gpio_param);
+
+	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
+	descriptor->data = data;
+	return descriptor;
+
+}
+
 void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 
 	ESP_LOGD(TAG, "Initializing relay leaf..");
@@ -49,23 +85,13 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 	size_t gn_relay_state = GN_RELAY_STATE_RUNNING;
 	gn_leaf_event_t evt;
 
-	//parameter definition. if found in flash storage, they will be created with found values instead of default
-	gn_leaf_param_handle_t gn_relay_status_param = gn_leaf_param_create(
-			leaf_config, GN_RELAY_PARAM_STATUS, GN_VAL_TYPE_BOOLEAN,
-			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_WRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED);
-	gn_leaf_param_add(leaf_config, gn_relay_status_param);
-
-	gn_leaf_param_handle_t gn_relay_gpio_param = gn_leaf_param_create(
-			leaf_config, GN_RELAY_PARAM_GPIO, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
-							.d = 32 }, GN_LEAF_PARAM_ACCESS_WRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED);
-	gn_leaf_param_add(leaf_config, gn_relay_gpio_param);
+	//retrieves status descriptor from config
+	gn_relay_data_t* data =  (gn_relay_data_t*) gn_leaf_get_descriptor(leaf_config)->data;
 
 	//setup relay
-	gpio_set_direction(gn_relay_gpio_param->param_val->v.d, GPIO_MODE_OUTPUT);
-	gpio_set_level(gn_relay_gpio_param->param_val->v.d,
-			gn_relay_status_param->param_val->v.b ? 1 : 0);
+	gpio_set_direction(data->gn_relay_gpio_param->param_val->v.d, GPIO_MODE_OUTPUT);
+	gpio_set_level(data->gn_relay_gpio_param->param_val->v.d,
+			data->gn_relay_status_param->param_val->v.b ? 1 : 0);
 
 	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
@@ -99,7 +125,7 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 			label_status = lv_label_create(_cnt);
 			//lv_obj_add_style(label_status, style, 0);
 			lv_label_set_text(label_status,
-					gn_relay_status_param->param_val->v.b ?
+					data->gn_relay_status_param->param_val->v.b ?
 							"status: on" : "status: off");
 			//lv_obj_align_to(label_status, label_title, LV_ALIGN_BOTTOM_LEFT,
 			//		LV_PCT(10), LV_PCT(10));
@@ -117,7 +143,7 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 	//task cycle
 	while (true) {
 
-		ESP_LOGD(TAG, "task cycle..");
+		//ESP_LOGD(TAG, "task cycle..");
 
 		//check for messages and cycle every 100ms
 		if (xQueueReceive(gn_leaf_get_event_queue(leaf_config), &evt,
@@ -136,7 +162,7 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 						evt.param_name, evt.data);
 
 				//parameter is status
-				if (gn_common_leaf_event_mask_param(&evt, gn_relay_status_param)
+				if (gn_common_leaf_event_mask_param(&evt, data->gn_relay_status_param)
 						== 0) {
 
 					int active = atoi(evt.data);
@@ -147,8 +173,8 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 
 					//update sensor using the parameter values
 					if (gn_relay_state == GN_RELAY_STATE_RUNNING) {
-						gpio_set_level(gn_relay_gpio_param->param_val->v.d,
-								gn_relay_status_param->param_val->v.b ? 1 : 0);
+						gpio_set_level(data->gn_relay_gpio_param->param_val->v.d,
+								data->gn_relay_status_param->param_val->v.b ? 1 : 0);
 					}
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED

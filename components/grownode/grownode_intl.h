@@ -66,12 +66,13 @@ struct gn_node_config_t {
 };
 
 struct gn_leaf_config_t {
+	gn_leaf_descriptor_handle_t leaf_descriptor;
 	char name[GN_LEAF_NAME_SIZE];
 	size_t task_size;
 	gn_node_config_handle_intl_t node_config;
 	//gn_leaf_display_task_t display_task;
 	//gn_leaf_config_handle_t next;
-	gn_leaf_task_callback task_cb;
+	//gn_leaf_task_callback task_cb;
 	QueueHandle_t event_queue;
 	//esp_event_loop_handle_t event_loop;
 	gn_leaf_param_handle_t params;

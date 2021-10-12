@@ -21,11 +21,15 @@ extern "C" {
 
 #include "grownode.h"
 
-//parameters
-static const char GN_RELAY_PARAM_STATUS[7] = "status"; /*!< 0 = off, 1 = on */
-static const char GN_RELAY_PARAM_GPIO[5] = "gpio"; /*!< the GPIO to connect the relay */
+//define type
+static const char GN_LEAF_RELAY_TYPE[GN_LEAF_DESC_TYPE_SIZE] = "relay";
 
-void gn_relay_task(gn_leaf_config_handle_t leaf_config);
+//parameters
+static const char GN_RELAY_PARAM_STATUS[] = "status"; /*!< 0 = off, 1 = on */
+static const char GN_RELAY_PARAM_GPIO[] = "gpio"; /*!< the GPIO to connect the relay */
+
+gn_leaf_descriptor_handle_t gn_relay_config(gn_leaf_config_handle_t leaf_config);
+
 
 #ifdef __cplusplus
 }

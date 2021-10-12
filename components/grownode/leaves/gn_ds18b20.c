@@ -35,6 +35,8 @@ extern "C" {
 const size_t GN_DS18B20_STATE_STOP = 0;
 const size_t GN_DS18B20_STATE_RUNNING = 1;
 
+void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config);
+
 void _scan_sensors(int gpio, bool *scanned, size_t *sensor_count,
 		ds18x20_addr_t *addrs) {
 
@@ -63,8 +65,8 @@ void _scan_sensors(int gpio, bool *scanned, size_t *sensor_count,
 	*scanned = true;
 }
 
-struct leaf_data {
-	gn_leaf_config_handle_t leaf_config;
+typedef struct {
+
 	size_t sensor_count;
 	ds18x20_addr_t addrs[GN_DS18B20_MAX_SENSORS];
 	float temp[GN_DS18B20_MAX_SENSORS];
@@ -76,13 +78,17 @@ struct leaf_data {
 	bool scanned;
 	gn_leaf_param_handle_t update_time_param;
 	gn_leaf_param_handle_t gpio_param;
-};
 
-void temp_sensor_collect(struct leaf_data *data) {
+} gn_ds18b20_data_t;
+
+void temp_sensor_collect(gn_leaf_config_handle_t leaf_config) {
 
 	ESP_LOGD(TAG, "temp_sensor_collect");
 
 	//struct leaf_data *data = (struct leaf_data*) arg;
+
+	gn_ds18b20_data_t *data = (gn_ds18b20_data_t*) gn_leaf_get_descriptor(
+			leaf_config)->data;
 
 	esp_err_t res;
 
@@ -108,8 +114,8 @@ void temp_sensor_collect(struct leaf_data *data) {
 					temp_c, temp_f);
 
 			//store parameter and notify network
-			gn_leaf_param_set_double(data->leaf_config,
-					data->temp_param[j]->name, temp_c);
+			gn_leaf_param_set_double(leaf_config, data->temp_param[j]->name,
+					temp_c);
 		}
 
 		fail: return;
@@ -117,74 +123,91 @@ void temp_sensor_collect(struct leaf_data *data) {
 	}
 }
 
-/**
- * helper to move data through callbacks
- */
-void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
+gn_leaf_descriptor_handle_t gn_ds18b20_config(
+		gn_leaf_config_handle_t leaf_config) {
 
-	struct leaf_data data;
-	data.sensor_count = 0;
-	data.gn_ds18b20_state = GN_DS18B20_STATE_STOP;
-	data.scanned = false;
-	data.leaf_config = leaf_config;
+	gn_leaf_descriptor_handle_t descriptor =
+			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
+	strncpy(descriptor->type, GN_LEAF_DS18B20_TYPE, GN_LEAF_DESC_TYPE_SIZE);
+	descriptor->callback = gn_ds18b20_task;
+	descriptor->status = GN_LEAF_STATUS_NOT_INITIALIZED;
+	descriptor->data = NULL;
 
-	gn_leaf_event_t evt;
+	gn_ds18b20_data_t *data = malloc(sizeof(gn_ds18b20_data_t));
+
+	data->sensor_count = 0;
+	data->gn_ds18b20_state = GN_DS18B20_STATE_STOP;
+	data->scanned = false;
+
+	//parameter definition. if found in flash storage, they will be created with found values instead of default
+
+	//get update time in sec, default 30
+	data->update_time_param = gn_leaf_param_create(leaf_config,
+			GN_DS18B20_PARAM_UPDATE_TIME_SEC, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
+							.d = 30 }, GN_LEAF_PARAM_ACCESS_WRITE,
+			GN_LEAF_PARAM_STORAGE_PERSISTED);
+	gn_leaf_param_add(leaf_config, data->update_time_param);
+
+	//get gpio from params. default 27
+	data->gpio_param = gn_leaf_param_create(leaf_config, GN_DS18B20_PARAM_GPIO,
+			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 27 },
+			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED);
+	gn_leaf_param_add(leaf_config, data->gpio_param);
+
+	//setup gpio
+	gpio_set_pull_mode(data->gpio_param->param_val->v.d, GPIO_PULLUP_ONLY);
+
+	//init sensors
+	_scan_sensors(data->gpio_param->param_val->v.d, &data->scanned,
+			&data->sensor_count, &data->addrs[0]);
+
+	//get params for temp. init to 0
+	for (int i = 0; i < data->sensor_count; i++) {
+		data->temp_param[i] = gn_leaf_param_create(leaf_config,
+				GN_DS18B20_PARAM_SENSOR_NAMES[i], GN_VAL_TYPE_DOUBLE,
+				(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_READ,
+				GN_LEAF_PARAM_STORAGE_VOLATILE);
+		gn_leaf_param_add(leaf_config, data->temp_param[i]);
+	}
 
 	//create a timer to update temps
 
 	esp_timer_create_args_t sensor_timer_args = { .callback =
 			&temp_sensor_collect, .arg = &data, .name = "ds18b20_periodic" };
 
-	ESP_ERROR_CHECK(esp_timer_create(&sensor_timer_args, &data.sensor_timer));
-
-	//parameter definition. if found in flash storage, they will be created with found values instead of default
-
-	//get update time in sec, default 30
-	data.update_time_param = gn_leaf_param_create(leaf_config,
-			GN_DS18B20_PARAM_UPDATE_TIME_SEC, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
-							.d = 30 }, GN_LEAF_PARAM_ACCESS_WRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED);
-	gn_leaf_param_add(leaf_config, data.update_time_param);
-
-	//get gpio from params. default 27
-	data.gpio_param = gn_leaf_param_create(leaf_config, GN_DS18B20_PARAM_GPIO,
-			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 27 },
-			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED);
-	gn_leaf_param_add(leaf_config, data.gpio_param);
-
-	//setup gpio
-	gpio_set_pull_mode(data.gpio_param->param_val->v.d, GPIO_PULLUP_ONLY);
-
-	//init sensors
-	_scan_sensors(data.gpio_param->param_val->v.d, &data.scanned,
-			&data.sensor_count, &data.addrs[0]);
-
-	//get params for temp. init to 0
-	for (int i = 0; i < data.sensor_count; i++) {
-		data.temp_param[i] = gn_leaf_param_create(leaf_config,
-				GN_DS18B20_PARAM_SENSOR_NAMES[i], GN_VAL_TYPE_DOUBLE,
-				(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_READ,
-				GN_LEAF_PARAM_STORAGE_VOLATILE);
-		gn_leaf_param_add(leaf_config, data.temp_param[i]);
+	esp_err_t ret = esp_timer_create(&sensor_timer_args, &data->sensor_timer);
+	if (ret != ESP_OK) {
+		ESP_LOGE(TAG, "failed to init ds18b20 leaf timer");
+		descriptor->status = GN_LEAF_STATUS_ERROR;
+		return descriptor;
 	}
 
-	//collect initial data
-	data.gn_ds18b20_state = GN_DS18B20_STATE_RUNNING;
-	temp_sensor_collect(&data);
+	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
+	descriptor->data = data;
+	return descriptor;
 
-	/*
-	 //if mqtt is connected, start sensor callback
-	 if (gn_mqtt_get_status() == GN_SERVER_CONNECTED) {
-	 ESP_LOGD(TAG, "esp_timer_start, frequency %f sec",
-	 data.update_time_param->param_val->v.d);
-	 data.gn_ds18b20_state = GN_DS18B20_STATE_RUNNING;
-	 */
-	ESP_ERROR_CHECK(
-			esp_timer_start_periodic(data.sensor_timer,
-					data.update_time_param->param_val->v.d * 1000000));
-	/*
-	 }
-	 */
+}
+
+void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
+
+	gn_leaf_event_t evt;
+
+	//retrieves status descriptor from config
+	gn_ds18b20_data_t *data = (gn_ds18b20_data_t*) gn_leaf_get_descriptor(
+			leaf_config)->data;
+
+	//collect initial data
+	data->gn_ds18b20_state = GN_DS18B20_STATE_RUNNING;
+	temp_sensor_collect(leaf_config);
+
+	esp_err_t ret;
+
+	ret = esp_timer_start_periodic(data->sensor_timer,
+			data->update_time_param->param_val->v.d * 1000000);
+	if (ret != ESP_OK) {
+		ESP_LOGE(TAG, "failed to start ds18b20 leaf timer");
+		gn_leaf_get_descriptor(leaf_config)->status = GN_LEAF_STATUS_ERROR;
+	}
 
 	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
@@ -223,7 +246,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 			lv_obj_set_grid_cell(label_title, LV_GRID_ALIGN_CENTER, 0, 2,
 					LV_GRID_ALIGN_STRETCH, 0, 1);
 
-			for (int i = 0; i < data.sensor_count; i++) {
+			for (int i = 0; i < data->sensor_count; i++) {
 
 				//obj = lv_obj_create(_cnt);
 				//lv_obj_add_style(obj, style, 0);
@@ -242,7 +265,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 				//		LV_ALIGN_OUT_BOTTOM_LEFT, 0, 25 * (i + 1));
 
 				char _p[21];
-				snprintf(_p, 20, ": %4.2f", data.temp_param[i]->param_val->v.d);
+				snprintf(_p, 20, ": %4.2f", data->temp_param[i]->param_val->v.d);
 
 				//obj = lv_obj_create(_cnt);
 				//lv_obj_add_style(obj, style, 0);
@@ -331,7 +354,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 
 				//parameter is update time
 				if (gn_common_leaf_event_mask_param(&evt,
-						data.update_time_param) == 0) {
+						data->update_time_param) == 0) {
 
 					//check limits
 					double updtime = strtod(evt.data, NULL);
@@ -368,7 +391,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 
 	}
 
-	ESP_ERROR_CHECK(esp_timer_stop(data.sensor_timer));
+	ESP_ERROR_CHECK(esp_timer_stop(data->sensor_timer));
 
 }
 

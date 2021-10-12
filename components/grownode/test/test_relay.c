@@ -42,7 +42,7 @@ TEST_CASE("gn_init_add_relay", "[relay]") {
 	node_config = gn_node_create(config, "node");
 	TEST_ASSERT_EQUAL_STRING("node", gn_get_node_config_name(node_config));
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 0);
-	relay_config = gn_leaf_create(node_config, "relay", gn_relay_task, 4096);
+	relay_config = gn_leaf_create(node_config, "relay", gn_relay_config, 4096);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 1);
 	esp_err_t ret = gn_node_start(node_config);
 	TEST_ASSERT_EQUAL(ret, ESP_OK);
@@ -52,7 +52,7 @@ TEST_CASE("gn_init_add_relay", "[relay]") {
 TEST_CASE("gn_leaf_create relay", "[relay]") {
 
 	size_t oldsize = gn_node_get_size(node_config);
-	relay_config = gn_leaf_create(node_config, "relay", gn_relay_task, 4096);
+	relay_config = gn_leaf_create(node_config, "relay", gn_relay_config, 4096);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), oldsize+1);
 	TEST_ASSERT(relay_config != NULL);
 
@@ -129,7 +129,7 @@ TEST_CASE("gn_relay_mqtt_stress_test", "[relay]") {
 	node_config = gn_node_create(config, "node");
 	TEST_ASSERT_EQUAL_STRING("node", gn_get_node_config_name(node_config));
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 0);
-	relay_config = gn_leaf_create(node_config, "relay", gn_relay_task, 4096);
+	relay_config = gn_leaf_create(node_config, "relay", gn_relay_config, 4096);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 1);
 	esp_err_t ret = gn_node_start(node_config);
 	TEST_ASSERT_EQUAL(ret, ESP_OK);

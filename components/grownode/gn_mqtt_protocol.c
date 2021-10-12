@@ -32,7 +32,7 @@ extern "C" {
 #define TAG "gn_mqtt"
 
 #define _GN_MQTT_MAX_TOPIC_LENGTH 80
-#define _GN_MQTT_MAX_PAYLOAD_LENGTH 2048
+#define _GN_MQTT_MAX_PAYLOAD_LENGTH 4096
 
 #define _GN_MQTT_COMMAND_MESS "cmd"
 #define _GN_MQTT_STATUS_MESS "sts"
@@ -479,6 +479,10 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t param) {
 
 esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t _config) {
 
+	//TODO change with a better implementation with a specific message type
+	return gn_mqtt_send_node_config(_config);
+
+/*
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
@@ -520,7 +524,8 @@ esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t _config) {
 
 #else
 	return ESP_OK;
-#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
+#endif // CONFIG_GROWNODE_WIFI_ENABLED
+*/
 
 }
 
@@ -571,13 +576,11 @@ esp_err_t _gn_mqtt_on_connected(esp_mqtt_client_handle_t client) {
 	ESP_LOGD(TAG, "subscribing default topic %s, msg_id=%d", _gn_cmd_topic,
 			msg_id);
 
-	/*
 	 //send hello message
-	 if (ESP_OK != _gn_mqtt_send_startup_message(config)) {
+	 if (ESP_OK != _gn_mqtt_send_startup_message(_config)) {
 	 ESP_LOGE(TAG, "failed to send startup message");
 	 goto fail;
 	 }
-	 */
 
 	if (ESP_OK
 			!= esp_event_post_to(_config->event_loop, GN_BASE_EVENT,

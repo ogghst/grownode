@@ -24,6 +24,7 @@ extern "C" {
 #define GN_LEAF_PARAM_NAME_SIZE 32
 #define GN_LEAF_DATA_SIZE 512
 #define GN_NODE_DATA_SIZE 512
+#define GN_LEAF_DESC_TYPE_SIZE 16
 
 #include "esp_system.h"
 #include "esp_event.h"
@@ -40,8 +41,7 @@ typedef enum {
 } gn_config_status_t;
 
 typedef enum {
-	GN_SERVER_CONNECTED,
-	GN_SERVER_DISCONNECTED,
+	GN_SERVER_CONNECTED, GN_SERVER_DISCONNECTED,
 } gn_server_status_t;
 
 /**
@@ -50,16 +50,16 @@ typedef enum {
  * The GN_RET_OK and GN_RET_ERR are mapped like ESP_OK and ESP_FAIL for compatibility across platforms
  */
 typedef enum {
-	GN_RET_OK								= 0, 	/*!< Everything went OK */
-	GN_RET_ERR								= -1, 	/*!< General error */
-	GN_RET_ERR_INVALID_ARG					= 0x201,
-	GN_RET_ERR_LEAF_NOT_STARTED				= 0x202,/*!< Not possible to start leaf */
-	GN_RET_ERR_NODE_NOT_STARTED				= 0x203,
-	GN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION	= 0x204,/*!< eg. parameter had no write access */
-	GN_RET_ERR_EVENT_LOOP_ERROR				= 0x205,/*!< impossible to send message to event loop */
-	GN_RET_ERR_LEAF_NOT_FOUND				= 0x206,
-	GN_RET_ERR_EVENT_NOT_SENT				= 0x207,
-	GN_RET_ERR_MQTT_SUBSCRIBE				= 0x208
+	GN_RET_OK = 0, /*!< Everything went OK */
+	GN_RET_ERR = -1, /*!< General error */
+	GN_RET_ERR_INVALID_ARG = 0x201,
+	GN_RET_ERR_LEAF_NOT_STARTED = 0x202,/*!< Not possible to start leaf */
+	GN_RET_ERR_NODE_NOT_STARTED = 0x203,
+	GN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION = 0x204,/*!< eg. parameter had no write access */
+	GN_RET_ERR_EVENT_LOOP_ERROR = 0x205,/*!< impossible to send message to event loop */
+	GN_RET_ERR_LEAF_NOT_FOUND = 0x206,
+	GN_RET_ERR_EVENT_NOT_SENT = 0x207,
+	GN_RET_ERR_MQTT_SUBSCRIBE = 0x208
 } gn_err_t;
 
 typedef void *gn_leaf_config_handle_t;
@@ -78,7 +78,6 @@ typedef struct {
 
 typedef gn_leaf_event_t *gn_leaf_event_handle_t;
 
-
 typedef struct {
 	gn_event_id_t id;
 	char node_name[GN_NODE_NAME_SIZE];
@@ -89,6 +88,34 @@ typedef struct {
 typedef gn_node_event_t *gn_node_event_handle_t;
 
 typedef void (*gn_leaf_task_callback)(gn_leaf_config_handle_t leaf_config);
+
+/**
+ * @brief status of the leaf
+ */
+typedef enum {
+	GN_LEAF_STATUS_NOT_INITIALIZED = 0,
+	GN_LEAF_STATUS_INITIALIZED = 1,
+	GN_LEAF_STATUS_ERROR = 2
+} gn_leaf_status_t;
+
+/**
+ * @brief this represents the description and status informations of the leaf
+ */
+typedef struct {
+	char type[GN_LEAF_DESC_TYPE_SIZE];
+	gn_leaf_task_callback callback;
+	gn_leaf_status_t status;
+	void* data;
+} gn_leaf_descriptor_t;
+
+typedef gn_leaf_descriptor_t *gn_leaf_descriptor_handle_t;
+
+/**
+ * this is the leaf configuration callback. every leaf must implement one. it configures internal parameters and
+ * returns a leaf config
+ */
+typedef gn_leaf_descriptor_handle_t (*gn_leaf_config_callback)(
+		gn_leaf_config_handle_t leaf_config);
 
 //parameters
 
@@ -135,7 +162,7 @@ struct gn_leaf_param {
 	struct gn_leaf_param *next;
 };
 
-typedef struct gn_leaf_param gn_leaf_param_t;//  = {NULL, GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_ALWAYS, NULL, NULL, NULL};
+typedef struct gn_leaf_param gn_leaf_param_t; //  = {NULL, GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_ALWAYS, NULL, NULL, NULL};
 
 typedef gn_leaf_param_t *gn_leaf_param_handle_t;
 
@@ -144,9 +171,9 @@ typedef gn_leaf_param_t *gn_leaf_param_handle_t;
 size_t gn_common_leaf_event_mask_param(gn_leaf_event_handle_t evt,
 		gn_leaf_param_handle_t param);
 
-uint64_t gn_common_hash ( const char * key);
+uint64_t gn_common_hash(const char *key);
 
-void gn_common_hash_str(const char *key, char* buf, size_t len);
+void gn_common_hash_str(const char *key, char *buf, size_t len);
 
 #ifdef __cplusplus
 }

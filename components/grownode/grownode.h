@@ -58,7 +58,9 @@ gn_err_t gn_reset();
 gn_err_t gn_reboot();
 
 gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
-		const char *name, gn_leaf_task_callback task, size_t task_size);
+		const char *name, gn_leaf_config_callback leaf_config, size_t task_size);
+
+gn_leaf_descriptor_handle_t gn_leaf_get_descriptor(gn_leaf_config_handle_t leaf_config);
 
 //esp_err_t _gn_start_leaf(gn_leaf_config_handle_t leaf);
 

@@ -38,36 +38,46 @@ extern "C" {
 
 #define TAG "gn_leaf_pump"
 
-void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
+typedef struct {
+	gn_leaf_param_handle_t gn_pump_status_param;
+	gn_leaf_param_handle_t gn_pump_power_param;
+	gn_leaf_param_handle_t gn_pump_gpio_param;
 
-	const size_t GN_PUMP_STATE_STOP = 0;
-	const size_t GN_PUMP_STATE_RUNNING = 1;
+} gn_pump_data_t;
 
-	size_t gn_pump_state = GN_PUMP_STATE_RUNNING;
-	gn_leaf_event_t evt;
+void gn_pump_task(gn_leaf_config_handle_t leaf_config);
+
+gn_leaf_descriptor_handle_t gn_pump_config(gn_leaf_config_handle_t leaf_config) {
+
+	gn_leaf_descriptor_handle_t descriptor =
+			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
+	strncpy(descriptor->type, GN_LEAF_PUMP_TYPE, GN_LEAF_DESC_TYPE_SIZE);
+	descriptor->callback = gn_pump_task;
+	descriptor->status = GN_LEAF_STATUS_NOT_INITIALIZED;
+	descriptor->data = NULL;
+
+	gn_pump_data_t *data = malloc(sizeof(gn_pump_data_t));
 
 	//parameter definition. if found in flash storage, they will be created with found values instead of default
-	gn_leaf_param_handle_t gn_pump_status_param = gn_leaf_param_create(
-			leaf_config, GN_PUMP_PARAM_STATUS, GN_VAL_TYPE_BOOLEAN,
+	data->gn_pump_status_param = gn_leaf_param_create(leaf_config,
+			GN_PUMP_PARAM_STATUS, GN_VAL_TYPE_BOOLEAN,
 			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_WRITE,
 			GN_LEAF_PARAM_STORAGE_PERSISTED);
-	gn_leaf_param_add(leaf_config, gn_pump_status_param);
+	gn_leaf_param_add(leaf_config, data->gn_pump_status_param);
 
-	gn_leaf_param_handle_t gn_pump_power_param = gn_leaf_param_create(
-			leaf_config, GN_PUMP_PARAM_POWER, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
-							.d = 0 }, GN_LEAF_PARAM_ACCESS_WRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED);
-	gn_leaf_param_add(leaf_config, gn_pump_power_param);
+	data->gn_pump_power_param = gn_leaf_param_create(leaf_config,
+			GN_PUMP_PARAM_POWER, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
+			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED);
+	gn_leaf_param_add(leaf_config, data->gn_pump_power_param);
 
-	gn_leaf_param_handle_t gn_pump_gpio_param = gn_leaf_param_create(
-			leaf_config, GN_PUMP_PARAM_GPIO, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
-							.d = 32 }, GN_LEAF_PARAM_ACCESS_WRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED);
-	gn_leaf_param_add(leaf_config, gn_pump_gpio_param);
+	data->gn_pump_gpio_param = gn_leaf_param_create(leaf_config,
+			GN_PUMP_PARAM_GPIO, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 32 },
+			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED);
+	gn_leaf_param_add(leaf_config, data->gn_pump_gpio_param);
 
 	//setup pwm
 	mcpwm_pin_config_t pin_config = { .mcpwm0a_out_num =
-			gn_pump_gpio_param->param_val->v.d };
+			data->gn_pump_gpio_param->param_val->v.d };
 	mcpwm_set_pin(MCPWM_UNIT_0, &pin_config);
 	mcpwm_config_t pwm_config;
 	pwm_config.frequency = 3000; //TODO make configurable
@@ -76,6 +86,24 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 	pwm_config.counter_mode = MCPWM_UP_COUNTER;
 	pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
 	mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0, &pwm_config); //Configure PWM0A & PWM0B with above settings
+
+	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
+	descriptor->data = data;
+	return descriptor;
+
+}
+
+void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
+
+	const size_t GN_PUMP_STATE_STOP = 0;
+	const size_t GN_PUMP_STATE_RUNNING = 1;
+
+	size_t gn_pump_state = GN_PUMP_STATE_RUNNING;
+	gn_leaf_event_t evt;
+
+	//retrieves status descriptor from config
+	gn_pump_data_t *data = (gn_pump_data_t*) gn_leaf_get_descriptor(
+			leaf_config)->data;
 
 	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
@@ -110,7 +138,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 			label_status = lv_label_create(_cnt);
 			//lv_obj_add_style(label_status, style, 0);
 			lv_label_set_text(label_status,
-					gn_pump_status_param->param_val->v.b ?
+					data->gn_pump_status_param->param_val->v.b ?
 							"status: on" : "status: off");
 			//lv_obj_align_to(label_status, label_title, LV_ALIGN_BOTTOM_LEFT,
 			//		LV_PCT(10), LV_PCT(10));
@@ -122,7 +150,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 
 			char _p[21];
 			snprintf(_p, 20, "power: %4.0f",
-					gn_pump_power_param->param_val->v.d);
+					data->gn_pump_power_param->param_val->v.d);
 			lv_label_set_text(label_power, _p);
 			//lv_obj_align_to(label_power, label_status, LV_ALIGN_TOP_LEFT, 0,
 			//		LV_PCT(10));
@@ -157,7 +185,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 						evt.param_name, evt.data);
 
 				//parameter is status
-				if (gn_common_leaf_event_mask_param(&evt, gn_pump_status_param)
+				if (gn_common_leaf_event_mask_param(&evt, data->gn_pump_status_param)
 						== 0) {
 
 					const bool ret =
@@ -172,7 +200,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 					if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 						lv_label_set_text(label_status,
-								gn_pump_status_param->param_val->v.b ?
+								data->gn_pump_status_param->param_val->v.b ?
 										"status: on" : "status: off");
 
 						gn_display_leaf_refresh_end();
@@ -181,7 +209,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 
 					//parameter is power
 				} else if (gn_common_leaf_event_mask_param(&evt,
-						gn_pump_power_param) == 0) {
+						data->gn_pump_power_param) == 0) {
 
 					double pow = strtod(evt.data, NULL);
 					if (pow < 0)
@@ -237,12 +265,12 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 		//finally, we update sensor using the parameter values
 		if (gn_pump_state != GN_PUMP_STATE_RUNNING) {
 			mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, 0);
-		} else if (!gn_pump_status_param->param_val->v.b) {
+		} else if (!data->gn_pump_status_param->param_val->v.b) {
 			mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, 0);
 			//change = false;
 		} else {
 			mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A,
-					gn_pump_power_param->param_val->v.d);
+					data->gn_pump_power_param->param_val->v.d);
 			//change = false;
 		}
 

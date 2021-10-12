@@ -21,6 +21,9 @@ extern "C" {
 
 #include "grownode.h"
 
+//define type
+static const char GN_LEAF_BME280_TYPE[GN_LEAF_DESC_TYPE_SIZE] = "bme280";
+
 //parameters
 static const char GN_BME280_PARAM_ACTIVE[] = "active"; /*!< whether the sensor is running*/
 static const char GN_BME280_PARAM_SDA[] = "SDA"; /*!< gpio number for I2C master clock*/
@@ -31,7 +34,7 @@ static const char GN_BME280_PARAM_TEMP[] = "temp"; /*!< temperature recorded */
 static const char GN_BME280_PARAM_HUM[] = "hum"; /*!< humidity recorded */
 static const char GN_BME280_PARAM_PRESS[] = "press"; /*!< pressure recorded */
 
-void gn_bme280_task(gn_leaf_config_handle_t leaf_config);
+gn_leaf_descriptor_handle_t gn_bme280_config(gn_leaf_config_handle_t leaf_config);
 
 #ifdef __cplusplus
 }

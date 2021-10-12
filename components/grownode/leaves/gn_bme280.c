@@ -49,9 +49,7 @@ extern "C" {
 #define APP_CPU_NUM PRO_CPU_NUM
 #endif
 
-struct leaf_data {
-
-	gn_leaf_config_handle_t leaf_config;
+typedef struct {
 
 	bmp280_params_t params;
 	bmp280_t dev;
@@ -66,11 +64,16 @@ struct leaf_data {
 	gn_leaf_param_handle_t press_param;
 	gn_leaf_param_handle_t hum_param;
 
-};
+} gn_bme280_data_t;
 
-void bme280_sensor_collect(void *_data) {
+void bme280_sensor_collect(gn_leaf_config_handle_t leaf_config) {
 
-	struct leaf_data *data = (struct leaf_data*) _data;
+	ESP_LOGD(TAG, "bme280_sensor_collect");
+
+	gn_bme280_data_t *data = (gn_bme280_data_t*) gn_leaf_get_descriptor(
+			leaf_config)->data;
+
+	//struct leaf_data *data = (struct leaf_data*) _data;
 
 	ESP_LOGD(TAG, "bme280_sensor_collect");
 
@@ -91,14 +94,120 @@ void bme280_sensor_collect(void *_data) {
 			pressure, temperature, humidity);
 
 	//store parameter and notify network
-	gn_leaf_param_set_double(data->leaf_config, data->temp_param->name,
-			temperature);
-	gn_leaf_param_set_double(data->leaf_config, data->hum_param->name,
-			humidity);
-	gn_leaf_param_set_double(data->leaf_config, data->press_param->name,
-			pressure);
+	gn_leaf_param_set_double(leaf_config, data->temp_param->name, temperature);
+	gn_leaf_param_set_double(leaf_config, data->hum_param->name, humidity);
+	gn_leaf_param_set_double(leaf_config, data->press_param->name, pressure);
 
 	fail: return;
+
+}
+
+void gn_bme280_task(gn_leaf_config_handle_t leaf_config);
+
+gn_leaf_descriptor_handle_t gn_bme280_config(gn_leaf_config_handle_t leaf_config) {
+
+	gn_leaf_descriptor_handle_t descriptor =
+			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
+	strncpy(descriptor->type, GN_LEAF_BME280_TYPE, GN_LEAF_DESC_TYPE_SIZE);
+	descriptor->callback = gn_bme280_task;
+	descriptor->status = GN_LEAF_STATUS_NOT_INITIALIZED;
+	descriptor->data = NULL;
+
+	gn_bme280_data_t *data = malloc(sizeof(gn_bme280_data_t));
+
+	//parameter definition. if found in flash storage, they will be created with found values instead of default
+
+	data->active_param = gn_leaf_param_create(leaf_config,
+			GN_BME280_PARAM_ACTIVE, GN_VAL_TYPE_BOOLEAN,
+			(gn_val_t ) { .b = true }, GN_LEAF_PARAM_ACCESS_WRITE,
+			GN_LEAF_PARAM_STORAGE_PERSISTED);
+	gn_leaf_param_add(leaf_config, data->active_param);
+
+	data->sda_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_SDA,
+			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 21 },
+			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED);
+	gn_leaf_param_add(leaf_config, data->sda_param);
+
+	data->scl_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_SCL,
+			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 22 },
+			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED);
+	gn_leaf_param_add(leaf_config, data->scl_param);
+
+	data->update_time_param = gn_leaf_param_create(leaf_config,
+			GN_BME280_PARAM_UPDATE_TIME_SEC, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
+							.d = 120 }, GN_LEAF_PARAM_ACCESS_WRITE,
+			GN_LEAF_PARAM_STORAGE_PERSISTED);
+	gn_leaf_param_add(leaf_config, data->update_time_param);
+
+	data->temp_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_TEMP,
+			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
+			GN_LEAF_PARAM_ACCESS_READ, GN_LEAF_PARAM_STORAGE_VOLATILE);
+	gn_leaf_param_add(leaf_config, data->temp_param);
+
+	data->hum_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_HUM,
+			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
+			GN_LEAF_PARAM_ACCESS_READ, GN_LEAF_PARAM_STORAGE_VOLATILE);
+	gn_leaf_param_add(leaf_config, data->hum_param);
+
+	data->press_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_PRESS,
+			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
+			GN_LEAF_PARAM_ACCESS_READ, GN_LEAF_PARAM_STORAGE_VOLATILE);
+	gn_leaf_param_add(leaf_config, data->press_param);
+
+	//bme280 initialization
+	esp_err_t ret = bmp280_init_default_params(&data->params);
+	if (ret != ESP_OK) {
+		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
+		ESP_LOGE(TAG, "failed to init bmp280 default parameters");
+		descriptor->status = GN_LEAF_STATUS_ERROR;
+		return descriptor;
+	}
+
+	memset(&data->dev, 0, sizeof(bmp280_t));
+
+	ret = bmp280_init_desc(&data->dev, BMP280_I2C_ADDRESS_0, 0,
+			data->sda_param->param_val->v.d, data->scl_param->param_val->v.d);
+	//ret = bmp280_init_desc(&data.dev, BMP280_I2C_ADDRESS_0, 0, 21, 22);
+	if (ret != ESP_OK) {
+		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
+		ESP_LOGE(TAG, "failed to init bmp280 driver descriptor");
+		descriptor->status = GN_LEAF_STATUS_ERROR;
+		return descriptor;
+	}
+
+	ESP_LOGD(TAG, "initializing BME280, SDA = %d, SCL = %d, port = %d",
+			data->dev.i2c_dev.cfg.sda_io_num, data->dev.i2c_dev.cfg.scl_io_num,
+			data->dev.i2c_dev.port);
+
+	ret = bmp280_init(&data->dev, &data->params);
+	if (ret != ESP_OK) {
+		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
+		ESP_LOGE(TAG, "failed to init bmp280 driver");
+		descriptor->status = GN_LEAF_STATUS_ERROR;
+		return descriptor;
+	}
+
+	bool bme280p = data->dev.id == BME280_CHIP_ID;
+	ESP_LOGD(TAG, "BMP280: found %s\n", bme280p ? "BME280" : "BMP280");
+
+	ESP_LOGD(TAG, "creating timer...");
+	//create a timer to update temps
+	esp_timer_create_args_t bme280_sensor_timer_args = { .callback =
+			&bme280_sensor_collect, .arg = leaf_config, .name =
+			"leaf_bme280_sensor_collect" };
+
+	ret = esp_timer_create(&bme280_sensor_timer_args,
+			&data->bme280_sensor_timer);
+	if (ret != ESP_OK) {
+		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
+		ESP_LOGE(TAG, "failed to init bme280 leaf timer");
+		descriptor->status = GN_LEAF_STATUS_ERROR;
+		return descriptor;
+	}
+
+	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
+	descriptor->data = data;
+	return descriptor;
 
 }
 
@@ -106,110 +215,24 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 
 	gn_leaf_event_t evt;
 
-	struct leaf_data data;
-	data.leaf_config = leaf_config;
-//parameter definition. if found in flash storage, they will be created with found values instead of default
-
-	data.active_param = gn_leaf_param_create(leaf_config,
-			GN_BME280_PARAM_ACTIVE, GN_VAL_TYPE_BOOLEAN,
-			(gn_val_t ) { .b = true }, GN_LEAF_PARAM_ACCESS_WRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED);
-	gn_leaf_param_add(leaf_config, data.active_param);
-
-	data.sda_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_SDA,
-			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 21 },
-			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED);
-	gn_leaf_param_add(leaf_config, data.sda_param);
-
-	data.scl_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_SCL,
-			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 22 },
-			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED);
-	gn_leaf_param_add(leaf_config, data.scl_param);
-
-	data.update_time_param = gn_leaf_param_create(leaf_config,
-			GN_BME280_PARAM_UPDATE_TIME_SEC, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
-							.d = 120 }, GN_LEAF_PARAM_ACCESS_WRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED);
-	gn_leaf_param_add(leaf_config, data.update_time_param);
-
-	gn_leaf_param_handle_t gn_bme280_temp_param = gn_leaf_param_create(
-			leaf_config, GN_BME280_PARAM_TEMP, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
-							.d = 0 }, GN_LEAF_PARAM_ACCESS_READ,
-			GN_LEAF_PARAM_STORAGE_VOLATILE);
-	gn_leaf_param_add(leaf_config, gn_bme280_temp_param);
-	data.temp_param = gn_bme280_temp_param;
-
-	data.hum_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_HUM,
-			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
-			GN_LEAF_PARAM_ACCESS_READ, GN_LEAF_PARAM_STORAGE_VOLATILE);
-	gn_leaf_param_add(leaf_config, data.hum_param);
-
-	data.press_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_PRESS,
-			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
-			GN_LEAF_PARAM_ACCESS_READ, GN_LEAF_PARAM_STORAGE_VOLATILE);
-	gn_leaf_param_add(leaf_config, data.press_param);
-
-	//setup sensor
+	//retrieves status descriptor from config
+	gn_bme280_data_t *data = (gn_bme280_data_t*) gn_leaf_get_descriptor(
+			leaf_config)->data;
 
 	esp_err_t ret;
 
-	ret = bmp280_init_default_params(&data.params);
-	if (ret != ESP_OK) {
-		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
-		ESP_LOGE(TAG, "failed to init bmp280 default parameters");
-		return;
-	}
-
-	memset(&data.dev, 0, sizeof(bmp280_t));
-
-	ret = bmp280_init_desc(&data.dev, BMP280_I2C_ADDRESS_0, 0,
-			data.sda_param->param_val->v.d, data.scl_param->param_val->v.d);
-	//ret = bmp280_init_desc(&data.dev, BMP280_I2C_ADDRESS_0, 0, 21, 22);
-	if (ret != ESP_OK) {
-		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
-		ESP_LOGE(TAG, "failed to init bmp280 driver descriptor");
-		return;
-	}
-
-	ESP_LOGD(TAG, "initializing BME280, SDA = %d, SCL = %d, port = %d",
-			data.dev.i2c_dev.cfg.sda_io_num, data.dev.i2c_dev.cfg.scl_io_num,
-			data.dev.i2c_dev.port);
-
-	ret = bmp280_init(&data.dev, &data.params);
-	if (ret != ESP_OK) {
-		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
-		ESP_LOGE(TAG, "failed to init bmp280 driver");
-		return;
-	}
-
-	bool bme280p = data.dev.id == BME280_CHIP_ID;
-	ESP_LOGD(TAG, "BMP280: found %s\n", bme280p ? "BME280" : "BMP280");
-
-	ESP_LOGD(TAG, "creating timer...");
-	//create a timer to update temps
-	esp_timer_create_args_t bme280_sensor_timer_args = { .callback =
-			&bme280_sensor_collect, .arg = &data, .name =
-			"leaf_bme280_sensor_collect" };
-
-	ret = esp_timer_create(&bme280_sensor_timer_args,
-			&data.bme280_sensor_timer);
-	if (ret != ESP_OK) {
-		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
-		ESP_LOGE(TAG, "failed to init bme280 leaf timer");
-		return;
-	}
-
 	//start timer if needed
-	if (data.active_param->param_val->v.b == true) {
+	if (data->active_param->param_val->v.b == true) {
 
-		ESP_LOGD(TAG, "starting timer, polling at %f sec", data.update_time_param->param_val->v.d);
+		ESP_LOGD(TAG, "starting timer, polling at %f sec",
+				data->update_time_param->param_val->v.d);
 
-		ret = esp_timer_start_periodic(data.bme280_sensor_timer,
-				data.update_time_param->param_val->v.d * 1000000);
+		ret = esp_timer_start_periodic(data->bme280_sensor_timer,
+				data->update_time_param->param_val->v.d * 1000000);
 		if (ret != ESP_OK) {
 			gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
 			ESP_LOGE(TAG, "failed to start bme280 leaf timer");
-			return;
+			gn_leaf_get_descriptor(leaf_config)->status = GN_LEAF_STATUS_ERROR;
 		}
 
 	}
@@ -333,7 +356,7 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 
 				//parameter is update time
 				if (gn_common_leaf_event_mask_param(&evt,
-						data.update_time_param) == 0) {
+						data->update_time_param) == 0) {
 
 					//check limits
 					double updtime = strtod(evt.data, NULL);
@@ -346,16 +369,16 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 					gn_leaf_param_set_double(leaf_config,
 							GN_BME280_PARAM_UPDATE_TIME_SEC, updtime);
 
-					if (data.active_param->param_val->v.b == true) {
-						esp_timer_stop(data.bme280_sensor_timer);
+					if (data->active_param->param_val->v.b == true) {
+						esp_timer_stop(data->bme280_sensor_timer);
 
-						esp_timer_start_periodic(data.bme280_sensor_timer,
-								data.update_time_param->param_val->v.d
+						esp_timer_start_periodic(data->bme280_sensor_timer,
+								data->update_time_param->param_val->v.d
 										* 1000000);
 					}
 
-				} else if (gn_common_leaf_event_mask_param(&evt, data.sda_param)
-						== 0) {
+				} else if (gn_common_leaf_event_mask_param(&evt,
+						data->sda_param) == 0) {
 
 					//check limits
 					int sda = atoi(evt.data);
@@ -368,8 +391,8 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 					gn_leaf_param_set_double(leaf_config, GN_BME280_PARAM_SDA,
 							sda);
 
-				} else if (gn_common_leaf_event_mask_param(&evt, data.scl_param)
-						== 0) {
+				} else if (gn_common_leaf_event_mask_param(&evt,
+						data->scl_param) == 0) {
 
 					//check limits
 					int scl = atoi(evt.data);
@@ -383,9 +406,9 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 							scl);
 
 				} else if (gn_common_leaf_event_mask_param(&evt,
-						data.active_param) == 0) {
+						data->active_param) == 0) {
 
-					bool prev_active = data.active_param->param_val->v.b;
+					bool prev_active = data->active_param->param_val->v.b;
 					int active = atoi(evt.data);
 
 					//execute change
@@ -394,10 +417,10 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 
 					//stop timer if false
 					if (active == 0 && prev_active == true) {
-						esp_timer_stop(data.bme280_sensor_timer);
+						esp_timer_stop(data->bme280_sensor_timer);
 					} else if (active != 0 && prev_active == false) {
-						esp_timer_start_periodic(data.bme280_sensor_timer,
-								data.update_time_param->param_val->v.d
+						esp_timer_start_periodic(data->bme280_sensor_timer,
+								data->update_time_param->param_val->v.d
 										* 1000000);
 					}
 

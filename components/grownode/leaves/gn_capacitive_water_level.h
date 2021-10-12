@@ -21,16 +21,19 @@ extern "C" {
 
 #include "grownode.h"
 
-//parameters
-static const char GN_CWL_PARAM_TOUCH_CHANNEL[9] = "touch_ch"; /*!< touch channel for sensing. stored, read/write */
-static const char GN_CWL_PARAM_MAX_LEVEL[10] = "max_level"; /*!< minimum water level. stored, read/write */
-static const char GN_CWL_PARAM_MIN_LEVEL[10] = "min_level"; /*!< maximum water level. stored, read/write */
-static const char GN_CWL_PARAM_ACT_LEVEL[10] = "act_level"; /*!< actual water level. volatile, read only */
-static const char GN_CWL_PARAM_TRG_HIGH[8] = "trg_hig"; /*!< water level above max level = 1. volatile, read only */
-static const char GN_CWL_PARAM_TRG_LOW[8] = "trg_low"; /*!<  water level below min level = 1. volatile, read only */
-static const char GN_CWL_PARAM_UPDATE_TIME_SEC[13] = "upd_time_sec"; /*!< seconds between sensor sampling. stored, read/write */
+//define type
+static const char GN_LEAF_CWL_TYPE[GN_LEAF_DESC_TYPE_SIZE] = "cwl";
 
-void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config);
+//parameters
+static const char GN_CWL_PARAM_TOUCH_CHANNEL[] = "touch_ch"; /*!< touch channel for sensing. stored, read/write */
+static const char GN_CWL_PARAM_MAX_LEVEL[] = "max_level"; /*!< minimum water level. stored, read/write */
+static const char GN_CWL_PARAM_MIN_LEVEL[] = "min_level"; /*!< maximum water level. stored, read/write */
+static const char GN_CWL_PARAM_ACT_LEVEL[] = "act_level"; /*!< actual water level. volatile, read only */
+static const char GN_CWL_PARAM_TRG_HIGH[] = "trg_hig"; /*!< water level above max level = 1. volatile, read only */
+static const char GN_CWL_PARAM_TRG_LOW[] = "trg_low"; /*!<  water level below min level = 1. volatile, read only */
+static const char GN_CWL_PARAM_UPDATE_TIME_SEC[] = "upd_time_sec"; /*!< seconds between sensor sampling. stored, read/write */
+
+gn_leaf_descriptor_handle_t gn_capacitive_water_level_config(gn_leaf_config_handle_t leaf_config);
 
 #ifdef __cplusplus
 }

@@ -101,7 +101,7 @@ gn_err_t _gn_leaf_start(gn_leaf_config_handle_intl_t leaf_config) {
 	int ret = GN_RET_OK;
 	ESP_LOGI(TAG, "_gn_start_leaf %s", leaf_config->name);
 
-	if (xTaskCreate((void*) leaf_config->task_cb, leaf_config->name,
+	if (xTaskCreate((void*) leaf_config->leaf_descriptor->callback, leaf_config->name,
 			leaf_config->task_size, leaf_config, 1, //configMAX_PRIORITIES - 1,
 			NULL) != pdPASS) {
 		ESP_LOGE(TAG, "failed to create lef task for %s", leaf_config->name);
@@ -553,7 +553,7 @@ gn_leaf_config_handle_intl_t _gn_leaf_config_create() {
 	//_conf->callback = NULL;
 	strcpy(_conf->name, "");
 	_conf->node_config = NULL;
-	_conf->task_cb = NULL;
+	_conf->leaf_descriptor = NULL;
 	_conf->params = NULL;
 	return _conf;
 
@@ -590,22 +590,23 @@ char* gn_get_node_config_name(gn_node_config_handle_t node_config) {
  *
  */
 gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
-		const char *name, gn_leaf_task_callback task, size_t task_size) { //, gn_leaf_display_task_t display_task) {
+		const char *name, gn_leaf_config_callback leaf_config, size_t task_size) { //, gn_leaf_display_task_t display_task) {
 
 	gn_node_config_handle_intl_t node_cfg =
 			(gn_node_config_handle_intl_t) node_config;
 
 	if (node_cfg == NULL || node_cfg->config == NULL || name == NULL
-			|| task == NULL || node_cfg->config->mqtt_client == NULL) {
+			|| leaf_config == NULL || node_cfg->config->mqtt_client == NULL) {
 		ESP_LOGE(TAG, "gn_leaf_create failed. parameters not correct");
 		return NULL;
 	}
 
 	gn_leaf_config_handle_intl_t l_c = _gn_leaf_config_create();
+	gn_node_config_handle_intl_t n_c = node_cfg;
 
 	strncpy(l_c->name, name, GN_LEAF_NAME_SIZE);
 	l_c->node_config = node_cfg;
-	l_c->task_cb = task;
+	//l_c->task_cb = task;
 	l_c->task_size = task_size;
 	l_c->leaf_context = gn_leaf_context_create();
 	l_c->display_container = NULL;
@@ -616,7 +617,8 @@ gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
 	}
 	//l_c->event_loop = gn_event_loop;
 
-	gn_node_config_handle_intl_t n_c = l_c->node_config;
+	//configures leaf and get descriptor
+	l_c->leaf_descriptor = leaf_config(l_c);
 
 	//TODO add leaf to node. implement dynamic array
 	if (n_c->leaves.last >= n_c->leaves.size - 1) {
@@ -632,6 +634,13 @@ gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
 	ESP_LOGD(TAG, "gn_create_leaf success");
 	return l_c;
 
+}
+
+/**
+ * returns the descriptor handle for the corresponding leaf
+ */
+gn_leaf_descriptor_handle_t gn_leaf_get_descriptor(gn_leaf_config_handle_t leaf_config) {
+	return ((gn_leaf_config_handle_intl_t)leaf_config)->leaf_descriptor;
 }
 
 gn_err_t _gn_leaf_destroy(gn_leaf_config_handle_t leaf_config) {
