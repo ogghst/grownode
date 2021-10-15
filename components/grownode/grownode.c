@@ -262,6 +262,11 @@ void _gn_evt_handler(void *handler_args, esp_event_base_t base, int32_t id,
 	ESP_LOGD(TAG, "_gn_evt_handler event: %d", id);
 
 	switch (id) {
+
+	case GN_NET_RBT_START:
+		gn_reboot();
+		break;
+
 	case GN_NET_OTA_START:
 		gn_firmware_update();
 		break;
@@ -1660,6 +1665,7 @@ esp_err_t gn_event_send_internal(gn_config_handle_t conf,
 gn_err_t gn_firmware_update() {
 
 #if CONFIG_GROWNODE_WIFI_ENABLED
+	gn_mqtt_send_ota_message(_gn_default_conf);
 	xTaskCreate(_gn_ota_task, "gn_ota_task", 8196, NULL, 10, NULL);
 #endif
 	return GN_RET_OK;
@@ -1673,6 +1679,7 @@ gn_err_t gn_firmware_update() {
  */
 gn_err_t gn_reset() {
 
+	gn_mqtt_send_reset_message(_gn_default_conf);
 	nvs_flash_erase();
 	esp_restart();
 	return GN_RET_OK;
@@ -1686,6 +1693,7 @@ gn_err_t gn_reset() {
  */
 gn_err_t gn_reboot() {
 
+	gn_mqtt_send_reboot_message(_gn_default_conf);
 	esp_restart();
 	return GN_RET_OK;
 

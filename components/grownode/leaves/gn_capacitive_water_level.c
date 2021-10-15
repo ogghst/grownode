@@ -107,6 +107,8 @@ void gn_cwl_sensor_collect(gn_leaf_config_handle_t leaf_config) {
 gn_leaf_descriptor_handle_t gn_capacitive_water_level_config(
 		gn_leaf_config_handle_t leaf_config) {
 
+	ESP_LOGD(TAG,"gn_capacitive_water_level_config");
+
 	gn_leaf_descriptor_handle_t descriptor =
 			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
 	strncpy(descriptor->type, GN_LEAF_CWL_TYPE, GN_LEAF_DESC_TYPE_SIZE);
@@ -172,7 +174,7 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 
 	//setup capacitive pin
 
-	ESP_LOGI(TAG, "Initializing capactivite water level sensor..");
+	ESP_LOGD(TAG, "gn_capacitive_water_level_task");
 
 	esp_err_t ret;
 
@@ -281,7 +283,7 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 	//create a timer to update temps
 	esp_timer_handle_t water_sensor_timer;
 	const esp_timer_create_args_t water_sensor_timer_args = { .callback =
-			&gn_cwl_sensor_collect, .arg = &data, .name = "cwl_timer" };
+			&gn_cwl_sensor_collect, .arg = leaf_config, .name = "cwl_timer" };
 
 	ret = esp_timer_create(&water_sensor_timer_args, &water_sensor_timer);
 	if (ret != ESP_OK) {

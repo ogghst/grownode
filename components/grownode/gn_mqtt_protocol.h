@@ -31,9 +31,17 @@ esp_err_t gn_mqtt_init(gn_config_handle_t conf);
 
 esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t conf);
 
-esp_err_t gn_mqtt_send_leaf_message(gn_leaf_config_handle_t leaf, const char* msg);
+gn_err_t gn_mqtt_send_leaf_message(gn_leaf_config_handle_t leaf, const char* msg);
 
 gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t config);
+
+gn_err_t gn_mqtt_send_startup_message(gn_config_handle_t _config);
+
+gn_err_t gn_mqtt_send_reboot_message(gn_config_handle_t _config);
+
+gn_err_t gn_mqtt_send_reset_message(gn_config_handle_t _config);
+
+gn_err_t gn_mqtt_send_ota_message(gn_config_handle_t _config);
 
 gn_server_status_t gn_mqtt_get_status();
 

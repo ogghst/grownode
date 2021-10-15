@@ -104,7 +104,8 @@ void bme280_sensor_collect(gn_leaf_config_handle_t leaf_config) {
 
 void gn_bme280_task(gn_leaf_config_handle_t leaf_config);
 
-gn_leaf_descriptor_handle_t gn_bme280_config(gn_leaf_config_handle_t leaf_config) {
+gn_leaf_descriptor_handle_t gn_bme280_config(
+		gn_leaf_config_handle_t leaf_config) {
 
 	gn_leaf_descriptor_handle_t descriptor =
 			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
@@ -154,13 +155,28 @@ gn_leaf_descriptor_handle_t gn_bme280_config(gn_leaf_config_handle_t leaf_config
 			GN_LEAF_PARAM_ACCESS_READ, GN_LEAF_PARAM_STORAGE_VOLATILE);
 	gn_leaf_param_add(leaf_config, data->press_param);
 
+	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
+	descriptor->data = data;
+	return descriptor;
+
+}
+
+void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
+
+	gn_leaf_event_t evt;
+
+	//retrieves status descriptor from config
+	gn_bme280_data_t *data = (gn_bme280_data_t*) gn_leaf_get_descriptor(
+			leaf_config)->data;
+
 	//bme280 initialization
 	esp_err_t ret = bmp280_init_default_params(&data->params);
 	if (ret != ESP_OK) {
 		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
 		ESP_LOGE(TAG, "failed to init bmp280 default parameters");
-		descriptor->status = GN_LEAF_STATUS_ERROR;
-		return descriptor;
+		//descriptor->status = GN_LEAF_STATUS_ERROR;
+		//return descriptor;
+		goto leaf_start;
 	}
 
 	memset(&data->dev, 0, sizeof(bmp280_t));
@@ -171,8 +187,9 @@ gn_leaf_descriptor_handle_t gn_bme280_config(gn_leaf_config_handle_t leaf_config
 	if (ret != ESP_OK) {
 		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
 		ESP_LOGE(TAG, "failed to init bmp280 driver descriptor");
-		descriptor->status = GN_LEAF_STATUS_ERROR;
-		return descriptor;
+		//descriptor->status = GN_LEAF_STATUS_ERROR;
+		//return descriptor;
+		goto leaf_start;
 	}
 
 	ESP_LOGD(TAG, "initializing BME280, SDA = %d, SCL = %d, port = %d",
@@ -183,8 +200,9 @@ gn_leaf_descriptor_handle_t gn_bme280_config(gn_leaf_config_handle_t leaf_config
 	if (ret != ESP_OK) {
 		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
 		ESP_LOGE(TAG, "failed to init bmp280 driver");
-		descriptor->status = GN_LEAF_STATUS_ERROR;
-		return descriptor;
+		//descriptor->status = GN_LEAF_STATUS_ERROR;
+		//return descriptor;
+		goto leaf_start;
 	}
 
 	bool bme280p = data->dev.id == BME280_CHIP_ID;
@@ -201,25 +219,10 @@ gn_leaf_descriptor_handle_t gn_bme280_config(gn_leaf_config_handle_t leaf_config
 	if (ret != ESP_OK) {
 		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
 		ESP_LOGE(TAG, "failed to init bme280 leaf timer");
-		descriptor->status = GN_LEAF_STATUS_ERROR;
-		return descriptor;
+		//descriptor->status = GN_LEAF_STATUS_ERROR;
+		//return descriptor;
+		goto leaf_start;
 	}
-
-	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
-	descriptor->data = data;
-	return descriptor;
-
-}
-
-void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
-
-	gn_leaf_event_t evt;
-
-	//retrieves status descriptor from config
-	gn_bme280_data_t *data = (gn_bme280_data_t*) gn_leaf_get_descriptor(
-			leaf_config)->data;
-
-	esp_err_t ret;
 
 	//start timer if needed
 	if (data->active_param->param_val->v.b == true) {
@@ -236,6 +239,8 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 		}
 
 	}
+
+	leaf_start:
 
 //setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
@@ -382,28 +387,22 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 
 					//check limits
 					int sda = atoi(evt.data);
-					if (sda < 0)
-						sda = 0;
-					if (sda > 33)
-						sda = 33;
-
-					//execute change. this will have no effects until restart
-					gn_leaf_param_set_double(leaf_config, GN_BME280_PARAM_SDA,
-							sda);
+					if (sda >= 0 && sda < GPIO_NUM_MAX) {
+						//execute change. this will have no effects until restart
+						gn_leaf_param_set_double(leaf_config,
+								GN_BME280_PARAM_SDA, sda);
+					}
 
 				} else if (gn_common_leaf_event_mask_param(&evt,
 						data->scl_param) == 0) {
 
 					//check limits
 					int scl = atoi(evt.data);
-					if (scl < 0)
-						scl = 0;
-					if (scl > 33)
-						scl = 33;
-
-					//execute change. this will have no effects until restart
-					gn_leaf_param_set_double(leaf_config, GN_BME280_PARAM_SDA,
-							scl);
+					if (scl >= 0 && scl < GPIO_NUM_MAX) {
+						//execute change. this will have no effects until restart
+						gn_leaf_param_set_double(leaf_config,
+								GN_BME280_PARAM_SDA, scl);
+					}
 
 				} else if (gn_common_leaf_event_mask_param(&evt,
 						data->active_param) == 0) {

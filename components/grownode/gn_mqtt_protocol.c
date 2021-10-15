@@ -29,15 +29,17 @@ extern "C" {
 #include "grownode_intl.h"
 #include "gn_mqtt_protocol.h"
 
-#define TAG "gn_mqtt"
+#define TAG "gn_mqtt_protocol"
 
 #define _GN_MQTT_MAX_TOPIC_LENGTH 80
 #define _GN_MQTT_MAX_PAYLOAD_LENGTH 4096
 
 #define _GN_MQTT_COMMAND_MESS "cmd"
 #define _GN_MQTT_STATUS_MESS "sts"
+
 #define _GN_MQTT_PAYLOAD_RST "RST"
 #define _GN_MQTT_PAYLOAD_OTA "OTA"
+#define _GN_MQTT_PAYLOAD_RBT "RBT"
 
 #define _GN_MQTT_DEFAULT_QOS 0
 
@@ -261,10 +263,10 @@ gn_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t _leaf_config) {
 
 	ESP_LOGD(TAG, "gn_mqtt_subscribe_leaf. topic: %s", topic);
 
-	if(esp_mqtt_client_subscribe(config->mqtt_client, topic, 0) == -1)
+	if (esp_mqtt_client_subscribe(config->mqtt_client, topic, 0) == -1)
 		return GN_RET_ERR_MQTT_SUBSCRIBE;
 
-	ESP_LOGI(TAG, "sent subscribe successful, topic = %s", topic);
+	ESP_LOGD(TAG, "sent subscribe successful, topic = %s", topic);
 
 	return GN_RET_OK;
 
@@ -294,7 +296,7 @@ esp_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t param) {
 	ESP_LOGD(TAG, "gn_mqtt_subscribe_leaf_param. topic: %s", topic);
 
 	int msg_id = esp_mqtt_client_subscribe(config->mqtt_client, topic, 0);
-	ESP_LOGI(TAG, "sent subscribe successful, topic = %s, msg_id=%d", topic,
+	ESP_LOGD(TAG, "sent subscribe successful, topic = %s, msg_id=%d", topic,
 			msg_id);
 
 	return ESP_OK;
@@ -334,14 +336,22 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
 
 	cJSON *root, *leaves, *leaf, *leaf_name, *leaf_params, *leaf_param;
 	root = cJSON_CreateObject();
+
+	ESP_LOGD(TAG, "gn_mqtt_send_node_config - building node config: %s",
+			node_config->name);
+
+	cJSON_AddStringToObject(root, "msgtype", "config");
 	cJSON_AddStringToObject(root, "name", node_config->name);
 	leaves = cJSON_CreateArray();
+
 	cJSON_AddItemToObject(root, "leaves", leaves);
 	for (int i = 0; i < node_config->leaves.last; i++) {
 		gn_leaf_config_handle_intl_t _leaf_config =
 				(gn_leaf_config_handle_intl_t) node_config->leaves.at[i];
 		leaf = cJSON_CreateObject();
 		cJSON_AddItemToArray(leaves, leaf);
+		ESP_LOGD(TAG, "gn_mqtt_send_node_config - parsing leaf: %s",
+				_leaf_config->name);
 		leaf_name = cJSON_CreateString(_leaf_config->name);
 		cJSON_AddItemToObject(leaf, "name", leaf_name);
 
@@ -349,11 +359,19 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
 		cJSON_AddItemToObject(leaf, "params", leaf_params);
 
 		gn_leaf_param_handle_t _param = _leaf_config->params;
+		//ESP_LOGD(TAG, "gn_mqtt_send_node_config - check parameter: %p", _param);
+		//ESP_LOGD(TAG, "gn_mqtt_send_node_config - building parameter: %s", _param->name);
 		while (_param) {
+
+			gn_leaf_descriptor_handle_t descriptor = gn_leaf_get_descriptor(
+					_leaf_config);
+
 			leaf_param = cJSON_CreateObject();
 			cJSON_AddItemToArray(leaf_params, leaf_param);
 			//leaf_param_name = cJSON_CreateString(_param->name);
 			cJSON_AddStringToObject(leaf_param, "name", _param->name);
+			cJSON_AddStringToObject(leaf_param, "leaf_type", descriptor->type);
+
 			//leaf_param_val = cJSON_CreateString(_param->param_val->val.s);
 			switch (_param->param_val->t) {
 			case GN_VAL_TYPE_STRING:
@@ -477,12 +495,11 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t param) {
 
 }
 
-esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t _config) {
+gn_err_t _gn_mqtt_send_startup_message(gn_config_handle_t _config) {
 
 	//TODO change with a better implementation with a specific message type
-	return gn_mqtt_send_node_config(_config);
+	//return gn_mqtt_send_node_config(((gn_config_handle_intl_t)_config)->node_config);
 
-/*
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
@@ -501,12 +518,12 @@ esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t _config) {
 
 	cJSON *root;
 	root = cJSON_CreateObject();
-	cJSON_AddStringToObject(root, "deviceName", config->deviceName);
+	cJSON_AddStringToObject(root, "msgtype", "startup");
 	if (!cJSON_PrintPreallocated(root, buf, _GN_MQTT_MAX_PAYLOAD_LENGTH,
 	false)) {
-		ESP_LOGE(TAG, "_gn_create_startup_message: cannot print json message");
+		ESP_LOGE(TAG, "cannot print json message");
 		goto fail;
-		return ESP_FAIL;
+		return GN_RET_ERR;
 	}
 	cJSON_Delete(root);
 
@@ -519,17 +536,166 @@ esp_err_t _gn_mqtt_send_startup_message(gn_config_handle_t _config) {
 	fail: {
 		free(buf);
 		free(msg);
-		return ((msg_id == -1) ? (ESP_FAIL) : (ESP_OK));
+		return ((msg_id == -1) ? (GN_RET_ERR) : (GN_RET_OK));
 	}
 
 #else
-	return ESP_OK;
+	return GN_RET_OK;
 #endif // CONFIG_GROWNODE_WIFI_ENABLED
-*/
 
 }
 
-esp_err_t gn_mqtt_send_leaf_message(gn_leaf_config_handle_t _leaf,
+gn_err_t gn_mqtt_send_reboot_message(gn_config_handle_t _config) {
+
+	//TODO change with a better implementation with a specific message type
+	//return gn_mqtt_send_node_config(((gn_config_handle_intl_t)_config)->node_config);
+
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
+
+	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
+
+	//build
+	gn_mqtt_startup_message_handle_t msg =
+			(gn_mqtt_startup_message_handle_t) malloc(
+					sizeof(gn_mqtt_startup_message_t));
+
+	msg->config = config;
+	strncpy(msg->topic, _gn_sts_topic, _GN_MQTT_MAX_TOPIC_LENGTH);
+
+	//payload
+	int msg_id = -1;
+	char *buf = (char*) malloc(_GN_MQTT_MAX_PAYLOAD_LENGTH * sizeof(char));
+
+	cJSON *root;
+	root = cJSON_CreateObject();
+	cJSON_AddStringToObject(root, "msgtype", "rbt");
+	if (!cJSON_PrintPreallocated(root, buf, _GN_MQTT_MAX_PAYLOAD_LENGTH,
+	false)) {
+		ESP_LOGE(TAG, "cannot print json message");
+		goto fail;
+		return GN_RET_ERR;
+	}
+	cJSON_Delete(root);
+
+	//publish
+	msg_id = esp_mqtt_client_publish(config->mqtt_client, msg->topic, buf, 0, 2,
+			0);
+	ESP_LOGD(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s",
+			msg_id, msg->topic, buf);
+
+	fail: {
+		free(buf);
+		free(msg);
+		return ((msg_id == -1) ? (GN_RET_ERR) : (GN_RET_OK));
+	}
+
+#else
+	return GN_RET_OK;
+#endif // CONFIG_GROWNODE_WIFI_ENABLED
+
+}
+
+gn_err_t gn_mqtt_send_reset_message(gn_config_handle_t _config) {
+
+	//TODO change with a better implementation with a specific message type
+	//return gn_mqtt_send_node_config(((gn_config_handle_intl_t)_config)->node_config);
+
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
+
+	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
+
+	//build
+	gn_mqtt_startup_message_handle_t msg =
+			(gn_mqtt_startup_message_handle_t) malloc(
+					sizeof(gn_mqtt_startup_message_t));
+
+	msg->config = config;
+	strncpy(msg->topic, _gn_sts_topic, _GN_MQTT_MAX_TOPIC_LENGTH);
+
+	//payload
+	int msg_id = -1;
+	char *buf = (char*) malloc(_GN_MQTT_MAX_PAYLOAD_LENGTH * sizeof(char));
+
+	cJSON *root;
+	root = cJSON_CreateObject();
+	cJSON_AddStringToObject(root, "msgtype", "rst");
+	if (!cJSON_PrintPreallocated(root, buf, _GN_MQTT_MAX_PAYLOAD_LENGTH,
+	false)) {
+		ESP_LOGE(TAG, "cannot print json message");
+		goto fail;
+		return GN_RET_ERR;
+	}
+	cJSON_Delete(root);
+
+	//publish
+	msg_id = esp_mqtt_client_publish(config->mqtt_client, msg->topic, buf, 0, 2,
+			0);
+	ESP_LOGD(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s",
+			msg_id, msg->topic, buf);
+
+	fail: {
+		free(buf);
+		free(msg);
+		return ((msg_id == -1) ? (GN_RET_ERR) : (GN_RET_OK));
+	}
+
+#else
+	return GN_RET_OK;
+#endif // CONFIG_GROWNODE_WIFI_ENABLED
+
+}
+
+gn_err_t gn_mqtt_send_ota_message(gn_config_handle_t _config) {
+
+	//TODO change with a better implementation with a specific message type
+	//return gn_mqtt_send_node_config(((gn_config_handle_intl_t)_config)->node_config);
+
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
+
+	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
+
+	//build
+	gn_mqtt_startup_message_handle_t msg =
+			(gn_mqtt_startup_message_handle_t) malloc(
+					sizeof(gn_mqtt_startup_message_t));
+
+	msg->config = config;
+	strncpy(msg->topic, _gn_sts_topic, _GN_MQTT_MAX_TOPIC_LENGTH);
+
+	//payload
+	int msg_id = -1;
+	char *buf = (char*) malloc(_GN_MQTT_MAX_PAYLOAD_LENGTH * sizeof(char));
+
+	cJSON *root;
+	root = cJSON_CreateObject();
+	cJSON_AddStringToObject(root, "msgtype", "ota");
+	if (!cJSON_PrintPreallocated(root, buf, _GN_MQTT_MAX_PAYLOAD_LENGTH,
+	false)) {
+		ESP_LOGE(TAG, "cannot print json message");
+		goto fail;
+		return GN_RET_ERR;
+	}
+	cJSON_Delete(root);
+
+	//publish
+	msg_id = esp_mqtt_client_publish(config->mqtt_client, msg->topic, buf, 0, 2,
+			0);
+	ESP_LOGD(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s",
+			msg_id, msg->topic, buf);
+
+	fail: {
+		free(buf);
+		free(msg);
+		return ((msg_id == -1) ? (GN_RET_ERR) : (GN_RET_OK));
+	}
+
+#else
+	return GN_RET_OK;
+#endif // CONFIG_GROWNODE_WIFI_ENABLED
+
+}
+
+gn_err_t gn_mqtt_send_leaf_message(gn_leaf_config_handle_t _leaf,
 		const char *msg) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
@@ -551,12 +717,12 @@ esp_err_t gn_mqtt_send_leaf_message(gn_leaf_config_handle_t _leaf,
 			0);
 
 	if (msg_id == -1)
-		return ESP_FAIL;
+		return GN_RET_ERR;
 
-	return ESP_OK;
+	return GN_RET_OK;
 
 #else
-	return ESP_OK;
+	return GN_RET_OK;
 #endif /* CONFIG_GROWNODE_WIFI_ENABLED */
 
 }
@@ -576,11 +742,11 @@ esp_err_t _gn_mqtt_on_connected(esp_mqtt_client_handle_t client) {
 	ESP_LOGD(TAG, "subscribing default topic %s, msg_id=%d", _gn_cmd_topic,
 			msg_id);
 
-	 //send hello message
-	 if (ESP_OK != _gn_mqtt_send_startup_message(_config)) {
-	 ESP_LOGE(TAG, "failed to send startup message");
-	 goto fail;
-	 }
+	//send hello message
+	if (ESP_OK != _gn_mqtt_send_startup_message(_config)) {
+		ESP_LOGE(TAG, "failed to send startup message");
+		goto fail;
+	}
 
 	if (ESP_OK
 			!= esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
@@ -702,6 +868,13 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 
 				esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
 						GN_NET_RST_START, NULL, 0, portMAX_DELAY);
+
+			} else if (strncmp(event->data, _GN_MQTT_PAYLOAD_RBT,
+					event->data_len) == 0) {
+				//rst message
+
+				esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
+						GN_NET_RBT_START, NULL, 0, portMAX_DELAY);
 
 			}
 
@@ -828,8 +1001,7 @@ esp_err_t gn_mqtt_init(gn_config_handle_t _conf) {
 	_gn_event_group_mqtt = xEventGroupCreate();
 
 	esp_mqtt_client_config_t mqtt_cfg = { .uri = CONFIG_GROWNODE_MQTT_URL,
-		.buffer_size = 4096,
-		};
+			.buffer_size = 4096, };
 
 	esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
 
@@ -897,7 +1069,7 @@ esp_err_t gn_mqtt_init(gn_config_handle_t _conf) {
 	//TODO start keepalive service
 
 	//fail: return ESP_FAIL;
-	ESP_LOGE(TAG, "MQTT client error: should never reach here!"); //TODO improve flow
+	ESP_LOGE(TAG, "MQTT client error: should never reach here!");//TODO improve flow
 	return ESP_FAIL;
 
 #else

@@ -27,6 +27,7 @@ extern "C" {
 static const char GN_LEAF_DS18B20_TYPE[GN_LEAF_DESC_TYPE_SIZE] = "ds18b20";
 
 //parameters
+static const char GN_DS18B20_PARAM_ACTIVE[] = "active"; /*!< whether the sensor is running*/
 static const char GN_DS18B20_PARAM_UPDATE_TIME_SEC[16] = "upd_time_sec"; /*!< seconds between sensor sampling */
 static const char GN_DS18B20_PARAM_GPIO[5] = "gpio"; /*!< GPIO connected to the temp sensor */
 static const char GN_DS18B20_PARAM_SENSOR_NAMES[GN_DS18B20_MAX_SENSORS][6] = { "temp1", "temp2",
