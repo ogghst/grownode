@@ -355,6 +355,10 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
 		leaf_name = cJSON_CreateString(_leaf_config->name);
 		cJSON_AddItemToObject(leaf, "name", leaf_name);
 
+		gn_leaf_descriptor_handle_t descriptor = gn_leaf_get_descriptor(
+				_leaf_config);
+		cJSON_AddStringToObject(leaf, "leaf_type", descriptor->type);
+
 		leaf_params = cJSON_CreateArray();
 		cJSON_AddItemToObject(leaf, "params", leaf_params);
 
@@ -363,15 +367,10 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
 		//ESP_LOGD(TAG, "gn_mqtt_send_node_config - building parameter: %s", _param->name);
 		while (_param) {
 
-			gn_leaf_descriptor_handle_t descriptor = gn_leaf_get_descriptor(
-					_leaf_config);
-
 			leaf_param = cJSON_CreateObject();
 			cJSON_AddItemToArray(leaf_params, leaf_param);
 			//leaf_param_name = cJSON_CreateString(_param->name);
 			cJSON_AddStringToObject(leaf_param, "name", _param->name);
-			cJSON_AddStringToObject(leaf_param, "leaf_type", descriptor->type);
-
 			//leaf_param_val = cJSON_CreateString(_param->param_val->val.s);
 			switch (_param->param_val->t) {
 			case GN_VAL_TYPE_STRING:
