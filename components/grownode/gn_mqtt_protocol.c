@@ -276,7 +276,7 @@ gn_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t _leaf_config) {
 
 }
 
-esp_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t param) {
+gn_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t param) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
@@ -299,10 +299,10 @@ esp_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t param) {
 	ESP_LOGD(TAG, "sent subscribe successful, topic = %s, msg_id=%d", topic,
 			msg_id);
 
-	return ESP_OK;
+	return GN_RET_OK;
 
 #else
-	return ESP_OK;
+	return GN_RET_OK;
 #endif /* CONFIG_GROWNODE_WIFI_ENABLED */
 
 }

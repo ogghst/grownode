@@ -67,7 +67,7 @@ TEST_CASE("gn_receive_status_0", "[pump]") {
 	esp_mqtt_event_id_t event_id = MQTT_EVENT_DATA;
 	char *topic = malloc(100 * sizeof(char));
 
-	_gn_mqtt_build_leaf_parameter_command_topic(pump_config, GN_PUMP_PARAM_STATUS, topic);
+	_gn_mqtt_build_leaf_parameter_command_topic(pump_config, GN_PUMP_PARAM_TOGGLE, topic);
 
 	char data[] = "0";
 	event->topic = (char*) malloc(strlen(topic) * sizeof(char));
@@ -99,7 +99,7 @@ TEST_CASE("gn_receive_status_1", "[pump]") {
 	esp_mqtt_event_id_t event_id = MQTT_EVENT_DATA;
 	char *topic = malloc(100 * sizeof(char));
 
-	_gn_mqtt_build_leaf_parameter_command_topic(pump_config, GN_PUMP_PARAM_STATUS, topic);
+	_gn_mqtt_build_leaf_parameter_command_topic(pump_config, GN_PUMP_PARAM_TOGGLE, topic);
 
 	char data[] = "1";
 	event->topic = (char*) malloc(strlen(topic) * sizeof(char));
@@ -252,7 +252,7 @@ TEST_CASE("gn_pump_mqtt_stress_test", "[pump]") {
 			if (i % 10 == 0) {
 
 				_gn_mqtt_build_leaf_parameter_command_topic(pump_config,
-						GN_PUMP_PARAM_STATUS, topic);
+						GN_PUMP_PARAM_TOGGLE, topic);
 
 				if (i % 20 == 0) {
 					strcpy(data, "1");

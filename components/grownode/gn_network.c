@@ -94,6 +94,8 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 					((*reason == WIFI_PROV_STA_AUTH_ERROR) ?
 							"Wi-Fi station authentication failed" :
 							"Wi-Fi access-point not found"));
+			wifi_prov_mgr_reset_provisioning();
+			gn_reboot();
 			break;
 		}
 		case WIFI_PROV_CRED_SUCCESS:
@@ -182,6 +184,9 @@ void _gn_wifi_init_sta(void) {
         ESP_LOGI(TAG, "connected to AP");
     } else if (bits & GN_WIFI_FAIL_EVENT) {
         ESP_LOGI(TAG, "Failed to connect to AP");
+		wifi_prov_mgr_reset_provisioning();
+		gn_reboot();
+
     } else {
         ESP_LOGE(TAG, "UNEXPECTED EVENT");
     }
@@ -469,8 +474,8 @@ void _gn_ota_task(void *pvParameter) {
 	if (ret == ESP_OK) {
 
 		gn_log("Firmware updated. Rebooting..");
-		vTaskDelay(5000 / portTICK_PERIOD_MS);
-		esp_restart();
+		//vTaskDelay(5000 / portTICK_PERIOD_MS);
+		gn_reboot();
 
 	} else {
 

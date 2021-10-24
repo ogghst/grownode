@@ -25,9 +25,12 @@ extern "C" {
 static const char GN_LEAF_PUMP_TYPE[GN_LEAF_DESC_TYPE_SIZE] = "pump";
 
 //parameters
-static const char GN_PUMP_PARAM_STATUS[7] = "status"; /*!< 0 = off, 1 = on */
-static const char GN_PUMP_PARAM_POWER[6] = "power"; /*!< 0 = off, 1024 = maximum */
-static const char GN_PUMP_PARAM_GPIO[5] = "gpio"; /*!< the GPIO to connect the pump (must be PWM capable) */
+static const char GN_PUMP_PARAM_TOGGLE[] = "toggle"; /*!< 0 = off, 1 = on */
+static const char GN_PUMP_PARAM_POWER[] = "power"; /*!< 0 = off, 1024 = maximum */
+static const char GN_PUMP_PARAM_CHANNEL[] = "channel"; /*!< 0 = channel A, 1 = channel B */
+static const char GN_PUMP_PARAM_GPIO_POWER[] = "gpio_power"; /*!< the GPIO to connect the pump (must be PWM capable) */
+static const char GN_PUMP_PARAM_GPIO_TOGGLE[] = "gpio_toggle"; /*!< the GPIO to connect the pump (must be PWM capable) */
+
 
 gn_leaf_descriptor_handle_t gn_pump_config(gn_leaf_config_handle_t leaf_config);
 

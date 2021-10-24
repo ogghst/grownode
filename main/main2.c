@@ -88,9 +88,9 @@ void app_main(void) {
 
 	gn_leaf_config_handle_t hcc_speed = gn_leaf_create(node, "hcc_speed",
 			gn_pump_task, 4096);
-	gn_leaf_param_init_double(hcc_speed, GN_PUMP_PARAM_GPIO, 2);
+	gn_leaf_param_init_double(hcc_speed, GN_PUMP_PARAM_GPIO_POWER, 2);
 	gn_leaf_param_init_double(hcc_speed, GN_PUMP_PARAM_POWER, 0);
-	gn_leaf_param_init_bool(hcc_speed, GN_PUMP_PARAM_STATUS, false);
+	gn_leaf_param_init_bool(hcc_speed, GN_PUMP_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t fan_in = gn_leaf_create(node, "fan_in",
 			gn_relay_task, 4096);
@@ -99,9 +99,9 @@ void app_main(void) {
 
 	gn_leaf_config_handle_t fan_speed = gn_leaf_create(node, "fan_speed",
 			gn_pump_task, 4096);
-	gn_leaf_param_init_double(fan_speed, GN_PUMP_PARAM_GPIO, 14);
+	gn_leaf_param_init_double(fan_speed, GN_PUMP_PARAM_GPIO_POWER, 14);
 	gn_leaf_param_init_double(fan_speed, GN_PUMP_PARAM_POWER, 0);
-	gn_leaf_param_init_bool(fan_speed, GN_PUMP_PARAM_STATUS, false);
+	gn_leaf_param_init_bool(fan_speed, GN_PUMP_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t bme280 = gn_leaf_create(node, "bme280",
 			gn_bme280_task, 4096);
