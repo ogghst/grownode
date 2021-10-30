@@ -109,6 +109,7 @@ idf_component_register(SRCS
 					"cc_common.c"
 					"cc_hashtable.c"
 					"leaves/gn_pump.c"
+					"leaves/gn_pump_hs.c"
 					"leaves/gn_ds18b20.c"
 					"leaves/gn_bme280.c"
 					"leaves/gn_pump_control.c"

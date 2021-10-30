@@ -983,25 +983,28 @@ gn_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf_config,
 
 }
 
-esp_err_t gn_leaf_param_get_string(const gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_param_get_string(const gn_leaf_config_handle_t leaf_config,
 		const char *name, char *val, size_t *lenght) {
 
 	if (!leaf_config || !name)
-		return ESP_ERR_INVALID_ARG;
+		return GN_RET_ERR_INVALID_ARG;
 
 	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config,
 			name);
 	if (!_param) {
-		return ESP_FAIL;
+		return GN_RET_ERR;
 	}
 
 	gn_param_val_handle_int_t _val =
 			(gn_param_val_handle_int_t) _param->param_val;
+	if (!_val) {
+		return GN_RET_ERR;
+	}
 
 	strcpy(val, _val->v.s);
 	*lenght = strlen(val);
 
-	return ESP_OK;
+	return GN_RET_OK;
 
 }
 
@@ -1173,24 +1176,28 @@ gn_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf_config,
 
 }
 
-esp_err_t gn_leaf_param_get_bool(const gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_param_get_bool(const gn_leaf_config_handle_t leaf_config,
 		const char *name, bool *val) {
 
 	if (!leaf_config || !name)
-		return ESP_ERR_INVALID_ARG;
+		return GN_RET_ERR_INVALID_ARG;
 
 	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config,
 			name);
 	if (!_param) {
-		return ESP_FAIL;
+		return GN_RET_ERR;
 	}
 
 	gn_param_val_handle_int_t _val =
 			(gn_param_val_handle_int_t) _param->param_val;
+	if (!_val) {
+		return GN_RET_ERR;
+	}
+
 
 	*val = _val->v.b;
 
-	return ESP_OK;
+	return GN_RET_OK;
 
 }
 
@@ -1358,24 +1365,27 @@ gn_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf_config,
 
 }
 
-esp_err_t gn_leaf_param_get_double(const gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_param_get_double(const gn_leaf_config_handle_t leaf_config,
 		const char *name, double *val) {
 
 	if (!leaf_config || !name)
-		return ESP_ERR_INVALID_ARG;
+		return GN_RET_ERR_INVALID_ARG;
 
 	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config,
 			name);
 	if (!_param) {
-		return ESP_FAIL;
+		return GN_RET_ERR;
 	}
 
 	gn_param_val_handle_int_t _val =
 			(gn_param_val_handle_int_t) _param->param_val;
+	if (!_val) {
+		return GN_RET_ERR;
+	}
 
 	*val = _val->v.d;
 
-	return ESP_OK;
+	return GN_RET_OK;
 
 }
 
