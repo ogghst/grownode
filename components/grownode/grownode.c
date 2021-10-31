@@ -347,7 +347,7 @@ esp_err_t _gn_init_keepalive_timer(gn_config_handle_intl_t conf) {
 	timer_init(TIMER_GROUP_0, TIMER_0, &config);
 	timer_set_counter_value(TIMER_GROUP_0, TIMER_0, 0);
 	timer_set_alarm_value(TIMER_GROUP_0, TIMER_0,
-	CONFIG_GROWNODE_KEEPALIVE_TIMER_SEC * TIMER_SCALE); //TODO timer configurable from kconfig
+			conf->mqtt_keepalive_timer_sec * TIMER_SCALE); //TODO timer configurable from kconfig
 	timer_enable_intr(TIMER_GROUP_0, TIMER_0);
 	return timer_isr_callback_add(TIMER_GROUP_0, TIMER_0,
 			_gn_timer_callback_isr,
@@ -355,11 +355,31 @@ esp_err_t _gn_init_keepalive_timer(gn_config_handle_intl_t conf) {
 
 }
 
+/**
+ * @brief	initialize config
+ *
+ * @return 	the configuration with its state (GN_CONFIG_STATUS_NOT_INITIALIZED as default)
+ */
 gn_config_handle_intl_t _gn_config_create() {
 
 	gn_config_handle_intl_t _conf = (gn_config_handle_intl_t) malloc(
 			sizeof(struct gn_config_t));
 	_conf->status = GN_CONFIG_STATUS_NOT_INITIALIZED;
+
+	_conf->mqtt_base_topic = (char*)malloc(sizeof(CONFIG_GROWNODE_MQTT_BASE_TOPIC)+1);
+	strncpy(_conf->mqtt_base_topic, CONFIG_GROWNODE_MQTT_BASE_TOPIC, sizeof(CONFIG_GROWNODE_MQTT_BASE_TOPIC)+1);
+
+	_conf->mqtt_url = (char*)malloc(sizeof(CONFIG_GROWNODE_MQTT_URL)+1);
+	strncpy(_conf->mqtt_url, CONFIG_GROWNODE_MQTT_URL, sizeof(CONFIG_GROWNODE_MQTT_URL)+1);
+
+	_conf->mqtt_keepalive_timer_sec = CONFIG_GROWNODE_KEEPALIVE_TIMER_SEC;
+
+	_conf->ota_url = (char*)malloc(sizeof(CONFIG_GROWNODE_FIRMWARE_URL)+1);
+	strncpy(_conf->ota_url, CONFIG_GROWNODE_FIRMWARE_URL, sizeof(CONFIG_GROWNODE_FIRMWARE_URL)+1);
+
+	_conf->sntp_server_name = (char*)malloc(sizeof(CONFIG_GROWNODE_SNTP_SERVER_NAME)+1);
+	strncpy(_conf->sntp_server_name, CONFIG_GROWNODE_SNTP_SERVER_NAME, sizeof(CONFIG_GROWNODE_SNTP_SERVER_NAME)+1);
+
 	return _conf;
 
 }
