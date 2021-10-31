@@ -105,7 +105,7 @@ typedef struct {
 	char type[GN_LEAF_DESC_TYPE_SIZE];
 	gn_leaf_task_callback callback;
 	gn_leaf_status_t status;
-	void* data;
+	void *data;
 } gn_leaf_descriptor_t;
 
 typedef gn_leaf_descriptor_t *gn_leaf_descriptor_handle_t;
@@ -122,6 +122,12 @@ typedef gn_leaf_descriptor_handle_t (*gn_leaf_config_callback)(
 typedef enum {
 	GN_VAL_TYPE_STRING, GN_VAL_TYPE_BOOLEAN, GN_VAL_TYPE_DOUBLE,
 } gn_val_type_t;
+
+typedef union {
+	char *s;
+	bool b;
+	double d;
+} gn_val_t;
 
 /*
  * type of parameter access
@@ -140,31 +146,7 @@ typedef enum {
 	GN_LEAF_PARAM_STORAGE_VOLATILE /*< param is never stored in NVS flash*/
 } gn_leaf_param_storage_t;
 
-typedef union {
-	char *s;
-	bool b;
-	double d;
-} gn_val_t;
-
-typedef struct {
-	gn_val_type_t t;
-	gn_val_t v;
-} gn_param_val_t;
-
-typedef gn_param_val_t *gn_param_val_handle_t;
-
-struct gn_leaf_param {
-	char *name;
-	gn_leaf_param_access_t access;
-	gn_leaf_param_storage_t storage;
-	gn_param_val_handle_t param_val;
-	gn_leaf_config_handle_t leaf_config;
-	struct gn_leaf_param *next;
-};
-
-typedef struct gn_leaf_param gn_leaf_param_t; //  = {NULL, GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_ALWAYS, NULL, NULL, NULL};
-
-typedef gn_leaf_param_t *gn_leaf_param_handle_t;
+typedef void *gn_leaf_param_handle_t;
 
 //typedef void* gn_leaf_context_handle_t;
 

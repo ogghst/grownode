@@ -276,16 +276,18 @@ gn_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t _leaf_config) {
 
 }
 
-gn_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t param) {
+gn_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t _param) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
+	gn_leaf_param_handle_intl_t param = (gn_leaf_config_handle_intl_t)_param;
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) param->leaf_config;
 	gn_node_config_handle_intl_t node_config =
 			(gn_node_config_handle_intl_t) leaf_config->node_config;
 	gn_config_handle_intl_t config =
 			(gn_config_handle_intl_t) node_config->config;
+
 
 	ESP_LOGD(TAG, "subscribing param %s on %s", param->name, leaf_config->name);
 
@@ -362,7 +364,7 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
 		leaf_params = cJSON_CreateArray();
 		cJSON_AddItemToObject(leaf, "params", leaf_params);
 
-		gn_leaf_param_handle_t _param = _leaf_config->params;
+		gn_leaf_param_handle_intl_t _param = (gn_leaf_param_handle_intl_t)_leaf_config->params;
 		//ESP_LOGD(TAG, "gn_mqtt_send_node_config - check parameter: %p", _param);
 		//ESP_LOGD(TAG, "gn_mqtt_send_node_config - building parameter: %s", _param->name);
 		while (_param) {
@@ -427,13 +429,17 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
 
 }
 
-gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t param) {
+gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
+
+
+	gn_leaf_param_handle_intl_t param = (gn_leaf_param_handle_intl_t)_param;
 
 	if (!param) {
 		return GN_RET_ERR_INVALID_ARG;
 	}
+
 
 	ESP_LOGD(TAG, "gn_mqtt_send_leaf_param %s", param->name);
 
@@ -915,8 +921,8 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 					break;
 				}
 
-				gn_leaf_param_handle_t _param =
-						_config->node_config->leaves.at[i]->params;
+				gn_leaf_param_handle_intl_t _param =
+						(gn_leaf_param_handle_intl_t)_config->node_config->leaves.at[i]->params;
 				while (_param) {
 					//message is for a parameter of this leaf
 					_gn_mqtt_build_leaf_parameter_command_topic(

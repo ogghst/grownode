@@ -81,7 +81,29 @@ struct gn_leaf_config_t {
 	gn_display_container_t display_container;
 };
 
+
+typedef struct {
+	gn_val_type_t t;
+	gn_val_t v;
+} gn_param_val_t;
+
+typedef gn_param_val_t *gn_param_val_handle_t;
+
 typedef gn_param_val_t *gn_param_val_handle_int_t;
+
+struct gn_leaf_param {
+	char *name;
+	gn_leaf_param_access_t access;
+	gn_leaf_param_storage_t storage;
+	gn_param_val_handle_t param_val;
+	gn_leaf_config_handle_t leaf_config;
+	struct gn_leaf_param *next;
+};
+
+typedef struct gn_leaf_param gn_leaf_param_t;
+
+typedef gn_leaf_param_t *gn_leaf_param_handle_intl_t;
+
 
 //typedef struct gn_leaf_param gn_leaf_param_t;
 
@@ -114,7 +136,5 @@ gn_err_t _gn_send_event_to_leaf(gn_leaf_config_handle_intl_t leaf_config,
 
 gn_err_t _gn_leaf_parameter_update(const gn_leaf_config_handle_t leaf_config,
 		const char *param, const void *data, const int data_len);
-
-
 
 #endif /* COMPONENTS_GROWNODE_SROWNODE_INTL_H_ */

@@ -779,7 +779,7 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
 		free(_buf);
 	}
 
-	gn_leaf_param_handle_t _ret = (gn_leaf_param_handle_t) malloc(
+	gn_leaf_param_handle_intl_t _ret = (gn_leaf_param_handle_intl_t) malloc(
 			sizeof(gn_leaf_param_t));
 	_ret->next = NULL;
 
@@ -823,6 +823,8 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
 
 }
 
+
+
 /**
  * 	@brief	init the parameter with new value and stores in NVS flash, overwriting previous values
  *
@@ -842,7 +844,7 @@ gn_err_t gn_leaf_param_init_string(const gn_leaf_config_handle_t leaf_config,
 	if (!leaf_config || !name || !val)
 		return ESP_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config,
+	gn_leaf_param_handle_intl_t _param = (gn_leaf_param_handle_intl_t)gn_leaf_param_get_param_handle(leaf_config,
 			name);
 	if (!_param) {
 		return ESP_ERR_INVALID_ARG;
@@ -922,7 +924,7 @@ gn_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf_config,
 	if (!leaf_config || !name || !val)
 		return GN_RET_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config,
+	gn_leaf_param_handle_intl_t _param = (gn_leaf_param_handle_intl_t)gn_leaf_param_get_param_handle(leaf_config,
 			name);
 	if (!_param)
 		return GN_RET_ERR_INVALID_ARG;
@@ -989,7 +991,7 @@ gn_err_t gn_leaf_param_get_string(const gn_leaf_config_handle_t leaf_config,
 	if (!leaf_config || !name)
 		return GN_RET_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config,
+	gn_leaf_param_handle_intl_t _param = (gn_leaf_param_handle_intl_t)gn_leaf_param_get_param_handle(leaf_config,
 			name);
 	if (!_param) {
 		return GN_RET_ERR;
@@ -1027,7 +1029,7 @@ gn_err_t gn_leaf_param_init_bool(const gn_leaf_config_handle_t leaf_config,
 	if (!leaf_config || !name)
 		return ESP_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config,
+	gn_leaf_param_handle_intl_t _param = (gn_leaf_param_handle_intl_t)gn_leaf_param_get_param_handle(leaf_config,
 			name);
 	if (!_param) {
 		return ESP_ERR_INVALID_ARG;
@@ -1113,7 +1115,7 @@ gn_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf_config,
 	if (!leaf_config || !name)
 		return GN_RET_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config,
+	gn_leaf_param_handle_intl_t _param = (gn_leaf_param_handle_intl_t)gn_leaf_param_get_param_handle(leaf_config,
 			name);
 	if (!_param)
 		return GN_RET_ERR_INVALID_ARG;
@@ -1182,7 +1184,7 @@ gn_err_t gn_leaf_param_get_bool(const gn_leaf_config_handle_t leaf_config,
 	if (!leaf_config || !name)
 		return GN_RET_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config,
+	gn_leaf_param_handle_intl_t _param = (gn_leaf_param_handle_intl_t)gn_leaf_param_get_param_handle(leaf_config,
 			name);
 	if (!_param) {
 		return GN_RET_ERR;
@@ -1222,7 +1224,7 @@ gn_err_t gn_leaf_param_init_double(const gn_leaf_config_handle_t leaf_config,
 		return ESP_ERR_INVALID_ARG;
 	}
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config,
+	gn_leaf_param_handle_intl_t _param = (gn_leaf_param_handle_intl_t)gn_leaf_param_get_param_handle(leaf_config,
 			name);
 	if (!_param) {
 		ESP_LOGE(TAG, "gn_leaf_param_init_double - cannot find parameter %s", name);
@@ -1304,7 +1306,7 @@ gn_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf_config,
 	if (!leaf_config || !name)
 		return ESP_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config,
+	gn_leaf_param_handle_intl_t _param = (gn_leaf_param_handle_intl_t)gn_leaf_param_get_param_handle(leaf_config,
 			name);
 	if (!_param) {
 		return ESP_ERR_INVALID_ARG;
@@ -1371,7 +1373,7 @@ gn_err_t gn_leaf_param_get_double(const gn_leaf_config_handle_t leaf_config,
 	if (!leaf_config || !name)
 		return GN_RET_ERR_INVALID_ARG;
 
-	gn_leaf_param_handle_t _param = gn_leaf_param_get_param_handle(leaf_config,
+	gn_leaf_param_handle_intl_t _param = (gn_leaf_param_handle_intl_t)gn_leaf_param_get_param_handle(leaf_config,
 			name);
 	if (!_param) {
 		return GN_RET_ERR;
@@ -1406,7 +1408,7 @@ gn_err_t _gn_leaf_parameter_update(const gn_leaf_config_handle_t leaf_config,
 	gn_leaf_config_handle_intl_t _leaf_config =
 			(gn_leaf_config_handle_intl_t) leaf_config;
 
-	gn_leaf_param_handle_t leaf_params = _leaf_config->params;
+	gn_leaf_param_handle_intl_t leaf_params = (gn_leaf_param_handle_intl_t)_leaf_config->params;
 
 	while (leaf_params != NULL) {
 
@@ -1445,7 +1447,9 @@ gn_err_t _gn_leaf_parameter_update(const gn_leaf_config_handle_t leaf_config,
 
 }
 
-gn_err_t _gn_leaf_param_destroy(gn_leaf_param_handle_t new_param) {
+gn_err_t _gn_leaf_param_destroy(gn_leaf_param_handle_t param) {
+
+	gn_leaf_param_handle_intl_t new_param = (gn_leaf_param_handle_intl_t)param;
 
 	if (!new_param)
 		return GN_RET_ERR_INVALID_ARG;
@@ -1471,14 +1475,16 @@ gn_err_t _gn_leaf_param_destroy(gn_leaf_param_handle_t new_param) {
  * @return		GN_RET_OK				upon success
  */
 gn_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
-		const gn_leaf_param_handle_t new_param) {
+		const gn_leaf_param_handle_t param) {
+
+	gn_leaf_param_handle_intl_t new_param = (gn_leaf_param_handle_intl_t)param;
 
 	if (!leaf || !new_param) {
 		ESP_LOGE(TAG, "gn_leaf_param_add incorrect parameters");
 		return GN_RET_ERR_INVALID_ARG;
 	}
 
-	gn_leaf_param_handle_t _param =
+	gn_leaf_param_handle_intl_t _param =
 			((gn_leaf_config_handle_intl_t) leaf)->params;
 
 	while (_param) {
@@ -1586,7 +1592,7 @@ gn_leaf_param_handle_t gn_leaf_param_get_param_handle(
 		ESP_LOGE(TAG, "gn_leaf_param_get incorrect parameters");
 		return NULL;
 	}
-	gn_leaf_param_handle_t param =
+	gn_leaf_param_handle_intl_t param =
 			((gn_leaf_config_handle_intl_t) leaf_config)->params;
 	while (param) {
 		//ESP_LOGD(TAG, "gn_leaf_param_get_param_handle - comparing %s (%d) and checking %s (%d)", param_name, strlen(param_name), param->name, strlen(param->name));
