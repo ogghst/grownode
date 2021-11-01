@@ -45,7 +45,7 @@ void app_main(void) {
 	esp_log_level_set("gn_leaf_pump_control", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_ds18b20", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_cwl", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_bme280", ESP_LOG_INFO);
+	esp_log_level_set("gn_leaf_bme280", ESP_LOG_DEBUG);
 
 	//creates the config handle
 	gn_config_handle_t config = gn_init();

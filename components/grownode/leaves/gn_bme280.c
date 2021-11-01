@@ -186,6 +186,8 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 	double press;
 	gn_leaf_param_get_double(leaf_config, GN_BME280_PARAM_PRESS, &press);
 
+	ESP_LOGD(TAG, "%s - bme280 task started", gn_leaf_get_config_name(leaf_config));
+
 	//bme280 initialization
 	esp_err_t ret = bmp280_init_default_params(&data->params);
 	if (ret != ESP_OK) {
@@ -243,6 +245,7 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 
 		}
 	}
+	ESP_LOGD(TAG, "done initializing");
 
 	//start timer if needed
 	if (ret == ESP_OK && active == true) {

@@ -45,6 +45,11 @@ typedef struct {
 	gn_leaf_param_handle_t gn_pump_gpio_toggle_param;
 	gn_leaf_param_handle_t gn_pump_power_param;
 	gn_leaf_param_handle_t gn_pump_gpio_power_param;
+	mcpwm_unit_t pwm_unit;
+	mcpwm_timer_t pwm_timer;
+	mcpwm_generator_t pwm_generator;
+	mcpwm_pin_config_t *pin_config;
+	mcpwm_config_t *pwm_config;
 
 } gn_pump_data_t;
 

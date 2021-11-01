@@ -887,9 +887,10 @@ gn_err_t gn_leaf_param_init_string(const gn_leaf_config_handle_t leaf_config,
 	_buf[_len - 1] = '\0';
 
 	//if already set keep old value
-	//if (gn_storage_get(_buf, (void**) &val) == ESP_OK) {
-	//	return GN_RET_OK;
-	//}
+	if (gn_storage_get(_buf, (void**) &val) == ESP_OK) {
+		ESP_LOGD(TAG, ".. value already found: (%s) - skipping", val);
+		return GN_RET_OK;
+	}
 
 	//store the parameter
 	if (gn_storage_set(_buf, (void**) &val, strlen(val)) != ESP_OK) {
@@ -1072,9 +1073,10 @@ gn_err_t gn_leaf_param_init_bool(const gn_leaf_config_handle_t leaf_config,
 	_buf[_len - 1] = '\0';
 
 	//if already set keep old value
-	//if (gn_storage_get(_buf, (void**) &val) == ESP_OK) {
-	//	return GN_RET_OK;
-	//}
+	if (gn_storage_get(_buf, (void**) &val) == ESP_OK) {
+		ESP_LOGD(TAG, ".. value already found: (%d) - skipping", val);
+		return GN_RET_OK;
+	}
 
 
 	//store the parameter
@@ -1268,9 +1270,10 @@ gn_err_t gn_leaf_param_init_double(const gn_leaf_config_handle_t leaf_config,
 	_buf[_len - 1] = '\0';
 
 	//if already set keep old value
-	//if (gn_storage_get(_buf, (void**) &val) == ESP_OK) {
-	//	return GN_RET_OK;
-	//}
+	if (gn_storage_get(_buf, (void**) &val) == ESP_OK) {
+		ESP_LOGD(TAG, ".. value already found: (%f) - skipping", val);
+		return GN_RET_OK;
+	}
 
 	//store the parameter
 	if (gn_storage_set(_buf, (void**) &val, sizeof(double)) != ESP_OK) {
