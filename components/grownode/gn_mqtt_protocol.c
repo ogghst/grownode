@@ -410,8 +410,8 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
 	cJSON_Delete(root);
 
 	//publish
-	msg_id = esp_mqtt_client_publish(config->mqtt_client, msg->topic, buf, 0, 2,
-			0);
+	msg_id = esp_mqtt_client_publish(config->mqtt_client, msg->topic, buf, 0, 0,
+			1);
 	ESP_LOGD(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s",
 			msg_id, msg->topic, buf);
 
@@ -483,7 +483,7 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 			(gn_config_handle_intl_t) node_config->config;
 
 	//publish
-	msg_id = esp_mqtt_client_publish(config->mqtt_client, _topic, buf, 0, 2, 0);
+	msg_id = esp_mqtt_client_publish(config->mqtt_client, _topic, buf, 0, 0, 0);
 	ESP_LOGD(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s",
 			msg_id, _topic, buf);
 
@@ -500,7 +500,7 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 
 }
 
-gn_err_t _gn_mqtt_send_startup_message(gn_config_handle_t _config) {
+gn_err_t gn_mqtt_send_startup_message(gn_config_handle_t _config) {
 
 	//TODO change with a better implementation with a specific message type
 	//return gn_mqtt_send_node_config(((gn_config_handle_intl_t)_config)->node_config);
@@ -523,7 +523,7 @@ gn_err_t _gn_mqtt_send_startup_message(gn_config_handle_t _config) {
 
 	cJSON *root;
 	root = cJSON_CreateObject();
-	cJSON_AddStringToObject(root, "msgtype", "startup");
+	cJSON_AddStringToObject(root, "msgtype", "online");
 	if (!cJSON_PrintPreallocated(root, buf, _GN_MQTT_MAX_PAYLOAD_LENGTH,
 	false)) {
 		ESP_LOGE(TAG, "cannot print json message");
@@ -533,7 +533,7 @@ gn_err_t _gn_mqtt_send_startup_message(gn_config_handle_t _config) {
 	cJSON_Delete(root);
 
 	//publish
-	msg_id = esp_mqtt_client_publish(config->mqtt_client, msg->topic, buf, 0, 2,
+	msg_id = esp_mqtt_client_publish(config->mqtt_client, msg->topic, buf, 0, 0,
 			0);
 	ESP_LOGD(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s",
 			msg_id, msg->topic, buf);
@@ -583,7 +583,7 @@ gn_err_t gn_mqtt_send_reboot_message(gn_config_handle_t _config) {
 	cJSON_Delete(root);
 
 	//publish
-	msg_id = esp_mqtt_client_publish(config->mqtt_client, msg->topic, buf, 0, 2,
+	msg_id = esp_mqtt_client_publish(config->mqtt_client, msg->topic, buf, 0, 0,
 			0);
 	ESP_LOGD(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s",
 			msg_id, msg->topic, buf);
@@ -633,7 +633,7 @@ gn_err_t gn_mqtt_send_reset_message(gn_config_handle_t _config) {
 	cJSON_Delete(root);
 
 	//publish
-	msg_id = esp_mqtt_client_publish(config->mqtt_client, msg->topic, buf, 0, 2,
+	msg_id = esp_mqtt_client_publish(config->mqtt_client, msg->topic, buf, 0, 0,
 			0);
 	ESP_LOGD(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s",
 			msg_id, msg->topic, buf);
@@ -683,7 +683,7 @@ gn_err_t gn_mqtt_send_ota_message(gn_config_handle_t _config) {
 	cJSON_Delete(root);
 
 	//publish
-	msg_id = esp_mqtt_client_publish(config->mqtt_client, msg->topic, buf, 0, 2,
+	msg_id = esp_mqtt_client_publish(config->mqtt_client, msg->topic, buf, 0, 0,
 			0);
 	ESP_LOGD(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s",
 			msg_id, msg->topic, buf);
@@ -718,7 +718,7 @@ gn_err_t gn_mqtt_send_leaf_message(gn_leaf_config_handle_t _leaf,
 
 	//publish
 	ESP_LOGD(TAG, "publish topic %s, msg=%s", buf, msg);
-	int msg_id = esp_mqtt_client_publish(config->mqtt_client, buf, msg, 0, 2,
+	int msg_id = esp_mqtt_client_publish(config->mqtt_client, buf, msg, 0, 0,
 			0);
 
 	if (msg_id == -1)
@@ -748,7 +748,7 @@ esp_err_t _gn_mqtt_on_connected(esp_mqtt_client_handle_t client) {
 			msg_id);
 
 	//send hello message
-	if (ESP_OK != _gn_mqtt_send_startup_message(_config)) {
+	if (ESP_OK != gn_mqtt_send_startup_message(_config)) {
 		ESP_LOGE(TAG, "failed to send startup message");
 		goto fail;
 	}
@@ -1005,7 +1005,15 @@ esp_err_t gn_mqtt_init(gn_config_handle_t _conf) {
 
 	_gn_event_group_mqtt = xEventGroupCreate();
 
-	esp_mqtt_client_config_t mqtt_cfg = { .uri = conf->mqtt_url,
+	char _topic[_GN_MQTT_MAX_TOPIC_LENGTH];
+	_gn_mqtt_build_status_topic(_conf, _topic);
+
+	esp_mqtt_client_config_t mqtt_cfg = {
+			.uri = conf->mqtt_url,
+			.lwt_topic = _topic,
+			.lwt_msg = "{\"msgtype\": \"offline\"}",
+			.lwt_qos = 1,
+			.lwt_retain = 1,
 			.buffer_size = 4096, };
 
 	esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
