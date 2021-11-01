@@ -45,6 +45,11 @@ typedef struct {
 	gn_leaf_param_handle_t gn_pump_gpio_toggle_param;
 	gn_leaf_param_handle_t gn_pump_power_param;
 	gn_leaf_param_handle_t gn_pump_gpio_power_param;
+	mcpwm_unit_t pwm_unit;
+	mcpwm_timer_t pwm_timer;
+	mcpwm_generator_t pwm_generator;
+	mcpwm_pin_config_t *pin_config;
+	mcpwm_config_t *pwm_config;
 
 } gn_pump_data_t;
 
@@ -120,39 +125,43 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 			data->gn_pump_gpio_power_param->param_val->v.d,
 			data->gn_pump_channel_param->param_val->v.b);
 
-	mcpwm_unit_t pwm_unit =
+	data->pwm_unit =
 			data->gn_pump_channel_param->param_val->v.b ?
 					MCPWM_UNIT_1 : MCPWM_UNIT_0;
 
 	/*
-	mcpwm_io_signals_t pwm_signal =
-			data->gn_pump_channel_param->param_val->v.b ? MCPWM1A : MCPWM0A;
-	*/
+	 mcpwm_io_signals_t pwm_signal =
+	 data->gn_pump_channel_param->param_val->v.b ? MCPWM1A : MCPWM0A;
+	 */
 
-	mcpwm_timer_t pwm_timer =
+	data->pwm_timer =
 			data->gn_pump_channel_param->param_val->v.b ?
 					MCPWM_TIMER_1 : MCPWM_TIMER_0;
 
-	mcpwm_generator_t pwm_generator =
+	data->pwm_generator =
 			data->gn_pump_channel_param->param_val->v.b ?
 					MCPWM_GEN_B : MCPWM_GEN_A;
 
-	mcpwm_pin_config_t pin_config = { .mcpwm0a_out_num = (
+	data->pin_config = (mcpwm_pin_config_t*) malloc(sizeof(mcpwm_pin_config_t));
+	memset(data->pin_config, 0, sizeof(mcpwm_pin_config_t));
+	data->pin_config->mcpwm0a_out_num = (
 			data->gn_pump_channel_param->param_val->v.b ?
-					0 : data->gn_pump_gpio_power_param->param_val->v.d),
-			.mcpwm1a_out_num = (
-					data->gn_pump_channel_param->param_val->v.b ?
-							data->gn_pump_gpio_power_param->param_val->v.d : 0)
+					0 : data->gn_pump_gpio_power_param->param_val->v.d);
+	data->pin_config->mcpwm1b_out_num = (
+			data->gn_pump_channel_param->param_val->v.b ?
+					data->gn_pump_gpio_power_param->param_val->v.d : 0);
 
-	};
-	mcpwm_set_pin(pwm_unit, &pin_config);
-	mcpwm_config_t pwm_config;
-	pwm_config.frequency = 10000; //TODO make configurable
-	pwm_config.cmpr_a = 0.0;
-	pwm_config.cmpr_b = 0.0;
-	pwm_config.counter_mode = MCPWM_UP_COUNTER;
-	pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
-	mcpwm_init(pwm_unit, pwm_timer, &pwm_config); //Configure PWM0A & PWM0B with above settings
+	mcpwm_set_pin(data->pwm_unit, data->pin_config);
+
+	data->pwm_config = (mcpwm_config_t*) malloc(sizeof(mcpwm_config_t));
+	memset(data->pwm_config, 0, sizeof(mcpwm_config_t));
+	data->pwm_config->frequency = 100000; //TODO make configurable
+	data->pwm_config->cmpr_a = 0.0;
+	data->pwm_config->cmpr_b = 0.0;
+	data->pwm_config->counter_mode = MCPWM_UP_COUNTER;
+	data->pwm_config->duty_mode = MCPWM_DUTY_MODE_0;
+
+	mcpwm_init(data->pwm_unit, data->pwm_timer, data->pwm_config); //Configure PWM0A & PWM0B with above settings
 
 	ESP_LOGD(TAG, "%s - pwm initialized", gn_leaf_get_config_name(leaf_config));
 
@@ -341,19 +350,29 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 			if (!data->gn_pump_toggle_param->param_val->v.b) {
 				gpio_set_level(data->gn_pump_gpio_toggle_param->param_val->v.d,
 						0);
-				mcpwm_set_duty(pwm_unit, pwm_timer, pwm_generator, 0);
+				mcpwm_set_duty(data->pwm_unit, data->pwm_timer,
+						data->pwm_generator, 0);
 				ESP_LOGD(TAG, "%s - toggle off",
 						gn_leaf_get_config_name(leaf_config));
+				ESP_LOGD(TAG,
+						"%s - setting pump power pin %f to %f (pwm_unit=%d, pwm_timer=%d, pwm_generator=%d)",
+						gn_leaf_get_config_name(leaf_config),
+						data->gn_pump_gpio_power_param->param_val->v.d,
+						data->gn_pump_power_param->param_val->v.d,
+						data->pwm_unit, data->pwm_timer, data->pwm_generator);
 				need_update = false;
 			} else {
 				gpio_set_level(data->gn_pump_gpio_toggle_param->param_val->v.d,
 						1);
-				mcpwm_set_duty(pwm_unit, pwm_timer, pwm_generator,
+				mcpwm_set_duty(data->pwm_unit, data->pwm_timer,
+						data->pwm_generator,
 						data->gn_pump_power_param->param_val->v.d);
-				ESP_LOGD(TAG, "%s - setting pump power pin %f to %f",
+				ESP_LOGD(TAG,
+						"%s - setting pump power pin %f to %f (pwm_unit=%d, pwm_timer=%d, pwm_generator=%d)",
 						gn_leaf_get_config_name(leaf_config),
 						data->gn_pump_gpio_power_param->param_val->v.d,
-						data->gn_pump_power_param->param_val->v.d);
+						data->gn_pump_power_param->param_val->v.d,
+						data->pwm_unit, data->pwm_timer, data->pwm_generator);
 				need_update = false;
 			}
 		}

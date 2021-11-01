@@ -169,6 +169,8 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 	gn_bme280_data_t *data = (gn_bme280_data_t*) gn_leaf_get_descriptor(
 			leaf_config)->data;
 
+	ESP_LOGD(TAG, "%s - bme280 task started", gn_leaf_get_config_name(leaf_config));
+
 	//bme280 initialization
 	esp_err_t ret = bmp280_init_default_params(&data->params);
 	if (ret != ESP_OK) {
@@ -206,9 +208,9 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 	}
 
 	bool bme280p = data->dev.id == BME280_CHIP_ID;
-	ESP_LOGD(TAG, "BMP280: found %s\n", bme280p ? "BME280" : "BMP280");
+	ESP_LOGD(TAG, "BMP280: found %s", bme280p ? "BME280" : "BMP280");
 
-	ESP_LOGD(TAG, "creating timer...");
+	ESP_LOGD(TAG, "creating timer");
 	//create a timer to update temps
 	esp_timer_create_args_t bme280_sensor_timer_args = { .callback =
 			&bme280_sensor_collect, .arg = leaf_config, .name =
@@ -223,6 +225,7 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 		//return descriptor;
 		goto leaf_start;
 	}
+	ESP_LOGD(TAG, "done initializing");
 
 	//start timer if needed
 	if (data->active_param->param_val->v.b == true) {
