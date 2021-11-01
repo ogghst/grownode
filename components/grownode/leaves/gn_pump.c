@@ -108,60 +108,63 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 
 	gn_leaf_event_t evt;
 
+	esp_err_t ret = ESP_OK;
+
 	//retrieves status descriptor from config
 	gn_pump_data_t *data =
 			(gn_pump_data_t*) gn_leaf_get_descriptor(leaf_config)->data;
 
+	double gpio_toggle;
+	gn_leaf_param_get_double(leaf_config, GN_PUMP_PARAM_GPIO_TOGGLE,
+			&gpio_toggle);
+
+	double gpio_power;
+	gn_leaf_param_get_double(leaf_config, GN_PUMP_PARAM_GPIO_POWER,
+			&gpio_power);
+
+	double power;
+	gn_leaf_param_get_double(leaf_config, GN_PUMP_PARAM_POWER, &power);
+
+	bool toggle;
+	gn_leaf_param_get_bool(leaf_config, GN_PUMP_PARAM_TOGGLE, &toggle);
+
+	bool channel;
+	gn_leaf_param_get_bool(leaf_config, GN_PUMP_PARAM_CHANNEL, &channel);
+
 	//setup toggle
-	gpio_set_direction(data->gn_pump_gpio_toggle_param->param_val->v.d,
-			GPIO_MODE_OUTPUT);
-	gpio_set_level(data->gn_pump_gpio_toggle_param->param_val->v.d,
-			data->gn_pump_toggle_param->param_val->v.b ? 1 : 0);
+	gpio_set_direction(gpio_toggle, GPIO_MODE_OUTPUT);
+	gpio_set_level(gpio_toggle, toggle ? 1 : 0);
 
 	//setup pwm
 
-	ESP_LOGD(TAG, "%s - setting pwm pin %f channel %d",
-			gn_leaf_get_config_name(leaf_config),
-			data->gn_pump_gpio_power_param->param_val->v.d,
-			data->gn_pump_channel_param->param_val->v.b);
+	ESP_LOGD(TAG, "%s - setting pwm pin %d channel %d",
+			gn_leaf_get_config_name(leaf_config), (int )gpio_toggle,
+			(int )channel);
 
-	data->pwm_unit =
-			data->gn_pump_channel_param->param_val->v.b ?
-					MCPWM_UNIT_1 : MCPWM_UNIT_0;
+	mcpwm_unit_t pwm_unit = channel ? MCPWM_UNIT_1 : MCPWM_UNIT_0;
 
 	/*
 	 mcpwm_io_signals_t pwm_signal =
 	 data->gn_pump_channel_param->param_val->v.b ? MCPWM1A : MCPWM0A;
 	 */
 
-	data->pwm_timer =
-			data->gn_pump_channel_param->param_val->v.b ?
-					MCPWM_TIMER_1 : MCPWM_TIMER_0;
+	mcpwm_timer_t pwm_timer = channel ? MCPWM_TIMER_1 : MCPWM_TIMER_0;
 
-	data->pwm_generator =
-			data->gn_pump_channel_param->param_val->v.b ?
-					MCPWM_GEN_B : MCPWM_GEN_A;
+	mcpwm_generator_t pwm_generator = channel ? MCPWM_GEN_B : MCPWM_GEN_A;
 
-	data->pin_config = (mcpwm_pin_config_t*) malloc(sizeof(mcpwm_pin_config_t));
-	memset(data->pin_config, 0, sizeof(mcpwm_pin_config_t));
-	data->pin_config->mcpwm0a_out_num = (
-			data->gn_pump_channel_param->param_val->v.b ?
-					0 : data->gn_pump_gpio_power_param->param_val->v.d);
-	data->pin_config->mcpwm1b_out_num = (
-			data->gn_pump_channel_param->param_val->v.b ?
-					data->gn_pump_gpio_power_param->param_val->v.d : 0);
+	mcpwm_pin_config_t pin_config = { .mcpwm0a_out_num = (
+			channel ? 0 : gpio_power), .mcpwm1a_out_num = (
+			channel ? gpio_power : 0)
 
-	mcpwm_set_pin(data->pwm_unit, data->pin_config);
-
-	data->pwm_config = (mcpwm_config_t*) malloc(sizeof(mcpwm_config_t));
-	memset(data->pwm_config, 0, sizeof(mcpwm_config_t));
-	data->pwm_config->frequency = 100000; //TODO make configurable
-	data->pwm_config->cmpr_a = 0.0;
-	data->pwm_config->cmpr_b = 0.0;
-	data->pwm_config->counter_mode = MCPWM_UP_COUNTER;
-	data->pwm_config->duty_mode = MCPWM_DUTY_MODE_0;
-
-	mcpwm_init(data->pwm_unit, data->pwm_timer, data->pwm_config); //Configure PWM0A & PWM0B with above settings
+	};
+	mcpwm_set_pin(pwm_unit, &pin_config);
+	mcpwm_config_t pwm_config;
+	pwm_config.frequency = 10000; //TODO make configurable
+	pwm_config.cmpr_a = 0.0;
+	pwm_config.cmpr_b = 0.0;
+	pwm_config.counter_mode = MCPWM_UP_COUNTER;
+	pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
+	mcpwm_init(pwm_unit, pwm_timer, &pwm_config); //Configure PWM0A & PWM0B with above settings
 
 	ESP_LOGD(TAG, "%s - pwm initialized", gn_leaf_get_config_name(leaf_config));
 
@@ -198,7 +201,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 			label_status = lv_label_create(_cnt);
 			//lv_obj_add_style(label_status, style, 0);
 			lv_label_set_text(label_status,
-					data->gn_pump_toggle_param->param_val->v.b ?
+					toggle ?
 							"status: on" : "status: off");
 			//lv_obj_align_to(label_status, label_title, LV_ALIGN_BOTTOM_LEFT,
 			//		LV_PCT(10), LV_PCT(10));
@@ -210,7 +213,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 
 			char _p[21];
 			snprintf(_p, 20, "power: %4.0f",
-					data->gn_pump_power_param->param_val->v.d);
+					power);
 			lv_label_set_text(label_power, _p);
 			//lv_obj_align_to(label_power, label_status, LV_ALIGN_TOP_LEFT, 0,
 			//		LV_PCT(10));
@@ -262,7 +265,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 					if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 						lv_label_set_text(label_status,
-								data->gn_pump_toggle_param->param_val->v.b ?
+								toggle ?
 										"status: on" : "status: off");
 
 						gn_display_leaf_refresh_end();
@@ -346,33 +349,50 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 		}
 
 		if (need_update == true) {
+
 			//finally, we update sensor using the parameter values
-			if (!data->gn_pump_toggle_param->param_val->v.b) {
-				gpio_set_level(data->gn_pump_gpio_toggle_param->param_val->v.d,
-						0);
-				mcpwm_set_duty(data->pwm_unit, data->pwm_timer,
-						data->pwm_generator, 0);
+			gn_leaf_param_get_bool(leaf_config, GN_PUMP_PARAM_TOGGLE, &toggle);
+			gn_leaf_param_get_double(leaf_config, GN_PUMP_PARAM_POWER, &power);
+
+			if (!toggle) {
+				ret = gpio_set_level(gpio_toggle, 0);
+
+				if (ret != ESP_OK) {
+					ESP_LOGE(TAG, "error in disabling signal, channel %d",
+							(int )channel);
+				}
+
+				ret = mcpwm_set_duty(pwm_unit, pwm_timer, pwm_generator, 0);
+
+				if (ret != ESP_OK) {
+					ESP_LOGE(TAG, "error in changing power, channel %d",
+							(int )channel);
+				}
+
 				ESP_LOGD(TAG, "%s - toggle off",
 						gn_leaf_get_config_name(leaf_config));
-				ESP_LOGD(TAG,
-						"%s - setting pump power pin %f to %f (pwm_unit=%d, pwm_timer=%d, pwm_generator=%d)",
-						gn_leaf_get_config_name(leaf_config),
-						data->gn_pump_gpio_power_param->param_val->v.d,
-						data->gn_pump_power_param->param_val->v.d,
-						data->pwm_unit, data->pwm_timer, data->pwm_generator);
+
 				need_update = false;
+
 			} else {
-				gpio_set_level(data->gn_pump_gpio_toggle_param->param_val->v.d,
-						1);
-				mcpwm_set_duty(data->pwm_unit, data->pwm_timer,
-						data->pwm_generator,
-						data->gn_pump_power_param->param_val->v.d);
-				ESP_LOGD(TAG,
-						"%s - setting pump power pin %f to %f (pwm_unit=%d, pwm_timer=%d, pwm_generator=%d)",
-						gn_leaf_get_config_name(leaf_config),
-						data->gn_pump_gpio_power_param->param_val->v.d,
-						data->gn_pump_power_param->param_val->v.d,
-						data->pwm_unit, data->pwm_timer, data->pwm_generator);
+
+				ret = gpio_set_level(gpio_toggle, 1);
+
+				if (ret != ESP_OK) {
+					ESP_LOGE(TAG, "error in setting signal, channel %d",
+							(int )channel);
+				}
+
+				ret = mcpwm_set_duty(pwm_unit, pwm_timer, pwm_generator, power);
+
+				if (ret != ESP_OK) {
+					ESP_LOGE(TAG, "error in  changing power, channel %d",
+							(int )channel);
+				}
+
+				ESP_LOGD(TAG, "%s - setting power pin %d to %d",
+						gn_leaf_get_config_name(leaf_config), (int )gpio_power,
+						(int )power);
 				need_update = false;
 			}
 		}

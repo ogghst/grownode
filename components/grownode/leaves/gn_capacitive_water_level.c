@@ -60,45 +60,55 @@ void gn_cwl_sensor_collect(gn_leaf_config_handle_t leaf_config) {
 	ESP_LOGD(TAG, "gn_cwl_sensor_collect");
 
 	//retrieves status descriptor from config
-	gn_cwl_data_t *data =
-			(gn_cwl_data_t*) gn_leaf_get_descriptor(leaf_config)->data;
+	//gn_cwl_data_t *data =
+	//		(gn_cwl_data_t*) gn_leaf_get_descriptor(leaf_config)->data;
+
+	double channel;
+	gn_leaf_param_get_double(leaf_config, GN_CWL_PARAM_TOUCH_CHANNEL, &channel);
 
 	uint16_t read_value;
 	touch_pad_clear_status();
-	touch_pad_read_raw_data(data->gn_cwl_touch_channel->param_val->v.d,
-			&read_value);
+	touch_pad_read_raw_data(channel, &read_value);
 	//converting to double
 	double result = read_value;
 	//memcpy(&result, &read_value, sizeof(uint16_t));
 
 	//store parameter and notify network
-	gn_leaf_param_set_double(leaf_config, data->act_level_param->name, result);
+	gn_leaf_param_set_double(leaf_config, GN_CWL_PARAM_ACT_LEVEL, result);
+
+	double max_level;
+	gn_leaf_param_get_double(leaf_config, GN_CWL_PARAM_MAX_LEVEL, &max_level);
+
+	double min_level;
+	gn_leaf_param_get_double(leaf_config, GN_CWL_PARAM_MIN_LEVEL, &min_level);
+
+	bool trg_high;
+	gn_leaf_param_get_bool(leaf_config, GN_CWL_PARAM_TRG_HIGH, &trg_high);
+
+	bool trg_low;
+	gn_leaf_param_get_bool(leaf_config, GN_CWL_PARAM_TRG_LOW, &trg_low);
 
 	//if level is above maximum, trigger max
-	if (result
-			>= data->max_level_param->param_val->v.d&& data->trg_hig_param->param_val->v.b == false) {
-		gn_leaf_param_set_bool(leaf_config, data->trg_hig_param->name,
+	if (result >= max_level && trg_high == false) {
+		gn_leaf_param_set_bool(leaf_config, GN_CWL_PARAM_TRG_HIGH,
 		true);
-	}
+	} else
 
 	//reset the trigger status if returning below max
-	if (result
-			< data->max_level_param->param_val->v.d&& data->trg_hig_param->param_val->v.b == true) {
-		gn_leaf_param_set_bool(leaf_config, data->trg_hig_param->name,
+	if (result < max_level && trg_high == true) {
+		gn_leaf_param_set_bool(leaf_config, GN_CWL_PARAM_TRG_HIGH,
 		false);
-	}
+	} else
 
 	//if level is below maximum, trigger min
-	if (result
-			<= data->min_level_param->param_val->v.d&& data->trg_low_param->param_val->v.b == false) {
-		gn_leaf_param_set_bool(leaf_config, data->trg_low_param->name,
+	if (result <= min_level && trg_low == false) {
+		gn_leaf_param_set_bool(leaf_config, GN_CWL_PARAM_TRG_LOW,
 		true);
-	}
+	} else
 
 	//reset the trigger status if returning above min
-	if (result
-			> data->min_level_param->param_val->v.d&& data->trg_low_param->param_val->v.b == true) {
-		gn_leaf_param_set_bool(leaf_config, data->trg_low_param->name,
+	if (result > min_level && trg_low == true) {
+		gn_leaf_param_set_bool(leaf_config, GN_CWL_PARAM_TRG_LOW,
 		false);
 	}
 
@@ -107,7 +117,7 @@ void gn_cwl_sensor_collect(gn_leaf_config_handle_t leaf_config) {
 gn_leaf_descriptor_handle_t gn_capacitive_water_level_config(
 		gn_leaf_config_handle_t leaf_config) {
 
-	ESP_LOGD(TAG,"gn_capacitive_water_level_config");
+	ESP_LOGD(TAG, "gn_capacitive_water_level_config");
 
 	gn_leaf_descriptor_handle_t descriptor =
 			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
@@ -172,6 +182,26 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 	gn_cwl_data_t *data =
 			(gn_cwl_data_t*) gn_leaf_get_descriptor(leaf_config)->data;
 
+	double touch_channel;
+	gn_leaf_param_get_double(leaf_config, GN_CWL_PARAM_TOUCH_CHANNEL,
+			&touch_channel);
+
+	double min_level;
+	gn_leaf_param_get_double(leaf_config, GN_CWL_PARAM_MIN_LEVEL, &min_level);
+
+	bool trg_high;
+	gn_leaf_param_get_bool(leaf_config, GN_CWL_PARAM_TRG_HIGH, &trg_high);
+
+	bool trg_low;
+	gn_leaf_param_get_bool(leaf_config, GN_CWL_PARAM_TRG_LOW, &trg_low);
+
+	double max_level;
+	gn_leaf_param_get_double(leaf_config, GN_CWL_PARAM_MAX_LEVEL, &max_level);
+
+	double update_time_sec;
+	gn_leaf_param_get_double(leaf_config, GN_CWL_PARAM_UPDATE_TIME_SEC, &update_time_sec);
+
+
 	//setup capacitive pin
 
 	ESP_LOGD(TAG, "gn_capacitive_water_level_task");
@@ -190,8 +220,8 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 	touch_pad_set_voltage(TOUCH_HVOLT_2V7, TOUCH_LVOLT_0V5,
 			TOUCH_HVOLT_ATTEN_1V);
 
-	touch_pad_config(data->gn_cwl_touch_channel->param_val->v.d,
-			GN_CWL_TOUCH_THRESH);
+	touch_pad_config(touch_channel,
+	GN_CWL_TOUCH_THRESH);
 
 	// Initialize and start a software filter to detect slight change of capacitance.
 	touch_pad_filter_start(GN_CWL_TOUCHPAD_FILTER_TOUCH_PERIOD);
@@ -217,7 +247,7 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 		if (_cnt) {
 
 			//style from the container
-			lv_style_t *style = _cnt->styles->style;
+			//lv_style_t *style = _cnt->styles->style;
 
 			ESP_LOGD(TAG, "Set Layout");
 			//lv_obj_set_layout(_cnt, LV_LAYOUT_GRID);
@@ -259,7 +289,7 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 			lv_obj_set_grid_cell(trg_act_title, LV_GRID_ALIGN_STRETCH, 0, 1,
 					LV_GRID_ALIGN_STRETCH, 2, 1);
 
-			snprintf(_buf, 20, "%4.2f", data->act_level_param->param_val->v.d);
+			snprintf(_buf, 20, "%4.2f", 0.0);
 
 			ESP_LOGD(TAG, "trg_act_value");
 			trg_act_value = lv_label_create(_cnt);
@@ -292,7 +322,7 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 	}
 	//start sensor callback
 	ret = esp_timer_start_periodic(water_sensor_timer,
-			data->upd_time_sec_param->param_val->v.d * 1000000);
+			update_time_sec * 1000000);
 	if (ret != ESP_OK) {
 		ESP_LOGE(TAG, "failed to start capacitive water level timer");
 		return;
@@ -316,23 +346,27 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 		if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 			char _buf[21];
-			snprintf(_buf, 20, "%4.2f", data.act_level_param->param_val->v.d);
+
+			double act_level;
+			gn_leaf_param_get_double(leaf_config, GN_CWL_PARAM_ACT_LEVEL, &act_level);
+
+			snprintf(_buf, 20, "%4.2f", act_level);
 			lv_label_set_text(trg_act_value, _buf);
 
-			if (data.trg_hig_param->param_val->v.b == true
-					&& data->trg_low_param->param_val->v.b == false)
+			if (trg_high == true
+					&& trg_low == false)
 				strncpy(_buf, "HIGH", 20);
 
-			if (data.trg_hig_param->param_val->v.b == false
-					&& data->trg_low_param->param_val->v.b == true)
+			if (trg_high == false
+					&& trg_low == true)
 				strncpy(_buf, "LOW", 20);
 
-			if (data.trg_low_param->param_val->v.b == true
-					&& data->trg_low_param->param_val->v.b == true)
-				strncpy(_buf, "ERR", 20);
+			if (trg_high == true
+					&& trg_low == true)
+				strncpy(_buf, "ERR_H", 20);
 
-			if (data.trg_low_param->param_val->v.b == false
-					&& data->trg_low_param->param_val->v.b == false)
+			if (trg_high == false
+					&& trg_low == false)
 				strncpy(_buf, "OK", 20);
 
 			lv_label_set_text(trg_value, _buf);

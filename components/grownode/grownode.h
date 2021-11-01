@@ -75,17 +75,26 @@ gn_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
 gn_leaf_param_handle_t gn_leaf_param_get_param_handle(const gn_leaf_config_handle_t leaf,
 		const char *param_name);
 
+gn_err_t gn_leaf_param_get_string(const gn_leaf_config_handle_t leaf_config,
+		const char *name, char *val, size_t *lenght);
+
 gn_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf,
 		const char *name, const char *val);
 
 gn_err_t gn_leaf_param_init_string(const gn_leaf_config_handle_t leaf,
 		const char *name, const char *val);
 
+gn_err_t gn_leaf_param_get_bool(const gn_leaf_config_handle_t leaf_config,
+		const char *name, bool *val);
+
 gn_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf,
 		const char *name, const bool val);
 
 gn_err_t gn_leaf_param_init_bool(const gn_leaf_config_handle_t leaf,
 		const char *name, const bool val);
+
+gn_err_t gn_leaf_param_get_double(const gn_leaf_config_handle_t leaf_config,
+		const char *name, double *val);
 
 gn_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf,
 		const char *name, const double val);

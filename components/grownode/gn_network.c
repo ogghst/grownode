@@ -435,11 +435,10 @@ esp_err_t _gn_init_time_sync(gn_config_handle_t conf) {
 		time_sync_init_done = true;
 		return ESP_OK;
 	}
-	char *sntp_server_name = CONFIG_GROWNODE_SNTP_SERVER_NAME;
 	ESP_LOGI(TAG, "Initializing SNTP. Using the SNTP server: %s",
-			sntp_server_name);
+			((gn_config_handle_intl_t)conf)->sntp_server_name);
 	sntp_setoperatingmode(SNTP_OPMODE_POLL);
-	sntp_setservername(0, sntp_server_name);
+	sntp_setservername(0, ((gn_config_handle_intl_t)conf)->sntp_server_name);
 	sntp_init();
 	time_sync_init_done = true;
 	return ESP_OK;
@@ -466,7 +465,7 @@ void _gn_ota_task(void *pvParameter) {
 	esp_wifi_set_ps(WIFI_PS_NONE);
 
 	esp_http_client_config_t config = { };
-	config.url = CONFIG_GROWNODE_FIRMWARE_URL;
+	config.url = _conf->ota_url;
 	//config.event_handler = _http_event_handler;
 	config.cert_pem = (char*) server_cert_pem_start;
 

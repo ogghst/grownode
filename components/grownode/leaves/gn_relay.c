@@ -54,17 +54,16 @@ gn_leaf_descriptor_handle_t gn_relay_config(gn_leaf_config_handle_t leaf_config)
 	descriptor->callback = gn_relay_task;
 	descriptor->status = GN_LEAF_STATUS_NOT_INITIALIZED;
 
-	gn_relay_data_t* data = malloc(sizeof(gn_relay_data_t));
+	gn_relay_data_t *data = malloc(sizeof(gn_relay_data_t));
 
 	data->gn_relay_status_param = gn_leaf_param_create(leaf_config,
-					GN_RELAY_PARAM_STATUS, GN_VAL_TYPE_BOOLEAN, (gn_val_t ) {
-									.b = false }, GN_LEAF_PARAM_ACCESS_WRITE,
-					GN_LEAF_PARAM_STORAGE_PERSISTED);
+			GN_RELAY_PARAM_STATUS, GN_VAL_TYPE_BOOLEAN,
+			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_WRITE,
+			GN_LEAF_PARAM_STORAGE_PERSISTED);
 
 	data->gn_relay_gpio_param = gn_leaf_param_create(leaf_config,
-					GN_RELAY_PARAM_GPIO, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d =
-									32 }, GN_LEAF_PARAM_ACCESS_WRITE,
-					GN_LEAF_PARAM_STORAGE_PERSISTED);
+			GN_RELAY_PARAM_GPIO, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 32 },
+			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED);
 
 	gn_leaf_param_add(leaf_config, data->gn_relay_status_param);
 	gn_leaf_param_add(leaf_config, data->gn_relay_gpio_param);
@@ -86,12 +85,18 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 	gn_leaf_event_t evt;
 
 	//retrieves status descriptor from config
-	gn_relay_data_t* data =  (gn_relay_data_t*) gn_leaf_get_descriptor(leaf_config)->data;
+	gn_relay_data_t *data = (gn_relay_data_t*) gn_leaf_get_descriptor(
+			leaf_config)->data;
+
+	double gpio;
+	gn_leaf_param_get_double(leaf_config, GN_RELAY_PARAM_GPIO, &gpio);
+
+	bool status;
+	gn_leaf_param_get_bool(leaf_config, GN_RELAY_PARAM_STATUS, &status);
 
 	//setup relay
-	gpio_set_direction(data->gn_relay_gpio_param->param_val->v.d, GPIO_MODE_OUTPUT);
-	gpio_set_level(data->gn_relay_gpio_param->param_val->v.d,
-			data->gn_relay_status_param->param_val->v.b ? 1 : 0);
+	gpio_set_direction(gpio, GPIO_MODE_OUTPUT);
+	gpio_set_level(gpio, status ? 1 : 0);
 
 	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
@@ -125,8 +130,7 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 			label_status = lv_label_create(_cnt);
 			//lv_obj_add_style(label_status, style, 0);
 			lv_label_set_text(label_status,
-					data->gn_relay_status_param->param_val->v.b ?
-							"status: on" : "status: off");
+					"status: off");
 			//lv_obj_align_to(label_status, label_title, LV_ALIGN_BOTTOM_LEFT,
 			//		LV_PCT(10), LV_PCT(10));
 			lv_obj_set_grid_cell(label_status, LV_GRID_ALIGN_STRETCH, 0, 1,
@@ -162,26 +166,30 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 						evt.param_name, evt.data);
 
 				//parameter is status
-				if (gn_common_leaf_event_mask_param(&evt, data->gn_relay_status_param)
-						== 0) {
+				if (gn_common_leaf_event_mask_param(&evt,
+						data->gn_relay_status_param) == 0) {
 
-					int active = atoi(evt.data);
+					int _active = atoi(evt.data);
 
 					//notify change
 					gn_leaf_param_set_bool(leaf_config, GN_RELAY_PARAM_STATUS,
-							active == 0 ? false : true);
+							_active == 0 ? false : true);
+
+					status = _active;
 
 					//update sensor using the parameter values
 					if (gn_relay_state == GN_RELAY_STATE_RUNNING) {
-						gpio_set_level(data->gn_relay_gpio_param->param_val->v.d,
-								data->gn_relay_status_param->param_val->v.b ? 1 : 0);
+						gpio_set_level(
+								gpio,
+								status ?
+										1 : 0);
 					}
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 					if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 						lv_label_set_text(label_status,
-								gn_relay_status_param->param_val->v.b ?
+								status ?
 										"status: on" : "status: off");
 
 						gn_display_leaf_refresh_end();

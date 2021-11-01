@@ -20,7 +20,7 @@
 #include "esp_event.h"
 
 #include "grownode.h"
-#include "gn_pump.h"
+#include "gn_pump_hs.h"
 #include "gn_ds18b20.h"
 #include "gn_relay.h"
 #include "gn_capacitive_water_level.h"
@@ -41,7 +41,7 @@ void app_main(void) {
 	esp_log_level_set("gn_display", ESP_LOG_INFO);
 
 	esp_log_level_set("gn_leaf_relay", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_pump", ESP_LOG_INFO);
+	esp_log_level_set("gn_leaf_pump_hs", ESP_LOG_DEBUG);
 	esp_log_level_set("gn_leaf_pump_control", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_ds18b20", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_cwl", ESP_LOG_INFO);
@@ -102,12 +102,12 @@ void app_main(void) {
 	 */
 
 	gn_leaf_config_handle_t hcc_speed = gn_leaf_create(node, "hcc",
-			gn_pump_config, 4096);
-	gn_leaf_param_init_bool(hcc_speed, GN_PUMP_PARAM_CHANNEL, 0);
-	gn_leaf_param_init_double(hcc_speed, GN_PUMP_PARAM_GPIO_POWER, 18);
-	gn_leaf_param_init_double(hcc_speed, GN_PUMP_PARAM_POWER, 0);
-	gn_leaf_param_init_double(hcc_speed, GN_PUMP_PARAM_GPIO_TOGGLE, 26);
-	gn_leaf_param_init_bool(hcc_speed, GN_PUMP_PARAM_TOGGLE, false);
+			gn_pump_hs_config, 4096);
+	gn_leaf_param_init_bool(hcc_speed, GN_PUMP_HS_PARAM_CHANNEL, 0);
+	gn_leaf_param_init_double(hcc_speed, GN_PUMP_HS_PARAM_GPIO_POWER, 18);
+	gn_leaf_param_init_double(hcc_speed, GN_PUMP_HS_PARAM_POWER, 0);
+	gn_leaf_param_init_double(hcc_speed, GN_PUMP_HS_PARAM_GPIO_TOGGLE, 26);
+	gn_leaf_param_init_bool(hcc_speed, GN_PUMP_HS_PARAM_TOGGLE, false);
 
 	/*
 	 gn_leaf_config_handle_t fan_in = gn_leaf_create(node, "fan_in",
@@ -117,12 +117,12 @@ void app_main(void) {
 	 */
 
 	gn_leaf_config_handle_t fan_speed = gn_leaf_create(node, "fan",
-			gn_pump_config, 4096);
-	gn_leaf_param_init_bool(fan_speed, GN_PUMP_PARAM_CHANNEL, 1);
-	gn_leaf_param_init_double(fan_speed, GN_PUMP_PARAM_GPIO_POWER, 27);
-	gn_leaf_param_init_double(fan_speed, GN_PUMP_PARAM_POWER, 0);
-	gn_leaf_param_init_double(fan_speed, GN_PUMP_PARAM_GPIO_TOGGLE, 33);
-	gn_leaf_param_init_bool(fan_speed, GN_PUMP_PARAM_TOGGLE, false);
+			gn_pump_hs_config, 4096);
+	gn_leaf_param_init_bool(fan_speed, GN_PUMP_HS_PARAM_CHANNEL, 1);
+	gn_leaf_param_init_double(fan_speed, GN_PUMP_HS_PARAM_GPIO_POWER, 27);
+	gn_leaf_param_init_double(fan_speed, GN_PUMP_HS_PARAM_POWER, 0);
+	gn_leaf_param_init_double(fan_speed, GN_PUMP_HS_PARAM_GPIO_TOGGLE, 33);
+	gn_leaf_param_init_bool(fan_speed, GN_PUMP_HS_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t bme280 = gn_leaf_create(node, "bme280",
 			gn_bme280_config, 4096);
