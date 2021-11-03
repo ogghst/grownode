@@ -70,18 +70,18 @@ TEST_CASE("gn_bme280_mqtt_stress_test", "[bme280]") {
 	esp_err_t ret = gn_node_start(node_config);
 	TEST_ASSERT_EQUAL(ret, ESP_OK);
 
-	esp_mqtt_event_handle_t event = (esp_mqtt_event_t*) malloc(
+	esp_mqtt_event_handle_t event = (esp_mqtt_event_t*) calloc(
 			sizeof(esp_mqtt_event_t));
 	event->client = ((gn_config_handle_intl_t) config)->mqtt_client;
 	esp_mqtt_event_id_t event_id = MQTT_EVENT_DATA;
 	event->event_id = event_id;
-	char *topic = malloc(100 * sizeof(char));
+	char *topic = calloc(100 * sizeof(char));
 	esp_event_base_t base = "base";
 	void *handler_args = 0;
 	char data[10];
 
-	event->topic = (char*) malloc(100 * sizeof(char));
-	event->data = (char*) malloc(10 * sizeof(char));
+	event->topic = (char*) calloc(100 * sizeof(char));
+	event->data = (char*) calloc(10 * sizeof(char));
 
 	//set update time
 	_gn_mqtt_build_leaf_parameter_command_topic(ds18b20_config,

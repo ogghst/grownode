@@ -39,6 +39,11 @@ extern "C" {
 
 #define TAG "gn_leaf_pump_hs"
 
+static const ledc_mode_t GN_PUMP_HS_PARAM_LEDC_MODE = LEDC_LOW_SPEED_MODE;
+
+//#define GN_PUMP_HS_FADE /*!< define if duty has to be faded */
+#define GN_PUMP_HS_FADE_SPEED 500 /*!< define fade speed (msec) */
+
 typedef struct {
 
 	gn_leaf_param_handle_t channel_param;
@@ -48,6 +53,22 @@ typedef struct {
 	gn_leaf_param_handle_t gpio_power_param;
 
 } gn_pump_hs_data_t;
+
+/*
+ * This callback function will be called when fade operation has ended
+ * Use callback only if you are aware it is being called inside an ISR
+ * Otherwise, you can use a semaphore to unblock tasks
+ */
+static bool cb_ledc_fade_end_event(const ledc_cb_param_t *param, void *user_arg) {
+	portBASE_TYPE taskAwoken = pdFALSE;
+
+	if (param->event == LEDC_FADE_END_EVT) {
+		SemaphoreHandle_t counting_sem = (SemaphoreHandle_t) user_arg;
+		xSemaphoreGiveFromISR(counting_sem, &taskAwoken);
+	}
+
+	return (taskAwoken == pdTRUE);
+}
 
 void gn_pump_hs_task(gn_leaf_config_handle_t leaf_config);
 
@@ -139,8 +160,12 @@ void gn_pump_hs_task(gn_leaf_config_handle_t leaf_config) {
 			gn_leaf_get_config_name(leaf_config), (int )gpio_power,
 			(int )channel);
 
+#ifdef GN_PUMP_HS_FADE
+	SemaphoreHandle_t fade_sem = xSemaphoreCreateBinary();
+#endif
+
 	ledc_timer_config_t timer;
-	timer.speed_mode = LEDC_LOW_SPEED_MODE;
+	timer.speed_mode = GN_PUMP_HS_PARAM_LEDC_MODE;
 	timer.timer_num = (ledc_timer_t) channel;
 	timer.duty_resolution = LEDC_TIMER_13_BIT;
 	timer.freq_hz = 5000;
@@ -155,13 +180,25 @@ void gn_pump_hs_task(gn_leaf_config_handle_t leaf_config) {
 	} else {
 
 		ledc_channel_config_t ledc_channel;
-		ledc_channel.speed_mode = LEDC_LOW_SPEED_MODE;
+		ledc_channel.speed_mode = GN_PUMP_HS_PARAM_LEDC_MODE;
 		ledc_channel.channel = (ledc_channel_t) channel;
 		ledc_channel.timer_sel = (ledc_timer_t) channel;
 		ledc_channel.intr_type = LEDC_INTR_DISABLE;
 		ledc_channel.gpio_num = (int) gpio_power;
+		ledc_channel.duty = 0;
+		ledc_channel.hpoint = 0;
 
 		ret = ledc_channel_config(&ledc_channel);
+
+#ifdef GN_PUMP_HS_FADE
+		if (ret == ESP_OK) {
+			ret = ledc_fade_func_install(0);
+			ledc_cbs_t callbacks = { .fade_cb = cb_ledc_fade_end_event };
+
+			ledc_cb_register(ledc_channel.speed_mode, ledc_channel.channel,
+					&callbacks, (void*) fade_sem);
+		}
+#endif
 
 		if (ret != ESP_OK) {
 			ESP_LOGE(TAG, "error in configuring timer config, channel %d",
@@ -254,6 +291,8 @@ void gn_pump_hs_task(gn_leaf_config_handle_t leaf_config) {
 				if (gn_common_leaf_event_mask_param(&evt, data->toggle_param)
 						== 0) {
 
+					ESP_LOGD(TAG, "updating toggle");
+
 					const bool _toggle =
 							strncmp((char*) evt.data, "0", evt.data_size) == 0 ?
 									false : true;
@@ -279,6 +318,8 @@ void gn_pump_hs_task(gn_leaf_config_handle_t leaf_config) {
 				} else if (gn_common_leaf_event_mask_param(&evt,
 						data->gpio_toggle_param) == 0) {
 
+					ESP_LOGD(TAG, "updating gpio toggle");
+
 					//check limits
 					int gpio = atoi(evt.data);
 					if (gpio >= 0 && gpio < GPIO_NUM_MAX) {
@@ -289,6 +330,8 @@ void gn_pump_hs_task(gn_leaf_config_handle_t leaf_config) {
 
 				} else if (gn_common_leaf_event_mask_param(&evt,
 						data->power_param) == 0) {
+
+					ESP_LOGD(TAG, "updating power");
 
 					double pow = strtod(evt.data, NULL);
 					if (pow < 0)
@@ -314,6 +357,8 @@ void gn_pump_hs_task(gn_leaf_config_handle_t leaf_config) {
 
 				} else if (gn_common_leaf_event_mask_param(&evt,
 						data->gpio_power_param) == 0) {
+
+					ESP_LOGD(TAG, "updating gpio power");
 
 					//check limits
 					int gpio = atoi(evt.data);
@@ -353,6 +398,8 @@ void gn_pump_hs_task(gn_leaf_config_handle_t leaf_config) {
 
 		if (need_update == true) {
 
+			ESP_LOGD(TAG, "updating values");
+
 			//finally, we update sensor using the parameter values
 			gn_leaf_param_get_bool(leaf_config, GN_PUMP_HS_PARAM_TOGGLE,
 					&toggle);
@@ -360,23 +407,60 @@ void gn_pump_hs_task(gn_leaf_config_handle_t leaf_config) {
 					&power);
 
 			if (!toggle) {
+
+#ifdef GN_PUMP_HS_FADE
+				ret = ledc_set_fade_with_time(GN_PUMP_HS_PARAM_LEDC_MODE,
+						(ledc_channel_t) channel, 0, GN_PUMP_HS_FADE_SPEED);
+
+				if (ret != ESP_OK) {
+					ESP_LOGE(TAG, "error in  changing power, channel %d",
+							(int )channel);
+					goto fail;
+				}
+
+				ret = ledc_fade_start(GN_PUMP_HS_PARAM_LEDC_MODE,
+						(ledc_channel_t) channel, LEDC_FADE_NO_WAIT);
+
+				if (ret != ESP_OK) {
+					ESP_LOGE(TAG, "error in updating duty, channel %d",
+							(int )channel);
+					goto fail;
+				}
+
+#else
+		ret = ledc_set_duty(GN_PUMP_HS_PARAM_LEDC_MODE,
+				(ledc_channel_t) channel, 0);
+
+		if (ret != ESP_OK) {
+			ESP_LOGE(TAG, "error in changing power, channel %d",
+					(int )channel);
+			goto fail;
+		}
+
+		ret = ledc_update_duty(GN_PUMP_HS_PARAM_LEDC_MODE,
+				(ledc_channel_t) channel);
+
+		if (ret != ESP_OK) {
+			ESP_LOGE(TAG, "error in updating duty, channel %d",
+					(int )channel);
+			goto fail;
+		}
+#endif
+
+#ifdef GN_PUMP_HS_FADE
+				xSemaphoreTake(fade_sem, portMAX_DELAY);
+#endif
+
 				ret = gpio_set_level(toggle, 0);
 
 				if (ret != ESP_OK) {
 					ESP_LOGE(TAG, "error in disabling signal, channel %d",
 							(int )channel);
+					goto fail;
 				}
 
-				ret = ledc_set_duty(LEDC_LOW_SPEED_MODE,
-						(ledc_channel_t) channel, 0);
-
-				if (ret != ESP_OK) {
-					ESP_LOGE(TAG, "error in changing power, channel %d",
-							(int )channel);
-				}
-
-				ESP_LOGD(TAG, "%s - toggle off",
-						gn_leaf_get_config_name(leaf_config));
+				ESP_LOGD(TAG, "%s - toggle off, channel %d",
+						gn_leaf_get_config_name(leaf_config), (int )channel);
 
 				need_update = false;
 
@@ -387,30 +471,69 @@ void gn_pump_hs_task(gn_leaf_config_handle_t leaf_config) {
 				if (ret != ESP_OK) {
 					ESP_LOGE(TAG, "error in setting signal, channel %d",
 							(int )channel);
+					goto fail;
 				}
 
-				double duty = (pow(2, 13) - 1) * power; // Set duty to 50%. ((2 ** 13) - 1) * 50% = 4095
+				double duty = (pow(2, 13) - 1) * (power / 100); // Set duty to 50%. ((2 ** 13) - 1) * 50% = 4095
 
-				ret = ledc_set_duty(LEDC_LOW_SPEED_MODE,
-						(ledc_channel_t) channel, duty);
+#ifdef GN_PUMP_HS_FADE
+				ret = ledc_set_fade_with_time(GN_PUMP_HS_PARAM_LEDC_MODE,
+						(ledc_channel_t) channel, duty, GN_PUMP_HS_FADE_SPEED);
 
 				if (ret != ESP_OK) {
 					ESP_LOGE(TAG, "error in  changing power, channel %d",
 							(int )channel);
+					goto fail;
 				}
 
-				ESP_LOGD(TAG, "%s - setting power pin %d to %d",
-						gn_leaf_get_config_name(leaf_config), (int )gpio_power,
-						(int )power);
+				ret = ledc_fade_start(GN_PUMP_HS_PARAM_LEDC_MODE,
+						(ledc_channel_t) channel, LEDC_FADE_NO_WAIT);
 
-				need_update = false;
-			}
-		}
+				if (ret != ESP_OK) {
+					ESP_LOGE(TAG, "error in updating duty, channel %d",
+							(int )channel);
+					goto fail;
+				}
 
-		vTaskDelay(1000 / portTICK_PERIOD_MS);
+#else
+	ret = ledc_set_duty(GN_PUMP_HS_PARAM_LEDC_MODE,
+			(ledc_channel_t) channel, duty);
+
+	if (ret != ESP_OK) {
+		ESP_LOGE(TAG, "error in  changing power, channel %d",
+				(int )channel);
+		goto fail;
 	}
 
-	//fallback cycle
+	ret = ledc_update_duty(GN_PUMP_HS_PARAM_LEDC_MODE,
+			(ledc_channel_t) channel);
+
+	if (ret != ESP_OK) {
+		ESP_LOGE(TAG, "error in updating duty, channel %d",
+				(int )channel);
+		goto fail;
+	}
+#endif
+
+				ESP_LOGD(TAG,
+						"%s - setting power pin %d - channel %d to %d - duty %f",
+						gn_leaf_get_config_name(leaf_config), (int )gpio_power,
+						(int ) channel, (int )power, duty);
+
+#ifdef GN_PUMP_HS_FADE
+				xSemaphoreTake(fade_sem, portMAX_DELAY);
+#endif
+				need_update = false;
+			}
+
+			fail:
+
+//wait for next cycle
+			vTaskDelay(100 / portTICK_PERIOD_MS);
+		}
+	}
+
+//fallback cycle
 	while (true) {
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 	}

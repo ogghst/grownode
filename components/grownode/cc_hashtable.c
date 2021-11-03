@@ -122,7 +122,7 @@ void cc_hashtable_conf_init(CC_HashTableConf *conf)
     conf->load_factor      = DEFAULT_LOAD_FACTOR;
     conf->key_length       = KEY_LENGTH_VARIABLE;
     conf->hash_seed        = 0;
-    conf->mem_alloc        = malloc;
+    conf->mem_alloc        = calloc;
     conf->mem_calloc       = calloc;
     conf->mem_free         = free;
 }

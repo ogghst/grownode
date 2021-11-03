@@ -31,18 +31,6 @@ extern "C" {
 
 #define TAG "gn_mqtt_protocol"
 
-#define _GN_MQTT_MAX_TOPIC_LENGTH 80
-#define _GN_MQTT_MAX_PAYLOAD_LENGTH 4096
-
-#define _GN_MQTT_COMMAND_MESS "cmd"
-#define _GN_MQTT_STATUS_MESS "sts"
-
-#define _GN_MQTT_PAYLOAD_RST "RST"
-#define _GN_MQTT_PAYLOAD_OTA "OTA"
-#define _GN_MQTT_PAYLOAD_RBT "RBT"
-
-#define _GN_MQTT_DEFAULT_QOS 0
-
 EventGroupHandle_t _gn_event_group_mqtt;
 const int _GN_MQTT_CONNECTED_OK_EVENT_BIT = BIT0;
 const int _GN_MQTT_CONNECTED_KO_EVENT_BIT = BIT1;
@@ -223,7 +211,7 @@ void _gn_mqtt_build_command_topic(gn_config_handle_intl_t config, char *buf) {
  ESP_LOGD(TAG, "MQTT_EVENT_DATA");
  ESP_LOGD(TAG, "TOPIC=%.*s\r\n", event->topic_len, event->topic);
  ESP_LOGD(TAG, "DATA=%.*s\r\n", event->data_len, event->data);
- char *buf = (char*) malloc(sizeof(char)*_GN_MQTT_MAX_TOPIC_LENGTH);
+ char *buf = (char*) calloc(sizeof(char)*_GN_MQTT_MAX_TOPIC_LENGTH);
  _gn_mqtt_build_leaf_command_topic(leaf_config, buf);
  if (strncmp(buf, event->topic, event->topic_len) == 0) {
  //callback to leaf
@@ -334,7 +322,7 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
 
 	//payload
 	int msg_id = -1;
-	char *buf = (char*) malloc(_GN_MQTT_MAX_PAYLOAD_LENGTH * sizeof(char));
+	char *buf = (char*) calloc(_GN_MQTT_MAX_PAYLOAD_LENGTH, sizeof(char));
 
 	cJSON *root, *leaves, *leaf, *leaf_name, *leaf_params, *leaf_param;
 	root = cJSON_CreateObject();
@@ -447,7 +435,7 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 
 	int msg_id = -1;
 	char _topic[_GN_MQTT_MAX_TOPIC_LENGTH];
-	char *buf = (char*) malloc(_GN_MQTT_MAX_PAYLOAD_LENGTH * sizeof(char));
+	char *buf = (char*) calloc(_GN_MQTT_MAX_PAYLOAD_LENGTH, sizeof(char));
 	//char dbuf[30]; //TODO get max double length
 
 	_gn_mqtt_build_leaf_parameter_status_topic(param->leaf_config, param->name,
@@ -519,7 +507,7 @@ gn_err_t gn_mqtt_send_startup_message(gn_config_handle_t _config) {
 
 	//payload
 	int msg_id = -1;
-	char *buf = (char*) malloc(_GN_MQTT_MAX_PAYLOAD_LENGTH * sizeof(char));
+	char *buf = (char*) calloc(_GN_MQTT_MAX_PAYLOAD_LENGTH, sizeof(char));
 
 	cJSON *root;
 	root = cJSON_CreateObject();
@@ -531,6 +519,10 @@ gn_err_t gn_mqtt_send_startup_message(gn_config_handle_t _config) {
 		return GN_RET_ERR;
 	}
 	cJSON_Delete(root);
+
+	//delete retained offline message
+	msg_id = esp_mqtt_client_publish(config->mqtt_client, msg->topic, "", 0, 0,
+			0);
 
 	//publish
 	msg_id = esp_mqtt_client_publish(config->mqtt_client, msg->topic, buf, 0, 0,
@@ -569,7 +561,7 @@ gn_err_t gn_mqtt_send_reboot_message(gn_config_handle_t _config) {
 
 	//payload
 	int msg_id = -1;
-	char *buf = (char*) malloc(_GN_MQTT_MAX_PAYLOAD_LENGTH * sizeof(char));
+	char *buf = (char*) calloc(_GN_MQTT_MAX_PAYLOAD_LENGTH, sizeof(char));
 
 	cJSON *root;
 	root = cJSON_CreateObject();
@@ -619,7 +611,7 @@ gn_err_t gn_mqtt_send_reset_message(gn_config_handle_t _config) {
 
 	//payload
 	int msg_id = -1;
-	char *buf = (char*) malloc(_GN_MQTT_MAX_PAYLOAD_LENGTH * sizeof(char));
+	char *buf = (char*) calloc(_GN_MQTT_MAX_PAYLOAD_LENGTH, sizeof(char));
 
 	cJSON *root;
 	root = cJSON_CreateObject();
@@ -669,7 +661,7 @@ gn_err_t gn_mqtt_send_ota_message(gn_config_handle_t _config) {
 
 	//payload
 	int msg_id = -1;
-	char *buf = (char*) malloc(_GN_MQTT_MAX_PAYLOAD_LENGTH * sizeof(char));
+	char *buf = (char*) calloc(_GN_MQTT_MAX_PAYLOAD_LENGTH, sizeof(char));
 
 	cJSON *root;
 	root = cJSON_CreateObject();
@@ -1096,13 +1088,13 @@ esp_err_t gn_mqtt_init(gn_config_handle_t _conf) {
 
  for (int i = 0; i < 100000; i++) {
 
- gn_mqtt_startup_message_handle_t m1 = malloc(
+ gn_mqtt_startup_message_handle_t m1 = calloc(
  sizeof(gn_mqtt_startup_message_t));
  m1->topic
  strcpy(m1->nodeName, "test");
 
  const int len = 100;
- char *deserialize = malloc(sizeof(char) * len);
+ char *deserialize = calloc(sizeof(char) * len);
 
  _gn_create_startup_message(deserialize, len, m1);
 

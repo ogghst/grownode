@@ -23,6 +23,19 @@ extern "C" {
 //#include "esp_log.h"
 
 
+#define _GN_MQTT_MAX_TOPIC_LENGTH 80
+#define _GN_MQTT_MAX_PAYLOAD_LENGTH 4096
+
+#define _GN_MQTT_COMMAND_MESS "cmd"
+#define _GN_MQTT_STATUS_MESS "sts"
+
+#define _GN_MQTT_PAYLOAD_RST "RST"
+#define _GN_MQTT_PAYLOAD_OTA "OTA"
+#define _GN_MQTT_PAYLOAD_RBT "RBT"
+
+#define _GN_MQTT_DEFAULT_QOS 0
+
+
 gn_err_t gn_mqtt_subscribe_leaf(gn_leaf_config_handle_t leaf_config);
 
 esp_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t param);

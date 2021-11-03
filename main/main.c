@@ -35,17 +35,18 @@ void app_main(void) {
 
 	esp_log_level_set("*", ESP_LOG_INFO);
 	esp_log_level_set("grownode", ESP_LOG_INFO);
+	esp_log_level_set("gn_commons", ESP_LOG_INFO);
 	esp_log_level_set("gn_nvs", ESP_LOG_INFO);
 	esp_log_level_set("gn_mqtt_protocol", ESP_LOG_INFO);
 	esp_log_level_set("gn_network", ESP_LOG_INFO);
 	esp_log_level_set("gn_display", ESP_LOG_INFO);
 
 	esp_log_level_set("gn_leaf_relay", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_pump_hs", ESP_LOG_DEBUG);
+	esp_log_level_set("gn_leaf_pump_hs", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_pump_control", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_ds18b20", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_cwl", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_bme280", ESP_LOG_DEBUG);
+	esp_log_level_set("gn_leaf_bme280", ESP_LOG_INFO);
 
 	//creates the config handle
 	gn_config_handle_t config = gn_init();
@@ -94,12 +95,6 @@ void app_main(void) {
 	gn_leaf_param_init_double(waterlevelin, GN_CWL_PARAM_TOUCH_CHANNEL, 2);
 	gn_leaf_param_init_double(waterlevelin, GN_CWL_PARAM_UPDATE_TIME_SEC, 10);
 
-	/*
-	 gn_leaf_config_handle_t hcc_in = gn_leaf_create(node, "hcc_in",
-	 gn_relay_config, 4096);
-	 gn_leaf_param_init_double(hcc_in, GN_RELAY_PARAM_GPIO, 26);
-	 gn_leaf_param_init_bool(hcc_in, GN_RELAY_PARAM_STATUS, false);
-	 */
 
 	gn_leaf_config_handle_t hcc_speed = gn_leaf_create(node, "hcc",
 			gn_pump_hs_config, 4096);
@@ -108,13 +103,6 @@ void app_main(void) {
 	gn_leaf_param_init_double(hcc_speed, GN_PUMP_HS_PARAM_POWER, 0);
 	gn_leaf_param_init_double(hcc_speed, GN_PUMP_HS_PARAM_GPIO_TOGGLE, 26);
 	gn_leaf_param_init_bool(hcc_speed, GN_PUMP_HS_PARAM_TOGGLE, false);
-
-	/*
-	 gn_leaf_config_handle_t fan_in = gn_leaf_create(node, "fan_in",
-	 gn_relay_config, 4096);
-	 gn_leaf_param_init_double(fan_in, GN_RELAY_PARAM_GPIO, 27);
-	 gn_leaf_param_init_bool(fan_in, GN_RELAY_PARAM_STATUS, false);
-	 */
 
 	gn_leaf_config_handle_t fan_speed = gn_leaf_create(node, "fan",
 			gn_pump_hs_config, 4096);

@@ -366,18 +366,18 @@ gn_config_handle_intl_t _gn_config_create() {
 			sizeof(struct gn_config_t));
 	_conf->status = GN_CONFIG_STATUS_NOT_INITIALIZED;
 
-	_conf->mqtt_base_topic = (char*)malloc(sizeof(CONFIG_GROWNODE_MQTT_BASE_TOPIC)+1);
+	_conf->mqtt_base_topic = (char*)calloc(sizeof(CONFIG_GROWNODE_MQTT_BASE_TOPIC)+1, sizeof(char));
 	strncpy(_conf->mqtt_base_topic, CONFIG_GROWNODE_MQTT_BASE_TOPIC, sizeof(CONFIG_GROWNODE_MQTT_BASE_TOPIC)+1);
 
-	_conf->mqtt_url = (char*)malloc(sizeof(CONFIG_GROWNODE_MQTT_URL)+1);
+	_conf->mqtt_url = (char*)calloc(sizeof(CONFIG_GROWNODE_MQTT_URL)+1, sizeof(char));
 	strncpy(_conf->mqtt_url, CONFIG_GROWNODE_MQTT_URL, sizeof(CONFIG_GROWNODE_MQTT_URL)+1);
 
 	_conf->mqtt_keepalive_timer_sec = CONFIG_GROWNODE_KEEPALIVE_TIMER_SEC;
 
-	_conf->ota_url = (char*)malloc(sizeof(CONFIG_GROWNODE_FIRMWARE_URL)+1);
+	_conf->ota_url = (char*)calloc(sizeof(CONFIG_GROWNODE_FIRMWARE_URL)+1, sizeof(char));
 	strncpy(_conf->ota_url, CONFIG_GROWNODE_FIRMWARE_URL, sizeof(CONFIG_GROWNODE_FIRMWARE_URL)+1);
 
-	_conf->sntp_server_name = (char*)malloc(sizeof(CONFIG_GROWNODE_SNTP_SERVER_NAME)+1);
+	_conf->sntp_server_name = (char*)calloc(sizeof(CONFIG_GROWNODE_SNTP_SERVER_NAME)+1, sizeof(char));
 	strncpy(_conf->sntp_server_name, CONFIG_GROWNODE_SNTP_SERVER_NAME, sizeof(CONFIG_GROWNODE_SNTP_SERVER_NAME)+1);
 
 	return _conf;
@@ -749,7 +749,7 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
 		//check parameter stored
 		int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
 		//ESP_LOGD(TAG, "..len: %i", _len);
-		char *_buf = (char*) malloc(_len * sizeof(char));
+		char *_buf = (char*) calloc(_len, sizeof(char));
 
 		memcpy(_buf, _leaf_config->name,
 				strlen(_leaf_config->name) * sizeof(char));
@@ -804,7 +804,7 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
 	_ret->next = NULL;
 
 	char *_name = strdup(name);
-	//(char*) malloc(sizeof(char)*strlen(name));
+	//(char*) calloc(sizeof(char)*strlen(name));
 	//strncpy(_name, name, strlen(name));
 	_ret->name = _name;
 
@@ -876,7 +876,7 @@ gn_err_t gn_leaf_param_init_string(const gn_leaf_config_handle_t leaf_config,
 			(gn_leaf_config_handle_intl_t) leaf_config;
 
 	int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
-	char *_buf = (char*) malloc(_len * sizeof(char));
+	char *_buf = (char*) calloc(_len, sizeof(char));
 
 	memcpy(_buf, _leaf_config->name, strlen(_leaf_config->name) * sizeof(char));
 	memcpy(_buf + strlen(_leaf_config->name) * sizeof(char), "_",
@@ -911,7 +911,7 @@ gn_err_t gn_leaf_param_init_string(const gn_leaf_config_handle_t leaf_config,
 	strcpy(evt.leaf_name, _leaf_config->name);
 	strcpy(evt.param_name, _param->name);
 	evt.id = GN_LEAF_PARAM_CHANGED_EVENT;
-	//evt.data = malloc((strlen(_param->param_val->v.s) + 1) * sizeof(char));
+	//evt.data = calloc((strlen(_param->param_val->v.s) + 1) * sizeof(char));
 	strncpy(evt.data, _param->param_val->v.s, GN_LEAF_DATA_SIZE);
 
 	if (esp_event_post_to(_leaf_config->node_config->config->event_loop,
@@ -959,7 +959,7 @@ gn_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf_config,
 	if (_param->storage == GN_LEAF_PARAM_STORAGE_PERSISTED) {
 
 		int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
-		char *_buf = (char*) malloc(_len * sizeof(char));
+		char *_buf = (char*) calloc(_len, sizeof(char));
 
 		memcpy(_buf, _leaf_config->name,
 				strlen(_leaf_config->name) * sizeof(char));
@@ -993,7 +993,7 @@ gn_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf_config,
 	strcpy(evt.leaf_name, _leaf_config->name);
 	strcpy(evt.param_name, _param->name);
 	evt.id = GN_LEAF_PARAM_CHANGED_EVENT;
-	//evt.data = malloc((strlen(_param->param_val->v.s) + 1) * sizeof(char));
+	//evt.data = calloc((strlen(_param->param_val->v.s) + 1) * sizeof(char));
 	strncpy(evt.data, _param->param_val->v.s, GN_LEAF_DATA_SIZE);
 
 	if (esp_event_post_to(_leaf_config->node_config->config->event_loop,
@@ -1062,7 +1062,7 @@ gn_err_t gn_leaf_param_init_bool(const gn_leaf_config_handle_t leaf_config,
 			(gn_leaf_config_handle_intl_t) leaf_config;
 
 	int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
-	char *_buf = (char*) malloc(_len * sizeof(char));
+	char *_buf = (char*) calloc(_len, sizeof(char));
 
 	memcpy(_buf, _leaf_config->name, strlen(_leaf_config->name) * sizeof(char));
 	memcpy(_buf + strlen(_leaf_config->name) * sizeof(char), "_",
@@ -1151,7 +1151,7 @@ gn_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf_config,
 	if (_param->storage == GN_LEAF_PARAM_STORAGE_PERSISTED) {
 
 		int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
-		char *_buf = (char*) malloc(_len * sizeof(char));
+		char *_buf = (char*) calloc(_len, sizeof(char));
 
 		memcpy(_buf, _leaf_config->name,
 				strlen(_leaf_config->name) * sizeof(char));
@@ -1259,7 +1259,7 @@ gn_err_t gn_leaf_param_init_double(const gn_leaf_config_handle_t leaf_config,
 			(gn_leaf_config_handle_intl_t) leaf_config;
 
 	int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
-	char *_buf = (char*) malloc(_len * sizeof(char));
+	char *_buf = (char*) calloc(_len, sizeof(char));
 
 	memcpy(_buf, _leaf_config->name, strlen(_leaf_config->name) * sizeof(char));
 	memcpy(_buf + strlen(_leaf_config->name) * sizeof(char), "_",
@@ -1344,7 +1344,7 @@ gn_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf_config,
 	if (_param->storage == GN_LEAF_PARAM_STORAGE_PERSISTED) {
 
 		int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
-		char *_buf = (char*) malloc(_len * sizeof(char));
+		char *_buf = (char*) calloc(_len, sizeof(char));
 
 		memcpy(_buf, _leaf_config->name,
 				strlen(_leaf_config->name) * sizeof(char));
@@ -1685,7 +1685,7 @@ void* _gn_leaf_context_get_key_to_leaf(const gn_leaf_config_handle_t leaf,
  gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t) pvParam;
 
  //make sure the init event is processed before anything else
- gn_event_handle_t _init_evt = (gn_event_handle_t) malloc(
+ gn_event_handle_t _init_evt = (gn_event_handle_t) calloc(
  sizeof(gn_event_t));
  _init_evt->id = GN_LEAF_INIT_REQUEST_EVENT;
  _init_evt->data = NULL;
@@ -1742,7 +1742,7 @@ gn_err_t gn_log(char *message) {
 //void *ptr = const_cast<void*>(reinterpret_cast<void const*>(message));
 	ESP_LOGI(TAG, "gn_log: %s", message);
 
-//char *ptr = malloc(sizeof(char) * strlen(message) + 1);
+//char *ptr = calloc(sizeof(char) * strlen(message) + 1);
 
 	ret = esp_event_post_to(gn_event_loop, GN_BASE_EVENT, GN_DISPLAY_LOG_EVENT,
 			message, strlen(message) + 1,

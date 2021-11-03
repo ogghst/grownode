@@ -116,7 +116,7 @@ void cc_array_conf_init(CC_ArrayConf *conf)
 {
     conf->exp_factor = DEFAULT_EXPANSION_FACTOR;
     conf->capacity   = DEFAULT_CAPACITY;
-    conf->mem_alloc  = malloc;
+    conf->mem_alloc  = calloc;
     conf->mem_calloc = calloc;
     conf->mem_free   = free;
 }

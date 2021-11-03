@@ -970,7 +970,7 @@ void _gn_display_gui_task(void *pvParameter) {
 	assert(buf1 != NULL);
 
 	 lv_color_t *buf2 = heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t),
-	MALLOC_CAP_DMA);
+			 MALLOC_CAP_DMA);
 	assert(buf2 != NULL);
 
 	static lv_disp_draw_buf_t disp_buf;

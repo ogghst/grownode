@@ -64,13 +64,13 @@ TEST_CASE("gn_receive_status_0", "[relay]") {
 			sizeof(esp_mqtt_event_t));
 	event->client = ((gn_config_handle_intl_t) config)->mqtt_client;
 	esp_mqtt_event_id_t event_id = MQTT_EVENT_DATA;
-	char *topic = malloc(100 * sizeof(char));
+	char *topic = calloc(_GN_MQTT_MAX_TOPIC_LENGTH, sizeof(char));
 
 	_gn_mqtt_build_leaf_parameter_command_topic(relay_config, GN_RELAY_PARAM_STATUS, topic);
 
 	char data[] = "0";
-	event->topic = (char*) malloc(strlen(topic) * sizeof(char));
-	event->data = (char*) malloc(strlen(data) * sizeof(char));
+	event->topic = (char*) calloc(strlen(topic), sizeof(char));
+	event->data = (char*) calloc(strlen(data), sizeof(char));
 	event->topic_len = strlen(topic);
 	event->data_len = strlen(data);
 
@@ -96,13 +96,13 @@ TEST_CASE("gn_receive_status_1", "[relay]") {
 			sizeof(esp_mqtt_event_t));
 	event->client = ((gn_config_handle_intl_t) config)->mqtt_client;
 	esp_mqtt_event_id_t event_id = MQTT_EVENT_DATA;
-	char *topic = malloc(100 * sizeof(char));
+	char *topic = calloc(_GN_MQTT_MAX_TOPIC_LENGTH, sizeof(char));
 
 	_gn_mqtt_build_leaf_parameter_command_topic(relay_config, GN_RELAY_PARAM_STATUS, topic);
 
 	char data[] = "1";
-	event->topic = (char*) malloc(strlen(topic) * sizeof(char));
-	event->data = (char*) malloc(strlen(data) * sizeof(char));
+	event->topic = (char*) calloc(strlen(topic), sizeof(char));
+	event->data = (char*) calloc(strlen(data), sizeof(char));
 	event->topic_len = strlen(topic);
 	event->data_len = strlen(data);
 
@@ -139,13 +139,13 @@ TEST_CASE("gn_relay_mqtt_stress_test", "[relay]") {
 	event->client = ((gn_config_handle_intl_t) config)->mqtt_client;
 	esp_mqtt_event_id_t event_id = MQTT_EVENT_DATA;
 	event->event_id = event_id;
-	char *topic = malloc(100 * sizeof(char));
+	char *topic = calloc(_GN_MQTT_MAX_TOPIC_LENGTH, sizeof(char));
 	esp_event_base_t base = "base";
 	void *handler_args = 0;
 	char data[10];
 
-	event->topic = (char*) malloc(100 * sizeof(char));
-	event->data = (char*) malloc(10 * sizeof(char));
+	event->topic = (char*) calloc(_GN_MQTT_MAX_TOPIC_LENGTH, sizeof(char));
+	event->data = (char*) calloc(10, sizeof(char));
 
 	for (size_t j = 0; j < 100; j++) {
 

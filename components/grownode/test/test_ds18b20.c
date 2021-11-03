@@ -19,7 +19,7 @@
 
 #include "grownode.h"
 #include "grownode_intl.h"
-//#include "gn_mqtt_protocol.h"
+#include "gn_mqtt_protocol.h"
 #include "gn_ds18b20.h"
 
 //static const char TAG[13] = "test_ds18b20";
@@ -75,13 +75,13 @@ TEST_CASE("gn_ds18b20_mqtt_stress_test", "[ds18b20]") {
 	event->client = ((gn_config_handle_intl_t) config)->mqtt_client;
 	esp_mqtt_event_id_t event_id = MQTT_EVENT_DATA;
 	event->event_id = event_id;
-	char *topic = malloc(100 * sizeof(char));
+	char *topic = calloc(_GN_MQTT_MAX_TOPIC_LENGTH, sizeof(char));
 	esp_event_base_t base = "base";
 	void *handler_args = 0;
 	char data[10];
 
-	event->topic = (char*) malloc(100 * sizeof(char));
-	event->data = (char*) malloc(10 * sizeof(char));
+	event->topic = (char*) calloc(_GN_MQTT_MAX_TOPIC_LENGTH, sizeof(char));
+	event->data = (char*) calloc(10, sizeof(char));
 
 	//set gpio
 	_gn_mqtt_build_leaf_parameter_command_topic(ds18b20_config,

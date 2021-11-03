@@ -31,8 +31,12 @@ inline size_t gn_common_leaf_event_mask_param(gn_leaf_event_handle_t evt,
 	gn_leaf_config_handle_intl_t _leaf_config =
 			((gn_leaf_param_handle_intl_t) param)->leaf_config;
 
+	ESP_LOGD(TAG, "gn_common_leaf_event_mask_param (%s, %s/%s)", evt->leaf_name,
+			_leaf_config->name, ((gn_leaf_param_handle_intl_t ) param)->name);
+
 	if (strcmp(evt->leaf_name, _leaf_config->name) == 0
-			&& strcmp(evt->param_name, ((gn_leaf_config_handle_intl_t) param)->name) == 0)
+			&& strcmp(evt->param_name,
+					((gn_leaf_param_handle_intl_t) param)->name) == 0)
 		return 0;
 	return 1;
 }
@@ -50,7 +54,7 @@ uint64_t inline gn_common_hash(const char *key) {
 /*
  * hashes to a len bytes max
  */
-void inline gn_common_hash_str(const char *key, char* buf, size_t len) {
+void inline gn_common_hash_str(const char *key, char *buf, size_t len) {
 
 	uint64_t r = gn_common_hash(key);
 	snprintf(buf, len, "%llu", r);
