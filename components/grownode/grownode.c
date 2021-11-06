@@ -114,7 +114,7 @@ gn_err_t _gn_leaf_start(gn_leaf_config_handle_intl_t leaf_config) {
 	//gn_display_leaf_start(leaf_config);
 
 	//notice network of the leaf added
-	ret = gn_mqtt_subscribe_leaf(leaf_config);
+	ret = gn_mqtt_publish_leaf(leaf_config);
 	ESP_LOGI(TAG, "_gn_start_leaf %s completed", leaf_config->name);
 	return ret;
 

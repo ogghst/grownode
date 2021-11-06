@@ -92,6 +92,7 @@ void app_main(void) {
 
 	gn_leaf_config_handle_t waterlevelin = gn_leaf_create(node, "waterlevelin",
 			gn_capacitive_water_level_config, 4096);
+	gn_leaf_param_init_bool(waterlevelin, GN_CWL_PARAM_ACTIVE, false);
 	gn_leaf_param_init_double(waterlevelin, GN_CWL_PARAM_TOUCH_CHANNEL, 2);
 	gn_leaf_param_init_double(waterlevelin, GN_CWL_PARAM_UPDATE_TIME_SEC, 10);
 
