@@ -44,13 +44,17 @@ extern "C" {
 #define GN_CWL_TOUCHPAD_FILTER_TOUCH_PERIOD (10)
 
 typedef struct {
-	gn_leaf_param_handle_t gn_cwl_touch_channel;
+	gn_leaf_param_handle_t active_param;
+	gn_leaf_param_handle_t gn_cwl_touch_channel_param;
 	gn_leaf_param_handle_t max_level_param;
 	gn_leaf_param_handle_t min_level_param;
 	gn_leaf_param_handle_t act_level_param;
 	gn_leaf_param_handle_t trg_hig_param;
 	gn_leaf_param_handle_t trg_low_param;
 	gn_leaf_param_handle_t upd_time_sec_param;
+
+	esp_timer_handle_t sensor_timer;
+
 } gn_cwl_data_t;
 
 void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config);
@@ -127,7 +131,11 @@ gn_leaf_descriptor_handle_t gn_capacitive_water_level_config(
 
 	gn_cwl_data_t *data = malloc(sizeof(gn_cwl_data_t));
 
-	data->gn_cwl_touch_channel = gn_leaf_param_create(leaf_config,
+	data->active_param = gn_leaf_param_create(leaf_config, GN_CWL_PARAM_ACTIVE,
+			GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b = false },
+			GN_LEAF_PARAM_ACCESS_READWRITE, GN_LEAF_PARAM_STORAGE_PERSISTED);
+
+	data->gn_cwl_touch_channel_param = gn_leaf_param_create(leaf_config,
 			GN_CWL_PARAM_TOUCH_CHANNEL, GN_VAL_TYPE_DOUBLE,
 			(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_READWRITE,
 			GN_LEAF_PARAM_STORAGE_PERSISTED);
@@ -160,7 +168,8 @@ gn_leaf_descriptor_handle_t gn_capacitive_water_level_config(
 							10 }, GN_LEAF_PARAM_ACCESS_READWRITE,
 			GN_LEAF_PARAM_STORAGE_PERSISTED);
 
-	gn_leaf_param_add(leaf_config, data->gn_cwl_touch_channel);
+	gn_leaf_param_add(leaf_config, data->active_param);
+	gn_leaf_param_add(leaf_config, data->gn_cwl_touch_channel_param);
 	gn_leaf_param_add(leaf_config, data->max_level_param);
 	gn_leaf_param_add(leaf_config, data->min_level_param);
 	gn_leaf_param_add(leaf_config, data->act_level_param);
@@ -179,8 +188,13 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 	gn_leaf_event_t evt;
 
 	//retrieves status descriptor from config
+	gn_leaf_descriptor_handle_t descriptor = gn_leaf_get_descriptor(
+			leaf_config);
 	gn_cwl_data_t *data =
 			(gn_cwl_data_t*) gn_leaf_get_descriptor(leaf_config)->data;
+
+	bool active;
+	gn_leaf_param_get_bool(leaf_config, GN_CWL_PARAM_ACTIVE, &active);
 
 	double touch_channel;
 	gn_leaf_param_get_double(leaf_config, GN_CWL_PARAM_TOUCH_CHANNEL,
@@ -199,8 +213,8 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 	gn_leaf_param_get_double(leaf_config, GN_CWL_PARAM_MAX_LEVEL, &max_level);
 
 	double update_time_sec;
-	gn_leaf_param_get_double(leaf_config, GN_CWL_PARAM_UPDATE_TIME_SEC, &update_time_sec);
-
+	gn_leaf_param_get_double(leaf_config, GN_CWL_PARAM_UPDATE_TIME_SEC,
+			&update_time_sec);
 
 	//setup capacitive pin
 
@@ -232,6 +246,8 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 	ESP_LOGD(TAG, "Starting GUI..");
 
 	lv_obj_t *label_title = NULL;
+	lv_obj_t *active_title = NULL;
+	lv_obj_t *active_value = NULL;
 	lv_obj_t *trg_title = NULL;
 	lv_obj_t *trg_value = NULL;
 	lv_obj_t *trg_act_title = NULL;
@@ -265,13 +281,29 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 			lv_obj_set_grid_cell(label_title, LV_GRID_ALIGN_CENTER, 0, 2,
 					LV_GRID_ALIGN_STRETCH, 0, 1);
 
+			ESP_LOGD(TAG, "active_title");
+			active_title = lv_label_create(_cnt);
+			lv_label_set_text(active_title, "Trigger");
+			//lv_obj_add_style(active_title, style, 0);
+			//lv_obj_align_to(label_title, _cnt, LV_ALIGN_TOP_MID, 0, LV_PCT(10));
+			lv_obj_set_grid_cell(active_title, LV_GRID_ALIGN_STRETCH, 0, 1,
+					LV_GRID_ALIGN_STRETCH, 1, 1);
+
+			ESP_LOGD(TAG, "active_value");
+			active_value = lv_label_create(_cnt);
+			lv_label_set_text(active_value, "---");
+			//lv_obj_add_style(trg_value, style, 0);
+			//lv_obj_align_to(trg_value, _cnt, LV_ALIGN_TOP_MID, 0, LV_PCT(10));
+			lv_obj_set_grid_cell(active_value, LV_GRID_ALIGN_STRETCH, 1, 1,
+					LV_GRID_ALIGN_STRETCH, 1, 1);
+
 			ESP_LOGD(TAG, "trg_title");
 			trg_title = lv_label_create(_cnt);
 			lv_label_set_text(trg_title, "Trigger");
 			//lv_obj_add_style(trg_title, style, 0);
 			//lv_obj_align_to(label_title, _cnt, LV_ALIGN_TOP_MID, 0, LV_PCT(10));
 			lv_obj_set_grid_cell(trg_title, LV_GRID_ALIGN_STRETCH, 0, 1,
-					LV_GRID_ALIGN_STRETCH, 1, 1);
+					LV_GRID_ALIGN_STRETCH, 2, 1);
 
 			ESP_LOGD(TAG, "trg_value");
 			trg_value = lv_label_create(_cnt);
@@ -279,7 +311,7 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 			//lv_obj_add_style(trg_value, style, 0);
 			//lv_obj_align_to(trg_value, _cnt, LV_ALIGN_TOP_MID, 0, LV_PCT(10));
 			lv_obj_set_grid_cell(trg_value, LV_GRID_ALIGN_STRETCH, 1, 1,
-					LV_GRID_ALIGN_STRETCH, 1, 1);
+					LV_GRID_ALIGN_STRETCH, 2, 1);
 
 			ESP_LOGD(TAG, "trg_act_title");
 			trg_act_title = lv_label_create(_cnt);
@@ -287,7 +319,7 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 			//lv_obj_add_style(trg_act_title, style, 0);
 			//lv_obj_align_to(trg_act_title, _cnt, LV_ALIGN_TOP_MID, 0, LV_PCT(10));
 			lv_obj_set_grid_cell(trg_act_title, LV_GRID_ALIGN_STRETCH, 0, 1,
-					LV_GRID_ALIGN_STRETCH, 2, 1);
+					LV_GRID_ALIGN_STRETCH, 3, 1);
 
 			snprintf(_buf, 20, "%4.2f", 0.0);
 
@@ -297,7 +329,7 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 			//lv_obj_add_style(trg_act_value, style, 0);
 			//lv_obj_align_to(label_title, _cnt, LV_ALIGN_TOP_MID, 0, LV_PCT(10));
 			lv_obj_set_grid_cell(trg_act_value, LV_GRID_ALIGN_STRETCH, 1, 1,
-					LV_GRID_ALIGN_STRETCH, 2, 1);
+					LV_GRID_ALIGN_STRETCH, 3, 1);
 
 			ESP_LOGD(TAG, "end");
 
@@ -311,24 +343,31 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 
 	ESP_LOGD(TAG, "Starting timer..");
 	//create a timer to update temps
-	esp_timer_handle_t water_sensor_timer;
 	const esp_timer_create_args_t water_sensor_timer_args = { .callback =
 			&gn_cwl_sensor_collect, .arg = leaf_config, .name = "cwl_timer" };
 
-	ret = esp_timer_create(&water_sensor_timer_args, &water_sensor_timer);
+	ret = esp_timer_create(&water_sensor_timer_args, &data->sensor_timer);
 	if (ret != ESP_OK) {
 		ESP_LOGE(TAG, "failed to init capacitive water level timer");
 		return;
 	}
-	//start sensor callback
-	ret = esp_timer_start_periodic(water_sensor_timer,
-			update_time_sec * 1000000);
-	if (ret != ESP_OK) {
-		ESP_LOGE(TAG, "failed to start capacitive water level timer");
-		return;
-	}
 
-	ESP_LOGD(TAG, "Listening to events..");
+	if (ret == ESP_OK && active == true) {
+
+		//start sensor callback
+		ret = esp_timer_start_periodic(data->sensor_timer,
+				update_time_sec * 1000000);
+		if (ret != ESP_OK) {
+			ESP_LOGE(TAG, "failed to start capacitive water level timer");
+			gn_leaf_get_descriptor(leaf_config)->status = GN_LEAF_STATUS_ERROR;
+			gn_leaf_param_set_bool(data->active_param, GN_CWL_PARAM_ACTIVE,
+			false);
+			descriptor->status = GN_LEAF_STATUS_ERROR;
+		}
+
+		ESP_LOGD(TAG, "Listening to events..");
+
+	}
 
 	//task cycle
 	while (true) {
@@ -337,7 +376,66 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 		if (xQueueReceive(gn_leaf_get_event_queue(leaf_config), &evt,
 				pdMS_TO_TICKS(100)) == pdPASS) {
 
-			ESP_LOGD(TAG, "received message: %d", evt.id);
+			//event arrived for this node
+			switch (evt.id) {
+
+			//parameter change
+			case GN_LEAF_PARAM_CHANGE_REQUEST_NETWORK_EVENT:
+			case GN_LEAF_PARAM_CHANGE_REQUEST_EVENT:
+
+				ESP_LOGD(TAG, "request to update param %s, data = '%s'",
+						evt.param_name, evt.data);
+
+				//parameter is update time
+				if (gn_common_leaf_event_mask_param(&evt,
+						data->upd_time_sec_param) == 0) {
+
+					//check limits
+					double updtime = strtod(evt.data, NULL);
+					if (updtime < 10)
+						updtime = 10;
+					if (updtime > 600)
+						updtime = 600;
+
+					update_time_sec = updtime;
+
+					esp_timer_stop(data->sensor_timer);
+					ret = esp_timer_start_periodic(data->sensor_timer,
+							update_time_sec * 1000000);
+
+					//execute change
+					gn_leaf_param_set_double(leaf_config,
+							GN_CWL_PARAM_UPDATE_TIME_SEC, updtime);
+
+				} else if (gn_common_leaf_event_mask_param(&evt,
+						data->active_param) == 0) {
+
+					bool prev_active = active;
+					int _active = atoi(evt.data);
+
+					//execute change
+					gn_leaf_param_set_bool(leaf_config, GN_CWL_PARAM_ACTIVE,
+							_active == 0 ? false : true);
+
+					active = _active;
+
+					//stop timer if false
+					if (_active == 0 && prev_active == true) {
+						esp_timer_stop(data->sensor_timer);
+					} else if (_active != 0 && prev_active == false) {
+						esp_timer_start_periodic(data->sensor_timer,
+								update_time_sec * 1000000);
+					}
+
+				}
+
+
+				break;
+
+			default:
+				break;
+
+			}
 
 		}
 

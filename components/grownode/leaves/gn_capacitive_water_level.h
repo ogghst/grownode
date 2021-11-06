@@ -25,6 +25,7 @@ extern "C" {
 static const char GN_LEAF_CWL_TYPE[GN_LEAF_DESC_TYPE_SIZE] = "cwl";
 
 //parameters
+static const char GN_CWL_PARAM_ACTIVE[] = "active"; /*!< whether the sensor is running*/
 static const char GN_CWL_PARAM_TOUCH_CHANNEL[] = "touch_ch"; /*!< touch channel for sensing. stored, read/write */
 static const char GN_CWL_PARAM_MAX_LEVEL[] = "max_level"; /*!< minimum water level. stored, read/write */
 static const char GN_CWL_PARAM_MIN_LEVEL[] = "min_level"; /*!< maximum water level. stored, read/write */
