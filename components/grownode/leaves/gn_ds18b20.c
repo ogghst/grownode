@@ -40,7 +40,9 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config);
 void _scan_sensors(int gpio, size_t *sensor_count, ds18x20_addr_t *addrs) {
 
 	esp_err_t res;
-	*sensor_count = 0;
+	//*sensor_count = 0;
+
+	ESP_LOGD(TAG, "scan devices on gpio %d", gpio);
 
 	res = ds18x20_scan_devices(gpio, addrs, GN_DS18B20_MAX_SENSORS,
 			sensor_count);
@@ -49,7 +51,8 @@ void _scan_sensors(int gpio, size_t *sensor_count, ds18x20_addr_t *addrs) {
 		return;
 	}
 
-	ESP_LOGD(TAG, "%d sensors detected", *sensor_count);
+	ESP_LOGD(TAG, "%d sensors detected. addr[0]=%llu, addr[1]=%llu",
+			*sensor_count, addrs[0], addrs[1]);
 
 	// If there were more sensors found than we have space to handle,
 	// just report the first MAX_SENSORS..
@@ -162,7 +165,7 @@ gn_leaf_descriptor_handle_t gn_ds18b20_config(
 	gn_leaf_param_add(leaf_config, data->gpio_param);
 
 	//get params for temp. init to 0
-	for (int i = 0; i < data->sensor_count; i++) {
+	for (int i = 0; i < GN_DS18B20_MAX_SENSORS; i++) {
 		data->temp_param[i] = gn_leaf_param_create(leaf_config,
 				GN_DS18B20_PARAM_SENSOR_NAMES[i], GN_VAL_TYPE_DOUBLE,
 				(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_READ,
