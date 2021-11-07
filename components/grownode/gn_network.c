@@ -151,14 +151,14 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 			ESP_LOGE(TAG, "failed to send GN_NETWORK_DISCONNECTED_EVENT event");
 		}
 
-        if (s_retry_num < 5) {
+        if (s_retry_num < 3) {
             esp_wifi_connect();
             s_retry_num++;
             ESP_LOGI(TAG, "retry to connect to the AP");
         } else {
             xEventGroupSetBits(_gn_event_group_wifi, GN_WIFI_FAIL_EVENT);
         }
-        ESP_LOGI(TAG,"connect to the AP fail");
+        //ESP_LOGI(TAG,"connect to the AP fail");
 
 	}
 

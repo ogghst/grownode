@@ -33,6 +33,7 @@
 
 void app_main(void) {
 
+
 	esp_log_level_set("*", ESP_LOG_INFO);
 	esp_log_level_set("grownode", ESP_LOG_INFO);
 	esp_log_level_set("gn_commons", ESP_LOG_INFO);
@@ -75,19 +76,19 @@ void app_main(void) {
 	gn_leaf_param_init_double(lights2in, GN_RELAY_PARAM_GPIO, 33);
 	gn_leaf_param_init_bool(lights2in, GN_RELAY_PARAM_STATUS, false);
 
-	gn_leaf_config_handle_t pltonoffin = gn_leaf_create(node, "pltonoffin",
+	gn_leaf_config_handle_t plt_a = gn_leaf_create(node, "plt_a",
 			gn_relay_config, 4096);
-	gn_leaf_param_init_double(pltonoffin, GN_RELAY_PARAM_GPIO, 23);
-	gn_leaf_param_init_bool(pltonoffin, GN_RELAY_PARAM_STATUS, false);
+	gn_leaf_param_init_double(plt_a, GN_RELAY_PARAM_GPIO, 23);
+	gn_leaf_param_init_bool(plt_a, GN_RELAY_PARAM_STATUS, false);
 
-	gn_leaf_config_handle_t pltin = gn_leaf_create(node, "pltin",
+	gn_leaf_config_handle_t plt_b = gn_leaf_create(node, "plt_b",
 			gn_relay_config, 4096);
-	gn_leaf_param_init_double(pltin, GN_RELAY_PARAM_GPIO, 5);
-	gn_leaf_param_init_bool(pltin, GN_RELAY_PARAM_STATUS, false);
+	gn_leaf_param_init_double(plt_b, GN_RELAY_PARAM_GPIO, 17);
+	gn_leaf_param_init_bool(plt_b, GN_RELAY_PARAM_STATUS, false);
 
 	gn_leaf_config_handle_t waterpumpin = gn_leaf_create(node, "waterpumpin",
 			gn_relay_config, 4096);
-	gn_leaf_param_init_double(waterpumpin, GN_RELAY_PARAM_GPIO, 17);
+	gn_leaf_param_init_double(waterpumpin, GN_RELAY_PARAM_GPIO, 5);
 	gn_leaf_param_init_bool(waterpumpin, GN_RELAY_PARAM_STATUS, false);
 
 	gn_leaf_config_handle_t waterlevelin = gn_leaf_create(node, "waterlevelin",
@@ -123,6 +124,7 @@ void app_main(void) {
 	gn_leaf_config_handle_t ds18b20 = gn_leaf_create(node, "ds18b20",
 			gn_ds18b20_config, 4096);
 	gn_leaf_param_init_double(ds18b20, GN_DS18B20_PARAM_GPIO, 4);
+	gn_leaf_param_init_bool(ds18b20, GN_DS18B20_PARAM_ACTIVE, true);
 
 	//finally, start node
 	gn_node_start(node);

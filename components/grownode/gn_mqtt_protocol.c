@@ -683,7 +683,11 @@ gn_err_t gn_mqtt_send_reset_message(gn_config_handle_t _config) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
+	if (status != GN_SERVER_CONNECTED) return GN_RET_ERR;
+
 	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
+
+	if (!config) return GN_RET_ERR;
 
 //build
 	gn_mqtt_startup_message_handle_t msg =
