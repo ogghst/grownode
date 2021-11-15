@@ -38,7 +38,7 @@ extern "C" {
 
 #include "gn_ds18b20.h"
 #include "gn_pump_control.h"
-#include "gn_pump.h"
+#include "gn_pumps.h"
 
 #define TAG "gn_leaf_pump_control"
 
