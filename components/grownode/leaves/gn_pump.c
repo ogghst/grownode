@@ -106,7 +106,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 
 	bool need_update = true;
 
-	gn_leaf_event_t evt;
+	gn_leaf_parameter_event_t evt;
 
 	esp_err_t ret = ESP_OK;
 
@@ -241,7 +241,6 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 			switch (evt.id) {
 
 			//parameter change
-			case GN_LEAF_PARAM_CHANGE_REQUEST_NETWORK_EVENT:
 			case GN_LEAF_PARAM_CHANGE_REQUEST_EVENT:
 
 				ESP_LOGD(TAG, "request to update param %s, data = '%s'",
@@ -325,20 +324,20 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 				break;
 
 				//what to do when network is connected
-			case GN_NETWORK_CONNECTED_EVENT:
+			case GN_NET_CONNECTED_EVENT:
 				//gn_pump_state = GN_PUMP_STATE_RUNNING;
 				break;
 
 				//what to do when network is disconnected
-			case GN_NETWORK_DISCONNECTED_EVENT:
+			case GN_NET_DISCONNECTED_EVENT:
 				break;
 
 				//what to do when server is connected
-			case GN_SERVER_CONNECTED_EVENT:
+			case GN_SRV_CONNECTED_EVENT:
 				break;
 
 				//what to do when server is disconnected
-			case GN_SERVER_DISCONNECTED_EVENT:
+			case GN_SRV_DISCONNECTED_EVENT:
 				break;
 
 			default:

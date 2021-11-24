@@ -31,11 +31,9 @@ extern "C" {
 
 #ifdef CONFIG_GROWNODE_PROV_TRANSPORT_BLE
 #include "wifi_provisioning/scheme_ble.h"
-#endif /* CONFIG_GROWNODE_PROV_TRANSPORT_BLE */
-
-#ifdef CONFIG_GROWNODE_PROV_TRANSPORT_SOFTAP
+#else
 #include "wifi_provisioning/scheme_softap.h"
-#endif /* CONFIG_GROWNODE_PROV_TRANSPORT_SOFTAP */
+#endif /* CONFIG_GROWNODE_PROV_TRANSPORT_BLE */
 
 #define GN_NODE_LEAVES_MAX_SIZE 64
 
@@ -65,6 +63,12 @@ gn_leaf_descriptor_handle_t gn_leaf_get_descriptor(gn_leaf_config_handle_t leaf_
 //esp_err_t _gn_start_leaf(gn_leaf_config_handle_t leaf);
 
 QueueHandle_t gn_leaf_get_event_queue(gn_leaf_config_handle_t leaf_config);
+
+gn_err_t gn_leaf_event_subscribe(gn_leaf_config_handle_t leaf_config,
+		gn_event_id_t event_id);
+
+gn_err_t gn_leaf_event_unsubscribe(gn_leaf_config_handle_t leaf_config,
+		gn_event_id_t event_id);
 
 gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
 		const char *name, const gn_val_type_t type, const gn_val_t val, gn_leaf_param_access_t access, gn_leaf_param_storage_t storage);

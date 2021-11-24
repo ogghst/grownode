@@ -41,11 +41,9 @@ extern "C" {
 
 #ifdef CONFIG_GROWNODE_PROV_TRANSPORT_BLE
 #include "wifi_provisioning/scheme_ble.h"
-#endif /* CONFIG_GROWNODE_PROV_TRANSPORT_BLE */
-
-#ifdef CONFIG_GROWNODE_PROV_TRANSPORT_SOFTAP
+#else
 #include "wifi_provisioning/scheme_softap.h"
-#endif /* CONFIG_GROWNODE_PROV_TRANSPORT_SOFTAP */
+#endif /* CONFIG_GROWNODE_PROV_TRANSPORT_BLE */
 
 #endif /* CONFIG_GROWNODE_WIFI_ENABLED */
 
@@ -424,7 +422,7 @@ esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
 
 }
 
-static bool time_sync_init_done = false;
+//static bool time_sync_init_done = false;
 
 esp_err_t _gn_init_time_sync(gn_config_handle_t conf) {
 

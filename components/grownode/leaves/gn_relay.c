@@ -82,7 +82,7 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 	const size_t GN_RELAY_STATE_RUNNING = 1;
 
 	size_t gn_relay_state = GN_RELAY_STATE_RUNNING;
-	gn_leaf_event_t evt;
+	gn_leaf_parameter_event_t evt;
 
 	//retrieves status descriptor from config
 	gn_relay_data_t *data = (gn_relay_data_t*) gn_leaf_get_descriptor(
@@ -159,7 +159,6 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 			switch (evt.id) {
 
 			//parameter change
-			case GN_LEAF_PARAM_CHANGE_REQUEST_NETWORK_EVENT:
 			case GN_LEAF_PARAM_CHANGE_REQUEST_EVENT:
 
 				ESP_LOGD(TAG, "request to update param %s, data = '%s'",
@@ -201,22 +200,22 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 				break;
 
 				//what to do when network is connected
-			case GN_NETWORK_CONNECTED_EVENT:
+			case GN_NET_CONNECTED_EVENT:
 				//gn_pump_state = GN_PUMP_STATE_RUNNING;
 				break;
 
 				//what to do when network is disconnected
-			case GN_NETWORK_DISCONNECTED_EVENT:
+			case GN_NET_DISCONNECTED_EVENT:
 				gn_relay_state = GN_RELAY_STATE_STOP;
 				break;
 
 				//what to do when server is connected
-			case GN_SERVER_CONNECTED_EVENT:
+			case GN_SRV_CONNECTED_EVENT:
 				gn_relay_state = GN_RELAY_STATE_RUNNING;
 				break;
 
 				//what to do when server is disconnected
-			case GN_SERVER_DISCONNECTED_EVENT:
+			case GN_SRV_DISCONNECTED_EVENT:
 				gn_relay_state = GN_RELAY_STATE_STOP;
 				break;
 

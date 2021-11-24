@@ -37,30 +37,39 @@ extern esp_event_base_t GN_LEAF_EVENT; // @suppress("Type cannot be resolved")
 
 typedef enum {
 
-	GN_LEAF_INIT_REQUEST_EVENT, //used internally to leaf event queue
-	GN_LEAF_MESSAGE_RECEIVED_EVENT,
-	GN_LEAF_PARAM_CHANGE_REQUEST_NETWORK_EVENT, //generated when a parameter change is received from network
-	GN_LEAF_PARAM_CHANGED_EVENT, //generated when a parameter is internally changed
-	GN_LEAF_PARAM_CHANGE_REQUEST_EVENT, //generated when a parameter is requested to change
-	GN_SYSTEM_MESSAGE_RECEIVED_EVENT,
+	//leaf management events
+	GN_LEAF_INIT_REQUEST_EVENT = 0x001, //used internally to leaf event queue
+	GN_LEAF_MESSAGE_RECEIVED_EVENT = 0x002,
+	GN_LEAF_ADDED_EVENT = 0x003,
 
-	GN_LEAF_ADDED_EVENT,
+	//leaf parameter events
+	//GN_LEAF_PARAM_CHANGE_REQUEST_NETWORK_EVENT = 0x101, //generated when a parameter change is received from network
+	GN_LEAF_PARAM_CHANGED_EVENT = 0x102, //generated when a parameter is internally changed
+	GN_LEAF_PARAM_INITIALIZED_EVENT = 0x103, //generated when a parameter is internally changed
+	GN_LEAF_PARAM_CHANGE_REQUEST_EVENT = 0x104, //generated when a parameter is requested to change
 
-	GN_DISPLAY_LOG_EVENT,
-	GN_NETWORK_CONNECTED_EVENT,
-	GN_NETWORK_DISCONNECTED_EVENT,
-	GN_SERVER_CONNECTED_EVENT,
-	GN_SERVER_DISCONNECTED_EVENT,
+	//system events
+	GN_SYSTEM_MESSAGE_RECEIVED_EVENT = 0x201,
 
-	GN_NODE_STARTED_EVENT,
+	//GUI events
+	GN_GUI_LOG_EVENT = 0x301,
 
-	GN_NET_MSG_RECV,
+	//network events
+	GN_NET_CONNECTED_EVENT = 0x401,
+	GN_NET_DISCONNECTED_EVENT = 0x402,
+	GN_NET_MSG_RECV = 0x403,
+	GN_NET_OTA_START = 0x404,
+	GN_NET_RST_START = 0x405,
+	GN_NET_RBT_START = 0x406,
 
-	GN_NET_OTA_START,
-	GN_NET_RST_START,
-	GN_NET_RBT_START,
+	//server events
+	GN_SRV_CONNECTED_EVENT = 0x501,
+	GN_SRV_DISCONNECTED_EVENT = 0x502,
+	GN_SRV_KEEPALIVE_START_EVENT = 0x503,
 
-	GN_KEEPALIVE_START_EVENT
+	//node events
+	GN_NODE_STARTED_EVENT = 0x601
+
 
 } gn_event_id_t;
 

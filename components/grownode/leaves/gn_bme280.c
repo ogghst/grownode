@@ -163,7 +163,7 @@ gn_leaf_descriptor_handle_t gn_bme280_config(
 
 void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 
-	gn_leaf_event_t evt;
+	gn_leaf_parameter_event_t evt;
 
 	//retrieves status descriptor from config
 	gn_leaf_descriptor_handle_t descriptor = gn_leaf_get_descriptor(
@@ -373,7 +373,6 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 			switch (evt.id) {
 
 			//parameter change
-			case GN_LEAF_PARAM_CHANGE_REQUEST_NETWORK_EVENT:
 			case GN_LEAF_PARAM_CHANGE_REQUEST_EVENT:
 
 				ESP_LOGD(TAG, "request to update param %s, data = '%s'",
@@ -450,19 +449,19 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 				break;
 
 				//what to do when network is connected
-			case GN_NETWORK_CONNECTED_EVENT:
+			case GN_NET_CONNECTED_EVENT:
 				break;
 
 				//what to do when network is disconnected
-			case GN_NETWORK_DISCONNECTED_EVENT:
+			case GN_NET_DISCONNECTED_EVENT:
 				break;
 
 				//what to do when server is connected
-			case GN_SERVER_CONNECTED_EVENT:
+			case GN_SRV_CONNECTED_EVENT:
 				break;
 
 				//what to do when server is disconnected
-			case GN_SERVER_DISCONNECTED_EVENT:
+			case GN_SRV_DISCONNECTED_EVENT:
 				break;
 
 			default:

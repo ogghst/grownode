@@ -137,7 +137,7 @@ typedef gn_leaf_param_t *gn_leaf_param_handle_intl_t;
  */
 
 gn_err_t _gn_send_event_to_leaf(gn_leaf_config_handle_intl_t leaf_config,
-		gn_leaf_event_handle_t evt);
+		gn_leaf_parameter_event_handle_t evt);
 
 gn_err_t _gn_leaf_parameter_update(const gn_leaf_config_handle_t leaf_config,
 		const char *param, const void *data, const int data_len);

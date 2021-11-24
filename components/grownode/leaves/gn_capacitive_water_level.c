@@ -185,7 +185,7 @@ gn_leaf_descriptor_handle_t gn_capacitive_water_level_config(
 
 void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 
-	gn_leaf_event_t evt;
+	gn_leaf_parameter_event_t evt;
 
 	//retrieves status descriptor from config
 	gn_leaf_descriptor_handle_t descriptor = gn_leaf_get_descriptor(
@@ -380,7 +380,6 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 			switch (evt.id) {
 
 			//parameter change
-			case GN_LEAF_PARAM_CHANGE_REQUEST_NETWORK_EVENT:
 			case GN_LEAF_PARAM_CHANGE_REQUEST_EVENT:
 
 				ESP_LOGD(TAG, "request to update param %s, data = '%s'",

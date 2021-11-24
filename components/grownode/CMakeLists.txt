@@ -113,6 +113,7 @@ idf_component_register(SRCS
 					"leaves/gn_ds18b20.c"
 					"leaves/gn_bme280.c"
 					"leaves/gn_pump_control.c"
+					"leaves/gn_watering_control.c"
 					"leaves/gn_capacitive_water_level.c"
 					"leaves/gn_relay.c"
 					"test/test_grownode.c"
@@ -121,7 +122,7 @@ idf_component_register(SRCS
 					"test/test_pump_control.c"
 					"test/test_relay.c"
 					
-					REQUIRES lvgl lvgl_esp32_drivers unity
+					REQUIRES lvgl lvgl_esp32_drivers unity mqtt spiffs json wifi_provisioning esp_https_ota app_update bmp280 ds18x20
                     INCLUDE_DIRS 
                     "."
                     "leaves/"

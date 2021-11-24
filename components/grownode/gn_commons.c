@@ -22,7 +22,7 @@ extern "C" {
 
 #define TAG "gn_commons"
 
-inline size_t gn_common_leaf_event_mask_param(gn_leaf_event_handle_t evt,
+inline size_t gn_common_leaf_event_mask_param(gn_leaf_parameter_event_handle_t evt,
 		gn_leaf_param_handle_t param) {
 
 	if (!evt || !param)
@@ -61,6 +61,8 @@ void inline gn_common_hash_str(const char *key, char *buf, size_t len) {
 	ESP_LOGD(TAG, "gn_common_hash_str(%s) - %s", key, buf);
 
 }
+
+
 
 #ifdef __cplusplus
 }

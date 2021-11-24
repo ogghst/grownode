@@ -671,16 +671,16 @@ void _gn_display_net_mqtt_handler(void *handler_args, esp_event_base_t base,
 	if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 		switch (id) {
-		case GN_NETWORK_CONNECTED_EVENT:
+		case GN_NET_CONNECTED_EVENT:
 			lv_label_set_text(net_label, "NETOK");
 			break;
-		case GN_NETWORK_DISCONNECTED_EVENT:
+		case GN_NET_DISCONNECTED_EVENT:
 			lv_label_set_text(net_label, "NETKO");
 			break;
-		case GN_SERVER_CONNECTED_EVENT:
+		case GN_SRV_CONNECTED_EVENT:
 			lv_label_set_text(srv_label, "SRVOK");
 			break;
-		case GN_SERVER_DISCONNECTED_EVENT:
+		case GN_SRV_DISCONNECTED_EVENT:
 			lv_label_set_text(srv_label, "SRVKO");
 			break;
 		}
@@ -1115,7 +1115,7 @@ esp_err_t gn_init_display(gn_config_handle_t config) {
 
 //add event handlers
 	ESP_ERROR_CHECK(
-			esp_event_handler_instance_register_with(_config->event_loop, GN_BASE_EVENT, GN_DISPLAY_LOG_EVENT, _gn_display_log_system_handler, NULL, NULL));
+			esp_event_handler_instance_register_with(_config->event_loop, GN_BASE_EVENT, GN_GUI_LOG_EVENT, _gn_display_log_system_handler, NULL, NULL));
 
 	ESP_ERROR_CHECK(
 			esp_event_handler_instance_register_with(_config->event_loop, GN_BASE_EVENT, GN_EVENT_ANY_ID, _gn_display_net_mqtt_handler, NULL, NULL));

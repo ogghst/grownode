@@ -38,7 +38,7 @@ extern "C" {
 
 #include "gn_ds18b20.h"
 #include "gn_pump_control.h"
-#include "gn_pumps.h"
+#include "gn_pump.h"
 
 #define TAG "gn_leaf_pump_control"
 
@@ -53,7 +53,7 @@ void gn_pump_control_task_event_handler(void *handler_args,
 
 	//gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t) handler_args;
 
-	gn_leaf_event_t *evt = (gn_leaf_event_t*) event_data;
+	gn_leaf_parameter_event_t *evt = (gn_leaf_parameter_event_t*) event_data;
 	switch (event_id) {
 	case GN_LEAF_PARAM_CHANGED_EVENT:
 
@@ -114,6 +114,7 @@ void gn_pump_control_task_event_handler(void *handler_args,
 	}
 
 }
+
 
 gn_leaf_descriptor_handle_t gn_pump_control_config(
 		gn_leaf_config_handle_t leaf_config) {

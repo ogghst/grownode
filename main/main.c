@@ -26,6 +26,7 @@
 #include "gn_capacitive_water_level.h"
 #include "gn_pump.h"
 #include "gn_bme280.h"
+#include "gn_watering_control.h"
 
 #define TASK_STACK_SIZE 8192*4
 
@@ -35,7 +36,7 @@ void app_main(void) {
 
 
 	esp_log_level_set("*", ESP_LOG_INFO);
-	esp_log_level_set("grownode", ESP_LOG_INFO);
+	esp_log_level_set("grownode", ESP_LOG_DEBUG);
 	esp_log_level_set("gn_commons", ESP_LOG_INFO);
 	esp_log_level_set("gn_nvs", ESP_LOG_INFO);
 	esp_log_level_set("gn_mqtt_protocol", ESP_LOG_INFO);
@@ -44,10 +45,12 @@ void app_main(void) {
 
 	esp_log_level_set("gn_leaf_relay", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_pump_hs", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_pump_control", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_ds18b20", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_cwl", ESP_LOG_INFO);
+	esp_log_level_set("gn_leaf_cwl", ESP_LOG_DEBUG);
 	esp_log_level_set("gn_leaf_bme280", ESP_LOG_INFO);
+
+	esp_log_level_set("gn_leaf_pump_control", ESP_LOG_INFO);
+	esp_log_level_set("gn_leaf_watering_control", ESP_LOG_DEBUG);
 
 	//creates the config handle
 	gn_config_handle_t config = gn_init();
@@ -97,7 +100,6 @@ void app_main(void) {
 	gn_leaf_param_init_double(waterlevelin, GN_CWL_PARAM_TOUCH_CHANNEL, 2);
 	gn_leaf_param_init_double(waterlevelin, GN_CWL_PARAM_UPDATE_TIME_SEC, 10);
 
-
 	gn_leaf_config_handle_t hcc_speed = gn_leaf_create(node, "hcc",
 			gn_pump_hs_config, 4096);
 	gn_leaf_param_init_bool(hcc_speed, GN_PUMP_HS_PARAM_CHANNEL, 0);
@@ -114,6 +116,7 @@ void app_main(void) {
 	gn_leaf_param_init_double(fan_speed, GN_PUMP_HS_PARAM_GPIO_TOGGLE, 33);
 	gn_leaf_param_init_bool(fan_speed, GN_PUMP_HS_PARAM_TOGGLE, false);
 
+	/*
 	gn_leaf_config_handle_t bme280 = gn_leaf_create(node, "bme280",
 			gn_bme280_config, 4096);
 	gn_leaf_param_init_double(bme280, GN_BME280_PARAM_SDA, 21);
@@ -125,6 +128,10 @@ void app_main(void) {
 			gn_ds18b20_config, 4096);
 	gn_leaf_param_init_double(ds18b20, GN_DS18B20_PARAM_GPIO, 4);
 	gn_leaf_param_init_bool(ds18b20, GN_DS18B20_PARAM_ACTIVE, true);
+	*/
+
+	gn_leaf_config_handle_t watering_control = gn_leaf_create(node, "watering_control",
+			gn_watering_control_config, 4096);
 
 	//finally, start node
 	gn_node_start(node);

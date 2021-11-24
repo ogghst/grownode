@@ -74,9 +74,18 @@ typedef struct {
 	char param_name[GN_LEAF_PARAM_NAME_SIZE];
 	char data[GN_LEAF_DATA_SIZE]; /*!< Data associated with this event */
 	int data_size; /*!< Length of the data for this event */
-} gn_leaf_event_t;
+} gn_leaf_parameter_event_t;
 
-typedef gn_leaf_event_t *gn_leaf_event_handle_t;
+typedef gn_leaf_parameter_event_t *gn_leaf_parameter_event_handle_t;
+
+/*
+typedef struct {
+	gn_event_id_t id;
+	gn_leaf_config_handle_t leaf_config;
+} gn_leaf_event_subscription_t;
+
+typedef gn_leaf_event_subscription_t *gn_leaf_event_subscription_handle_t;
+*/
 
 typedef struct {
 	gn_event_id_t id;
@@ -150,7 +159,7 @@ typedef void *gn_leaf_param_handle_t;
 
 //typedef void* gn_leaf_context_handle_t;
 
-size_t gn_common_leaf_event_mask_param(gn_leaf_event_handle_t evt,
+size_t gn_common_leaf_event_mask_param(gn_leaf_parameter_event_handle_t evt,
 		gn_leaf_param_handle_t param);
 
 uint64_t gn_common_hash(const char *key);
