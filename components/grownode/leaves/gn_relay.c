@@ -76,7 +76,7 @@ gn_leaf_descriptor_handle_t gn_relay_config(gn_leaf_config_handle_t leaf_config)
 
 void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 
-	ESP_LOGD(TAG, "Initializing relay leaf..");
+	ESP_LOGD(TAG, "Initializing relay leaf %s..", gn_leaf_get_config_name(leaf_config));
 
 	const size_t GN_RELAY_STATE_STOP = 0;
 	const size_t GN_RELAY_STATE_RUNNING = 1;
@@ -94,9 +94,11 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 	bool status;
 	gn_leaf_param_get_bool(leaf_config, GN_RELAY_PARAM_STATUS, &status);
 
+	ESP_LOGD(TAG, "assigning to gpio %d status %d", (int)gpio, status ? 1 : 0);
+
 	//setup relay
-	gpio_set_direction(gpio, GPIO_MODE_OUTPUT);
-	gpio_set_level(gpio, status ? 1 : 0);
+	gpio_set_direction((int)gpio, GPIO_MODE_OUTPUT);
+	gpio_set_level((int)gpio, status ? 1 : 0);
 
 	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
@@ -153,7 +155,8 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 		if (xQueueReceive(gn_leaf_get_event_queue(leaf_config), &evt,
 				pdMS_TO_TICKS(100)) == pdPASS) {
 
-			ESP_LOGD(TAG, "received message: %d", evt.id);
+			ESP_LOGD(TAG, "%s - received message: %d",
+					gn_leaf_get_config_name(leaf_config), evt.id);
 
 			//event arrived for this node
 			switch (evt.id) {
@@ -176,12 +179,13 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 
 					status = _active;
 
+					ESP_LOGD(TAG, "%s - gpio %d, toggle %d",
+							gn_leaf_get_config_name(leaf_config), (int)gpio,
+							status ? 1 : 0);
+
 					//update sensor using the parameter values
 					if (gn_relay_state == GN_RELAY_STATE_RUNNING) {
-						gpio_set_level(
-								gpio,
-								status ?
-										1 : 0);
+						gpio_set_level((int)gpio, status ? 1 : 0);
 					}
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED

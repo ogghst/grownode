@@ -75,7 +75,7 @@ void app_main(void) {
 
 	gn_leaf_config_handle_t lights2in = gn_leaf_create(node, "lights2in",
 			gn_relay_config, 4096);
-	gn_leaf_param_init_double(lights2in, GN_RELAY_PARAM_GPIO, 33);
+	gn_leaf_param_init_double(lights2in, GN_RELAY_PARAM_GPIO, 5);
 	gn_leaf_param_init_bool(lights2in, GN_RELAY_PARAM_STATUS, false);
 
 	gn_leaf_config_handle_t plt_a = gn_leaf_create(node, "plt_a",
@@ -90,7 +90,7 @@ void app_main(void) {
 
 	gn_leaf_config_handle_t waterpumpin = gn_leaf_create(node, "waterpumpin",
 			gn_relay_config, 4096);
-	gn_leaf_param_init_double(waterpumpin, GN_RELAY_PARAM_GPIO, 5);
+	gn_leaf_param_init_double(waterpumpin, GN_RELAY_PARAM_GPIO, 19);
 	gn_leaf_param_init_bool(waterpumpin, GN_RELAY_PARAM_STATUS, false);
 
 	gn_leaf_config_handle_t waterlevelin = gn_leaf_create(node, "waterlevelin",
