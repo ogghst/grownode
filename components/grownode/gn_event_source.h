@@ -50,6 +50,7 @@ typedef enum {
 
 	//system events
 	GN_SYSTEM_MESSAGE_RECEIVED_EVENT = 0x201,
+	GN_LOG_EVENT = 0x202,
 
 	//GUI events
 	GN_GUI_LOG_EVENT = 0x301,

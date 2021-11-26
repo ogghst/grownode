@@ -1,5 +1,9 @@
 menu "GrowNode Configuration"
 
+        
+    config GROWNODE_RESET_FLASH
+    	bool "Reset Flash at every startup"
+    	default false
     		
     config GROWNODE_WIFI_ENABLED
     	bool "Enable Networking"
@@ -33,16 +37,16 @@ menu "GrowNode Configuration"
     	int "Kepalive message (sec)"
     	depends on GROWNODE_WIFI_ENABLED
     	default 60
-        
-    config GROWNODE_RESET_PROVISIONED
-    	bool "Reset Provisioning Status at every startup"
+    	
+    config GROWNODE_PROV_SECURITY
+    	bool "Provisioning security"
     	depends on GROWNODE_WIFI_ENABLED
-    	default false
+    	default true
     	
    	config GROWNODE_PROV_POP
     	string "SoftAP Proof of Possession"
     	default "grownode"
-    	depends on GROWNODE_WIFI_ENABLED
+    	depends on GROWNODE_PROV_SECURITY
     	help
     		Password to prove provisioning is coming from trusted source
     	

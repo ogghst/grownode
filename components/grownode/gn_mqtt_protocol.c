@@ -354,7 +354,7 @@ gn_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t _param) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
-	gn_leaf_param_handle_intl_t param = (gn_leaf_config_handle_intl_t) _param;
+	gn_leaf_param_handle_intl_t param = (gn_leaf_param_handle_intl_t) _param;
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) param->leaf_config;
 	gn_node_config_handle_intl_t node_config =
@@ -481,8 +481,6 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
 		return ESP_FAIL;
 	}
 
-	cJSON_Delete(root);
-
 //publish
 	msg_id = esp_mqtt_client_publish(config->mqtt_client, msg->topic, buf, 0, 0,
 			1);
@@ -490,6 +488,7 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
 			msg_id, msg->topic, buf);
 
 	fail: {
+		cJSON_Delete(root);
 		free(buf);
 		free(msg);
 		return ((msg_id == -1) ? (ESP_FAIL) : (ESP_OK));
@@ -570,6 +569,68 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 	return GN_RET_OK;
 #endif /* CONFIG_GROWNODE_WIFI_ENABLED */
 
+}
+
+gn_err_t gn_mqtt_send_log_message(gn_config_handle_t _config, char *log_tag,
+		gn_log_level_t level, char *message) {
+
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
+
+	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
+
+	gn_err_t ret = GN_RET_OK;
+
+	char log_str[16] = "";
+	switch (level) {
+	case GN_LOG_DEBUG:
+		strcpy(log_str, "DEBUG");
+		break;
+	case GN_LOG_INFO:
+		strcpy(log_str, "INFO");
+		break;
+	case GN_LOG_WARNING:
+		strcpy(log_str, "WARNING");
+		break;
+	case GN_LOG_ERROR:
+		strcpy(log_str, "ERROR");
+		break;
+	default:
+		strcpy(log_str, "UNDEFINED");
+		break;
+	}
+
+	char *buf = (char*) calloc(_GN_MQTT_MAX_PAYLOAD_LENGTH, sizeof(char));
+
+	cJSON *root = cJSON_CreateObject();
+	cJSON_AddStringToObject(root, "msgtype", "log");
+	cJSON_AddStringToObject(root, "tag", log_tag);
+	cJSON_AddStringToObject(root, "lev", log_str);
+	cJSON_AddStringToObject(root, "msg", message);
+
+	if (!cJSON_PrintPreallocated(root, buf, _GN_MQTT_MAX_PAYLOAD_LENGTH,
+	false)) {
+		ESP_LOGE(TAG, "gn_mqtt_send_node_config: cannot print json message");
+		goto fail;
+	}
+
+	int msg_id = esp_mqtt_client_publish(config->mqtt_client, _gn_sts_topic,
+			buf, 0, 0, 1);
+	ESP_LOGD(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s",
+			msg_id, _gn_sts_topic, buf);
+
+	if (msg_id == -1)
+		ret = GN_RET_ERR;
+
+	fail: {
+		cJSON_Delete(root);
+		free(buf);
+	}
+
+	return ret;
+
+#else
+	return GN_RET_OK;
+#endif // CONFIG_GROWNODE_WIFI_ENABLED
 }
 
 gn_err_t gn_mqtt_send_startup_message(gn_config_handle_t _config) {
@@ -683,11 +744,13 @@ gn_err_t gn_mqtt_send_reset_message(gn_config_handle_t _config) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
-	if (status != GN_SERVER_CONNECTED) return GN_RET_ERR;
+	if (status != GN_SERVER_CONNECTED)
+		return GN_RET_ERR;
 
 	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
 
-	if (!config) return GN_RET_ERR;
+	if (!config)
+		return GN_RET_ERR;
 
 //build
 	gn_mqtt_startup_message_handle_t msg =
@@ -835,7 +898,7 @@ esp_err_t _gn_mqtt_on_connected(esp_mqtt_client_handle_t client) {
 
 	if (ESP_OK
 			!= esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
-					GN_SERVER_CONNECTED_EVENT,
+					GN_SRV_CONNECTED_EVENT,
 					NULL, 0, portMAX_DELAY)) {
 		ESP_LOGE(TAG, "failed to send GN_SERVER_CONNECTED_EVENT event");
 		goto fail;
@@ -862,7 +925,7 @@ esp_err_t _gn_mqtt_on_disconnected(esp_mqtt_client_handle_t client) {
 
 	if (ESP_OK
 			!= esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
-					GN_SERVER_DISCONNECTED_EVENT,
+					GN_SRV_DISCONNECTED_EVENT,
 					NULL, 0, portMAX_DELAY)) {
 		ESP_LOGE(TAG, "failed to send GN_SERVER_DISCONNECTED_EVENT event");
 		goto fail;
@@ -967,7 +1030,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 			//forward message to the appropriate leaf
 			char leaf_topic[_GN_MQTT_MAX_TOPIC_LENGTH];
 			char param_topic[_GN_MQTT_MAX_TOPIC_LENGTH];
-			gn_leaf_event_t evt;
+			gn_leaf_parameter_event_t evt;
 
 			for (int i = 0; i < _config->node_config->leaves.last; i++) {
 

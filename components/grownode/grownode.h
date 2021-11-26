@@ -70,8 +70,10 @@ gn_err_t gn_leaf_event_subscribe(gn_leaf_config_handle_t leaf_config,
 gn_err_t gn_leaf_event_unsubscribe(gn_leaf_config_handle_t leaf_config,
 		gn_event_id_t event_id);
 
+typedef gn_leaf_param_validator_result_t (*gn_validator_t)(gn_leaf_param_handle_t param, void** value);
+
 gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
-		const char *name, const gn_val_type_t type, const gn_val_t val, gn_leaf_param_access_t access, gn_leaf_param_storage_t storage);
+		const char *name, const gn_val_type_t type, const gn_val_t val, gn_leaf_param_access_t access, gn_leaf_param_storage_t storage, gn_validator_t validator);
 
 gn_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
 		const gn_leaf_param_handle_t new_param);
@@ -79,32 +81,34 @@ gn_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
 gn_leaf_param_handle_t gn_leaf_param_get_param_handle(const gn_leaf_config_handle_t leaf,
 		const char *param_name);
 
+gn_err_t gn_leaf_param_get_value(const gn_leaf_param_handle_t param, void* val);
+
 gn_err_t gn_leaf_param_get_string(const gn_leaf_config_handle_t leaf_config,
 		const char *name, char *val, size_t *lenght);
 
 gn_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf,
-		const char *name, const char *val);
+		const char *name, char *val);
 
 gn_err_t gn_leaf_param_init_string(const gn_leaf_config_handle_t leaf,
-		const char *name, const char *val);
+		const char *name, char *val);
 
 gn_err_t gn_leaf_param_get_bool(const gn_leaf_config_handle_t leaf_config,
 		const char *name, bool *val);
 
 gn_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf,
-		const char *name, const bool val);
+		const char *name, bool val);
 
 gn_err_t gn_leaf_param_init_bool(const gn_leaf_config_handle_t leaf,
-		const char *name, const bool val);
+		const char *name, bool val);
 
 gn_err_t gn_leaf_param_get_double(const gn_leaf_config_handle_t leaf_config,
 		const char *name, double *val);
 
 gn_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf,
-		const char *name, const double val);
+		const char *name, double val);
 
 gn_err_t gn_leaf_param_init_double(const gn_leaf_config_handle_t leaf,
-		const char *name, const double val);
+		const char *name, double val);
 
 //gn_err_t gn_leaf_param_destroy(gn_leaf_param_handle_t new_param);
 
@@ -114,7 +118,9 @@ gn_err_t gn_leaf_param_init_double(const gn_leaf_config_handle_t leaf,
 //void* gn_leaf_context_get_key_to_leaf(const gn_leaf_config_handle_t leaf,
 //		char *key);
 
-gn_err_t gn_log(char *message);
+//gn_err_t gn_display_log(char *message);
+
+gn_err_t gn_log(char * log_tag, gn_log_level_t level, char* message, ...);
 
 //esp_err_t gn_message_send_text(gn_leaf_config_handle_t config, const char *msg);
 
@@ -130,6 +136,10 @@ esp_event_loop_handle_t gn_leaf_get_config_event_loop(gn_config_handle_t config)
 char* gn_get_node_config_name(gn_node_config_handle_t node_config);
 
 char* gn_leaf_get_config_name(gn_leaf_config_handle_t leaf_config);
+
+gn_leaf_config_handle_t gn_leaf_get_config_handle(gn_node_config_handle_t node, const char* name);
+
+gn_node_config_handle_t gn_leaf_get_node_config(gn_leaf_config_handle_t leaf_config);
 
 gn_err_t gn_send_leaf_param_change_message(const char *leaf_name, const char *param_name,
 		const void *message, size_t message_len);

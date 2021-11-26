@@ -73,7 +73,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 	if (event_base == WIFI_PROV_EVENT) {
 		switch (event_id) {
 		case WIFI_PROV_START:
-			gn_log("Provisioning Started");
+			gn_log(TAG, GN_LOG_INFO, "Provisioning Started");
 			break;
 		case WIFI_PROV_CRED_RECV: {
 			wifi_sta_config_t *wifi_sta_cfg = (wifi_sta_config_t*) event_data;
@@ -100,7 +100,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 			break;
 		case WIFI_PROV_END:
 			ESP_LOGD(TAG, "WIFI_PROV_END");
-			gn_log("Provisioning OK");
+			gn_log(TAG, GN_LOG_INFO, "Provisioning OK");
 			break;
 		default:
 			break;
@@ -123,13 +123,13 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		strcpy(_conf->deviceName, deviceName);
 
 		sprintf(log, "%s-%d.%d.%d.%d", deviceName, IP2STR(&event->ip_info.ip));
-		gn_log(log);
+		gn_log(TAG, GN_LOG_DEBUG, log);
 
 		//ESP_LOGI(TAG, "IP : " IPSTR, IP2STR(&event->ip_info.ip));
 
 		if (ESP_OK
 				!= esp_event_post_to(_conf->event_loop,
-						GN_BASE_EVENT, GN_NETWORK_CONNECTED_EVENT, NULL, 0,
+						GN_BASE_EVENT, GN_NET_CONNECTED_EVENT, NULL, 0,
 						portMAX_DELAY)) {
 			ESP_LOGE(TAG, "failed to send GN_NETWORK_DISCONNECTED_EVENT event");
 		}
@@ -144,7 +144,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 
 		if (ESP_OK
 				!= esp_event_post_to(_conf->event_loop,
-						GN_BASE_EVENT, GN_NETWORK_DISCONNECTED_EVENT, NULL, 0,
+						GN_BASE_EVENT, GN_NET_DISCONNECTED_EVENT, NULL, 0,
 						portMAX_DELAY)) {
 			ESP_LOGE(TAG, "failed to send GN_NETWORK_DISCONNECTED_EVENT event");
 		}
@@ -332,12 +332,18 @@ esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
 		 *          using X25519 key exchange and proof of possession (pop) and AES-CTR
 		 *          for encryption/decryption of messages.
 		 */
-		wifi_prov_security_t security = WIFI_PROV_SECURITY_1;
+
 
 		/* Do we want a proof-of-possession (ignored if Security 0 is selected):
 		 *      - this should be a string with length > 0
 		 *      - NULL if not used
 		 */
+
+#ifdef CONFIG_GROWNODE_PROV_SECURITY
+		wifi_prov_security_t security = WIFI_PROV_SECURITY_1;
+#else
+		wifi_prov_security_t security = WIFI_PROV_SECURITY_0;
+#endif
 
 #ifdef CONFIG_GROWNODE_PROV_POP
 		const char *pop = CONFIG_GROWNODE_PROV_POP;
@@ -422,7 +428,7 @@ esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
 
 }
 
-//static bool time_sync_init_done = false;
+static bool time_sync_init_done = false;
 
 esp_err_t _gn_init_time_sync(gn_config_handle_t conf) {
 
@@ -458,7 +464,7 @@ void _gn_ota_task(void *pvParameter) {
 	//x.type = screenPayloadType::LOG;
 	//strcpy(x.text, "Firmware update start");
 	//xQueueSend(screenEventQueue, &x, 0);
-	gn_log("Firmware update in progress..");
+	gn_log(TAG, GN_LOG_INFO, "Firmware update in progress..");
 
 	esp_wifi_set_ps(WIFI_PS_NONE);
 
@@ -470,14 +476,14 @@ void _gn_ota_task(void *pvParameter) {
 	esp_err_t ret = esp_https_ota(&config);
 	if (ret == ESP_OK) {
 
-		gn_log("Firmware updated. Rebooting..");
+		gn_log(TAG, GN_LOG_INFO, "Firmware updated. Rebooting..");
 		//vTaskDelay(5000 / portTICK_PERIOD_MS);
 		gn_reboot();
 
 	} else {
 
 		//screen->log("Firmware Not Updated");
-		gn_log("Firmware upgrade failed.");
+		gn_log(TAG, GN_LOG_INFO, "Firmware upgrade failed.");
 		//vTaskDelay(5000 / portTICK_PERIOD_MS);
 		//esp_restart();
 	}

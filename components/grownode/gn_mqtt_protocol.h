@@ -56,6 +56,9 @@ gn_err_t gn_mqtt_send_reset_message(gn_config_handle_t _config);
 
 gn_err_t gn_mqtt_send_ota_message(gn_config_handle_t _config);
 
+gn_err_t gn_mqtt_send_log_message(gn_config_handle_t _config, char *log_tag, gn_log_level_t level, char *message);
+
+
 gn_server_status_t gn_mqtt_get_status();
 
 #ifdef __cplusplus

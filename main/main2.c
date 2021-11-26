@@ -49,7 +49,7 @@ void app_main(void) {
 	ESP_LOGI("main", "gn_create_node, name %s", gn_get_node_config_name(node));
 
 	//send log to screen
-	gn_log("initialized");
+	gn_display_log("initialized");
 
 	gn_leaf_config_handle_t lights1in = gn_leaf_create(node, "lights1in",
 			gn_relay_task, 4096);

@@ -59,11 +59,11 @@ gn_leaf_descriptor_handle_t gn_relay_config(gn_leaf_config_handle_t leaf_config)
 	data->gn_relay_status_param = gn_leaf_param_create(leaf_config,
 			GN_RELAY_PARAM_STATUS, GN_VAL_TYPE_BOOLEAN,
 			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_WRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED);
+			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	data->gn_relay_gpio_param = gn_leaf_param_create(leaf_config,
 			GN_RELAY_PARAM_GPIO, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 32 },
-			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED);
+			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	gn_leaf_param_add(leaf_config, data->gn_relay_status_param);
 	gn_leaf_param_add(leaf_config, data->gn_relay_gpio_param);

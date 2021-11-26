@@ -86,7 +86,6 @@ struct gn_leaf_config_t {
 	gn_display_container_t display_container;
 };
 
-
 typedef struct {
 	gn_val_type_t t;
 	gn_val_t v;
@@ -102,6 +101,7 @@ struct gn_leaf_param {
 	gn_leaf_param_storage_t storage;
 	gn_param_val_handle_t param_val;
 	gn_leaf_config_handle_t leaf_config;
+	gn_validator_t validator;
 	struct gn_leaf_param *next;
 };
 

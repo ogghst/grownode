@@ -88,30 +88,30 @@ gn_leaf_descriptor_handle_t gn_pump_hs_config(
 	data->toggle_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_HS_PARAM_TOGGLE, GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b =
 					false }, GN_LEAF_PARAM_ACCESS_READWRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED);
+			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->toggle_param);
 
 	data->channel_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_HS_PARAM_CHANNEL, GN_VAL_TYPE_DOUBLE,
 			(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_READWRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED);
+			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->channel_param);
 
 	data->gpio_toggle_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_HS_PARAM_GPIO_TOGGLE, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d =
 							32 }, GN_LEAF_PARAM_ACCESS_WRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED);
+			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->gpio_toggle_param);
 
 	data->power_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_HS_PARAM_POWER, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
-			GN_LEAF_PARAM_ACCESS_READWRITE, GN_LEAF_PARAM_STORAGE_PERSISTED);
+			GN_LEAF_PARAM_ACCESS_READWRITE, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->power_param);
 
 	data->gpio_power_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_HS_PARAM_GPIO_POWER, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d =
 							32 }, GN_LEAF_PARAM_ACCESS_WRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED);
+			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->gpio_power_param);
 
 	descriptor->status = GN_LEAF_STATUS_INITIALIZED;

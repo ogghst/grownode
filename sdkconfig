@@ -1265,6 +1265,7 @@ CONFIG_ONEWIRE_CRC8_TABLE=y
 #
 # GrowNode Configuration
 #
+# CONFIG_GROWNODE_RESET_FLASH is not set
 # CONFIG_GROWNODE_WIFI_ENABLED is not set
 # CONFIG_GROWNODE_DISPLAY_ENABLED is not set
 # end of GrowNode Configuration

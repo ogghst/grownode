@@ -21,8 +21,28 @@ extern "C" {
 
 #include "grownode.h"
 
+static const int32_t MIN_WATERING_INTERVAL = 10; //10 secs
+static const int32_t MAX_WATERING_INTERVAL = 60*60*24*30; //one month
+
+//TODO maybe transfer this parameter on leaf itself?
+static const int32_t MIN_WATERING_TIME = 1; //1 sec
+static const int32_t MAX_WATERING_TIME = 60*60; //one hour
+
+static const int32_t MIN_WATERING_TARGET_TEMP = 12;
+static const int32_t MAX_WATERING_TARGET_TEMP = 30;
+
+//TODO make a parameter (maybe on leaf itself?)
+static const int32_t MAX_HCC_CYCLE_TIME_SEC = 60 * 5;
+
 //define type
 static const char GN_LEAF_WATERING_CONTROL_TYPE[GN_LEAF_DESC_TYPE_SIZE] = "watering_control";
+
+static const char GN_WAT_CTR_PARAM_WATERING_INTERVAL_SEC[] = "wat_int_sec"; //time between two watering cycles
+static const char GN_WAT_CTR_PARAM_WATERING_TIME_SEC[] = "wat_time_sec"; //time of one watering cycle
+static const char GN_WAT_CTR_PARAM_WATERING_TARGET_TEMP[] = "wat_t_temp";
+static const char GN_WAT_CTR_PARAM_ACTIVE[] = "active";
+
+static const int32_t GN_WAT_CTR_CYCLE_TIME_MS = 1000L;
 
 gn_leaf_descriptor_handle_t gn_watering_control_config(gn_leaf_config_handle_t leaf_config);
 

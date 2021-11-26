@@ -57,6 +57,37 @@ typedef struct {
 
 } gn_cwl_data_t;
 
+/*
+gn_leaf_param_validator_result_t gm_capacitive_water_level_validator(gn_leaf_param_handle_t param, void** param_value) {
+
+	double MIN_WATERING_INTERVAL = 1140;
+	double MAX_WATERING_INTERVAL = 1150;
+
+	double val;
+	if (gn_leaf_param_get_value(param, &val) != GN_RET_OK)
+		return GN_LEAF_PARAM_VALIDATOR_ERROR;
+
+	double _p1 = **(double**) param_value;
+	ESP_LOGD(TAG, "_watering_interval_validator - param: %d", (int)_p1);
+
+	if (MIN_WATERING_INTERVAL > **(double**)param_value) {
+		*param_value = &MIN_WATERING_INTERVAL;
+		return GN_LEAF_PARAM_VALIDATOR_BELOW_MIN;
+	}
+	else if (MAX_WATERING_INTERVAL < **(double**)param_value) {
+		*param_value = &MAX_WATERING_INTERVAL;
+		return GN_LEAF_PARAM_VALIDATOR_ABOVE_MAX;
+	}
+
+	_p1 = **(double**) param_value;
+		ESP_LOGD(TAG, "_watering_interval_validator - param: %d", (int)_p1);
+
+
+	return GN_LEAF_PARAM_VALIDATOR_PASSED;
+
+}
+*/
+
 void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config);
 
 void gn_cwl_sensor_collect(gn_leaf_config_handle_t leaf_config) {
@@ -133,40 +164,40 @@ gn_leaf_descriptor_handle_t gn_capacitive_water_level_config(
 
 	data->active_param = gn_leaf_param_create(leaf_config, GN_CWL_PARAM_ACTIVE,
 			GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b = false },
-			GN_LEAF_PARAM_ACCESS_READWRITE, GN_LEAF_PARAM_STORAGE_PERSISTED);
+			GN_LEAF_PARAM_ACCESS_READWRITE, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	data->gn_cwl_touch_channel_param = gn_leaf_param_create(leaf_config,
 			GN_CWL_PARAM_TOUCH_CHANNEL, GN_VAL_TYPE_DOUBLE,
 			(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_READWRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED);
+			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	data->max_level_param = gn_leaf_param_create(leaf_config,
 			GN_CWL_PARAM_MAX_LEVEL, GN_VAL_TYPE_DOUBLE,
 			(gn_val_t ) { .d = 1000 }, GN_LEAF_PARAM_ACCESS_READWRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED);
+			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	data->min_level_param = gn_leaf_param_create(leaf_config,
 			GN_CWL_PARAM_MIN_LEVEL, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
-			GN_LEAF_PARAM_ACCESS_READWRITE, GN_LEAF_PARAM_STORAGE_PERSISTED);
+			GN_LEAF_PARAM_ACCESS_READWRITE, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	data->act_level_param = gn_leaf_param_create(leaf_config,
 			GN_CWL_PARAM_ACT_LEVEL, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
-			GN_LEAF_PARAM_ACCESS_READ, GN_LEAF_PARAM_STORAGE_VOLATILE);
+			GN_LEAF_PARAM_ACCESS_READ, GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
 
 	data->trg_hig_param = gn_leaf_param_create(leaf_config,
 			GN_CWL_PARAM_TRG_HIGH, GN_VAL_TYPE_BOOLEAN,
 			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_READ,
-			GN_LEAF_PARAM_STORAGE_VOLATILE);
+			GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
 
 	data->trg_low_param = gn_leaf_param_create(leaf_config,
 			GN_CWL_PARAM_TRG_LOW, GN_VAL_TYPE_BOOLEAN,
 			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_READ,
-			GN_LEAF_PARAM_STORAGE_VOLATILE);
+			GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
 
 	data->upd_time_sec_param = gn_leaf_param_create(leaf_config,
 			GN_CWL_PARAM_UPDATE_TIME_SEC, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d =
 							10 }, GN_LEAF_PARAM_ACCESS_READWRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED);
+			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	gn_leaf_param_add(leaf_config, data->active_param);
 	gn_leaf_param_add(leaf_config, data->gn_cwl_touch_channel_param);
@@ -349,7 +380,6 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 	ret = esp_timer_create(&water_sensor_timer_args, &data->sensor_timer);
 	if (ret != ESP_OK) {
 		ESP_LOGE(TAG, "failed to init capacitive water level timer");
-		return;
 	}
 
 	if (ret == ESP_OK && active == true) {
@@ -360,7 +390,7 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 		if (ret != ESP_OK) {
 			ESP_LOGE(TAG, "failed to start capacitive water level timer");
 			gn_leaf_get_descriptor(leaf_config)->status = GN_LEAF_STATUS_ERROR;
-			gn_leaf_param_set_bool(data->active_param, GN_CWL_PARAM_ACTIVE,
+			gn_leaf_param_set_bool(leaf_config, GN_CWL_PARAM_ACTIVE,
 			false);
 			descriptor->status = GN_LEAF_STATUS_ERROR;
 		}

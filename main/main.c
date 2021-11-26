@@ -34,9 +34,8 @@
 
 void app_main(void) {
 
-
 	esp_log_level_set("*", ESP_LOG_INFO);
-	esp_log_level_set("grownode", ESP_LOG_DEBUG);
+	esp_log_level_set("grownode", ESP_LOG_INFO);
 	esp_log_level_set("gn_commons", ESP_LOG_INFO);
 	esp_log_level_set("gn_nvs", ESP_LOG_INFO);
 	esp_log_level_set("gn_mqtt_protocol", ESP_LOG_INFO);
@@ -45,9 +44,9 @@ void app_main(void) {
 
 	esp_log_level_set("gn_leaf_relay", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_pump_hs", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_ds18b20", ESP_LOG_INFO);
+	esp_log_level_set("gn_leaf_ds18b20", ESP_LOG_DEBUG);
 	esp_log_level_set("gn_leaf_cwl", ESP_LOG_DEBUG);
-	esp_log_level_set("gn_leaf_bme280", ESP_LOG_INFO);
+	esp_log_level_set("gn_leaf_bme280", ESP_LOG_DEBUG);
 
 	esp_log_level_set("gn_leaf_pump_control", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_watering_control", ESP_LOG_DEBUG);
@@ -67,7 +66,7 @@ void app_main(void) {
 	ESP_LOGI(TAG, "gn_create_node, name %s", gn_get_node_config_name(node));
 
 	//send log to screen
-	gn_log("initialized");
+	gn_log(TAG, GN_LOG_INFO, "initialized");
 
 	gn_leaf_config_handle_t lights1in = gn_leaf_create(node, "lights1in",
 			gn_relay_config, 4096);
@@ -123,15 +122,20 @@ void app_main(void) {
 	gn_leaf_param_init_double(bme280, GN_BME280_PARAM_SCL, 22);
 	gn_leaf_param_init_bool(bme280, GN_BME280_PARAM_ACTIVE, true);
 	gn_leaf_param_init_double(bme280, GN_BME280_PARAM_UPDATE_TIME_SEC, 10);
+	*/
 
 	gn_leaf_config_handle_t ds18b20 = gn_leaf_create(node, "ds18b20",
 			gn_ds18b20_config, 4096);
 	gn_leaf_param_init_double(ds18b20, GN_DS18B20_PARAM_GPIO, 4);
 	gn_leaf_param_init_bool(ds18b20, GN_DS18B20_PARAM_ACTIVE, true);
-	*/
 
 	gn_leaf_config_handle_t watering_control = gn_leaf_create(node, "watering_control",
 			gn_watering_control_config, 4096);
+	gn_leaf_param_init_double(watering_control, GN_WAT_CTR_PARAM_WATERING_INTERVAL_SEC, 60*1);
+	gn_leaf_param_init_double(watering_control, GN_WAT_CTR_PARAM_WATERING_TIME_SEC, 20);
+	gn_leaf_param_init_double(watering_control, GN_WAT_CTR_PARAM_WATERING_TARGET_TEMP, 20);
+	gn_leaf_param_init_bool(watering_control, GN_WAT_CTR_PARAM_ACTIVE, true);
+
 
 	//finally, start node
 	gn_node_start(node);

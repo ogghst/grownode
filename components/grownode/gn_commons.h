@@ -62,6 +62,21 @@ typedef enum {
 	GN_RET_ERR_MQTT_SUBSCRIBE = 0x208
 } gn_err_t;
 
+typedef enum {
+	GN_LEAF_PARAM_VALIDATOR_PASSED = 0x000,
+	GN_LEAF_PARAM_VALIDATOR_ABOVE_MAX = 0x001,
+	GN_LEAF_PARAM_VALIDATOR_BELOW_MIN = 0x002,
+	GN_LEAF_PARAM_VALIDATOR_NOT_ALLOWED = 0x100,
+	GN_LEAF_PARAM_VALIDATOR_ERROR = 0x101
+} gn_leaf_param_validator_result_t;
+
+typedef enum {
+	GN_LOG_DEBUG = 0x000,
+	GN_LOG_INFO = 0x001,
+	GN_LOG_WARNING = 0x002,
+	GN_LOG_ERROR = 0x003,
+} gn_log_level_t;
+
 typedef void *gn_leaf_config_handle_t;
 typedef void *gn_node_config_handle_t;
 typedef void *gn_config_handle_t;
@@ -165,6 +180,7 @@ size_t gn_common_leaf_event_mask_param(gn_leaf_parameter_event_handle_t evt,
 uint64_t gn_common_hash(const char *key);
 
 void gn_common_hash_str(const char *key, char *buf, size_t len);
+
 
 #ifdef __cplusplus
 }

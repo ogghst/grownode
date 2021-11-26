@@ -1115,7 +1115,7 @@ esp_err_t gn_init_display(gn_config_handle_t config) {
 
 //add event handlers
 	ESP_ERROR_CHECK(
-			esp_event_handler_instance_register_with(_config->event_loop, GN_BASE_EVENT, GN_GUI_LOG_EVENT, _gn_display_log_system_handler, NULL, NULL));
+			esp_event_handler_instance_register_with(_config->event_loop, GN_BASE_EVENT, GN_LOG_EVENT, _gn_display_log_system_handler, NULL, NULL));
 
 	ESP_ERROR_CHECK(
 			esp_event_handler_instance_register_with(_config->event_loop, GN_BASE_EVENT, GN_EVENT_ANY_ID, _gn_display_net_mqtt_handler, NULL, NULL));

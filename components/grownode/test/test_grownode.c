@@ -30,48 +30,40 @@ void tearDown() {
 
 }
 
-TEST_CASE("gn_init", "[gn_system]")
-{
+TEST_CASE("gn_init", "[gn_system]") {
 	config = gn_init();
 	TEST_ASSERT(config != NULL);
 }
 
-TEST_CASE("gn_firmware_update", "[gn_system]")
-{
+TEST_CASE("gn_firmware_update", "[gn_system]") {
 	TEST_ASSERT_EQUAL(ESP_OK, gn_firmware_update());
 }
 
-TEST_CASE("gn_reset", "[gn_system]")
-{
+TEST_CASE("gn_reset", "[gn_system]") {
 	TEST_ASSERT_EQUAL(ESP_OK, gn_reset());
 }
 
-TEST_CASE("gn_reboot", "[gn_system]")
-{
+TEST_CASE("gn_reboot", "[gn_system]") {
 	TEST_ASSERT_EQUAL(ESP_OK, gn_reboot());
 }
 
-TEST_CASE("gn_node_create", "[gn_system]")
-{
+TEST_CASE("gn_node_create", "[gn_system]") {
 	node_config = gn_node_create(config, "node");
 	TEST_ASSERT_EQUAL_STRING("node", gn_get_node_config_name(node_config));
-	TEST_ASSERT_EQUAL(gn_node_get_size(node_config),0);
+	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 0);
 }
 
-TEST_CASE("gn_start", "[gn_system]")
-{
+TEST_CASE("gn_start", "[gn_system]") {
 	esp_err_t ret = gn_node_start(node_config);
 	TEST_ASSERT_EQUAL(ret, ESP_OK);
 }
 
-TEST_CASE("gn_loop_1s", "[gn_system]")
-{
+TEST_CASE("gn_loop_1s", "[gn_system]") {
 	vTaskDelay(1000 / portTICK_PERIOD_MS);
 	TEST_ASSERT(true);
 }
 
-TEST_CASE("gn_set_blob_string", "[gn_storage]")
-{
+TEST_CASE("gn_set_blob_string", "[gn_storage]") {
 	char key[] = "test";
 	char value[] = "testval";
 
@@ -79,45 +71,37 @@ TEST_CASE("gn_set_blob_string", "[gn_storage]")
 	TEST_ASSERT_EQUAL(ret, ESP_OK);
 }
 
-TEST_CASE("gn_get_blob_string", "[gn_storage]")
-{
+TEST_CASE("gn_get_blob_string", "[gn_storage]") {
 	char key[] = "test";
 	char value[] = "testval";
 	char *retval = 0;
 
-	esp_err_t ret = gn_storage_get(&key[0], (void**)&retval);
+	esp_err_t ret = gn_storage_get(&key[0], (void**) &retval);
 	TEST_ASSERT_EQUAL(ret, ESP_OK);
 	TEST_ASSERT(strcmp(value, retval) == 0);
 }
 
-
-TEST_CASE("gn_set_blob_double", "[gn_storage]")
-{
+TEST_CASE("gn_set_blob_double", "[gn_storage]") {
 	char key[] = "test";
-	double value= 200.2;
+	double value = 200.2;
 
 	esp_err_t ret = gn_storage_set(&key[0], &value, sizeof(value));
 	TEST_ASSERT_EQUAL(ret, ESP_OK);
 }
 
-TEST_CASE("gn_get_blob_double", "[gn_storage]")
-{
+TEST_CASE("gn_get_blob_double", "[gn_storage]") {
 	char key[] = "test";
-	double value =  200.2;
+	double value = 200.2;
 	double *retval = 0;
 
-	esp_err_t ret = gn_storage_get(&key[0], (void**)&retval);
+	esp_err_t ret = gn_storage_get(&key[0], (void**) &retval);
 	TEST_ASSERT_EQUAL(ret, ESP_OK);
 	TEST_ASSERT(*retval == value);
 	free(retval);
 }
 
-
-TEST_CASE("gn_test_log", "[gn_display]")
-{
+TEST_CASE("gn_test_log", "[gn_display]") {
 	char key[] = "test";
-	TEST_ASSERT_EQUAL(gn_log(key), ESP_OK);
+	TEST_ASSERT_EQUAL(gn_log("test", GN_LOG_ERROR, key), ESP_OK);
 }
-
-
 
