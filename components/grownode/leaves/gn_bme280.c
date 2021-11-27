@@ -41,14 +41,6 @@ extern "C" {
 
 #define TAG "gn_leaf_bme280"
 
-#ifndef APP_CPU_NUM
-#define APP_CPU_NUM PRO_CPU_NUM
-#endif
-
-#ifndef APP_CPU_NUM
-#define APP_CPU_NUM PRO_CPU_NUM
-#endif
-
 typedef struct {
 
 	bmp280_params_t params;
@@ -186,66 +178,90 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 	double press;
 	gn_leaf_param_get_double(leaf_config, GN_BME280_PARAM_PRESS, &press);
 
-	ESP_LOGD(TAG, "%s - bme280 task started", gn_leaf_get_config_name(leaf_config));
+	ESP_LOGD(TAG, "%s - bme280 task started",
+			gn_leaf_get_config_name(leaf_config));
 
-	//bme280 initialization
-	esp_err_t ret = bmp280_init_default_params(&data->params);
+	esp_err_t ret = i2cdev_init();
+
 	if (ret != ESP_OK) {
 		gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
-		ESP_LOGE(TAG, "failed to init bmp280 default parameters");
+		ESP_LOGE(TAG, "i2cdev_init failed");
 		descriptor->status = GN_LEAF_STATUS_ERROR;
-		//return descriptor;
 	} else {
+		//bme280 initialization
+		ret = bmp280_init_default_params(&data->params);
 
-		memset(&data->dev, 0, sizeof(bmp280_t));
-
-		ret = bmp280_init_desc(&data->dev, BMP280_I2C_ADDRESS_0, 0, sda, scl);
-		//ret = bmp280_init_desc(&data.dev, BMP280_I2C_ADDRESS_0, 0, 21, 22);
 		if (ret != ESP_OK) {
 			gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE, false);
-			ESP_LOGE(TAG, "failed to init bmp280 driver descriptor");
+			ESP_LOGE(TAG, "failed to init bmp280 default parameters");
 			descriptor->status = GN_LEAF_STATUS_ERROR;
 			//return descriptor;
 		} else {
 
-			ESP_LOGD(TAG, "initializing BME280, SDA = %d, SCL = %d, port = %d",
-					data->dev.i2c_dev.cfg.sda_io_num,
-					data->dev.i2c_dev.cfg.scl_io_num, data->dev.i2c_dev.port);
+			ESP_LOGD(TAG, "bmp280_init_default_params - OK");
+			//vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-			ret = bmp280_init(&data->dev, &data->params);
+			memset(&data->dev, 0, sizeof(bmp280_t));
+			ret = bmp280_init_desc(&data->dev, BMP280_I2C_ADDRESS_0, 0,
+					(int) sda, (int) scl);
+
+			//ret = bmp280_init_desc(&data.dev, BMP280_I2C_ADDRESS_0, 0, 21, 22);
 			if (ret != ESP_OK) {
 				gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE,
-				false);
-				ESP_LOGE(TAG, "failed to init bmp280 driver");
+						false);
+				ESP_LOGE(TAG, "failed to init bmp280 driver descriptor");
 				descriptor->status = GN_LEAF_STATUS_ERROR;
 				//return descriptor;
 			} else {
 
-				bool bme280p = data->dev.id == BME280_CHIP_ID;
-				ESP_LOGD(TAG, "BMP280: found %s\n",
-						bme280p ? "BME280" : "BMP280");
+				ESP_LOGD(TAG, "bmp280_init_desc - OK, sda = %d, scl = %d",
+						(int )sda, (int )scl);
+				//vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-				ESP_LOGD(TAG, "creating timer...");
-				//create a timer to update temps
-				esp_timer_create_args_t bme280_sensor_timer_args = { .callback =
-						&bme280_sensor_collect, .arg = leaf_config, .name =
-						"leaf_bme280_sensor_collect" };
+				ret = bmp280_init(&data->dev, &data->params);
 
-				ret = esp_timer_create(&bme280_sensor_timer_args,
-						&data->bme280_sensor_timer);
 				if (ret != ESP_OK) {
 					gn_leaf_param_set_bool(leaf_config, GN_BME280_PARAM_ACTIVE,
 					false);
-					ESP_LOGE(TAG, "failed to init bme280 leaf timer");
+					ESP_LOGE(TAG, "failed to init bmp280 driver");
 					descriptor->status = GN_LEAF_STATUS_ERROR;
 					//return descriptor;
+				} else {
+
+					ESP_LOGD(TAG,
+							"bmp280_init - OK, SDA = %d, SCL = %d, port = %d, type = %s",
+							data->dev.i2c_dev.cfg.sda_io_num,
+							data->dev.i2c_dev.cfg.scl_io_num,
+							data->dev.i2c_dev.port,
+							(data->dev.id == BME280_CHIP_ID) ? "BME280" : "BMP280");
+					//vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+					ESP_LOGD(TAG, "creating timer...");
+					//create a timer to update temps
+					esp_timer_create_args_t bme280_sensor_timer_args = {
+							.callback = &bme280_sensor_collect, .arg =
+									leaf_config, .name =
+									"leaf_bme280_sensor_collect" };
+
+					ret = esp_timer_create(&bme280_sensor_timer_args,
+							&data->bme280_sensor_timer);
+					if (ret != ESP_OK) {
+						gn_leaf_param_set_bool(leaf_config,
+								GN_BME280_PARAM_ACTIVE,
+								false);
+						ESP_LOGE(TAG, "failed to init bme280 leaf timer");
+						descriptor->status = GN_LEAF_STATUS_ERROR;
+						//return descriptor;
+					}
+
 				}
 
 			}
-
 		}
 	}
+
 	ESP_LOGD(TAG, "done initializing");
+	//vTaskDelay(1000 / portTICK_PERIOD_MS);
 
 	//start timer if needed
 	if (ret == ESP_OK && active == true) {
