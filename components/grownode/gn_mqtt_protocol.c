@@ -95,8 +95,8 @@ void _gn_mqtt_build_leaf_command_topic(gn_leaf_config_handle_t _leaf_config,
 
 	strncpy(buf, config->mqtt_base_topic, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, _gn_mqtt_build_node_name(config), 12);
-	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
+	//strncat(buf, _gn_mqtt_build_node_name(config), 12);
+	//strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, _GN_MQTT_COMMAND_MESS, _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -117,8 +117,8 @@ void _gn_mqtt_build_leaf_parameter_command_topic(
 
 	strncpy(buf, config->mqtt_base_topic, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, _gn_mqtt_build_node_name(config), 12);
-	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
+	//strncat(buf, _gn_mqtt_build_node_name(config), 12);
+	//strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, param_name, _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -140,8 +140,8 @@ void _gn_mqtt_build_leaf_parameter_status_topic(
 
 	strncpy(buf, config->mqtt_base_topic, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, _gn_mqtt_build_node_name(config), 12);
-	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
+	//strncat(buf, _gn_mqtt_build_node_name(config), 12);
+	//strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, param_name, _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -163,8 +163,8 @@ void _gn_mqtt_build_leaf_status_topic(gn_leaf_config_handle_t _leaf_config,
 
 	strncpy(buf, config->mqtt_base_topic, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, _gn_mqtt_build_node_name(config), 12);
-	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
+	//strncat(buf, _gn_mqtt_build_node_name(config), 12);
+	//strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, _GN_MQTT_STATUS_MESS, _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -176,8 +176,8 @@ void _gn_mqtt_build_status_topic(gn_config_handle_intl_t config, char *buf) {
 
 	strncpy(buf, config->mqtt_base_topic, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, _gn_mqtt_build_node_name(config), 12);
-	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
+	//strncat(buf, _gn_mqtt_build_node_name(config), 12);
+	//strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, _GN_MQTT_STATUS_MESS, _GN_MQTT_MAX_TOPIC_LENGTH);
 	buf[_GN_MQTT_MAX_TOPIC_LENGTH - 1] = '\0';
 
@@ -187,8 +187,8 @@ void _gn_mqtt_build_log_topic(gn_config_handle_intl_t config, char *buf) {
 
 	strncpy(buf, config->mqtt_base_topic, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, _gn_mqtt_build_node_name(config), 12);
-	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
+	//strncat(buf, _gn_mqtt_build_node_name(config), 12);
+	//strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, _GN_MQTT_LOG_MESS, _GN_MQTT_MAX_TOPIC_LENGTH);
 	buf[_GN_MQTT_MAX_TOPIC_LENGTH - 1] = '\0';
 
@@ -197,8 +197,8 @@ void _gn_mqtt_build_log_topic(gn_config_handle_intl_t config, char *buf) {
 void _gn_mqtt_build_command_topic(gn_config_handle_intl_t config, char *buf) {
 	strncpy(buf, config->mqtt_base_topic, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
-	strncat(buf, _gn_mqtt_build_node_name(config), 12);
-	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
+	//strncat(buf, _gn_mqtt_build_node_name(config), 12);
+	//strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, _GN_MQTT_COMMAND_MESS, _GN_MQTT_MAX_TOPIC_LENGTH);
 	buf[_GN_MQTT_MAX_TOPIC_LENGTH - 1] = '\0';
 
