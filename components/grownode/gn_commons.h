@@ -26,6 +26,7 @@ extern "C" {
 #define GN_NODE_DATA_SIZE 512
 #define GN_LEAF_DESC_TYPE_SIZE 16
 
+#include "esp_log.h"
 #include "esp_system.h"
 #include "esp_event.h"
 #include "gn_event_source.h"
@@ -71,10 +72,10 @@ typedef enum {
 } gn_leaf_param_validator_result_t;
 
 typedef enum {
-	GN_LOG_DEBUG = 0x000,
-	GN_LOG_INFO = 0x001,
-	GN_LOG_WARNING = 0x002,
-	GN_LOG_ERROR = 0x003,
+	GN_LOG_DEBUG = ESP_LOG_DEBUG,
+	GN_LOG_INFO = ESP_LOG_INFO,
+	GN_LOG_WARNING = ESP_LOG_WARN,
+	GN_LOG_ERROR = ESP_LOG_ERROR,
 } gn_log_level_t;
 
 typedef void *gn_leaf_config_handle_t;

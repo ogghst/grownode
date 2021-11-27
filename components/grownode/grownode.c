@@ -1915,7 +1915,7 @@ gn_leaf_param_handle_t gn_get_leaf_config_params(
 gn_leaf_param_handle_t gn_leaf_param_get_param_handle(
 		const gn_leaf_config_handle_t leaf_config, const char *param_name) {
 
-	if (!leaf_config || !param_name) {
+	if (leaf_config == NULL || param_name == NULL) {
 		ESP_LOGE(TAG, "gn_leaf_param_get incorrect parameters");
 		return NULL;
 	}

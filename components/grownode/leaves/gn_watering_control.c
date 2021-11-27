@@ -262,7 +262,7 @@ void _gn_watering_callback(gn_leaf_config_handle_t leaf_config) {
 	bool p_ds18b20_temp_active = false;
 
 	double p_amb_temp = 0;
-	bool p_amb_temp_active = false;
+	bool p_amb_temp_active = true; //TODO test, move to false again!
 
 	bool p_plt_a_status = false;
 	bool p_plt_b_status = false;
@@ -360,6 +360,7 @@ void _gn_watering_callback(gn_leaf_config_handle_t leaf_config) {
 			break;
 		}
 
+		/*
 		//gets ambient temperature active flag
 		ret = gn_leaf_param_get_bool(data->leaf_bme280, GN_BME280_PARAM_ACTIVE,
 				&p_amb_temp_active);
@@ -376,6 +377,7 @@ void _gn_watering_callback(gn_leaf_config_handle_t leaf_config) {
 			gn_log(TAG, GN_LOG_ERROR, "ambient temperature not found");
 			break;
 		}
+		*/
 
 		//gets peltier A status
 		ret = gn_leaf_param_get_bool(data->leaf_plt_a, GN_RELAY_PARAM_STATUS,

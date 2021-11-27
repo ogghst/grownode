@@ -42,7 +42,7 @@ void app_main(void) {
 	esp_log_level_set("gn_network", ESP_LOG_INFO);
 	esp_log_level_set("gn_display", ESP_LOG_INFO);
 
-	esp_log_level_set("gn_leaf_relay", ESP_LOG_INFO);
+	esp_log_level_set("gn_leaf_relay", ESP_LOG_DEBUG);
 	esp_log_level_set("gn_leaf_pump_hs", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_ds18b20", ESP_LOG_DEBUG);
 	esp_log_level_set("gn_leaf_cwl", ESP_LOG_DEBUG);
@@ -135,7 +135,6 @@ void app_main(void) {
 	gn_leaf_param_init_double(watering_control, GN_WAT_CTR_PARAM_WATERING_TIME_SEC, 20);
 	gn_leaf_param_init_double(watering_control, GN_WAT_CTR_PARAM_WATERING_TARGET_TEMP, 20);
 	gn_leaf_param_init_bool(watering_control, GN_WAT_CTR_PARAM_ACTIVE, true);
-
 
 	//finally, start node
 	gn_node_start(node);

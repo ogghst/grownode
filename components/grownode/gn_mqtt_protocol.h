@@ -28,6 +28,7 @@ extern "C" {
 
 #define _GN_MQTT_COMMAND_MESS "cmd"
 #define _GN_MQTT_STATUS_MESS "sts"
+#define _GN_MQTT_LOG_MESS "log"
 
 #define _GN_MQTT_PAYLOAD_RST "RST"
 #define _GN_MQTT_PAYLOAD_OTA "OTA"
