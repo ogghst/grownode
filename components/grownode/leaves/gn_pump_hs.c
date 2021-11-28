@@ -105,7 +105,8 @@ gn_leaf_descriptor_handle_t gn_pump_hs_config(
 
 	data->power_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_HS_PARAM_POWER, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
-			GN_LEAF_PARAM_ACCESS_READWRITE, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
+			GN_LEAF_PARAM_ACCESS_READWRITE, GN_LEAF_PARAM_STORAGE_PERSISTED,
+			NULL);
 	gn_leaf_param_add(leaf_config, data->power_param);
 
 	data->gpio_power_param = gn_leaf_param_create(leaf_config,
@@ -405,14 +406,14 @@ void gn_pump_hs_task(gn_leaf_config_handle_t leaf_config) {
 			gn_leaf_param_get_double(leaf_config, GN_PUMP_HS_PARAM_POWER,
 					&power);
 
-			if (!toggle) {
+			if (toggle == false) {
 
 #ifdef GN_PUMP_HS_FADE
 				ret = ledc_set_fade_with_time(GN_PUMP_HS_PARAM_LEDC_MODE,
 						(ledc_channel_t) channel, 0, GN_PUMP_HS_FADE_SPEED);
 
 				if (ret != ESP_OK) {
-					ESP_LOGE(TAG, "error in  changing power, channel %d",
+					ESP_LOGE(TAG, "error in  changing duty, channel %d",
 							(int )channel);
 					goto fail;
 				}
@@ -427,30 +428,30 @@ void gn_pump_hs_task(gn_leaf_config_handle_t leaf_config) {
 				}
 
 #else
-		ret = ledc_set_duty(GN_PUMP_HS_PARAM_LEDC_MODE,
-				(ledc_channel_t) channel, 0);
+				ret = ledc_set_duty(GN_PUMP_HS_PARAM_LEDC_MODE,
+						(ledc_channel_t) channel, 0);
 
-		if (ret != ESP_OK) {
-			ESP_LOGE(TAG, "error in changing power, channel %d",
-					(int )channel);
-			goto fail;
-		}
+				if (ret != ESP_OK) {
+					ESP_LOGE(TAG, "error in changing duty, channel %d",
+							(int )channel);
+					goto fail;
+				}
 
-		ret = ledc_update_duty(GN_PUMP_HS_PARAM_LEDC_MODE,
-				(ledc_channel_t) channel);
+				ret = ledc_update_duty(GN_PUMP_HS_PARAM_LEDC_MODE,
+						(ledc_channel_t) channel);
 
-		if (ret != ESP_OK) {
-			ESP_LOGE(TAG, "error in updating duty, channel %d",
-					(int )channel);
-			goto fail;
-		}
+				if (ret != ESP_OK) {
+					ESP_LOGE(TAG, "error in updating duty, channel %d",
+							(int )channel);
+					goto fail;
+				}
 #endif
 
 #ifdef GN_PUMP_HS_FADE
 				xSemaphoreTake(fade_sem, portMAX_DELAY);
 #endif
 
-				ret = gpio_set_level(toggle, 0);
+				ret = gpio_set_level(gpio_toggle, 0);
 
 				if (ret != ESP_OK) {
 					ESP_LOGE(TAG, "error in disabling signal, channel %d",
@@ -464,6 +465,7 @@ void gn_pump_hs_task(gn_leaf_config_handle_t leaf_config) {
 				need_update = false;
 
 			} else {
+
 
 				ret = gpio_set_level(gpio_toggle, 1);
 
@@ -495,23 +497,23 @@ void gn_pump_hs_task(gn_leaf_config_handle_t leaf_config) {
 				}
 
 #else
-	ret = ledc_set_duty(GN_PUMP_HS_PARAM_LEDC_MODE,
-			(ledc_channel_t) channel, duty);
+				ret = ledc_set_duty(GN_PUMP_HS_PARAM_LEDC_MODE,
+						(ledc_channel_t) channel, duty);
 
-	if (ret != ESP_OK) {
-		ESP_LOGE(TAG, "error in  changing power, channel %d",
-				(int )channel);
-		goto fail;
-	}
+				if (ret != ESP_OK) {
+					ESP_LOGE(TAG, "error in  changing power, channel %d",
+							(int )channel);
+					goto fail;
+				}
 
-	ret = ledc_update_duty(GN_PUMP_HS_PARAM_LEDC_MODE,
-			(ledc_channel_t) channel);
+				ret = ledc_update_duty(GN_PUMP_HS_PARAM_LEDC_MODE,
+						(ledc_channel_t) channel);
 
-	if (ret != ESP_OK) {
-		ESP_LOGE(TAG, "error in updating duty, channel %d",
-				(int )channel);
-		goto fail;
-	}
+				if (ret != ESP_OK) {
+					ESP_LOGE(TAG, "error in updating duty, channel %d",
+							(int )channel);
+					goto fail;
+				}
 #endif
 
 				ESP_LOGD(TAG,

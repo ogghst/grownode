@@ -22,7 +22,7 @@ extern "C" {
 #include "grownode.h"
 
 //define type
-static const char GN_LEAF_PUMP_HS_TYPE[GN_LEAF_DESC_TYPE_SIZE] = "pump_hs";
+static const char GN_LEAF_PUMP_HS_TYPE[] = "pump_hs";
 
 //parameters
 static const char GN_PUMP_HS_PARAM_TOGGLE[] = "toggle"; /*!< 0 = off, 1 = on */

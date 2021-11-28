@@ -144,6 +144,15 @@ gn_node_config_handle_t gn_leaf_get_node_config(gn_leaf_config_handle_t leaf_con
 gn_err_t gn_send_leaf_param_change_message(const char *leaf_name, const char *param_name,
 		const void *message, size_t message_len);
 
+gn_err_t gn_leaf_param_send_bool(const gn_leaf_config_handle_t leaf_config,
+		const char *name, bool val);
+
+gn_err_t gn_leaf_param_send_double(const gn_leaf_config_handle_t leaf_config,
+		const char *name, double val);
+
+gn_err_t gn_leaf_param_send_string(const gn_leaf_config_handle_t leaf_config,
+		const char *name, char* val);
+
 //esp_event_loop_handle_t gn_get_leaf_config_event_loop(
 //		gn_leaf_config_handle_t leaf_config);
 

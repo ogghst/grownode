@@ -77,9 +77,34 @@ typedef struct {
 
 } gn_ds18b20_data_t;
 
-void temp_sensor_collect(gn_leaf_config_handle_t leaf_config) {
+gn_leaf_param_validator_result_t _gn_upd_time_sec_validator(
+		gn_leaf_param_handle_t param, void **param_value) {
 
-	ESP_LOGD(TAG, "temp_sensor_collect");
+	double val;
+	if (gn_leaf_param_get_value(param, &val) != GN_RET_OK)
+		return GN_LEAF_PARAM_VALIDATOR_ERROR;
+
+	double _p1 = **(double**) param_value;
+	ESP_LOGD(TAG, "_gn_upd_time_sec_validator - param: %d", (int )_p1);
+
+	if (MIN_UPDATE_TIME_SEC > **(double**) param_value) {
+		memcpy(param_value, &MIN_UPDATE_TIME_SEC, sizeof(MIN_UPDATE_TIME_SEC));
+		return GN_LEAF_PARAM_VALIDATOR_BELOW_MIN;
+	} else if (MAX_UPDATE_TIME_SEC < **(double**) param_value) {
+		memcpy(param_value, &MAX_UPDATE_TIME_SEC, sizeof(MAX_UPDATE_TIME_SEC));
+		return GN_LEAF_PARAM_VALIDATOR_ABOVE_MAX;
+	}
+
+	_p1 = **(double**) param_value;
+	ESP_LOGD(TAG, "_watering_interval_validator - param: %d", (int )_p1);
+
+	return GN_LEAF_PARAM_VALIDATOR_PASSED;
+
+}
+
+void gn_ds18b20_temp_sensor_collect(gn_leaf_config_handle_t leaf_config) {
+
+	ESP_LOGD(TAG, "gn_ds18b20_temp_sensor_collect");
 
 	//struct leaf_data *data = (struct leaf_data*) arg;
 
@@ -155,7 +180,7 @@ gn_leaf_descriptor_handle_t gn_ds18b20_config(
 	data->update_time_param = gn_leaf_param_create(leaf_config,
 			GN_DS18B20_PARAM_UPDATE_TIME_SEC, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
 							.d = 30 }, GN_LEAF_PARAM_ACCESS_WRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
+			GN_LEAF_PARAM_STORAGE_PERSISTED, _gn_upd_time_sec_validator);
 	gn_leaf_param_add(leaf_config, data->update_time_param);
 
 	//get gpio from params. default 27
@@ -207,7 +232,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 
 	//create a timer to update temps
 	esp_timer_create_args_t sensor_timer_args =
-			{ .callback = &temp_sensor_collect, .arg = leaf_config, .name =
+			{ .callback = &gn_ds18b20_temp_sensor_collect, .arg = leaf_config, .name =
 					"ds18b20_periodic" };
 
 	esp_err_t ret = esp_timer_create(&sensor_timer_args, &data->sensor_timer);
@@ -373,17 +398,12 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 				//parameter is update time
 				if (gn_common_leaf_event_mask_param(&evt,
 						data->update_time_param) == 0) {
-
-					//check limits
-					double updtime = strtod(evt.data, NULL);
-					if (updtime < 10)
-						updtime = 10;
-					if (updtime > 600)
-						updtime = 600;
-
-					//execute change
 					gn_leaf_param_set_double(leaf_config,
-							GN_DS18B20_PARAM_UPDATE_TIME_SEC, updtime);
+							GN_DS18B20_PARAM_UPDATE_TIME_SEC,
+							(double) atof(evt.data));
+					esp_timer_stop(data->sensor_timer);
+					esp_timer_start_periodic(data->sensor_timer,
+							update_time_sec * 1000000);
 
 				} else if (gn_common_leaf_event_mask_param(&evt,
 						data->active_param) == 0) {

@@ -22,7 +22,7 @@ extern "C" {
 #include "grownode.h"
 
 //define type
-static const char GN_LEAF_CWL_TYPE[GN_LEAF_DESC_TYPE_SIZE] = "cwl";
+static const char GN_LEAF_CWL_TYPE[] = "cwl";
 
 //parameters
 static const char GN_CWL_PARAM_ACTIVE[] = "active"; /*!< whether the sensor is running*/

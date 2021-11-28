@@ -35,7 +35,7 @@ static const int32_t MAX_WATERING_TARGET_TEMP = 30;
 static const int32_t MAX_HCC_CYCLE_TIME_SEC = 60 * 5;
 
 //define type
-static const char GN_LEAF_WATERING_CONTROL_TYPE[GN_LEAF_DESC_TYPE_SIZE] = "watering_control";
+static const char GN_LEAF_WATERING_CONTROL_TYPE[] = "watering_control";
 
 static const char GN_WAT_CTR_PARAM_WATERING_INTERVAL_SEC[] = "wat_int_sec"; //time between two watering cycles
 static const char GN_WAT_CTR_PARAM_WATERING_TIME_SEC[] = "wat_time_sec"; //time of one watering cycle

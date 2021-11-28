@@ -688,8 +688,8 @@ gn_err_t gn_mqtt_send_startup_message(gn_config_handle_t _config) {
 
 	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
 
-	if (config->status != GN_CONFIG_STATUS_STARTED)
-		return GN_RET_OK;
+	//if (config->status != GN_CONFIG_STATUS_COMPLETED)
+	//	return GN_RET_OK;
 
 //build
 	gn_mqtt_startup_message_handle_t msg =
@@ -1117,7 +1117,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 									GN_LEAF_DATA_SIZE : event->data_len;
 
 					if (esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
-							evt.id, &evt, sizeof(evt), 0) != ESP_OK) {
+							evt.id, &evt, sizeof(evt),   portMAX_DELAY) != ESP_OK) {
 						ESP_LOGE(TAG, "not possible to send message to leaf %s",
 								_config->node_config->leaves.at[i]->name);
 					}

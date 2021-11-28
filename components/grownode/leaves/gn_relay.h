@@ -22,7 +22,7 @@ extern "C" {
 #include "grownode.h"
 
 //define type
-static const char GN_LEAF_RELAY_TYPE[GN_LEAF_DESC_TYPE_SIZE] = "relay";
+static const char GN_LEAF_RELAY_TYPE[] = "relay";
 
 //parameters
 static const char GN_RELAY_PARAM_STATUS[] = "status"; /*!< 0 = off, 1 = on */

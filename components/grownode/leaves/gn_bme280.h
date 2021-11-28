@@ -22,7 +22,7 @@ extern "C" {
 #include "grownode.h"
 
 //define type
-static const char GN_LEAF_BME280_TYPE[GN_LEAF_DESC_TYPE_SIZE] = "bme280";
+static const char GN_LEAF_BME280_TYPE[] = "bme280";
 
 //parameters
 static const char GN_BME280_PARAM_ACTIVE[] = "active"; /*!< whether the sensor is running*/

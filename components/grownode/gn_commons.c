@@ -16,6 +16,8 @@
 extern "C" {
 #endif
 
+#include "float.h"
+
 #include "esp_log.h"
 #include "gn_commons.h"
 #include "grownode_intl.h"
@@ -61,6 +63,65 @@ void inline gn_common_hash_str(const char *key, char *buf, size_t len) {
 	ESP_LOGD(TAG, "gn_common_hash_str(%s) - %s", key, buf);
 
 }
+
+gn_leaf_param_validator_result_t _gn_commons_double_positive_validator(
+		gn_leaf_param_handle_t param, void **param_value) {
+
+	double val;
+	if (gn_leaf_param_get_value(param, &val) != GN_RET_OK)
+		return GN_LEAF_PARAM_VALIDATOR_ERROR;
+
+	double _p1 = **(double**) param_value;
+	ESP_LOGD(TAG, "_watering_interval_validator - param: %d", (int )_p1);
+
+	double min = 0;
+	double max = DBL_MAX;
+
+	if (min > **(double**) param_value) {
+		memcpy(param_value, &min, sizeof(min));
+		return GN_LEAF_PARAM_VALIDATOR_BELOW_MIN;
+	} else if (max < **(double**) param_value) {
+		memcpy(param_value, &max, sizeof(max));
+		return GN_LEAF_PARAM_VALIDATOR_ABOVE_MAX;
+	}
+
+	_p1 = **(double**) param_value;
+	ESP_LOGD(TAG, "_watering_interval_validator - param: %d", (int )_p1);
+
+	return GN_LEAF_PARAM_VALIDATOR_PASSED;
+
+}
+
+gn_leaf_param_validator_result_t _gn_commons_double_validator(
+		gn_leaf_param_handle_t param, void **param_value) {
+
+	double val;
+	if (gn_leaf_param_get_value(param, &val) != GN_RET_OK)
+		return GN_LEAF_PARAM_VALIDATOR_ERROR;
+
+	double _p1 = **(double**) param_value;
+	ESP_LOGD(TAG, "_watering_interval_validator - param: %d", (int )_p1);
+
+	double min = DBL_MIN;
+	double max = DBL_MAX;
+
+	if (min > **(double**) param_value) {
+		memcpy(param_value, &min, sizeof(min));
+		return GN_LEAF_PARAM_VALIDATOR_BELOW_MIN;
+	} else if (max < **(double**) param_value) {
+		memcpy(param_value, &max, sizeof(max));
+		return GN_LEAF_PARAM_VALIDATOR_ABOVE_MAX;
+	}
+
+	_p1 = **(double**) param_value;
+	ESP_LOGD(TAG, "_watering_interval_validator - param: %d", (int )_p1);
+
+	return GN_LEAF_PARAM_VALIDATOR_PASSED;
+
+}
+
+
+
 
 
 

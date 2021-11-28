@@ -22,7 +22,7 @@ extern "C" {
 #include "grownode.h"
 
 //define type
-static const char GN_LEAF_PUMP_CONTROL_TYPE[GN_LEAF_DESC_TYPE_SIZE] = "pump_control";
+static const char GN_LEAF_PUMP_CONTROL_TYPE[] = "pump_control";
 
 gn_leaf_descriptor_handle_t gn_pump_control_config(gn_leaf_config_handle_t leaf_config);
 

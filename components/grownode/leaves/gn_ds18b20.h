@@ -24,7 +24,10 @@ extern "C" {
 #define GN_DS18B20_MAX_SENSORS 4
 
 //define type
-static const char GN_LEAF_DS18B20_TYPE[GN_LEAF_DESC_TYPE_SIZE] = "ds18b20";
+static const char GN_LEAF_DS18B20_TYPE[] = "ds18b20";
+
+static const int32_t MIN_UPDATE_TIME_SEC = 3;
+static const int32_t MAX_UPDATE_TIME_SEC = 3600;
 
 //parameters
 static const char GN_DS18B20_PARAM_ACTIVE[] = "active"; /*!< whether the sensor is running*/
