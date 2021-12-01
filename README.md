@@ -52,6 +52,10 @@ Unit testing are working although in early stage (started using after core writi
 - open an ESP-IDF prompt to go to project directory
 - type `idf.py menuconfig flash build monitor` according to your needs. this will run the latest test code as per the `main.c` file
 
+# Documentation
+
+Dee [Doc Website](https://ogghst.github.io/grownode/)
+
 # Sample code
 
 ## Configuration

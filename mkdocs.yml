@@ -1,6 +1,6 @@
 site_name: grownode
 theme:
-  name: readthedocs
+  name: material
   features:
     - navigation.instant  
     - navigation.tabs    
