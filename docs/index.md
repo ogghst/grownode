@@ -1,5 +1,4 @@
 
-
 # GrowNode
 
 GrowNode is a vertical framework to build IoT devices targeted to growing plants in a controlled environment.
