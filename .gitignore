@@ -2,4 +2,5 @@
 /sdkconfig.old
 /old/
 /scripts/
+/site/
 /.gitignore
