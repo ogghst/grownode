@@ -1,6 +1,6 @@
-site_name: grownode test mkdocs
+site_name: grownode
 theme:
-  name: material
+  name: readthedocs
   features:
     - navigation.instant  
     - navigation.tabs    
