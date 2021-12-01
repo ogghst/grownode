@@ -1,4 +1,4 @@
-site_name: grownode
+site_name: grownode test mkdocs
 theme:
   name: material
   features:

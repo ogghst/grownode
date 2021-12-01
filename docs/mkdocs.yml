@@ -1,8 +1,0 @@
-site_name: grownode
-theme:
-  name: material
-  features:
-    - navigation.instant  
-    - navigation.tabs    
-    - navigation.sections
-    - toc.integrate
