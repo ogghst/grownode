@@ -1,11 +1,29 @@
+# Get Started
 
-# Abstract
+<p align="center">
+<img src="img/grownode_logo_full.png">
+</p>
 
 GrowNode is a vertical framework to build IoT devices targeted to growing plants in a controlled environment. It is currently based on the original work of [Nicola Muratori](https://github.com/ogghst). 
 
 It all started merging the need to keep updated the software development skills, the curiosity for the IOT world, and the idea that technology could help in restoring the connection between urban people and the food.
 
 ## Architecture
+
+A typical architecture is composed by
+
+ - one or more grownode boards (called nodes)
+ - each board is connected to several sensors (called leaves)
+ - a messaging server where each board talks using MQTT
+ - an automation server - like openhab, home assistant - that orchestrate the node operations
+ - several clients to display and manage nodes
+ - other systems, like home automation, gardening, that works together with grownode
+
+<p align="center">
+<img src="mg/grownode_net.png">
+</p>
+
+### Technologies
 
 GrowNode aims to use most common development tools. Actual release is composed by:
 
@@ -44,8 +62,6 @@ Grownode provides functionalities that lets you kickstart your projects in minut
 ## Setup your environment
 
 ### IDE
-
-Personally 
 
 ### ESP-IDF
 

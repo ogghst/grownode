@@ -11,10 +11,11 @@ theme:
     - navigation.tabs    
     - navigation.sections
     - toc.integrate
+  logo: img/grownode_logo_24.png
+  favicon: img/grownode_logo_24.png
 nav:
-  - Home: 'index.md'
-  - 'Guides':
-    - Workflow: 'workflow.md'
+  - Get Started: 'index.md'
+  - Workflow: 'workflow.md'
   - Author: 'https://it.linkedin.com/in/nicolamuratori'
 plugins:
     - search
