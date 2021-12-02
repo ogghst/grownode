@@ -43,7 +43,7 @@ Grownode provides functionalities that lets you kickstart your projects in minut
 
 Unit testing are working although in early stage (started using after core writing), both SOC and Host tests are implemented
 
-# How to use example
+## How to use example
 
 - install ESP-IDF as per [ESP-IDF getting started guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/)
 - install ESP_IDF-LIB as per [ESP-IDF Components library](https://github.com/UncleRus/esp-idf-lib)
