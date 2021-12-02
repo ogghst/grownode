@@ -26,7 +26,7 @@ GrowNode aims to use most common development tools. Actual release is composed b
  - OpenHab/Home Assistant as a controller
  - Fusion360 as Schematic and 3D CAD
 
-## Functionalities
+### Functionalities
 
 Grownode provides functionalities that lets you kickstart your projects in minutes:
 
@@ -39,13 +39,23 @@ Grownode provides functionalities that lets you kickstart your projects in minut
 - Transparent networking protocol (presentation, keepalive, logging)
 - Client/Server and Client/Client parameter retrieval and update through MQTT, having in mind highly distributed environment (mesh networks, cloud communication)
   
-## Testing
+# Getting Started
 
-Unit testing are working although in early stage (started using after core writing), both SOC and Host tests are implemented
+## Setup your environment
 
-# How to use example
+### IDE
+
+Personally 
+
+### ESP-IDF
+
+
 
 - install ESP-IDF as per [ESP-IDF getting started guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/)
+
+
+## Build the environment
+
 - install ESP_IDF-LIB as per [ESP-IDF Components library](https://github.com/UncleRus/esp-idf-lib)
 - setup main `CMakeLists.txt` file according to your local paths
 - `git clone` this repository
@@ -54,4 +64,4 @@ Unit testing are working although in early stage (started using after core writi
 - open an ESP-IDF prompt to go to project directory
 - type `idf.py menuconfig flash build monitor` according to your needs. this will run the latest test code as per the `main.c` file
 
-
+## 
