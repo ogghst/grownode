@@ -1,27 +1,27 @@
 
-# GrowNode
+# Abstract
 
 GrowNode is a vertical framework to build IoT devices targeted to growing plants in a controlled environment. It is currently based on the original work of [Nicola Muratori](https://github.com/ogghst). 
 
 It all started merging the need to keep updated the software development skills, the curiosity for the IOT world, and the idea that technology could help in restoring the connection between urban people and the food.
 
-# Architecture
+## Architecture
 
 GrowNode aims to use most common development tools. Actual release is composed by:
 
-## Hardware
+### Hardware
 
  - ESP32 and above microcontrollers
  - Various displays tested (ILI9341) with touch screen (tested XPT2046) capabilities
  - Common sensors and actuators (relay, PWM output, temperature probes, capacitance sensors..) with any esp-idf compatible libraries
 
-## Software Components
+### Software Components
 
  - ESP-IDF (release 4.4) programming environment
  - MQTT as a messaging system
  - LVGL as display library
 
-## Others (optional)
+### Others (optional)
 
  - OpenHab/Home Assistant as a controller
  - Fusion360 as Schematic and 3D CAD
