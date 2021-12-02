@@ -16,6 +16,6 @@ theme:
 nav:
   - Get Started: 'index.md'
   - Workflow: 'workflow.md'
-  - Author: 'https://it.linkedin.com/in/nicolamuratori'
+  - About Me: 'https://it.linkedin.com/in/nicolamuratori'
 plugins:
     - search
