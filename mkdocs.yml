@@ -1,8 +1,20 @@
-site_name: grownode
+site_name: GrowNode Documentation
+repo_url: https://github.com/ogghst/GrowNode
+site_description: GrowNode is a vertical framework to build IoT devices targeted to growing plants in a controlled environment
+site_author: Nicola Muratori - nicola.muratori@gmail.com
+copyright: Copyright 2021 - Nicola Muratori 
 theme:
   name: material
+  include_sidebar: true
   features:
     - navigation.instant  
     - navigation.tabs    
     - navigation.sections
     - toc.integrate
+nav:
+  - Home: 'index.md'
+  - 'Guides':
+    - Workflow: 'workflow.md'
+  - Author: 'https://it.linkedin.com/in/nicolamuratori'
+plugins:
+    - search
