@@ -4,9 +4,32 @@
 <img src="img/grownode_logo_full.png">
 </p>
 
-GrowNode is a vertical framework to build IoT devices targeted to growing plants in a controlled environment. It is currently based on the original work of [Nicola Muratori](https://github.com/ogghst). 
+GrowNode is a vertical framework to build IoT devices targeted to growing plants in a controlled environment. It is currently based on the work of [Nicola Muratori](https://github.com/ogghst). 
 
-It all started merging the need to keep updated the software development skills, the curiosity for the IOT world, and the idea that technology could help in restoring the connection between urban people and the food.
+## Abstract
+
+It all started merging the need to keep updated the software development skills, the curiosity for the IOT world, and the idea that technology could help in restoring the connection between urban people, nature and food.
+
+First steps in automating my plants growth were made using circuits using Arduino environment and custom code, wiring sensors and actuators
+
+<p align="center">
+<img src="img/first_steps.jpg">
+</p>
+
+After first attempts, (almost) working projects, (many) dead plants and (some) successful harvesting, I've immediately found the limits in this methodology:
+
+- Every time I needed to change the behavior of one component or the logic, or add a new sensor, the entire project had to be revised
+- The board has the need to interact with user, to inform over the system status (eg. temperature, water level), to ask for help (eg. board offline, no water)
+- I needed to integrate the board in my existing home automation, to have an unique place where to check and operate over my plants 
+- Once my farming projects increases in number and quality, and my knowledge of this technology advances, I felt the need to add new features and correct bugs in old boards
+
+In short, I needed a library and develop the custom board code on top of it.
+
+I started exploring the existing solution and found the most promising in
+- [Espressif Rainmaker](https://rainmaker.espressif.com/) - amazing project from ESP32 vendors to focus on custom application code inheriting a lot of prebuilt features - but too vendor-dependent for me: it requires a cloud connection and it is focused in automating well-defined, industrialized home appliance
+- [ESPHome](https://esphome.io/index.html) - quick and easy way to build boards with almost zero code as an Home Assistant add-on - supereasy for very simple projects, but not scalable to develop complex devices and interactions
+
+After nights of web searches I realized the ugly truth - I need to write my own software library!
 
 ## Architecture
 

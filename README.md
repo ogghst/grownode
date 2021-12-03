@@ -1,6 +1,6 @@
 
 <p align="center">
-<img src="img/grownode_logo_full.png">
+<img src="docs/img/grownode_logo_full.png">
 </p>
 
 GrowNode is a vertical framework to build IoT devices targeted to growing plants in a controlled environment.
