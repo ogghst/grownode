@@ -25,13 +25,14 @@ After some attempts, (almost) working projects, (many) dead plants and (some) su
 - I needed to integrate the board in my existing home automation, to have an unique place where to check and operate over my plants 
 - Once my farming projects increases in number and quality, and my knowledge of this technology advances, I felt the need to add new features and correct bugs in old boards
 
-In short, I needed a library and develop the custom board code on top of it.
+> In short, I needed a library and develop the custom board code on top of it.
 
-I started exploring the existing solution and found the most promising in
+I started exploring the existing solution and found the most promising:
+
 - [Espressif Rainmaker](https://rainmaker.espressif.com/) - amazing project from ESP32 vendors to focus on custom application code inheriting a lot of prebuilt features - but too vendor-dependent for me: it requires a cloud connection and it is focused in automating well-defined, industrialized home appliance
 - [ESPHome](https://esphome.io/index.html) - quick and easy way to build boards with almost zero code as an Home Assistant add-on - supereasy for very simple projects, but not scalable to develop complex devices and interactions
 
-After nights of web searches I realized the ugly truth - I need to write my own software library!
+> After nights of web searches I realized the ugly truth - I need to write my own software library!
 
 ## The Idea 
 
