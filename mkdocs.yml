@@ -15,7 +15,6 @@ theme:
   favicon: img/grownode_logo_24.png
 nav:
   - Get Started: 'index.md'
-  - Workflow: 'workflow.md'
-  - About Me: 'https://it.linkedin.com/in/nicolamuratori'
+  - Create your Project: 'workflow.md'
 plugins:
     - search
