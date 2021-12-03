@@ -10,7 +10,7 @@ GrowNode is a vertical framework to build IoT devices targeted to growing plants
 
 It all started merging the need to keep updated the software development skills, the curiosity for the IOT world, and the idea that technology could help in restoring the connection between urban people, nature and food.
 
-## First Steps, First Fails
+### First Steps, First Fails
 
 First steps in automating my plants growth were made using circuits using Arduino environment and custom code, wiring sensors and actuators
 
@@ -34,7 +34,7 @@ I started exploring the existing solution and found the most promising:
 
 > After nights of web searches I realized the ugly truth - I need to write my own software library!
 
-## The Idea 
+### The Idea 
 
 .....
 
