@@ -18,7 +18,7 @@ First steps in automating my plants growth were made using circuits using Arduin
 <img src="img/first_steps.jpg">
 </p>
 
-After first attempts, (almost) working projects, (many) dead plants and (some) successful harvesting, I've immediately found the limits in this methodology:
+After some attempts, (almost) working projects, (many) dead plants and (some) successful harvesting, I've immediately found the limits in this methodology:
 
 - Every time I needed to change the behavior of one component or the logic, or add a new sensor, the entire project had to be revised
 - The board has the need to interact with user, to inform over the system status (eg. temperature, water level), to ask for help (eg. board offline, no water)
@@ -32,6 +32,10 @@ I started exploring the existing solution and found the most promising in
 - [ESPHome](https://esphome.io/index.html) - quick and easy way to build boards with almost zero code as an Home Assistant add-on - supereasy for very simple projects, but not scalable to develop complex devices and interactions
 
 After nights of web searches I realized the ugly truth - I need to write my own software library!
+
+## The Idea 
+
+.....
 
 ## Architecture
 
