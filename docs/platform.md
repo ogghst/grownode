@@ -35,8 +35,13 @@ GrowNode aims to use most common development tools. Actual release is composed b
 
 ### Others (optional)
 
+ - A server like a raspberry
+ - A MQTT server like mosquitto
  - OpenHab/Home Assistant as a controller
- - Fusion360 as Schematic and 3D CAD
+ - Fusion360/EasyEDA as Schematic CAD
+ - A 3D CAD like Fusion360
+ - A 3D print slicer software like Ultimaker Cura
+ - a 3D printer
 
 ## Functionalities
 
