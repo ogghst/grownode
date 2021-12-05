@@ -1,6 +1,7 @@
 
-# Typical Workflow
+# From Ideas to Project
 
+This page aims to give you the basics on the necessary steps to define and design a GrowNode system. If you are already an advanced user.. You're welcome to add your experience! :)
 
 ## Design your application
 

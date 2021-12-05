@@ -1,4 +1,6 @@
-#A quick look into GrowNode systems
+# A quick look into GrowNode systems
+
+This page describes how the GrowNode platform is structured and the technology behind it. 
 
 ## Architecture
 
@@ -11,14 +13,11 @@ A typical GrowNode system architecture is composed by
  - several clients to display and manage nodes
  - other systems, like home automation, gardening, that works together with grownode
 
-![architecture]("img/grownode_net.png")
-
 <p align="center">
 <img src="../img/grownode_net.png">
-
 </p>
 
-## Technologies
+## Working tools
 
 GrowNode aims to use most common development tools. Actual release is composed by:
 

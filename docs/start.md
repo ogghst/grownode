@@ -1,5 +1,7 @@
 # Getting Started
 
+This page describe the steps needed to have a working development environment on your PC. 
+
 ## Setup your environment
 
 ### IDE
