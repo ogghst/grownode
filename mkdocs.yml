@@ -14,7 +14,9 @@ theme:
   logo: img/grownode_logo_24.png
   favicon: img/grownode_logo_24.png
 nav:
-  - Get Started: 'index.md'
-  - Create your Project: 'workflow.md'
+  - Why GrowNode: 'index.md'
+  - The Platform: 'platform.md'
+  - Cookbook: 'workflow.md'
+  - Start: 'start.md'
 plugins:
     - search

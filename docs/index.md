@@ -11,13 +11,13 @@ It all started with an idea.
 
 > We're now in an era where technology could help in restoring the connection between urban people, nature and food.
 
-Everyone can have access to resources that were available only to big industries. Microcontrollers and hardware components are now available for few dollars, 3D printers can make complex and specialized parts that were impossible to hand craft. You can access online to all the information you need to build almost everything. 
+Everyone can have access to resources that were available only to big industries until just 5 years ago. Microcontrollers and hardware components are now available for few dollars, 3D printers can make complex and specialized parts that were impossible to find on general market or hand craft. You can access online to all the information you need to build almost everything. 
 
 And most of us lives in urban areas, we can buy food but we have no way to produce it. And if you can access to some land, you have no time to manage it.
 
 Therefore I started putting all pieces together. 
 
-> It's now possible to build systems capable of growing and harvesting your food at your home, with an home made system capable of manageing the growing parameters. And it's possible to build them at your home with tools you can buy easily. 
+> It's now possible to build systems capable of growing and harvesting your food at your home, with an home made system capable of automating growing parameters. And it's possible to build them at your home with tools you can buy easily. 
 
 Lots of examples are available online by users who started their projects from scratch. 
 
@@ -69,76 +69,3 @@ The environment where GrowNode systems has to operate will be distributed, scala
 
 Simple systems should be ready in minutes, but you will find your own personal needs soon. Each plant has his own need. Every house or garden has his own climate. Technology advance at the speed of lights and every month there is something new to experiment. There's no one size fits all here. Users shall have the possibility to design their own components and architectures, and the GrowNode platform shall provide the access to the raw code and schematics when it's time to. 
 
-## Architecture
-
-A typical architecture is composed by
-
- - one or more grownode boards (called nodes)
- - each board is connected to several sensors (called leaves)
- - a messaging server where each board talks using MQTT
- - an automation server - like openhab, home assistant - that orchestrate the node operations
- - several clients to display and manage nodes
- - other systems, like home automation, gardening, that works together with grownode
-
-<p align="center">
-<img src="img/grownode_net.png">
-</p>
-
-### Technologies
-
-GrowNode aims to use most common development tools. Actual release is composed by:
-
-### Hardware
-
- - ESP32 and above microcontrollers
- - Various displays tested (ILI9341) with touch screen (tested XPT2046) capabilities
- - Common sensors and actuators (relay, PWM output, temperature probes, capacitance sensors..) with any esp-idf compatible libraries
-
-### Software Components
-
- - ESP-IDF (release 4.4) programming environment
- - MQTT as a messaging system
- - LVGL as display library
-
-### Others (optional)
-
- - OpenHab/Home Assistant as a controller
- - Fusion360 as Schematic and 3D CAD
-
-### Functionalities
-
-Grownode provides functionalities that lets you kickstart your projects in minutes:
-
-- SoftAP/Bluetooth Provisioning to join and change your wireless network without any hardcode configuration through a mobile app
-- High level device configuration through makefile 
-- Firmware update Over The Air
-- NTP clock sync
-- Persistent storage of parameters
-- Sensor and Actuators configuration abstracting the hardware level
-- Transparent networking protocol (presentation, keepalive, logging)
-- Client/Server and Client/Client parameter retrieval and update through MQTT, having in mind highly distributed environment (mesh networks, cloud communication)
-  
-# Getting Started
-
-## Setup your environment
-
-### IDE
-
-### ESP-IDF
-
-
-
-- install ESP-IDF as per [ESP-IDF getting started guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/)
-
-
-## Build the environment
-
-- install ESP_IDF-LIB as per [ESP-IDF Components library](https://github.com/UncleRus/esp-idf-lib)
-- setup main `CMakeLists.txt` file according to your local paths
-- `git clone` this repository
-- add `lvgl` (release/v8) and `lvgl_esp32_drivers` (master) as components as specified [here](https://github.com/lvgl/lv_port_esp32)
-- connect your ESP32 board to a serial port
-- open an ESP-IDF prompt to go to project directory
-- type `idf.py menuconfig flash build monitor` according to your needs. this will run the latest test code as per the `main.c` file
-
-## 
