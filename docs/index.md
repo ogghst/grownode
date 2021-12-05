@@ -7,13 +7,19 @@ GrowNode is a vertical framework to build IoT devices targeted to growing plants
 
 # Get Started
 
-It all started with an idea. We're now in an era where technology could help in restoring the connection between urban people, nature and food.
+It all started with an idea. 
+
+> We're now in an era where technology could help in restoring the connection between urban people, nature and food.
 
 Everyone can have access to resources that were available only to big industries. Microcontrollers and hardware components are now available for few dollars, 3D printers can make complex and specialized parts that were impossible to hand craft. You can access online to all the information you need to build almost everything. 
 
-And most of us lives in urban areas, we can buy food but we have no way to produce it. 
+And most of us lives in urban areas, we can buy food but we have no way to produce it. And if you can access to some land, you have no time to manage it.
 
-Therefore I started putting all pieces together. It's now possible to build systems capable of growing and harvesting your food at your home, with an home made system. Lots of examples are available online by users who started their projects from scratch. 
+Therefore I started putting all pieces together. 
+
+> It's now possible to build systems capable of growing and harvesting your food at your home, with an home made system capable of manageing the growing parameters. And it's possible to build them at your home with tools you can buy easily. 
+
+Lots of examples are available online by users who started their projects from scratch. 
 
 And I'm a software engineer used to work with open source technologies. I know the added value that the community work has. My knowledge, the tools I use every day, and ultimately my salary is obtained thanks to people that decided to share their creative work to everyone. 
 
