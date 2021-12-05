@@ -12,7 +12,7 @@ A typical GrowNode system architecture is composed by
  - other systems, like home automation, gardening, that works together with grownode
 
 <p align="center">
-<img src="img/grownode_net.png">
+<img src="/img/grownode_net.png">
 </p>
 
 ## Technologies

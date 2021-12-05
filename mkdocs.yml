@@ -16,7 +16,7 @@ theme:
 nav:
   - Why GrowNode: 'index.md'
   - The Platform: 'platform.md'
-  - Cookbook: 'workflow.md'
-  - Start: 'start.md'
+  - Design: 'workflow.md'
+  - Install: 'start.md'
 plugins:
     - search
