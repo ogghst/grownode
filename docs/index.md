@@ -57,11 +57,11 @@ Whoever has to work with this project, has to start with simple things. Custom c
 
 ### Decoupled, scalable system
 
-The environment where GrowNode systems has to operate will be distributed, scalable, etherogeneous. System boundaries can change as we increase the size of our farm, we add features, or entire new systems. A farming project could interact with his environment, e.g.   
+The environment where GrowNode systems has to operate will be distributed, scalable, etherogeneous. System boundaries can change as we increase the size of our farm, we add features, or entire new systems. A farming project could interact with his environment, e.g. opening a rollershutter to give the plants light.
 
 ### If you want to play hard, you can
 
-
+Simple systems should be ready in minutes, but you will find your own personal needs soon. Each plant has his own need. Every house or garden has his own climate. Technology advance at the speed of lights and every month there is something new to experiment. There's no one size fits all here. Users shall have the possibility to design their own components and architectures, and the GrowNode platform shall provide the access to the raw code and schematics when it's time to. 
 
 ## Architecture
 
