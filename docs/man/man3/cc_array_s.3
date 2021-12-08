@@ -1,0 +1,53 @@
+.TH "cc_array_s" 3 "Wed Dec 8 2021" "GrowNode" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+cc_array_s
+.SH SYNOPSIS
+.br
+.PP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "size_t \fBsize\fP"
+.br
+.ti -1c
+.RI "size_t \fBcapacity\fP"
+.br
+.ti -1c
+.RI "float \fBexp_factor\fP"
+.br
+.ti -1c
+.RI "void ** \fBbuffer\fP"
+.br
+.ti -1c
+.RI "void *(* \fBmem_alloc\fP )(size_t \fBsize\fP)"
+.br
+.ti -1c
+.RI "void *(* \fBmem_calloc\fP )(size_t blocks, size_t \fBsize\fP)"
+.br
+.ti -1c
+.RI "void(* \fBmem_free\fP )(void *block)"
+.br
+.in -1c
+.SH "Field Documentation"
+.PP 
+.SS "void** cc_array_s::buffer"
+
+.SS "size_t cc_array_s::capacity"
+
+.SS "float cc_array_s::exp_factor"
+
+.SS "void*(* cc_array_s::mem_alloc) (size_t \fBsize\fP)"
+
+.SS "void*(* cc_array_s::mem_calloc) (size_t blocks, size_t \fBsize\fP)"
+
+.SS "void(* cc_array_s::mem_free) (void *block)"
+
+.SS "size_t cc_array_s::size"
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GrowNode from the source code\&.

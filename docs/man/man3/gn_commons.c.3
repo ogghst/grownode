@@ -1,0 +1,53 @@
+.TH "components/grownode/gn_commons.c" 3 "Wed Dec 8 2021" "GrowNode" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+components/grownode/gn_commons.c
+.SH SYNOPSIS
+.br
+.PP
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBTAG\fP   'gn_commons'"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "size_t \fBgn_common_leaf_event_mask_param\fP (\fBgn_leaf_parameter_event_handle_t\fP evt, \fBgn_leaf_param_handle_t\fP param)"
+.br
+.ti -1c
+.RI "uint64_t \fBgn_common_hash\fP (const char *key)"
+.br
+.ti -1c
+.RI "void \fBgn_common_hash_str\fP (const char *key, char *buf, size_t len)"
+.br
+.ti -1c
+.RI "\fBgn_leaf_param_validator_result_t\fP \fB_gn_commons_double_positive_validator\fP (\fBgn_leaf_param_handle_t\fP param, void **param_value)"
+.br
+.ti -1c
+.RI "\fBgn_leaf_param_validator_result_t\fP \fB_gn_commons_double_validator\fP (\fBgn_leaf_param_handle_t\fP param, void **param_value)"
+.br
+.in -1c
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define TAG   'gn_commons'"
+
+.SH "Function Documentation"
+.PP 
+.SS "\fBgn_leaf_param_validator_result_t\fP _gn_commons_double_positive_validator (\fBgn_leaf_param_handle_t\fP param, void ** param_value)"
+
+.SS "\fBgn_leaf_param_validator_result_t\fP _gn_commons_double_validator (\fBgn_leaf_param_handle_t\fP param, void ** param_value)"
+
+.SS "uint64_t gn_common_hash (const char * key)\fC [inline]\fP"
+
+.SS "void gn_common_hash_str (const char * key, char * buf, size_t len)\fC [inline]\fP"
+
+.SS "size_t gn_common_leaf_event_mask_param (\fBgn_leaf_parameter_event_handle_t\fP evt, \fBgn_leaf_param_handle_t\fP param)\fC [inline]\fP"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GrowNode from the source code\&.

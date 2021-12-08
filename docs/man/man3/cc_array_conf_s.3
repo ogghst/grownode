@@ -1,0 +1,46 @@
+.TH "cc_array_conf_s" 3 "Wed Dec 8 2021" "GrowNode" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+cc_array_conf_s
+.SH SYNOPSIS
+.br
+.PP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "size_t \fBcapacity\fP"
+.br
+.ti -1c
+.RI "float \fBexp_factor\fP"
+.br
+.ti -1c
+.RI "void *(* \fBmem_alloc\fP )(size_t size)"
+.br
+.ti -1c
+.RI "void *(* \fBmem_calloc\fP )(size_t blocks, size_t size)"
+.br
+.ti -1c
+.RI "void(* \fBmem_free\fP )(void *block)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Array configuration structure\&. Used to initialize a new Array with specific values\&. 
+.SH "Field Documentation"
+.PP 
+.SS "size_t cc_array_conf_s::capacity"
+The initial capacity of the array 
+.SS "float cc_array_conf_s::exp_factor"
+The rate at which the buffer expands (capacity * exp_factor)\&. 
+.SS "void*(* cc_array_conf_s::mem_alloc) (size_t size)"
+Memory allocators used to allocate the Array structure and the underlying data buffers\&. 
+.SS "void*(* cc_array_conf_s::mem_calloc) (size_t blocks, size_t size)"
+
+.SS "void(* cc_array_conf_s::mem_free) (void *block)"
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GrowNode from the source code\&.

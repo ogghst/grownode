@@ -1,0 +1,90 @@
+.TH "components/grownode/gn_event_source.h" 3 "Wed Dec 8 2021" "GrowNode" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+components/grownode/gn_event_source.h
+.SH SYNOPSIS
+.br
+.PP
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBGN_EVENT_ANY_ID\fP   ESP_EVENT_ANY_ID"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fBgn_event_id_t\fP { \fBGN_LEAF_INIT_REQUEST_EVENT\fP = 0x001, \fBGN_LEAF_MESSAGE_RECEIVED_EVENT\fP = 0x002, \fBGN_LEAF_ADDED_EVENT\fP = 0x003, \fBGN_LEAF_PARAM_CHANGED_EVENT\fP = 0x102, \fBGN_LEAF_PARAM_INITIALIZED_EVENT\fP = 0x103, \fBGN_LEAF_PARAM_CHANGE_REQUEST_EVENT\fP = 0x104, \fBGN_SYSTEM_MESSAGE_RECEIVED_EVENT\fP = 0x201, \fBGN_LOG_EVENT\fP = 0x202, \fBGN_GUI_LOG_EVENT\fP = 0x301, \fBGN_NET_CONNECTED_EVENT\fP = 0x401, \fBGN_NET_DISCONNECTED_EVENT\fP = 0x402, \fBGN_NET_MSG_RECV\fP = 0x403, \fBGN_NET_OTA_START\fP = 0x404, \fBGN_NET_RST_START\fP = 0x405, \fBGN_NET_RBT_START\fP = 0x406, \fBGN_SRV_CONNECTED_EVENT\fP = 0x501, \fBGN_SRV_DISCONNECTED_EVENT\fP = 0x502, \fBGN_SRV_KEEPALIVE_START_EVENT\fP = 0x503, \fBGN_NODE_STARTED_EVENT\fP = 0x601 }"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "esp_event_base_t \fBGN_BASE_EVENT\fP"
+.br
+.ti -1c
+.RI "esp_event_base_t \fBGN_LEAF_EVENT\fP"
+.br
+.in -1c
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define GN_EVENT_ANY_ID   ESP_EVENT_ANY_ID"
+
+.SH "Enumeration Type Documentation"
+.PP 
+.SS "enum \fBgn_event_id_t\fP"
+
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIGN_LEAF_INIT_REQUEST_EVENT \fP\fP
+.TP
+\fB\fIGN_LEAF_MESSAGE_RECEIVED_EVENT \fP\fP
+.TP
+\fB\fIGN_LEAF_ADDED_EVENT \fP\fP
+.TP
+\fB\fIGN_LEAF_PARAM_CHANGED_EVENT \fP\fP
+.TP
+\fB\fIGN_LEAF_PARAM_INITIALIZED_EVENT \fP\fP
+.TP
+\fB\fIGN_LEAF_PARAM_CHANGE_REQUEST_EVENT \fP\fP
+.TP
+\fB\fIGN_SYSTEM_MESSAGE_RECEIVED_EVENT \fP\fP
+.TP
+\fB\fIGN_LOG_EVENT \fP\fP
+.TP
+\fB\fIGN_GUI_LOG_EVENT \fP\fP
+.TP
+\fB\fIGN_NET_CONNECTED_EVENT \fP\fP
+.TP
+\fB\fIGN_NET_DISCONNECTED_EVENT \fP\fP
+.TP
+\fB\fIGN_NET_MSG_RECV \fP\fP
+.TP
+\fB\fIGN_NET_OTA_START \fP\fP
+.TP
+\fB\fIGN_NET_RST_START \fP\fP
+.TP
+\fB\fIGN_NET_RBT_START \fP\fP
+.TP
+\fB\fIGN_SRV_CONNECTED_EVENT \fP\fP
+.TP
+\fB\fIGN_SRV_DISCONNECTED_EVENT \fP\fP
+.TP
+\fB\fIGN_SRV_KEEPALIVE_START_EVENT \fP\fP
+.TP
+\fB\fIGN_NODE_STARTED_EVENT \fP\fP
+.SH "Variable Documentation"
+.PP 
+.SS "esp_event_base_t GN_BASE_EVENT\fC [extern]\fP"
+
+.SS "esp_event_base_t GN_LEAF_EVENT\fC [extern]\fP"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GrowNode from the source code\&.

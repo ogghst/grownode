@@ -1,0 +1,58 @@
+.TH "gn_leaf_config_t" 3 "Wed Dec 8 2021" "GrowNode" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gn_leaf_config_t
+.SH SYNOPSIS
+.br
+.PP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBgn_leaf_descriptor_handle_t\fP \fBleaf_descriptor\fP"
+.br
+.ti -1c
+.RI "char \fBname\fP [\fBGN_LEAF_NAME_SIZE\fP]"
+.br
+.ti -1c
+.RI "size_t \fBtask_size\fP"
+.br
+.ti -1c
+.RI "\fBgn_node_config_handle_intl_t\fP \fBnode_config\fP"
+.br
+.ti -1c
+.RI "QueueHandle_t \fBevent_queue\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_param_handle_t\fP \fBparams\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_context_handle_t\fP \fBleaf_context\fP"
+.br
+.ti -1c
+.RI "\fBgn_display_container_t\fP \fBdisplay_container\fP"
+.br
+.in -1c
+.SH "Field Documentation"
+.PP 
+.SS "\fBgn_display_container_t\fP gn_leaf_config_t::display_container"
+
+.SS "QueueHandle_t gn_leaf_config_t::event_queue"
+
+.SS "\fBgn_leaf_context_handle_t\fP gn_leaf_config_t::leaf_context"
+
+.SS "\fBgn_leaf_descriptor_handle_t\fP gn_leaf_config_t::leaf_descriptor"
+
+.SS "char gn_leaf_config_t::name[\fBGN_LEAF_NAME_SIZE\fP]"
+
+.SS "\fBgn_node_config_handle_intl_t\fP gn_leaf_config_t::node_config"
+
+.SS "\fBgn_leaf_param_handle_t\fP gn_leaf_config_t::params"
+
+.SS "size_t gn_leaf_config_t::task_size"
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GrowNode from the source code\&.

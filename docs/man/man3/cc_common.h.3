@@ -1,0 +1,98 @@
+.TH "components/grownode/cc_common.h" 3 "Wed Dec 8 2021" "GrowNode" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+components/grownode/cc_common.h
+.SH SYNOPSIS
+.br
+.PP
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBMAX_POW_TWO\fP   (((size_t) 1) << 31)"
+.br
+.ti -1c
+.RI "#define \fBCC_MAX_ELEMENTS\fP   ((size_t) \- 2)"
+.br
+.ti -1c
+.RI "#define \fBINLINE\fP   inline"
+.br
+.ti -1c
+.RI "#define \fBFORCE_INLINE\fP   inline __attribute__((always_inline))"
+.br
+.ti -1c
+.RI "#define \fBCC_CMP_STRING\fP   \fBcc_common_cmp_str\fP"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fBcc_stat\fP { \fBCC_OK\fP = 0, \fBCC_ERR_ALLOC\fP = 1, \fBCC_ERR_INVALID_CAPACITY\fP = 2, \fBCC_ERR_INVALID_RANGE\fP = 3, \fBCC_ERR_MAX_CAPACITY\fP = 4, \fBCC_ERR_KEY_NOT_FOUND\fP = 6, \fBCC_ERR_VALUE_NOT_FOUND\fP = 7, \fBCC_ERR_OUT_OF_RANGE\fP = 8, \fBCC_ITER_END\fP = 9 }"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "int \fBcc_common_cmp_str\fP (const void *key1, const void *key2)"
+.br
+.in -1c
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define CC_CMP_STRING   \fBcc_common_cmp_str\fP"
+
+.SS "#define CC_MAX_ELEMENTS   ((size_t) \- 2)"
+
+.SS "#define FORCE_INLINE   inline __attribute__((always_inline))"
+
+.SS "#define INLINE   inline"
+
+.SS "#define MAX_POW_TWO   (((size_t) 1) << 31)"
+
+.SH "Enumeration Type Documentation"
+.PP 
+.SS "enum \fBcc_stat\fP"
+
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fICC_OK \fP\fP
+.TP
+\fB\fICC_ERR_ALLOC \fP\fP
+.TP
+\fB\fICC_ERR_INVALID_CAPACITY \fP\fP
+.TP
+\fB\fICC_ERR_INVALID_RANGE \fP\fP
+.TP
+\fB\fICC_ERR_MAX_CAPACITY \fP\fP
+.TP
+\fB\fICC_ERR_KEY_NOT_FOUND \fP\fP
+.TP
+\fB\fICC_ERR_VALUE_NOT_FOUND \fP\fP
+.TP
+\fB\fICC_ERR_OUT_OF_RANGE \fP\fP
+.TP
+\fB\fICC_ITER_END \fP\fP
+.SH "Function Documentation"
+.PP 
+.SS "int cc_common_cmp_str (const void * str1, const void * str2)"
+String comparator function\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIstr1\fP first string 
+.br
+\fIstr2\fP second string
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GrowNode from the source code\&.

@@ -1,0 +1,66 @@
+.TH "cc_hashtable_conf_s" 3 "Wed Dec 8 2021" "GrowNode" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+cc_hashtable_conf_s
+.SH SYNOPSIS
+.br
+.PP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "float \fBload_factor\fP"
+.br
+.ti -1c
+.RI "size_t \fBinitial_capacity\fP"
+.br
+.ti -1c
+.RI "int \fBkey_length\fP"
+.br
+.ti -1c
+.RI "uint32_t \fBhash_seed\fP"
+.br
+.ti -1c
+.RI "size_t(* \fBhash\fP )(const void *key, int l, uint32_t seed)"
+.br
+.ti -1c
+.RI "int(* \fBkey_compare\fP )(const void *key1, const void *key2)"
+.br
+.ti -1c
+.RI "void *(* \fBmem_alloc\fP )(size_t size)"
+.br
+.ti -1c
+.RI "void *(* \fBmem_calloc\fP )(size_t blocks, size_t size)"
+.br
+.ti -1c
+.RI "void(* \fBmem_free\fP )(void *block)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+CC_HashTable configuration object\&. Used to initialize a new CC_HashTable with specific values\&. 
+.SH "Field Documentation"
+.PP 
+.SS "size_t(* cc_hashtable_conf_s::hash) (const void *key, int l, uint32_t seed)"
+Hash function used for hashing table keys 
+.SS "uint32_t cc_hashtable_conf_s::hash_seed"
+The hash seed passed to the hash function for extra 'randomness'\&. 
+.SS "size_t cc_hashtable_conf_s::initial_capacity"
+The initial capacity of the table array\&. 
+.SS "int(* cc_hashtable_conf_s::key_compare) (const void *key1, const void *key2)"
+The key comparator function 
+.SS "int cc_hashtable_conf_s::key_length"
+Length of the key or -1 if the key length is variable 
+.SS "float cc_hashtable_conf_s::load_factor"
+The load factor determines how the underlying table array grows\&. For example if the load factor is 0\&.5 and the arrays capacity is 100, the resize will be triggered once the 50th entry is added\&. 
+.SS "void*(* cc_hashtable_conf_s::mem_alloc) (size_t size)"
+Memory allocators used to allocate the CC_HashTable structure and for all internal memory allocations\&. 
+.SS "void*(* cc_hashtable_conf_s::mem_calloc) (size_t blocks, size_t size)"
+
+.SS "void(* cc_hashtable_conf_s::mem_free) (void *block)"
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GrowNode from the source code\&.

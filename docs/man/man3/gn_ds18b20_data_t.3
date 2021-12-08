@@ -1,0 +1,58 @@
+.TH "gn_ds18b20_data_t" 3 "Wed Dec 8 2021" "GrowNode" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gn_ds18b20_data_t
+.SH SYNOPSIS
+.br
+.PP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "size_t \fBsensor_count\fP"
+.br
+.ti -1c
+.RI "ds18x20_addr_t \fBaddrs\fP [\fBGN_DS18B20_MAX_SENSORS\fP]"
+.br
+.ti -1c
+.RI "float \fBtemp\fP [\fBGN_DS18B20_MAX_SENSORS\fP]"
+.br
+.ti -1c
+.RI "esp_timer_handle_t \fBsensor_timer\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_param_handle_t\fP \fBtemp_param\fP [\fBGN_DS18B20_MAX_SENSORS\fP]"
+.br
+.ti -1c
+.RI "\fBgn_leaf_param_handle_t\fP \fBupdate_time_param\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_param_handle_t\fP \fBgpio_param\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_param_handle_t\fP \fBactive_param\fP"
+.br
+.in -1c
+.SH "Field Documentation"
+.PP 
+.SS "\fBgn_leaf_param_handle_t\fP gn_ds18b20_data_t::active_param"
+
+.SS "ds18x20_addr_t gn_ds18b20_data_t::addrs[\fBGN_DS18B20_MAX_SENSORS\fP]"
+
+.SS "\fBgn_leaf_param_handle_t\fP gn_ds18b20_data_t::gpio_param"
+
+.SS "size_t gn_ds18b20_data_t::sensor_count"
+
+.SS "esp_timer_handle_t gn_ds18b20_data_t::sensor_timer"
+
+.SS "float gn_ds18b20_data_t::temp[\fBGN_DS18B20_MAX_SENSORS\fP]"
+
+.SS "\fBgn_leaf_param_handle_t\fP gn_ds18b20_data_t::temp_param[\fBGN_DS18B20_MAX_SENSORS\fP]"
+
+.SS "\fBgn_leaf_param_handle_t\fP gn_ds18b20_data_t::update_time_param"
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GrowNode from the source code\&.

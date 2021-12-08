@@ -1,0 +1,48 @@
+.TH "cc_hashtable_iter" 3 "Wed Dec 8 2021" "GrowNode" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+cc_hashtable_iter
+.SH SYNOPSIS
+.br
+.PP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBCC_HashTable\fP * \fBtable\fP"
+.br
+.ti -1c
+.RI "size_t \fBbucket_index\fP"
+.br
+.ti -1c
+.RI "\fBTableEntry\fP * \fBprev_entry\fP"
+.br
+.ti -1c
+.RI "\fBTableEntry\fP * \fBnext_entry\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+CC_HashTable iterator object\&. Used to iterate over the entries of the table in an undefined order\&. The iterator also supports operations for safely removing elements during iteration\&.
+.PP
+\fBNote\fP
+.RS 4
+This structure should only be modified through the iterator functions\&. 
+.RE
+.PP
+
+.SH "Field Documentation"
+.PP 
+.SS "size_t cc_hashtable_iter::bucket_index"
+
+.SS "\fBTableEntry\fP* cc_hashtable_iter::next_entry"
+
+.SS "\fBTableEntry\fP* cc_hashtable_iter::prev_entry"
+
+.SS "\fBCC_HashTable\fP* cc_hashtable_iter::table"
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GrowNode from the source code\&.

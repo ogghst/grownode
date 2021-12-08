@@ -1,0 +1,43 @@
+.TH "gn_leaf_parameter_event_t" 3 "Wed Dec 8 2021" "GrowNode" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gn_leaf_parameter_event_t
+.SH SYNOPSIS
+.br
+.PP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBgn_event_id_t\fP \fBid\fP"
+.br
+.ti -1c
+.RI "char \fBleaf_name\fP [\fBGN_LEAF_NAME_SIZE\fP]"
+.br
+.ti -1c
+.RI "char \fBparam_name\fP [\fBGN_LEAF_PARAM_NAME_SIZE\fP]"
+.br
+.ti -1c
+.RI "char \fBdata\fP [\fBGN_LEAF_DATA_SIZE\fP]"
+.br
+.ti -1c
+.RI "int \fBdata_size\fP"
+.br
+.in -1c
+.SH "Field Documentation"
+.PP 
+.SS "char gn_leaf_parameter_event_t::data[\fBGN_LEAF_DATA_SIZE\fP]"
+Data associated with this event 
+.SS "int gn_leaf_parameter_event_t::data_size"
+Length of the data for this event 
+.SS "\fBgn_event_id_t\fP gn_leaf_parameter_event_t::id"
+
+.SS "char gn_leaf_parameter_event_t::leaf_name[\fBGN_LEAF_NAME_SIZE\fP]"
+
+.SS "char gn_leaf_parameter_event_t::param_name[\fBGN_LEAF_PARAM_NAME_SIZE\fP]"
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GrowNode from the source code\&.

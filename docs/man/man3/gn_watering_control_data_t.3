@@ -1,0 +1,98 @@
+.TH "gn_watering_control_data_t" 3 "Wed Dec 8 2021" "GrowNode" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gn_watering_control_data_t
+.SH SYNOPSIS
+.br
+.PP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "esp_timer_handle_t \fBwatering_timer\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_param_handle_t\fP \fBparam_watering_interval\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_param_handle_t\fP \fBparam_watering_time\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_param_handle_t\fP \fBparam_active\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_param_handle_t\fP \fBparam_watering_t_temp\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_config_handle_t\fP \fBleaf_cwl\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_config_handle_t\fP \fBleaf_ds18b20\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_config_handle_t\fP \fBleaf_bme280\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_config_handle_t\fP \fBleaf_plt_a\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_config_handle_t\fP \fBleaf_plt_b\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_config_handle_t\fP \fBleaf_hcc_pump\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_config_handle_t\fP \fBleaf_wat_pump\fP"
+.br
+.ti -1c
+.RI "\fBgn_hcc_status\fP \fBhcc_cycle\fP"
+.br
+.ti -1c
+.RI "int64_t \fBhcc_cycle_start\fP"
+.br
+.ti -1c
+.RI "\fBgn_wat_status\fP \fBwat_cycle\fP"
+.br
+.ti -1c
+.RI "int64_t \fBwat_cycle_cumulative_time_ms\fP"
+.br
+.in -1c
+.SH "Field Documentation"
+.PP 
+.SS "\fBgn_hcc_status\fP gn_watering_control_data_t::hcc_cycle"
+
+.SS "int64_t gn_watering_control_data_t::hcc_cycle_start"
+
+.SS "\fBgn_leaf_config_handle_t\fP gn_watering_control_data_t::leaf_bme280"
+
+.SS "\fBgn_leaf_config_handle_t\fP gn_watering_control_data_t::leaf_cwl"
+
+.SS "\fBgn_leaf_config_handle_t\fP gn_watering_control_data_t::leaf_ds18b20"
+
+.SS "\fBgn_leaf_config_handle_t\fP gn_watering_control_data_t::leaf_hcc_pump"
+
+.SS "\fBgn_leaf_config_handle_t\fP gn_watering_control_data_t::leaf_plt_a"
+
+.SS "\fBgn_leaf_config_handle_t\fP gn_watering_control_data_t::leaf_plt_b"
+
+.SS "\fBgn_leaf_config_handle_t\fP gn_watering_control_data_t::leaf_wat_pump"
+
+.SS "\fBgn_leaf_param_handle_t\fP gn_watering_control_data_t::param_active"
+
+.SS "\fBgn_leaf_param_handle_t\fP gn_watering_control_data_t::param_watering_interval"
+
+.SS "\fBgn_leaf_param_handle_t\fP gn_watering_control_data_t::param_watering_t_temp"
+
+.SS "\fBgn_leaf_param_handle_t\fP gn_watering_control_data_t::param_watering_time"
+
+.SS "\fBgn_wat_status\fP gn_watering_control_data_t::wat_cycle"
+
+.SS "int64_t gn_watering_control_data_t::wat_cycle_cumulative_time_ms"
+
+.SS "esp_timer_handle_t gn_watering_control_data_t::watering_timer"
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GrowNode from the source code\&.

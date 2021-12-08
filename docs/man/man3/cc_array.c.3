@@ -1,0 +1,892 @@
+.TH "components/grownode/cc_array.c" 3 "Wed Dec 8 2021" "GrowNode" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+components/grownode/cc_array.c
+.SH SYNOPSIS
+.br
+.PP
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBcc_array_s\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBDEFAULT_CAPACITY\fP   8"
+.br
+.ti -1c
+.RI "#define \fBDEFAULT_EXPANSION_FACTOR\fP   2"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_new\fP (\fBCC_Array\fP **out)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_new_conf\fP (\fBCC_ArrayConf\fP const *const conf, \fBCC_Array\fP **out)"
+.br
+.ti -1c
+.RI "void \fBcc_array_conf_init\fP (\fBCC_ArrayConf\fP *conf)"
+.br
+.ti -1c
+.RI "void \fBcc_array_destroy\fP (\fBCC_Array\fP *ar)"
+.br
+.ti -1c
+.RI "void \fBcc_array_destroy_cb\fP (\fBCC_Array\fP *ar, void(*cb)(void *))"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_add\fP (\fBCC_Array\fP *ar, void *element)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_add_at\fP (\fBCC_Array\fP *ar, void *element, size_t index)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_replace_at\fP (\fBCC_Array\fP *ar, void *element, size_t index, void **out)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_swap_at\fP (\fBCC_Array\fP *ar, size_t index1, size_t index2)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_remove\fP (\fBCC_Array\fP *ar, void *element, void **out)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_remove_at\fP (\fBCC_Array\fP *ar, size_t index, void **out)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_remove_last\fP (\fBCC_Array\fP *ar, void **out)"
+.br
+.ti -1c
+.RI "void \fBcc_array_remove_all\fP (\fBCC_Array\fP *ar)"
+.br
+.ti -1c
+.RI "void \fBcc_array_remove_all_free\fP (\fBCC_Array\fP *ar)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_get_at\fP (\fBCC_Array\fP *ar, size_t index, void **out)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_get_last\fP (\fBCC_Array\fP *ar, void **out)"
+.br
+.ti -1c
+.RI "const void *const  * \fBcc_array_get_buffer\fP (\fBCC_Array\fP *ar)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_index_of\fP (\fBCC_Array\fP *ar, void *element, size_t *index)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_subarray\fP (\fBCC_Array\fP *ar, size_t b, size_t e, \fBCC_Array\fP **out)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_copy_shallow\fP (\fBCC_Array\fP *ar, \fBCC_Array\fP **out)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_copy_deep\fP (\fBCC_Array\fP *ar, void *(*cp)(void *), \fBCC_Array\fP **out)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_filter_mut\fP (\fBCC_Array\fP *ar, bool(*pred)(const void *))"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_filter\fP (\fBCC_Array\fP *ar, bool(*pred)(const void *), \fBCC_Array\fP **out)"
+.br
+.ti -1c
+.RI "void \fBcc_array_reverse\fP (\fBCC_Array\fP *ar)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_trim_capacity\fP (\fBCC_Array\fP *ar)"
+.br
+.ti -1c
+.RI "size_t \fBcc_array_contains\fP (\fBCC_Array\fP *ar, void *element)"
+.br
+.ti -1c
+.RI "size_t \fBcc_array_contains_value\fP (\fBCC_Array\fP *ar, void *element, int(*cmp)(const void *, const void *))"
+.br
+.ti -1c
+.RI "size_t \fBcc_array_size\fP (\fBCC_Array\fP *ar)"
+.br
+.ti -1c
+.RI "size_t \fBcc_array_capacity\fP (\fBCC_Array\fP *ar)"
+.br
+.ti -1c
+.RI "void \fBcc_array_sort\fP (\fBCC_Array\fP *ar, int(*cmp)(const void *, const void *))"
+.br
+.ti -1c
+.RI "void \fBcc_array_map\fP (\fBCC_Array\fP *ar, void(*fn)(void *e))"
+.br
+.ti -1c
+.RI "void \fBcc_array_reduce\fP (\fBCC_Array\fP *ar, void(*fn)(void *, void *, void *), void *result)"
+.br
+.ti -1c
+.RI "void \fBcc_array_iter_init\fP (\fBCC_ArrayIter\fP *iter, \fBCC_Array\fP *ar)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_iter_next\fP (\fBCC_ArrayIter\fP *iter, void **out)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_iter_remove\fP (\fBCC_ArrayIter\fP *iter, void **out)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_iter_add\fP (\fBCC_ArrayIter\fP *iter, void *element)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_iter_replace\fP (\fBCC_ArrayIter\fP *iter, void *element, void **out)"
+.br
+.ti -1c
+.RI "size_t \fBcc_array_iter_index\fP (\fBCC_ArrayIter\fP *iter)"
+.br
+.ti -1c
+.RI "void \fBcc_array_zip_iter_init\fP (\fBCC_ArrayZipIter\fP *iter, \fBCC_Array\fP *ar1, \fBCC_Array\fP *ar2)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_zip_iter_next\fP (\fBCC_ArrayZipIter\fP *iter, void **out1, void **out2)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_zip_iter_remove\fP (\fBCC_ArrayZipIter\fP *iter, void **out1, void **out2)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_zip_iter_add\fP (\fBCC_ArrayZipIter\fP *iter, void *e1, void *e2)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_array_zip_iter_replace\fP (\fBCC_ArrayZipIter\fP *iter, void *e1, void *e2, void **out1, void **out2)"
+.br
+.ti -1c
+.RI "size_t \fBcc_array_zip_iter_index\fP (\fBCC_ArrayZipIter\fP *iter)"
+.br
+.in -1c
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define DEFAULT_CAPACITY   8"
+
+.SS "#define DEFAULT_EXPANSION_FACTOR   2"
+
+.SH "Function Documentation"
+.PP 
+.SS "enum \fBcc_stat\fP cc_array_add (\fBCC_Array\fP * ar, void * element)"
+Adds a new element to the CC_Array\&. The element is appended to the array making it the last element (the one with the highest index) of the CC_Array\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP the array to which the element is being added 
+.br
+\fIelement\fP the element that is being added
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the element was successfully added, CC_ERR_ALLOC if the memory allocation for the new element failed, or CC_ERR_MAX_CAPACITY if the array is already at maximum capacity\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_add_at (\fBCC_Array\fP * ar, void * element, size_t index)"
+Adds a new element to the array at a specified position by shifting all subsequent elements by one\&. The specified index must be within the bounds of the array\&. This function may also fail if the memory allocation for the new element was unsuccessful\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP the array to which the element is being added 
+.br
+\fIelement\fP the element that is being added 
+.br
+\fIindex\fP the position in the array at which the element is being added
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the element was successfully added, CC_ERR_OUT_OF_RANGE if the specified index was not in range, CC_ERR_ALLOC if the memory allocation for the new element failed, or CC_ERR_MAX_CAPACITY if the array is already at maximum capacity\&. 
+.RE
+.PP
+
+.SS "size_t cc_array_capacity (\fBCC_Array\fP * ar)"
+Returns the capacity of the specified CC_Array\&. The capacity of the CC_Array is the maximum number of elements an CC_Array can hold before it has to be resized\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP array whose capacity is being returned
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+the capacity of the CC_Array\&. 
+.RE
+.PP
+
+.SS "void cc_array_conf_init (\fBCC_ArrayConf\fP * conf)"
+Initializes the fields of the CC_ArrayConf struct to default values\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIconf\fP CC_ArrayConf structure that is being initialized 
+.RE
+.PP
+
+.SS "size_t cc_array_contains (\fBCC_Array\fP * ar, void * element)"
+Returns the number of occurrences of the element within the specified CC_Array\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP array that is being searched 
+.br
+\fIelement\fP the element that is being searched for
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+the number of occurrences of the element\&. 
+.RE
+.PP
+
+.SS "size_t cc_array_contains_value (\fBCC_Array\fP * ar, void * element, int(*)(const void *, const void *) cmp)"
+Returns the number of occurrences of the value pointed to by \fCe\fP within the specified CC_Array\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP array that is being searched 
+.br
+\fIelement\fP the element that is being searched for 
+.br
+\fIcmp\fP comparator function which returns 0 if the values passed to it are equal
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+the number of occurrences of the value\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_copy_deep (\fBCC_Array\fP * ar, void *(*)(void *) cp, \fBCC_Array\fP ** out)"
+Creates a deep copy of the specified CC_Array\&. A deep copy is a copy of both the CC_Array structure and the data it holds\&.
+.PP
+\fBNote\fP
+.RS 4
+The new CC_Array is allocated using the original CC_Array's allocators and it also inherits the configuration of the original CC_Array\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP array to be copied 
+.br
+\fIcp\fP the copy function that should return a pointer to the copy of the data 
+.br
+\fIout\fP pointer to where the newly created copy is stored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the copy was successfully created, or CC_ERR_ALLOC if the memory allocation for the copy failed\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_copy_shallow (\fBCC_Array\fP * ar, \fBCC_Array\fP ** out)"
+Creates a shallow copy of the specified CC_Array\&. A shallow copy is a copy of the CC_Array structure, but not the elements it holds\&.
+.PP
+\fBNote\fP
+.RS 4
+The new CC_Array is allocated using the original CC_Array's allocators and it also inherits the configuration of the original array\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP the array to be copied 
+.br
+\fIout\fP pointer to where the newly created copy is stored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the copy was successfully created, or CC_ERR_ALLOC if the memory allocation for the copy failed\&. 
+.RE
+.PP
+
+.SS "void cc_array_destroy (\fBCC_Array\fP * ar)"
+Destroys the CC_Array structure, but leaves the data it used to hold intact\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP the array that is to be destroyed 
+.RE
+.PP
+
+.SS "void cc_array_destroy_cb (\fBCC_Array\fP * ar, void(*)(void *) cb)"
+Destroys the CC_Array structure along with all the data it holds\&.
+.PP
+\fBNote\fP
+.RS 4
+This function should not be called on a array that has some of its elements allocated on the stack\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP the array that is being destroyed 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_filter (\fBCC_Array\fP * ar, bool(*)(const void *) pred, \fBCC_Array\fP ** out)"
+Filters the CC_Array by creating a new CC_Array that contains all elements from the original CC_Array that return true on pred(element) without modifying the original CC_Array\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP array that is to be filtered 
+.br
+\fIpred\fP predicate function which returns true if the element should be kept in the filtered array 
+.br
+\fIout\fP pointer to where the new filtered CC_Array is to be stored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the CC_Array was filtered successfully, CC_ERR_OUT_OF_RANGE if the CC_Array is empty, or CC_ERR_ALLOC if the memory allocation for the new CC_Array failed\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_filter_mut (\fBCC_Array\fP * ar, bool(*)(const void *) pred)"
+Filters the CC_Array by modifying it\&. It removes all elements that don't return true on pred(element)\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP array that is to be filtered 
+.br
+\fIpred\fP predicate function which returns true if the element should be kept in the CC_Array
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the CC_Array was filtered successfully, or CC_ERR_OUT_OF_RANGE if the CC_Array is empty\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_get_at (\fBCC_Array\fP * ar, size_t index, void ** out)"
+Gets an CC_Array element from the specified index and sets the out parameter to its value\&. The specified index must be within the bounds of the array\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP the array from which the element is being retrieved 
+.br
+\fIindex\fP the index of the array element 
+.br
+\fIout\fP pointer to where the element is stored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the element was found, or CC_ERR_OUT_OF_RANGE if the index was out of range\&. 
+.RE
+.PP
+
+.SS "const void* const* cc_array_get_buffer (\fBCC_Array\fP * ar)"
+Returns the underlying array buffer\&.
+.PP
+\fBNote\fP
+.RS 4
+Any direct modification of the buffer may invalidate the CC_Array\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP array whose underlying buffer is being returned
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+array's internal buffer\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_get_last (\fBCC_Array\fP * ar, void ** out)"
+Gets the last element of the array or the element at the highest index and sets the out parameter to its value\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP the array whose last element is being returned 
+.br
+\fIout\fP pointer to where the element is stored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the element was found, or CC_ERR_VALUE_NOT_FOUND if the CC_Array is empty\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_index_of (\fBCC_Array\fP * ar, void * element, size_t * index)"
+Gets the index of the specified element\&. The returned index is the index of the first occurrence of the element starting from the beginning of the CC_Array\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP array being searched 
+.br
+\fIelement\fP the element whose index is being looked up 
+.br
+\fIindex\fP pointer to where the index is stored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the index was found, or CC_OUT_OF_RANGE if not\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_iter_add (\fBCC_ArrayIter\fP * iter, void * element)"
+Adds a new element to the CC_Array after the last returned element by \fC\fBcc_array_iter_next()\fP\fP function without invalidating the iterator\&.
+.PP
+\fBNote\fP
+.RS 4
+This function should only ever be called after a call to \fC \fBcc_array_iter_next()\fP\fP\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIiter\fP the iterator on which this operation is being performed 
+.br
+\fIelement\fP the element being added
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the element was successfully added, CC_ERR_ALLOC if the memory allocation for the new element failed, or CC_ERR_MAX_CAPACITY if the array is already at maximum capacity\&. 
+.RE
+.PP
+
+.SS "size_t cc_array_iter_index (\fBCC_ArrayIter\fP * iter)"
+Returns the index of the last returned element by \fC\fBcc_array_iter_next()\fP \fP\&.
+.PP
+\fBNote\fP
+.RS 4
+This function should not be called before a call to \fC\fBcc_array_iter_next()\fP \fP\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIiter\fP the iterator on which this operation is being performed
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+the index\&. 
+.RE
+.PP
+
+.SS "void cc_array_iter_init (\fBCC_ArrayIter\fP * iter, \fBCC_Array\fP * ar)"
+Initializes the iterator\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIiter\fP the iterator that is being initialized 
+.br
+\fIar\fP the array to iterate over 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_iter_next (\fBCC_ArrayIter\fP * iter, void ** out)"
+Advances the iterator and sets the out parameter to the value of the next element in the sequence\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIiter\fP the iterator that is being advanced 
+.br
+\fIout\fP pointer to where the next element is set
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the iterator was advanced, or CC_ITER_END if the end of the CC_Array has been reached\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_iter_remove (\fBCC_ArrayIter\fP * iter, void ** out)"
+Removes the last returned element by \fC\fBcc_array_iter_next()\fP\fP function without invalidating the iterator and optionally sets the out parameter to the value of the removed element\&.
+.PP
+\fBNote\fP
+.RS 4
+This function should only ever be called after a call to \fC \fBcc_array_iter_next()\fP\fP\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIiter\fP the iterator on which this operation is being performed 
+.br
+\fIout\fP pointer to where the removed element is stored, or NULL if it is to be ignored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the element was successfully removed, or CC_ERR_VALUE_NOT_FOUND\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_iter_replace (\fBCC_ArrayIter\fP * iter, void * element, void ** out)"
+Replaces the last returned element by \fC\fBcc_array_iter_next()\fP\fP with the specified element and optionally sets the out parameter to the value of the replaced element\&.
+.PP
+\fBNote\fP
+.RS 4
+This function should only ever be called after a call to \fC \fBcc_array_iter_next()\fP\fP\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIiter\fP the iterator on which this operation is being performed 
+.br
+\fIelement\fP the replacement element 
+.br
+\fIout\fP pointer to where the replaced element is stored, or NULL if it is to be ignored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the element was replaced successfully, or CC_ERR_OUT_OF_RANGE\&. 
+.RE
+.PP
+
+.SS "void cc_array_map (\fBCC_Array\fP * ar, void(*)(void *e) fn)"
+Applies the function fn to each element of the CC_Array\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP array on which this operation is performed 
+.br
+\fIfn\fP operation function that is to be invoked on each CC_Array element 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_new (\fBCC_Array\fP ** out)"
+Creates a new empty array and returns a status code\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIout\fP pointer to where the newly created CC_Array is to be stored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the creation was successful, or CC_ERR_ALLOC if the memory allocation for the new CC_Array structure failed\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_new_conf (\fBCC_ArrayConf\fP const *const conf, \fBCC_Array\fP ** out)"
+Creates a new empty CC_Array based on the specified CC_ArrayConf struct and returns a status code\&.
+.PP
+The CC_Array is allocated using the allocators specified in the CC_ArrayConf struct\&. The allocation may fail if underlying allocator fails\&. It may also fail if the values of exp_factor and capacity in the CC_ArrayConf do not meet the following condition: \fCexp_factor < (CC_MAX_ELEMENTS / capacity)\fP\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIconf\fP array configuration structure 
+.br
+\fIout\fP pointer to where the newly created CC_Array is to be stored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the creation was successful, CC_ERR_INVALID_CAPACITY if the above mentioned condition is not met, or CC_ERR_ALLOC if the memory allocation for the new CC_Array structure failed\&. 
+.RE
+.PP
+
+.SS "void cc_array_reduce (\fBCC_Array\fP * ar, void(*)(void *, void *, void *) fn, void * result)"
+A fold/reduce function that collects all of the elements in the array together\&. For example, if we have an array of [a,b,c\&.\&.\&.] the end result will be (\&.\&.\&.((a+b)+c)+\&.\&.\&.)\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP the array on which this operation is performed 
+.br
+\fIfn\fP the operation function that is to be invoked on each array element 
+.br
+\fIresult\fP the pointer which will collect the end result 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_remove (\fBCC_Array\fP * ar, void * element, void ** out)"
+Removes the specified element from the CC_Array if such element exists and optionally sets the out parameter to the value of the removed element\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP array from which the element is being removed 
+.br
+\fIelement\fP element being removed 
+.br
+\fIout\fP pointer to where the removed value is stored, or NULL if it is to be ignored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the element was successfully removed, or CC_ERR_VALUE_NOT_FOUND if the element was not found\&. 
+.RE
+.PP
+
+.SS "void cc_array_remove_all (\fBCC_Array\fP * ar)"
+Removes all elements from the specified array\&. This function does not shrink the array capacity\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP array from which all elements are to be removed 
+.RE
+.PP
+
+.SS "void cc_array_remove_all_free (\fBCC_Array\fP * ar)"
+Removes and frees all elements from the specified array\&. This function does not shrink the array capacity\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP array from which all elements are to be removed 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_remove_at (\fBCC_Array\fP * ar, size_t index, void ** out)"
+Removes an CC_Array element from the specified index and optionally sets the out parameter to the value of the removed element\&. The index must be within the bounds of the array\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP the array from which the element is being removed 
+.br
+\fIindex\fP the index of the element being removed\&. 
+.br
+\fIout\fP pointer to where the removed value is stored, or NULL if it is to be ignored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the element was successfully removed, or CC_ERR_OUT_OF_RANGE if the index was out of range\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_remove_last (\fBCC_Array\fP * ar, void ** out)"
+Removes an CC_Array element from the end of the array and optionally sets the out parameter to the value of the removed element\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP the array whose last element is being removed 
+.br
+\fIout\fP pointer to where the removed value is stored, or NULL if it is to be ignored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the element was successfully removed, or CC_ERR_OUT_OF_RANGE if the CC_Array is already empty\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_replace_at (\fBCC_Array\fP * ar, void * element, size_t index, void ** out)"
+Replaces an array element at the specified index and optionally sets the out parameter to the value of the replaced element\&. The specified index must be within the bounds of the CC_Array\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP array whose element is being replaced 
+.br
+\fIelement\fP replacement element 
+.br
+\fIindex\fP index at which the replacement element should be inserted 
+.br
+\fIout\fP pointer to where the replaced element is stored, or NULL if it is to be ignored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the element was successfully replaced, or CC_ERR_OUT_OF_RANGE if the index was out of range\&. 
+.RE
+.PP
+
+.SS "void cc_array_reverse (\fBCC_Array\fP * ar)"
+Reverses the order of elements in the specified array\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP array that is being reversed 
+.RE
+.PP
+
+.SS "size_t cc_array_size (\fBCC_Array\fP * ar)"
+Returns the size of the specified CC_Array\&. The size of the array is the number of elements contained within the CC_Array\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP array whose size is being returned
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+the the number of element within the CC_Array\&. 
+.RE
+.PP
+
+.SS "void cc_array_sort (\fBCC_Array\fP * ar, int(*)(const void *, const void *) cmp)"
+Sorts the specified array\&.
+.PP
+\fBNote\fP
+.RS 4
+Pointers passed to the comparator function will be pointers to the array elements that are of type (void*) ie\&. void**\&. So an extra step of dereferencing will be required before the data can be used for comparison: eg\&. \fCmy_type e = *(*((my_type**) ptr));\fP\&.
+.RE
+.PP
+.PP
+.nf
+enum cc_stat mycmp(const void *e1, const void *e2) {
+    MyType el1 = *(*((enum cc_stat**) e1));
+    MyType el2 = *(*((enum cc_stat**) e2));
+
+    if (el1 < el2) return -1;
+    if (el1 > el2) return 1;
+    return 0;
+}
+
+\&.\&.\&.
+
+cc_array_sort(array, mycmp);
+.fi
+.PP
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP array to be sorted 
+.br
+\fIcmp\fP the comparator function that must be of type \fC enum cc_stat cmp(const void e1*, const void e2*)\fP that returns < 0 if the first element goes before the second, 0 if the elements are equal and > 0 if the second goes before the first 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_subarray (\fBCC_Array\fP * ar, size_t b, size_t e, \fBCC_Array\fP ** out)"
+Creates a subarray of the specified CC_Array, ranging from \fCb\fP index (inclusive) to \fCe\fP index (inclusive)\&. The range indices must be within the bounds of the CC_Array, while the \fCe\fP index must be greater or equal to the \fCb\fP index\&.
+.PP
+\fBNote\fP
+.RS 4
+The new CC_Array is allocated using the original CC_Array's allocators and it also inherits the configuration of the original CC_Array\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP array from which the subarray is being created 
+.br
+\fIb\fP the beginning index (inclusive) of the subarray that must be within the bounds of the array and must not exceed the the end index 
+.br
+\fIe\fP the end index (inclusive) of the subarray that must be within the bounds of the array and must be greater or equal to the beginning index 
+.br
+\fIout\fP pointer to where the new sublist is stored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the subarray was successfully created, CC_ERR_INVALID_RANGE if the specified index range is invalid, or CC_ERR_ALLOC if the memory allocation for the new subarray failed\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_swap_at (\fBCC_Array\fP * ar, size_t index1, size_t index2)"
+
+.SS "enum \fBcc_stat\fP cc_array_trim_capacity (\fBCC_Array\fP * ar)"
+Trims the array's capacity, in other words, it shrinks the capacity to match the number of elements in the CC_Array, however the capacity will never shrink below 1\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIar\fP array whose capacity is being trimmed
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the capacity was trimmed successfully, or CC_ERR_ALLOC if the reallocation failed\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_zip_iter_add (\fBCC_ArrayZipIter\fP * iter, void * e1, void * e2)"
+Adds a new element pair to the arrays after the last returned element pair by \fC\fBcc_array_zip_iter_next()\fP\fP and immediately before an element pair that would be returned by a subsequent call to \fC\fBcc_array_zip_iter_next()\fP\fP without invalidating the iterator\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIiter\fP iterator on which this operation is being performed 
+.br
+\fIe1\fP element added to the first array 
+.br
+\fIe2\fP element added to the second array
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the element pair was successfully added to the arrays, or CC_ERR_ALLOC if the memory allocation for the new elements failed\&. 
+.RE
+.PP
+
+.SS "size_t cc_array_zip_iter_index (\fBCC_ArrayZipIter\fP * iter)"
+Returns the index of the last returned element pair by \fC\fBcc_array_zip_iter_next()\fP\fP\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIiter\fP iterator on which this operation is being performed
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+current iterator index\&. 
+.RE
+.PP
+
+.SS "void cc_array_zip_iter_init (\fBCC_ArrayZipIter\fP * iter, \fBCC_Array\fP * ar1, \fBCC_Array\fP * ar2)"
+Initializes the zip iterator\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIiter\fP iterator that is being initialized 
+.br
+\fIar1\fP first array 
+.br
+\fIar2\fP second array 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_zip_iter_next (\fBCC_ArrayZipIter\fP * iter, void ** out1, void ** out2)"
+Outputs the next element pair in the sequence and advances the iterator\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIiter\fP iterator that is being advanced 
+.br
+\fIout1\fP output of the first array element 
+.br
+\fIout2\fP output of the second array element
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if a next element pair is returned, or CC_ITER_END if the end of one of the arrays has been reached\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_zip_iter_remove (\fBCC_ArrayZipIter\fP * iter, void ** out1, void ** out2)"
+Removes and outputs the last returned element pair by \fC\fBcc_array_zip_iter_next()\fP \fP without invalidating the iterator\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIiter\fP iterator on which this operation is being performed 
+.br
+\fIout1\fP output of the removed element from the first array 
+.br
+\fIout2\fP output of the removed element from the second array
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the element was successfully removed, CC_ERR_OUT_OF_RANGE if the state of the iterator is invalid, or CC_ERR_VALUE_NOT_FOUND if the element was already removed\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_array_zip_iter_replace (\fBCC_ArrayZipIter\fP * iter, void * e1, void * e2, void ** out1, void ** out2)"
+Replaces the last returned element pair by \fC\fBcc_array_zip_iter_next()\fP\fP with the specified replacement element pair\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIiter\fP iterator on which this operation is being performed 
+.br
+\fIe1\fP first array's replacement element 
+.br
+\fIe2\fP second array's replacement element 
+.br
+\fIout1\fP output of the replaced element from the first array 
+.br
+\fIout2\fP output of the replaced element from the second array
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the element was successfully replaced, or CC_ERR_OUT_OF_RANGE\&. 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GrowNode from the source code\&.

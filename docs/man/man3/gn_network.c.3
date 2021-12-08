@@ -1,0 +1,99 @@
+.TH "components/grownode/gn_network.c" 3 "Wed Dec 8 2021" "GrowNode" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+components/grownode/gn_network.c
+.SH SYNOPSIS
+.br
+.PP
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBTAG\fP   'gn_network'"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fB_gn_wifi_event_handler\fP (void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)"
+.br
+.ti -1c
+.RI "void \fB_gn_wifi_init_sta\fP (void)"
+.br
+.ti -1c
+.RI "void \fB_gn_wifi_get_device_service_name\fP (char *service_name, size_t max)"
+.br
+.ti -1c
+.RI "esp_err_t \fB_gn_wifi_custom_prov_data_handler\fP (uint32_t session_id, const uint8_t *inbuf, ssize_t inlen, uint8_t **outbuf, ssize_t *outlen, void *priv_data)"
+.br
+.ti -1c
+.RI "esp_err_t \fB_gn_init_wifi\fP (\fBgn_config_handle_intl_t\fP conf)"
+.br
+.ti -1c
+.RI "esp_err_t \fB_gn_init_time_sync\fP (\fBgn_config_handle_t\fP conf)"
+.br
+.ti -1c
+.RI "void \fB_gn_ota_task\fP (void *pvParameter)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "const int \fBGN_WIFI_CONNECTED_EVENT\fP = BIT0"
+.br
+.ti -1c
+.RI "const int \fBGN_WIFI_FAIL_EVENT\fP = BIT2"
+.br
+.ti -1c
+.RI "const int \fBGN_PROV_END_EVENT\fP = BIT1"
+.br
+.ti -1c
+.RI "EventGroupHandle_t \fB_gn_event_group_wifi\fP"
+.br
+.ti -1c
+.RI "int \fBs_retry_num\fP = 0"
+.br
+.ti -1c
+.RI "\fBgn_config_handle_intl_t\fP \fB_conf\fP"
+.br
+.in -1c
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define TAG   'gn_network'"
+
+.SH "Function Documentation"
+.PP 
+.SS "esp_err_t _gn_init_time_sync (\fBgn_config_handle_t\fP conf)"
+
+.SS "esp_err_t _gn_init_wifi (\fBgn_config_handle_intl_t\fP conf)"
+
+.SS "void _gn_ota_task (void * pvParameter)"
+
+.SS "esp_err_t _gn_wifi_custom_prov_data_handler (uint32_t session_id, const uint8_t * inbuf, ssize_t inlen, uint8_t ** outbuf, ssize_t * outlen, void * priv_data)"
+
+.SS "void _gn_wifi_event_handler (void * arg, esp_event_base_t event_base, int32_t event_id, void * event_data)"
+
+.SS "void _gn_wifi_get_device_service_name (char * service_name, size_t max)"
+
+.SS "void _gn_wifi_init_sta (void)"
+
+.SH "Variable Documentation"
+.PP 
+.SS "\fBgn_config_handle_intl_t\fP _conf"
+
+.SS "EventGroupHandle_t _gn_event_group_wifi"
+
+.SS "const int GN_PROV_END_EVENT = BIT1"
+
+.SS "const int GN_WIFI_CONNECTED_EVENT = BIT0"
+
+.SS "const int GN_WIFI_FAIL_EVENT = BIT2"
+
+.SS "int s_retry_num = 0"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GrowNode from the source code\&.

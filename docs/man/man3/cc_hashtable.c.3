@@ -1,0 +1,413 @@
+.TH "components/grownode/cc_hashtable.c" 3 "Wed Dec 8 2021" "GrowNode" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+components/grownode/cc_hashtable.c
+.SH SYNOPSIS
+.br
+.PP
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBcc_hashtable_s\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBDEFAULT_CAPACITY\fP   16"
+.br
+.ti -1c
+.RI "#define \fBDEFAULT_LOAD_FACTOR\fP   0\&.75f"
+.br
+.ti -1c
+.RI "#define \fBROTL32\fP(x,  y)   \fBrotl32\fP(x,y)"
+.br
+.ti -1c
+.RI "#define \fBROTL64\fP(x,  y)   \fBrotl64\fP(x,y)"
+.br
+.ti -1c
+.RI "#define \fBBIG_CONSTANT\fP(x)   (x##LLU)"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_hashtable_new\fP (\fBCC_HashTable\fP **out)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_hashtable_new_conf\fP (\fBCC_HashTableConf\fP const *const conf, \fBCC_HashTable\fP **out)"
+.br
+.ti -1c
+.RI "void \fBcc_hashtable_conf_init\fP (\fBCC_HashTableConf\fP *conf)"
+.br
+.ti -1c
+.RI "void \fBcc_hashtable_destroy\fP (\fBCC_HashTable\fP *table)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_hashtable_add\fP (\fBCC_HashTable\fP *table, void *key, void *val)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_hashtable_get\fP (\fBCC_HashTable\fP *table, void *key, void **out)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_hashtable_remove\fP (\fBCC_HashTable\fP *table, void *key, void **out)"
+.br
+.ti -1c
+.RI "void \fBcc_hashtable_remove_all\fP (\fBCC_HashTable\fP *table)"
+.br
+.ti -1c
+.RI "size_t \fBcc_hashtable_size\fP (\fBCC_HashTable\fP *table)"
+.br
+.ti -1c
+.RI "size_t \fBcc_hashtable_capacity\fP (\fBCC_HashTable\fP *table)"
+.br
+.ti -1c
+.RI "bool \fBcc_hashtable_contains_key\fP (\fBCC_HashTable\fP *table, void *key)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_hashtable_get_values\fP (\fBCC_HashTable\fP *table, \fBCC_Array\fP **out)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_hashtable_get_keys\fP (\fBCC_HashTable\fP *table, \fBCC_Array\fP **out)"
+.br
+.ti -1c
+.RI "void \fBcc_hashtable_foreach_key\fP (\fBCC_HashTable\fP *table, void(*fn)(const void *key))"
+.br
+.ti -1c
+.RI "void \fBcc_hashtable_foreach_value\fP (\fBCC_HashTable\fP *table, void(*fn)(void *val))"
+.br
+.ti -1c
+.RI "void \fBcc_hashtable_iter_init\fP (\fBCC_HashTableIter\fP *iter, \fBCC_HashTable\fP *table)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_hashtable_iter_next\fP (\fBCC_HashTableIter\fP *iter, \fBTableEntry\fP **te)"
+.br
+.ti -1c
+.RI "enum \fBcc_stat\fP \fBcc_hashtable_iter_remove\fP (\fBCC_HashTableIter\fP *iter, void **out)"
+.br
+.ti -1c
+.RI "size_t \fBcc_hashtable_hash_string\fP (const void *key, int len, uint32_t seed)"
+.br
+.ti -1c
+.RI "\fBFORCE_INLINE\fP uint32_t \fBrotl32\fP (uint32_t x, int8_t r)"
+.br
+.ti -1c
+.RI "\fBFORCE_INLINE\fP uint64_t \fBrotl64\fP (uint64_t x, int8_t r)"
+.br
+.ti -1c
+.RI "\fBFORCE_INLINE\fP uint32_t \fBfmix32\fP (uint32_t h)"
+.br
+.ti -1c
+.RI "size_t \fBcc_hashtable_hash\fP (const void *key, int len, uint32_t seed)"
+.br
+.ti -1c
+.RI "size_t \fBcc_hashtable_hash_ptr\fP (const void *key, int len, uint32_t seed)"
+.br
+.in -1c
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define BIG_CONSTANT(x)   (x##LLU)"
+
+.SS "#define DEFAULT_CAPACITY   16"
+
+.SS "#define DEFAULT_LOAD_FACTOR   0\&.75f"
+
+.SS "#define ROTL32(x, y)   \fBrotl32\fP(x,y)"
+
+.SS "#define ROTL64(x, y)   \fBrotl64\fP(x,y)"
+
+.SH "Function Documentation"
+.PP 
+.SS "enum \fBcc_stat\fP cc_hashtable_add (\fBCC_HashTable\fP * table, void * key, void * val)"
+Creates a new key-value mapping in the specified CC_HashTable\&. If the unique key is already mapped to a value in this table, that value is replaced with the new value\&. This operation may fail if the space allocation for the new entry fails\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fItable\fP the table to which this new key-value mapping is being added 
+.br
+\fIkey\fP a hash table key used to access the specified value 
+.br
+\fIval\fP a value that is being stored in the table
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the mapping was successfully added, or CC_ERR_ALLOC if the memory allocation failed\&. 
+.RE
+.PP
+
+.SS "size_t cc_hashtable_capacity (\fBCC_HashTable\fP * table)"
+Returns the current capacity of the table\&. The capacity is the number of buckets or the number of random access for table entries\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fItable\fP the table whose current capacity is being returned
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+the current capacity of the specified table\&. 
+.RE
+.PP
+
+.SS "void cc_hashtable_conf_init (\fBCC_HashTableConf\fP * conf)"
+Initializes the CC_HashTableConf structs fields to default values\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIconf\fP the struct that is being initialized 
+.RE
+.PP
+
+.SS "bool cc_hashtable_contains_key (\fBCC_HashTable\fP * table, void * key)"
+Checks whether or not the CC_HashTable contains the specified key\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fItable\fP the table on which the search is being performed 
+.br
+\fIkey\fP the key that is being searched for
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+true if the table contains the key\&. 
+.RE
+.PP
+
+.SS "void cc_hashtable_destroy (\fBCC_HashTable\fP * table)"
+Destroys the specified CC_HashTable structure without destroying the data contained within it\&. In other words, the keys and the values are not freed, but only the table structure\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fItable\fP CC_HashTable to be destroyed 
+.RE
+.PP
+
+.SS "void cc_hashtable_foreach_key (\fBCC_HashTable\fP * table, void(*)(const void *key) fn)"
+Applies the function fn to each key of the CC_HashTable\&.
+.PP
+\fBNote\fP
+.RS 4
+The operation function should not modify the key\&. Any modification of the key will invalidate the CC_HashTable\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fItable\fP the table on which this operation is being performed 
+.br
+\fIfn\fP the operation function that is invoked on each key of the table 
+.RE
+.PP
+
+.SS "void cc_hashtable_foreach_value (\fBCC_HashTable\fP * table, void(*)(void *val) fn)"
+Applies the function fn to each value of the CC_HashTable\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fItable\fP the table on which this operation is being performed 
+.br
+\fIfn\fP the operation function that is invoked on each value of the table 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_hashtable_get (\fBCC_HashTable\fP * table, void * key, void ** out)"
+Gets a value associated with the specified key and sets the out parameter to it\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fItable\fP the table from which the mapping is being returned 
+.br
+\fIkey\fP the key that is being looked up 
+.br
+\fIout\fP pointer to where the value is stored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the key was found, or CC_ERR_KEY_NOT_FOUND if not\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_hashtable_get_keys (\fBCC_HashTable\fP * table, \fBCC_Array\fP ** out)"
+Returns an CC_Array of hashtable keys\&. The returned CC_Array is allocated using the same memory allocators used by the CC_HashTable\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fItable\fP the table whose keys are being returned 
+.br
+\fIout\fP pointer to where the array is stored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the CC_Array was successfully created, or CC_ERR_ALLOC if the memory allocation for the CC_Array failed\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_hashtable_get_values (\fBCC_HashTable\fP * table, \fBCC_Array\fP ** out)"
+Returns an CC_Array of hashtable values\&. The returned CC_Array is allocated using the same memory allocators used by the CC_HashTable\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fItable\fP the table whose values are being returned 
+.br
+\fIout\fP pointer to where the array is stored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the CC_Array was successfully created, or CC_ERR_ALLOC if the memory allocation for the CC_Array failed\&. 
+.RE
+.PP
+
+.SS "size_t cc_hashtable_hash (const void * key, int len, uint32_t seed)"
+MurmurHash3 the 32bit variant\&. 
+.SS "size_t cc_hashtable_hash_ptr (const void * key, int len, uint32_t seed)"
+
+.SS "size_t cc_hashtable_hash_string (const void * key, int len, uint32_t seed)"
+
+.SS "void cc_hashtable_iter_init (\fBCC_HashTableIter\fP * iter, \fBCC_HashTable\fP * table)"
+Initializes the CC_HashTableIter structure\&.
+.PP
+\fBNote\fP
+.RS 4
+The order at which the entries are returned is unspecified\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIiter\fP the iterator that is being initialized 
+.br
+\fItable\fP the table over whose entries the iterator is going to iterate 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_hashtable_iter_next (\fBCC_HashTableIter\fP * iter, \fBTableEntry\fP ** te)"
+Advances the iterator and sets the out parameter to the value of the next TableEntry\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIiter\fP the iterator that is being advanced 
+.br
+\fIout\fP pointer to where the next entry is set
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the iterator was advanced, or CC_ITER_END if the end of the CC_HashTable has been reached\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_hashtable_iter_remove (\fBCC_HashTableIter\fP * iter, void ** out)"
+Removes the last returned entry by \fC\fBcc_hashtable_iter_next()\fP\fP function without invalidating the iterator and optionally sets the out parameter to the value of the removed entry\&.
+.PP
+\fBNote\fP
+.RS 4
+This Function should only ever be called after a call to \fC \fBcc_hashtable_iter_next()\fP\fP\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIiter\fP The iterator on which this operation is performed 
+.br
+\fIout\fP Pointer to where the removed element is stored, or NULL if it is to be ignored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the entry was successfully removed, or CC_ERR_KEY_NOT_FOUND\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_hashtable_new (\fBCC_HashTable\fP ** out)"
+Creates a new CC_HashTable and returns a status code\&.
+.PP
+\fBNote\fP
+.RS 4
+The newly created CC_HashTable will work with string keys\&.
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIout\fP Pointer to where the newly created CC_HashTable is to be stored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the creation was successful, or CC_ERR_ALLOC if the memory allocation for the new CC_HashTable failed\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_hashtable_new_conf (\fBCC_HashTableConf\fP const *const conf, \fBCC_HashTable\fP ** out)"
+Creates a new CC_HashTable based on the specified CC_HashTableConf struct and returns a status code\&.
+.PP
+The table is allocated using the memory allocators specified in the CC_HashTableConf struct\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIconf\fP the CC_HashTable conf structure 
+.br
+\fIout\fP Pointer to where the newly created CC_HashTable is stored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the creation was successful, or CC_ERR_ALLOC if the memory allocation for the new CC_HashTable structure failed\&. 
+.RE
+.PP
+
+.SS "enum \fBcc_stat\fP cc_hashtable_remove (\fBCC_HashTable\fP * table, void * key, void ** out)"
+Removes a key-value mapping from the specified hash table and sets the out parameter to value\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fItable\fP the table from which the key-value pair is being removed 
+.br
+\fIkey\fP the key of the value being returned 
+.br
+\fIout\fP pointer to where the removed value is stored, or NULL if it is to be ignored
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+CC_OK if the mapping was successfully removed, or CC_ERR_KEY_NOT_FOUND if the key was not found\&. 
+.RE
+.PP
+
+.SS "void cc_hashtable_remove_all (\fBCC_HashTable\fP * table)"
+Removes all key-value mappings from the specified table\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fItable\fP the table from which all mappings are being removed 
+.RE
+.PP
+
+.SS "size_t cc_hashtable_size (\fBCC_HashTable\fP * table)"
+Returns the size of the specified CC_HashTable\&. Size of a CC_HashTable represents the number of key-value mappings within the table\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fItable\fP the table whose size is being returned
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+the size of the table\&. 
+.RE
+.PP
+
+.SS "\fBFORCE_INLINE\fP uint32_t fmix32 (uint32_t h)"
+
+.SS "\fBFORCE_INLINE\fP uint32_t rotl32 (uint32_t x, int8_t r)"
+
+.SS "\fBFORCE_INLINE\fP uint64_t rotl64 (uint64_t x, int8_t r)"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GrowNode from the source code\&.
