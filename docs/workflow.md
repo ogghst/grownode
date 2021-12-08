@@ -63,7 +63,7 @@ Some basic configuration parameters:
  - `reset flash at every startup`: every time the board is started up, all information stored are wiped out. This is useful when you are testing the board and you want to restart every time with a clean situation. please note that this removes also your provisioning status (wifi SSID and password)
  - `enable networking`: in order to have all the network related functionalities. in case of local boards or issues with firmware size this will reduce a lot the firware footprint and enhance performances. Dependant parameters are:
  - `provisioning transport`: how the board will receive wifi credentials at startup. SoftAP means by becoming a local access point, Bluetooth is the other option. Depending on the choice, you will have to use one of the Espressif provisioning apps (at this page)[https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/provisioning/provisioning.html]
-- `keepalive message`: how often the board should publish a status message [see API](../docs/html/index.html)
+- `keepalive message`: how often the board should publish a status message [see API](html/index.html)
 - `provisioning security`: whether provisioning data shall be encrypted and if yes the use of a proof of possession (password) is required
 - `SoftAP Prefix`: the name of the temporary network the board will create to ask for wifi credentials
 - `firmare URL`: where to search for an updated firmware when the OTA process will start
