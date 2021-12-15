@@ -78,6 +78,11 @@ menu "GrowNode Configuration"
     	help
     		base topic, default is "/grownode"
     		
+    config GROWNODE_MQTT_MAC_ADDRESS_PREFIX_TOPIC
+    	bool "Add MAC Address of the board in the topic prefix"
+    	depends on GROWNODE_WIFI_ENABLED
+    	default false
+    		
     config GROWNODE_MQTT_DISCOVERY_ENABLED
     	bool "Enable MQTT Discovery"
     	default true
