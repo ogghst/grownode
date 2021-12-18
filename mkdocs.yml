@@ -16,9 +16,9 @@ theme:
 nav:
   - Why GrowNode: 'index.md'
   - The Platform: 'platform.md'
-  - Design: 'workflow.md'
   - Install: 'start.md'
-  - Boards: 'boards.md'
+  - Play: 'workflow.md'
+  - GrowNode Boards: 'boards.md'
   - API: 'html\index.html'
 plugins:
     - search
