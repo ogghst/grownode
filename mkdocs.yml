@@ -18,6 +18,7 @@ nav:
   - The Platform: 'platform.md'
   - Design: 'workflow.md'
   - Install: 'start.md'
+  - Boards: 'boards.md'
   - API: 'html\index.html'
 plugins:
     - search

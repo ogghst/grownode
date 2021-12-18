@@ -130,11 +130,36 @@ The framework will  tell the network that the board is online, publish the board
 	while (true) {
 		vTaskDelay(10000 / portTICK_PERIOD_MS);
 	}
-	
+
+### Prebuilt leaves
+
+You can use the prebuilt leaves under `components/grownode/leaves` folder. Every leaf has his own header file you can use to understand how to use it.
+
+Basic leaves as per today:
+
+#### Actuators
+
+- Relay: turns on/off a GPIO
+- Pump: uses the low frequency PWM API to drive a motor
+- Pump_HS: uses the LEDC API to drive a PWM device, lice dimming a LED or driving a motor
+
+#### Sensors:
+
+- Capacitive Water Level: gives you the value of a touch sensing device, here used to detect water level
+- BME280: gets the data from this temperature/humidity/pressure sensor
+- DS18B20: gets the temperature of multiple temperature sensors connected to SDA/SDL pin
+
+#### Controllers:
+
+- Pump Control: DEMO leaf to drive a pump depending on temperature
+- Watering Control: A more sophisticated controller to drive a water tower hydroponic system, like  [hydroboard1](https://ogghst.github.io/grownode/boards/#hydroboard1)
+
+### Create your own leaves
+
+Goal of GrowNode project is to embrace a wide number of technologies and growing techniques. So I've designed it to be expandable. You can code your own leaf by taking inspiration of the preexisting leaves. Please return to the open source community what the community gave to you, by including your work in this project.
 
 ##Work in Progress
 
-d.	Create your own leaves
 4.	Test it in a breadboard (recommended!) 
 5.	Wire it up together
 6.	Share your project

@@ -63,7 +63,6 @@ void app_main(void) {
 
 	//creates a new node
 	gn_node_config_handle_t node = gn_node_create(config, "node");
-	ESP_LOGI(TAG, "gn_create_node, name %s", gn_get_node_config_name(node));
 
 	//send log to screen
 	gn_log(TAG, GN_LOG_INFO, "initialized");
