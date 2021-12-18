@@ -99,11 +99,15 @@ Here is a standard `main` application workflow walkthrough:
 				gn_get_config_status(config));
 	}
 	
-- Once the GrowNode configuration process has ended, you can then start defining your project structure. First step is to obtain a Node handler. This can be seen as the 'tree trunk' where the 'leaves' will be attached:
+- Once the GrowNode configuration process has ended, you can then start defining your project structure. First step is to obtain a Node handler. This can be seen as the 'tree trunk' where the 'leaves' will be attached.
+
+example:
 
 	gn_node_config_handle_t node = gn_node_create(config, "node");
 
 - And then you can add your sensors and actuators, that in GrowNode languages are called **leaves**. Standard leaves code is contained on `components/grownode/leaves` folder
+
+example:
 
 	gn_leaf_config_handle_t lights1in = gn_leaf_create(node, "lights1in", gn_relay_config, 4096);
 
@@ -111,6 +115,8 @@ In this example we have created an handle to a relay leaf, called `lights1in`, u
 Every leaf has his own characteristic and purposes. Some represents sensors, some actuators, and some has the only purpose to implement control logic for other leaves. The `relay` leaf, for instance, can be reused for multiple actuators in multiple pins. Some others may have limitations due to the specific hardware used.
 
 - In order to make a leaf usable you probably have to configure it. The `relay` leaf need to know what is the GPIO pin attached and the initial status:
+
+example:
 
 	gn_leaf_param_init_double(lights1in, GN_RELAY_PARAM_GPIO, 25);
 	gn_leaf_param_init_bool(lights1in, GN_RELAY_PARAM_STATUS, false);
@@ -121,11 +127,15 @@ Please look at the header file of the leaf you want to use to understand the nee
 
 - At this point the leaf is ready for the startup. This is made by calling:
 
+example:
+
 	gn_node_start(node);
 	
 The framework will  tell the network that the board is online, publish the board sensor data, start all the leaves callbacks , start the listeners for leaves dialogue (in the `relay` leaf, this means the relay can be controlled by setting the `status` parameter). 
 	
 - Last step, you should implement an infinite loop:
+
+example:
 
 	while (true) {
 		vTaskDelay(10000 / portTICK_PERIOD_MS);
