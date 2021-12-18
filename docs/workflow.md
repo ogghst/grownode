@@ -76,8 +76,10 @@ Some basic configuration parameters:
 ###Code your application
 
 In the `main` folder of the project you will find a `main.c` file. This is the entry point of the application. Understanding the code requires a knowledge of the C language and it is not the goal of this tutorial. 
-The standard `main` application is composed by those parts:
-- Log configuration directives, done by using the ESP-IDF logging system. Every GrowNode subsystem has his own log tag so it's easy to enable different logging levels depending on what you want to track:
+
+Here is a standard `main` application workflow walkthrough:
+
+- Define log configuration directives, done by using the ESP-IDF logging system. Every GrowNode subsystem has his own log tag so it's easy to enable different logging levels depending on what you want to track:
      
     esp_log_level_set("*", ESP_LOG_INFO);
     esp_log_level_set("grownode", ESP_LOG_DEBUG);
@@ -97,18 +99,18 @@ The standard `main` application is composed by those parts:
 				gn_get_config_status(config));
 	}
 	
-Once the GrowNode configuration process has ended, you can then start defining your project structure. First step is to obtain a Node handler. This can be seen as the 'tree trunk' where the 'leaves' will be attached:
+- Once the GrowNode configuration process has ended, you can then start defining your project structure. First step is to obtain a Node handler. This can be seen as the 'tree trunk' where the 'leaves' will be attached:
 
 	gn_node_config_handle_t node = gn_node_create(config, "node");
 
-And then you can add your sensors and actuators, that in GrowNode languages are called **leaves**. Standard leaves code is contained on `components/grownode/leaves` folder
+- And then you can add your sensors and actuators, that in GrowNode languages are called **leaves**. Standard leaves code is contained on `components/grownode/leaves` folder
 
 	gn_leaf_config_handle_t lights1in = gn_leaf_create(node, "lights1in", gn_relay_config, 4096);
 
 In this example we have created an handle to a relay leaf, called `lights1in`, using the config callback `gn_relay_config`, with a memory space of 4K.
 Every leaf has his own characteristic and purposes. Some represents sensors, some actuators, and some has the only purpose to implement control logic for other leaves. The `relay` leaf, for instance, can be reused for multiple actuators in multiple pins. Some others may have limitations due to the specific hardware used.
 
-In order to make a leaf usable you probably have to configure it. The `relay` leaf need to know what is the GPIO pin attached and the initial status:
+- In order to make a leaf usable you probably have to configure it. The `relay` leaf need to know what is the GPIO pin attached and the initial status:
 
 	gn_leaf_param_init_double(lights1in, GN_RELAY_PARAM_GPIO, 25);
 	gn_leaf_param_init_bool(lights1in, GN_RELAY_PARAM_STATUS, false);
@@ -117,15 +119,17 @@ Some paramaters are stored in the board non volatile storage (NVS) for later use
 
 Please look at the header file of the leaf you want to use to understand the needed parameters.
 
-At this point the leaf is ready for the startup. This is made by calling:
+- At this point the leaf is ready for the startup. This is made by calling:
 
 	gn_node_start(node);
 	
-The framework will:
-- tell the network that the board is online
-- publish the board sensor data
-- start all the leaves callbacks 
-- start the listeners for leaves dialogue (in the `relay` leaf, this means the relay can be controlled by setting the `status` parameter 
+The framework will  tell the network that the board is online, publish the board sensor data, start all the leaves callbacks , start the listeners for leaves dialogue (in the `relay` leaf, this means the relay can be controlled by setting the `status` parameter). 
+	
+- Last step, you should implement an infinite loop:
+
+	while (true) {
+		vTaskDelay(10000 / portTICK_PERIOD_MS);
+	}
 	
 
 ##Work in Progress
