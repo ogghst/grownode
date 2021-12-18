@@ -79,19 +79,25 @@ In the `main` folder of the project you will find a `main.c` file. This is the e
 
 Here is a standard `main` application workflow walkthrough:
 
-- Define log configuration directives, done by using the ESP-IDF logging system. Every GrowNode subsystem has his own log tag so it's easy to enable different logging levels depending on what you want to track:
-     
+- Define log configuration directives, done by using the ESP-IDF logging system. Every GrowNode subsystem has his own log tag so it's easy to enable different logging levels depending on what you want to track.
+
+Code:
+
     esp_log_level_set("*", ESP_LOG_INFO);
     esp_log_level_set("grownode", ESP_LOG_DEBUG);
     esp_log_level_set("gn_commons", ESP_LOG_INFO);
     esp_log_level_set("gn_nvs", ESP_LOG_INFO);
     ...
 
-- Obtain the GrowNode configuration handle. This starts the various subsystems like networking, server messaging, provisioning, display, depending on the configuration you choose in previous steps:
+- Obtain the GrowNode configuration handle. This starts the various subsystems like networking, server messaging, provisioning, display, depending on the configuration you choose in previous steps.
+
+Code:
 
 	gn_config_handle_t config = gn_init();
 
 - Wait for the configuration to be completed, as it takes several seconds depending on the actions needed. In this area you can add your custom code that catches the configuration process status 
+
+Code:
 
 	while (gn_get_config_status(config) != GN_CONFIG_STATUS_COMPLETED) {
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -101,13 +107,13 @@ Here is a standard `main` application workflow walkthrough:
 	
 - Once the GrowNode configuration process has ended, you can then start defining your project structure. First step is to obtain a Node handler. This can be seen as the 'tree trunk' where the 'leaves' will be attached.
 
-example:
+Code:
 
 	gn_node_config_handle_t node = gn_node_create(config, "node");
 
 - And then you can add your sensors and actuators, that in GrowNode languages are called **leaves**. Standard leaves code is contained on `components/grownode/leaves` folder
 
-example:
+Code:
 
 	gn_leaf_config_handle_t lights1in = gn_leaf_create(node, "lights1in", gn_relay_config, 4096);
 
@@ -116,7 +122,7 @@ Every leaf has his own characteristic and purposes. Some represents sensors, som
 
 - In order to make a leaf usable you probably have to configure it. The `relay` leaf need to know what is the GPIO pin attached and the initial status:
 
-example:
+Code:
 
 	gn_leaf_param_init_double(lights1in, GN_RELAY_PARAM_GPIO, 25);
 	gn_leaf_param_init_bool(lights1in, GN_RELAY_PARAM_STATUS, false);
@@ -127,7 +133,7 @@ Please look at the header file of the leaf you want to use to understand the nee
 
 - At this point the leaf is ready for the startup. This is made by calling:
 
-example:
+ Code:
 
 	gn_node_start(node);
 	
@@ -135,7 +141,7 @@ The framework will  tell the network that the board is online, publish the board
 	
 - Last step, you should implement an infinite loop:
 
-example:
+Code:
 
 	while (true) {
 		vTaskDelay(10000 / portTICK_PERIOD_MS);
