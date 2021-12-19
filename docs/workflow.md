@@ -178,6 +178,6 @@ Goal of GrowNode project is to embrace a wide number of technologies and growing
 
 Start putting your components in a breadbord according to your schematic. Make sure to test all possible hardware and software situation prior to pass to a more elaborated PCB. 
 
-### SHare you work!
+### Share you work!
 
 Repeating myself once again. Once your board is working, please share to the community. Look at the preexisting boards, prepare your material, and let me know how you want to collaborate with GrowNode ecosystem.
