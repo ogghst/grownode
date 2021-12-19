@@ -94,7 +94,7 @@ I've done a first schematic:
 
 And a first prototype board:
 
-![board](../resources/solutions/hydroboard1/board.png)
+![board](../resources/solutions/hydroboard1/board.jpeg)
 
 Then i've built a 3D case:
 
@@ -102,7 +102,7 @@ Then i've built a 3D case:
 
 And wired up all together in a demo station:
 
-![demo](../resources/solutions/hydroboard1/prototype1.png)
+![demo](../resources/solutions/hydroboard1/prototype1.jpeg)
 
 Now i wanted now to move in a more stable circuit, here is the new schematic:
 
