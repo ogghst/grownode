@@ -174,8 +174,10 @@ Basic leaves as per today:
 
 Goal of GrowNode project is to embrace a wide number of technologies and growing techniques. So I've designed it to be expandable. You can code your own leaf by taking inspiration of the preexisting leaves. Please return to the open source community what the community gave to you, by including your work in this project.
 
-##Work in Progress
+### Wire it up
 
-4.	Test it in a breadboard (recommended!) 
-5.	Wire it up together
-6.	Share your project
+Start putting your components in a breadbord according to your schematic. Make sure to test all possible hardware and software situation prior to pass to a more elaborated PCB. 
+
+### SHare you work!
+
+Repeating myself once again. Once your board is working, please share to the community. Look at the preexisting boards, prepare your material, and let me know how you want to collaborate with GrowNode ecosystem.
