@@ -86,6 +86,10 @@ MQTT Messaging is then collected by a page in OpenHAB where I can display the st
 
 I've done a first schematic:
 
+<p align="center">
+<img src="resources/solutions/hydroboard1/schematic.png">
+</p>
+
 ![schematic](../resources/solutions/hydroboard1/schematic.png)
 
 And a first prototype board:
