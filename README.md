@@ -5,7 +5,7 @@
 
 GrowNode is a vertical framework to build IoT devices targeted to growing plants in a controlled environment.
 
-![GrowNode Main Screen with a Temperature Leaf](/docs/resources/main_screen.png "Main Screen")
+See [Doc Website](https://ogghst.github.io/grownode/)
 
 # Architecture
 
@@ -56,7 +56,4 @@ Unit testing are working although in early stage (started using after core writi
 - open an ESP-IDF prompt to go to project directory
 - type `idf.py menuconfig flash build monitor` according to your needs. this will run the latest test code as per the `main.c` file
 
-# Further Readings
-
-See [Doc Website](https://ogghst.github.io/grownode/)
 

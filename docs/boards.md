@@ -94,7 +94,7 @@ And a first prototype board:
 
 Then i've built a 3D case:
 
-![case](../resources/solutions/hydroboard1/box.png)
+![case](../resources/solutions/hydroboard1/box.jpeg)
 
 And wired up all together in a demo station:
 
