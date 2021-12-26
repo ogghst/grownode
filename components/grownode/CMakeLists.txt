@@ -108,6 +108,7 @@ idf_component_register(SRCS
 					"cc_array.c"
 					"cc_common.c"
 					"cc_hashtable.c"
+					"leaves/gn_pwm.c"
 					"leaves/gn_pump.c"
 					"leaves/gn_pump_hs.c"
 					"leaves/gn_ds18b20.c"
@@ -116,6 +117,7 @@ idf_component_register(SRCS
 					"leaves/gn_watering_control.c"
 					"leaves/gn_capacitive_water_level.c"
 					"leaves/gn_relay.c"
+					"leaves/gn_leaf_status_led.c"
 					"test/test_grownode.c"
 					"test/test_pump.c"
 					"test/test_ds18b20.c"
@@ -126,6 +128,7 @@ idf_component_register(SRCS
                     INCLUDE_DIRS 
                     "."
                     "leaves/"
+                    "boards/"
                     EMBED_TXTFILES server_certs/ca_cert.pem)
 endif()
 

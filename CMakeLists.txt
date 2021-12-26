@@ -8,4 +8,4 @@ set(EXTRA_COMPONENT_DIRS $ENV{IDF_LIB_PATH})
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
-project(GrowNode_HydroNode1)
+project(GrowNode_HB2)
