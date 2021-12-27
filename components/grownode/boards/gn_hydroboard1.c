@@ -28,14 +28,9 @@
 #include "gn_bme280.h"
 #include "gn_watering_control.h"
 
-#define TASK_STACK_SIZE 8192*4
+#include "gn_hydroboard1.h"
 
-#define TAG "gn_main"
-
-void gn_configure_board(gn_node_config_handle_t node) {
-
-	//send log to screen
-	gn_log(TAG, GN_LOG_INFO, "initialized");
+void gn_configure_hydroboard1(gn_node_config_handle_t node) {
 
 	gn_leaf_config_handle_t lights1in = gn_leaf_create(node, "lights1in",
 			gn_relay_config, 4096);

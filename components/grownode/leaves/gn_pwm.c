@@ -39,9 +39,9 @@ extern "C" {
 
 #define TAG "gn_leaf_pwm"
 
-static const ledc_mode_t GN_LEAF_PWM_PARAM_LEDC_MODE = LEDC_LOW_SPEED_MODE;
+static const ledc_mode_t GN_LEAF_PWM_PARAM_LEDC_MODE = LEDC_HIGH_SPEED_MODE;
 
-//#define GN_PUMP_HS_FADE /*!< define if duty has to be faded */
+#define GN_PUMP_HS_FADE /*!< define if duty has to be faded */
 #define GN_LEAF_PWM_FADE_SPEED 500 /*!< define fade speed (msec) */
 
 #define GN_LEAF_PWM_UNKNOWN_CHANNEL	-1
@@ -78,6 +78,7 @@ static bool cb_ledc_fade_end_event(const ledc_cb_param_t *param, void *user_arg)
 }
 
 void gn_leaf_pwm_task(gn_leaf_config_handle_t leaf_config);
+
 
 gn_leaf_descriptor_handle_t gn_leaf_pwm_config(
 		gn_leaf_config_handle_t leaf_config) {
@@ -467,8 +468,10 @@ void gn_leaf_pwm_task(gn_leaf_config_handle_t leaf_config) {
 				xSemaphoreTake(fade_sem, portMAX_DELAY);
 #endif
 
-				ESP_LOGD(TAG, "%s - toggle off, channel %d",
-						gn_leaf_get_config_name(leaf_config), (int )channel);
+				ESP_LOGD(TAG,
+						"%s - setting power pin %d - channel %d to %d - duty 0",
+						gn_leaf_get_config_name(leaf_config), (int )gpio,
+						(int ) channel, (int )power);
 
 				need_update = false;
 

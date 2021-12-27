@@ -123,6 +123,8 @@ idf_component_register(SRCS
 					"test/test_ds18b20.c"
 					"test/test_pump_control.c"
 					"test/test_relay.c"
+					"boards/gn_hydroboard1.c"
+					"boards/gn_hydroboard2.c"
 					
 					REQUIRES lvgl lvgl_esp32_drivers unity mqtt spiffs json wifi_provisioning esp_https_ota app_update bmp280 ds18x20
                     INCLUDE_DIRS 

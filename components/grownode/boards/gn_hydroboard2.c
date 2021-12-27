@@ -29,14 +29,9 @@
 #include "gn_watering_control.h"
 #include "gn_leaf_status_led.h"
 
-#define TASK_STACK_SIZE 8192*4
+#include "gn_hydroboard2.h"
 
-#define TAG "gn_main"
-
-void gn_configure_board(gn_node_config_handle_t node) {
-
-	//send log to screen
-	gn_log(TAG, GN_LOG_INFO, "initialized");
+void gn_configure_hydroboard2(gn_node_config_handle_t node) {
 
 	gn_leaf_config_handle_t lights1in = gn_leaf_create(node, "lig_1",
 			gn_relay_config, 4096);
@@ -88,7 +83,7 @@ void gn_configure_board(gn_node_config_handle_t node) {
 
 	gn_leaf_config_handle_t led = gn_leaf_create(node, "led",
 			gn_leaf_status_led_config, 4096);
-	gn_leaf_param_init_double(led, GN_LEAF_PWM_PARAM_GPIO, 32);
+	gn_leaf_param_init_double(led, GN_LEAF_STATUS_LED_PARAM_GPIO, 32);
 
 	/*
 	gn_leaf_config_handle_t wat_lev = gn_leaf_create(node, "wat_lev",

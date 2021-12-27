@@ -20,16 +20,9 @@
 #include "esp_event.h"
 
 #include "grownode.h"
-#include "gn_pump_hs.h"
-#include "gn_ds18b20.h"
-#include "gn_relay.h"
-#include "gn_capacitive_water_level.h"
-#include "gn_pump.h"
-#include "gn_bme280.h"
-#include "gn_watering_control.h"
 
 //include the board you want to start here
-#include "gn_hydroboard2.c"
+#include "gn_hydroboard2.h"
 
 #define TASK_STACK_SIZE 8192*4
 
@@ -39,22 +32,24 @@ void app_main(void) {
 
 	//set appropriate log level
 	esp_log_level_set("*", ESP_LOG_INFO);
-	esp_log_level_set("grownode", ESP_LOG_DEBUG);
+
+	esp_log_level_set("grownode", ESP_LOG_INFO);
 	esp_log_level_set("gn_commons", ESP_LOG_INFO);
 	esp_log_level_set("gn_nvs", ESP_LOG_INFO);
 	esp_log_level_set("gn_mqtt_protocol", ESP_LOG_INFO);
 	esp_log_level_set("gn_network", ESP_LOG_INFO);
 	esp_log_level_set("gn_display", ESP_LOG_INFO);
 
-	esp_log_level_set("gn_leaf_relay", ESP_LOG_DEBUG);
+	esp_log_level_set("gn_leaf_relay", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_pump_hs", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_ds18b20", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_cwl", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_bme280", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_status_led", ESP_LOG_INFO);
+	esp_log_level_set("gn_leaf_status_led", ESP_LOG_DEBUG);
 
 	esp_log_level_set("gn_leaf_pump_control", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_watering_control", ESP_LOG_DEBUG);
+	esp_log_level_set("gn_leaf_watering_control", ESP_LOG_INFO);
+	esp_log_level_set("gn_leaf_pwm", ESP_LOG_DEBUG);
 
 	//creates the config handle
 	gn_config_handle_t config = gn_init();
@@ -69,7 +64,7 @@ void app_main(void) {
 	//creates a new node
 	gn_node_config_handle_t node = gn_node_create(config, "node");
 
-	gn_configure_board(node);
+	gn_configure_hydroboard2(node);
 
 	//finally, start node
 	gn_node_start(node);

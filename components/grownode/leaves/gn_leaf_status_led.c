@@ -27,6 +27,8 @@ extern "C" {
 #include "driver/mcpwm.h"
 #include "soc/mcpwm_periph.h"
 
+#include "gn_commons.h"
+
 #include "gn_leaf_status_led.h"
 
 #define TAG "gn_leaf_status_led"
@@ -63,11 +65,39 @@ gn_leaf_descriptor_handle_t gn_leaf_status_led_config(
 
 void blink(int gpio, int time, int blinks) {
 
+	ESP_LOGD(TAG, "blinking - gpio: %d, time: %d, blinks = %d", gpio, time, blinks);
+
 	for (int i = 0; i < blinks; i++) {
 		gpio_set_level((int) gpio, 1);
 		vTaskDelay(time / portTICK_PERIOD_MS);
 		gpio_set_level((int) gpio, 0);
 		vTaskDelay(time / portTICK_PERIOD_MS);
+	}
+
+}
+
+void gn_leaf_led_status_event_handler(void *handler_args, esp_event_base_t base,
+		int32_t event_id, void *event_data) {
+
+	ESP_LOGD(TAG, "gn_leaf_led_status_event_handler: %d", event_id);
+
+
+	gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t)handler_args;
+
+	double gpio;
+	gn_leaf_param_get_double(leaf_config, GN_LEAF_STATUS_LED_PARAM_GPIO, &gpio);
+
+	//gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t) handler_args;
+
+	gn_leaf_parameter_event_t *evt = (gn_leaf_parameter_event_t*) event_data;
+
+	switch (event_id) {
+
+	case GN_LEAF_PARAM_CHANGED_EVENT:
+		blink((int)gpio, 100, 1);
+
+	default:
+		blink((int)gpio, 100, 1);
 	}
 
 }
@@ -79,7 +109,7 @@ void gn_leaf_status_led_task(gn_leaf_config_handle_t leaf_config) {
 
 	gn_leaf_parameter_event_t evt;
 
-	//retrieves status descriptor from config
+//retrieves status descriptor from config
 	gn_leaf_status_led_data_t *data =
 			(gn_leaf_status_led_data_t*) gn_leaf_get_descriptor(leaf_config)->data;
 
@@ -88,11 +118,15 @@ void gn_leaf_status_led_task(gn_leaf_config_handle_t leaf_config) {
 
 	ESP_LOGD(TAG, "assigning to gpio %d", (int )gpio);
 
-	//setup led
+//setup led
 	gpio_set_direction((int) gpio, GPIO_MODE_OUTPUT);
 	gpio_set_level((int) gpio, 0);
 
-	//task cycle
+//register for events
+	ESP_ERROR_CHECK(
+			esp_event_handler_instance_register_with(gn_leaf_get_config_event_loop(leaf_config), GN_BASE_EVENT, GN_EVENT_ANY_ID, gn_leaf_led_status_event_handler, leaf_config, NULL));
+
+//task cycle
 	while (true) {
 
 		//ESP_LOGD(TAG, "task cycle..");
@@ -130,6 +164,10 @@ void gn_leaf_status_led_task(gn_leaf_config_handle_t leaf_config) {
 				//what to do when server is disconnected
 			case GN_SRV_DISCONNECTED_EVENT:
 				blink(gpio, 500, 3);
+				break;
+
+			case GN_NET_MSG_RECV:
+				blink(gpio, 200, 1);
 				break;
 
 			default:
