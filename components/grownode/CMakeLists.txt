@@ -125,6 +125,7 @@ idf_component_register(SRCS
 					"test/test_relay.c"
 					"boards/gn_hydroboard1.c"
 					"boards/gn_hydroboard2.c"
+					"boards/gn_blink.c"
 					
 					REQUIRES lvgl lvgl_esp32_drivers unity mqtt spiffs json wifi_provisioning esp_https_ota app_update bmp280 ds18x20
                     INCLUDE_DIRS 

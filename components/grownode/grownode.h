@@ -110,6 +110,9 @@ gn_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf,
 gn_err_t gn_leaf_param_init_double(const gn_leaf_config_handle_t leaf,
 		const char *name, double val);
 
+gn_err_t gn_leaf_param_set_value(const gn_leaf_config_handle_t leaf,
+		const void *val);
+
 //gn_err_t gn_leaf_param_destroy(gn_leaf_param_handle_t new_param);
 
 //void* gn_leaf_context_add_to_leaf(const gn_leaf_config_handle_t leaf, char *key,

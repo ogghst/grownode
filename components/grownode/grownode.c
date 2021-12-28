@@ -1454,6 +1454,51 @@ gn_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf_config,
 
 }
 
+/**
+ * 	@brief	updates the parameter with new value
+ *
+ * this is calling the gn_leaf_parameter_set_XXX depending on the param handle type, so be careful in order to avoid memory leaks
+ *
+ * 	@param leaf_config	the leaf handle to be queried
+ * 	@param value		the pointer to value to set ( in case of string, null terminated)
+ *
+ * 	@return GN_RET_OK if the parameter is set
+ * 	@return GN_RET_ERR_INVALID_ARG in case of input errors
+ */
+gn_err_t gn_leaf_param_set_value(const gn_leaf_param_handle_t param_handle,
+		const void *value) {
+
+	if (!param_handle || !value)
+		return GN_RET_ERR_INVALID_ARG;
+
+	gn_leaf_param_handle_intl_t _param =
+			(gn_leaf_param_handle_intl_t) param_handle;
+
+	//ESP_LOGD(TAG, "gn_leaf_param_set_bool %s %d", name, val);
+	//ESP_LOGD(TAG, "	old value %d", _param->param_val->v.b);
+
+	gn_leaf_config_handle_intl_t _leaf_config = _param->leaf_config;
+
+	switch (_param->param_val->t) {
+
+	case GN_VAL_TYPE_STRING:
+		return gn_leaf_param_set_string(_leaf_config, _param->name, (char*) value);
+		break;
+	case GN_VAL_TYPE_BOOLEAN:
+		return gn_leaf_param_set_bool(_leaf_config, _param->name, *(bool*)value);
+		break;
+	case GN_VAL_TYPE_DOUBLE:
+		return gn_leaf_param_set_double(_leaf_config, _param->name, *(double*)value);
+		break;
+	default:
+		return GN_RET_ERR_INVALID_ARG;
+
+	}
+
+	return GN_RET_ERR_INVALID_ARG;
+
+}
+
 gn_err_t gn_leaf_param_get_bool(const gn_leaf_config_handle_t leaf_config,
 		const char *name, bool *val) {
 
@@ -1924,7 +1969,7 @@ gn_err_t gn_leaf_param_send_bool(const gn_leaf_config_handle_t leaf_config,
 	gn_leaf_config_handle_intl_t _leaf_config =
 			(gn_leaf_config_handle_intl_t) leaf_config;
 	char val_ptr[2] = "";
-	strcpy(val_ptr, val?"1":"0");
+	strcpy(val_ptr, val ? "1" : "0");
 	gn_err_t ret = gn_send_leaf_param_change_message(_leaf_config->name, name,
 			val_ptr, 2);
 	return ret;
@@ -1956,7 +2001,7 @@ gn_err_t gn_leaf_param_send_string(const gn_leaf_config_handle_t leaf_config,
 	char *val_ptr = (char*) calloc(strlen(val) + 1, sizeof(char));
 	strncpy(val_ptr, val, sizeof(val) + 1);
 	gn_err_t ret = gn_send_leaf_param_change_message(_leaf_config->name, name,
-			val_ptr, sizeof(val) +1);
+			val_ptr, sizeof(val) + 1);
 	free(val_ptr);
 	return ret;
 }

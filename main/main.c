@@ -22,7 +22,7 @@
 #include "grownode.h"
 
 //include the board you want to start here
-#include "gn_hydroboard2.h"
+#include "gn_blink.h"
 
 #define TASK_STACK_SIZE 8192*4
 
@@ -33,6 +33,7 @@ void app_main(void) {
 	//set appropriate log level
 	esp_log_level_set("*", ESP_LOG_INFO);
 
+	//core
 	esp_log_level_set("grownode", ESP_LOG_INFO);
 	esp_log_level_set("gn_commons", ESP_LOG_INFO);
 	esp_log_level_set("gn_nvs", ESP_LOG_INFO);
@@ -40,16 +41,20 @@ void app_main(void) {
 	esp_log_level_set("gn_network", ESP_LOG_INFO);
 	esp_log_level_set("gn_display", ESP_LOG_INFO);
 
+	//leaves
 	esp_log_level_set("gn_leaf_relay", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_pump_hs", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_ds18b20", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_cwl", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_bme280", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_status_led", ESP_LOG_DEBUG);
+	esp_log_level_set("gn_leaf_status_led", ESP_LOG_INFO);
 
 	esp_log_level_set("gn_leaf_pump_control", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_watering_control", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_pwm", ESP_LOG_DEBUG);
+	esp_log_level_set("gn_leaf_pwm", ESP_LOG_INFO);
+
+	//boards
+	esp_log_level_set("gn_blink", ESP_LOG_DEBUG);
 
 	//creates the config handle
 	gn_config_handle_t config = gn_init();
@@ -64,7 +69,7 @@ void app_main(void) {
 	//creates a new node
 	gn_node_config_handle_t node = gn_node_create(config, "node");
 
-	gn_configure_hydroboard2(node);
+	gn_configure_blink(node);
 
 	//finally, start node
 	gn_node_start(node);
