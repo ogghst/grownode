@@ -1057,7 +1057,7 @@ void _gn_display_gui_task(void *pvParameter) {
 
 		/* Try to take the semaphore, call lvgl related function on success */
 		if (pdTRUE == xSemaphoreTake(_gn_xGuiSemaphore, portMAX_DELAY)) {
-			//ESP_LOGE(TAG, "LVGL handle");
+			//gn_log(TAG, GN_LOG_ERROR, "LVGL handle");
 			lv_task_handler();
 			xSemaphoreGive(_gn_xGuiSemaphore);
 		}
