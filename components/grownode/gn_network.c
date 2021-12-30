@@ -87,7 +87,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 			wifi_prov_sta_fail_reason_t *reason =
 					(wifi_prov_sta_fail_reason_t*) event_data;
 
-			ESP_LOGE(TAG,
+			gn_log(TAG, GN_LOG_ERROR,
 					"Provisioning failed!\n\tReason : %s",
 					((*reason == WIFI_PROV_STA_AUTH_ERROR) ?
 							"Wi-Fi station authentication failed" :
@@ -131,7 +131,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 				!= esp_event_post_to(_conf->event_loop,
 						GN_BASE_EVENT, GN_NET_CONNECTED_EVENT, NULL, 0,
 						portMAX_DELAY)) {
-			ESP_LOGE(TAG, "failed to send GN_NETWORK_DISCONNECTED_EVENT event");
+			gn_log(TAG, GN_LOG_ERROR, "failed to send GN_NETWORK_DISCONNECTED_EVENT event");
 		}
 
 		/* Signal main application to continue execution */
@@ -146,7 +146,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 				!= esp_event_post_to(_conf->event_loop,
 						GN_BASE_EVENT, GN_NET_DISCONNECTED_EVENT, NULL, 0,
 						portMAX_DELAY)) {
-			ESP_LOGE(TAG, "failed to send GN_NETWORK_DISCONNECTED_EVENT event");
+			gn_log(TAG, GN_LOG_ERROR, "failed to send GN_NETWORK_DISCONNECTED_EVENT event");
 		}
 
         if (s_retry_num < 3) {
@@ -186,7 +186,7 @@ void _gn_wifi_init_sta(void) {
 		gn_reboot();
 
     } else {
-        ESP_LOGE(TAG, "UNEXPECTED EVENT");
+        gn_log(TAG, GN_LOG_ERROR, "UNEXPECTED EVENT");
     }
 
 #endif
@@ -224,7 +224,7 @@ esp_err_t _gn_wifi_custom_prov_data_handler(uint32_t session_id,
 	char response[] = "SUCCESS";
 	*outbuf = (uint8_t*) strdup(response);
 	if (*outbuf == NULL) {
-		ESP_LOGE(TAG, "System out of memory");
+		gn_log(TAG, GN_LOG_ERROR, "System out of memory");
 		return ESP_ERR_NO_MEM;
 	}
 	*outlen = strlen(response) + 1; /* +1 for NULL terminating byte */
