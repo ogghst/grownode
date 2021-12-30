@@ -81,7 +81,7 @@ void gn_pump_control_task_event_handler(void *handler_args,
 						if (gn_send_leaf_param_change_message("pump",
 								GN_PUMP_PARAM_TOGGLE, (const char*) &"1", 2)
 								!= GN_RET_OK) {
-							ESP_LOGE(TAG,
+							gn_log(TAG, GN_LOG_ERROR,
 									"impossible to update parameter %s on leaf %s",
 									GN_PUMP_PARAM_TOGGLE, "pump");
 							return;
@@ -97,7 +97,7 @@ void gn_pump_control_task_event_handler(void *handler_args,
 						//send message to pump
 						if (gn_send_leaf_param_change_message("pump",
 								GN_PUMP_PARAM_TOGGLE, &"0", 2) != GN_RET_OK) {
-							ESP_LOGE(TAG,
+							gn_log(TAG, GN_LOG_ERROR,
 									"impossible to update parameter %s on leaf %s",
 									GN_PUMP_PARAM_TOGGLE, "pump");
 							return;
