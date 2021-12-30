@@ -65,7 +65,8 @@ gn_leaf_descriptor_handle_t gn_leaf_status_led_config(
 
 void blink(int gpio, int time, int blinks) {
 
-	ESP_LOGD(TAG, "blinking - gpio: %d, time: %d, blinks = %d", gpio, time, blinks);
+	ESP_LOGD(TAG, "blinking - gpio: %d, time: %d, blinks = %d", gpio, time,
+			blinks);
 
 	for (int i = 0; i < blinks; i++) {
 		gpio_set_level((int) gpio, 1);
@@ -81,23 +82,20 @@ void gn_leaf_led_status_event_handler(void *handler_args, esp_event_base_t base,
 
 	ESP_LOGD(TAG, "gn_leaf_led_status_event_handler: %d", event_id);
 
-
-	gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t)handler_args;
+	gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t) handler_args;
 
 	double gpio;
 	gn_leaf_param_get_double(leaf_config, GN_LEAF_STATUS_LED_PARAM_GPIO, &gpio);
 
 	//gn_leaf_config_handle_t leaf_config = (gn_leaf_config_handle_t) handler_args;
 
-	gn_leaf_parameter_event_t *evt = (gn_leaf_parameter_event_t*) event_data;
-
 	switch (event_id) {
 
 	case GN_LEAF_PARAM_CHANGED_EVENT:
-		blink((int)gpio, 100, 1);
-
+		blink((int) gpio, 100, 1);
+		break;
 	default:
-		blink((int)gpio, 100, 1);
+		blink((int) gpio, 100, 1);
 	}
 
 }
@@ -108,10 +106,6 @@ void gn_leaf_status_led_task(gn_leaf_config_handle_t leaf_config) {
 			gn_leaf_get_config_name(leaf_config));
 
 	gn_leaf_parameter_event_t evt;
-
-//retrieves status descriptor from config
-	gn_leaf_status_led_data_t *data =
-			(gn_leaf_status_led_data_t*) gn_leaf_get_descriptor(leaf_config)->data;
 
 	double gpio;
 	gn_leaf_param_get_double(leaf_config, GN_LEAF_STATUS_LED_PARAM_GPIO, &gpio);

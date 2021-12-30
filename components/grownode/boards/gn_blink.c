@@ -25,8 +25,6 @@
 
 void led_blink_callback(const gn_leaf_config_handle_t blink) {
 
-	gn_log(TAG, GN_LOG_INFO, "blinking!");
-
 	bool status;
 	//gets the previous parameter status
 	gn_leaf_param_get_bool(blink, GN_RELAY_PARAM_STATUS, &status);
@@ -34,8 +32,10 @@ void led_blink_callback(const gn_leaf_config_handle_t blink) {
 	//invert the status
 	status = !status;
 
+	ESP_LOGI(TAG, "blinking - %d", status);
+
 	//set the new parameter
-	gn_leaf_param_set_bool(blink, GN_RELAY_PARAM_STATUS, status);
+	gn_leaf_param_send_bool(blink, GN_RELAY_PARAM_STATUS, status);
 
 }
 
@@ -53,18 +53,18 @@ void gn_configure_blink(gn_node_config_handle_t node) {
 	gn_leaf_config_handle_t blink = gn_leaf_create(node, "blink",
 			gn_relay_config, 4096);
 
-	//set the GPIO 2 (in most ESP32 is the builtin led, in sonoff basic the led is on GPIO13)
+	//set the GPIO 2
 	gn_leaf_param_init_double(blink, GN_RELAY_PARAM_GPIO, 2);
 	//set initial status to false (off)
 	gn_leaf_param_init_bool(blink, GN_RELAY_PARAM_STATUS, false);
 
-	//creates a timer that fires the led blinking every 10 seconds, using esp_timer API
+	//creates a timer that fires the led blinking every 5 seconds, using esp_timer API
 
 	esp_timer_handle_t timer_handler;
 	esp_timer_create_args_t timer_args = { .callback = &led_blink_callback,
 			.arg = blink, .name = "blink_timer" };
 	esp_timer_create(&timer_args, &timer_handler);
-	esp_timer_start_periodic(timer_handler, 10 * 1000000);
+	esp_timer_start_periodic(timer_handler, 5 * 1000000);
 
 }
 

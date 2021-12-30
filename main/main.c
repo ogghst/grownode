@@ -54,7 +54,7 @@ void app_main(void) {
 	esp_log_level_set("gn_leaf_pwm", ESP_LOG_INFO);
 
 	//boards
-	esp_log_level_set("gn_blink", ESP_LOG_DEBUG);
+	esp_log_level_set("gn_blink", ESP_LOG_INFO);
 
 	//creates the config handle
 	gn_config_handle_t config = gn_init();
