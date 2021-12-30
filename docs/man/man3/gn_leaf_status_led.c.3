@@ -1,0 +1,60 @@
+.TH "components/grownode/leaves/gn_leaf_status_led.c" 3 "Thu Dec 30 2021" "GrowNode" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+components/grownode/leaves/gn_leaf_status_led.c
+.SH SYNOPSIS
+.br
+.PP
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBgn_leaf_status_led_data_t\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBLOG_LOCAL_LEVEL\fP   ESP_LOG_VERBOSE"
+.br
+.ti -1c
+.RI "#define \fBTAG\fP   'gn_leaf_status_led'"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBgn_leaf_status_led_task\fP (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.br
+.ti -1c
+.RI "\fBgn_leaf_descriptor_handle_t\fP \fBgn_leaf_status_led_config\fP (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.br
+.ti -1c
+.RI "void \fBblink\fP (int gpio, int time, int blinks)"
+.br
+.ti -1c
+.RI "void \fBgn_leaf_led_status_event_handler\fP (void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)"
+.br
+.in -1c
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define LOG_LOCAL_LEVEL   ESP_LOG_VERBOSE"
+
+.SS "#define TAG   'gn_leaf_status_led'"
+
+.SH "Function Documentation"
+.PP 
+.SS "void blink (int gpio, int time, int blinks)"
+
+.SS "void gn_leaf_led_status_event_handler (void * handler_args, esp_event_base_t base, int32_t event_id, void * event_data)"
+
+.SS "\fBgn_leaf_descriptor_handle_t\fP gn_leaf_status_led_config (\fBgn_leaf_config_handle_t\fP leaf_config)"
+
+.SS "void gn_leaf_status_led_task (\fBgn_leaf_config_handle_t\fP leaf_config)"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GrowNode from the source code\&.

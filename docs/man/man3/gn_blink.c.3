@@ -1,0 +1,43 @@
+.TH "components/grownode/boards/gn_blink.c" 3 "Thu Dec 30 2021" "GrowNode" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+components/grownode/boards/gn_blink.c
+.SH SYNOPSIS
+.br
+.PP
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBTAG\fP   'gn_blink'"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBled_blink_callback\fP (const \fBgn_leaf_config_handle_t\fP \fBblink\fP)"
+.br
+.ti -1c
+.RI "void \fBgn_configure_blink\fP (\fBgn_node_config_handle_t\fP node)"
+.br
+.RI "this example makes a led blinking, either via network commands or after a timer "
+.in -1c
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define TAG   'gn_blink'"
+
+.SH "Function Documentation"
+.PP 
+.SS "void gn_configure_blink (\fBgn_node_config_handle_t\fP node)"
+
+.PP
+this example makes a led blinking, either via network commands or after a timer here we use the gn_relay leaf attached to GPIO2 to let the LED blink
+.PP
+Thanks to Adamo Ferro for the idea 
+.SS "void led_blink_callback (const \fBgn_leaf_config_handle_t\fP blink)"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GrowNode from the source code\&.

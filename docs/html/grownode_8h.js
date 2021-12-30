@@ -35,7 +35,8 @@ var grownode_8h =
     [ "gn_leaf_param_set_bool", "grownode_8h.html#acb5d23d24156523d59ed2229b6cde691", null ],
     [ "gn_leaf_param_set_double", "grownode_8h.html#a44e8e1cfa154c24aca7ff9133a2206f0", null ],
     [ "gn_leaf_param_set_string", "grownode_8h.html#aaa6c0f8ed9fb29a63ff9caca50bf7b05", null ],
-    [ "gn_log", "grownode_8h.html#a034525ccdca3439156c50ea3e4e7d822", null ],
+    [ "gn_leaf_param_set_value", "grownode_8h.html#a53222a23f1c7a17d3feec76782d1d735", null ],
+    [ "gn_log", "grownode_8h.html#a205e2f6cb829a2481a53391fe7a38e4d", null ],
     [ "gn_mqtt_get_status", "grownode_8h.html#a92a81a82042d99f885a18fcd6020a822", null ],
     [ "gn_node_create", "grownode_8h.html#a68d16d8c849702a995c66d511f40e61b", null ],
     [ "gn_node_destroy", "grownode_8h.html#a30eae9edf16e7984eaf34fd839695482", null ],
@@ -44,6 +45,7 @@ var grownode_8h =
     [ "gn_reboot", "grownode_8h.html#a092b6f9c9e0ce61471084f90fac51864", null ],
     [ "gn_reset", "grownode_8h.html#ad99438b5d6de6ad5a3ea113f0dd0ece2", null ],
     [ "gn_send_leaf_param_change_message", "grownode_8h.html#abc2730843685f2ab4767d82e2c92bb11", null ],
+    [ "gn_send_node_leaf_param_status", "grownode_8h.html#af9d184d4b15bb635af8f9fdf330fb023", null ],
     [ "gn_storage_get", "grownode_8h.html#aff4ecf7aa1c895b5646bdb7a67367f86", null ],
     [ "gn_storage_set", "grownode_8h.html#aebc5b0475830ca443b2e65fa9bbc809d", null ]
 ];

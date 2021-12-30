@@ -1,4 +1,4 @@
-.TH "components/grownode/grownode.c" 3 "Wed Dec 8 2021" "GrowNode" \" -*- nroff -*-
+.TH "components/grownode/grownode.c" 3 "Thu Dec 30 2021" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -172,6 +172,9 @@ components/grownode/grownode.c
 .br
 .RI "updates the parameter with new value "
 .ti -1c
+.RI "\fBgn_err_t\fP \fBgn_leaf_param_set_value\fP (const \fBgn_leaf_param_handle_t\fP param_handle, const void *value)"
+.br
+.ti -1c
 .RI "\fBgn_err_t\fP \fBgn_leaf_param_get_bool\fP (const \fBgn_leaf_config_handle_t\fP leaf_config, const char *name, bool *val)"
 .br
 .ti -1c
@@ -199,6 +202,10 @@ components/grownode/grownode.c
 .RI "\fBgn_err_t\fP \fBgn_leaf_param_add\fP (const \fBgn_leaf_config_handle_t\fP leaf, const \fBgn_leaf_param_handle_t\fP param)"
 .br
 .RI "add a parameter to the leaf\&. "
+.ti -1c
+.RI "\fBgn_err_t\fP \fBgn_send_node_leaf_param_status\fP (const \fBgn_node_config_handle_t\fP _node_config)"
+.br
+.RI "send parameter status per each parameter "
 .ti -1c
 .RI "\fBgn_err_t\fP \fBgn_send_leaf_param_change_message\fP (const char *leaf_name, const char *param_name, const void *message, size_t message_len)"
 .br
@@ -238,7 +245,7 @@ components/grownode/grownode.c
 .br
 .RI "reset the flash content and restart the board immediately "
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_log\fP (char *log_tag, \fBgn_log_level_t\fP level, char *message,\&.\&.\&.)"
+.RI "\fBgn_err_t\fP \fBgn_log\fP (char *log_tag, \fBgn_log_level_t\fP level, const char *message,\&.\&.\&.)"
 .br
 .RI "write ESP log, send log in the event queue and publish in network "
 .ti -1c
@@ -651,7 +658,6 @@ NOTE: if parameter is stored, the value is overridden
 
 .fi
 .PP
- 
 .PP
 \fBParameters\fP
 .RS 4
@@ -851,7 +857,28 @@ GN_RET_ERR_INVALID_ARG in case of input errors
 .RE
 .PP
 
-.SS "\fBgn_err_t\fP gn_log (char * log_tag, \fBgn_log_level_t\fP level, char * message,  \&.\&.\&.)"
+.SS "\fBgn_err_t\fP gn_leaf_param_set_value (const \fBgn_leaf_param_handle_t\fP param_handle, const void * value)"
+
+.PP
+.nf
+@brief  updates the parameter with new value
+
+.fi
+.PP
+.PP
+this is calling the gn_leaf_parameter_set_XXX depending on the param handle type, so be careful in order to avoid memory leaks 
+.PP
+.nf
+@param leaf_config  the leaf handle to be queried
+@param value        the pointer to value to set ( in case of string, null terminated)
+
+@return GN_RET_OK if the parameter is set
+@return GN_RET_ERR_INVALID_ARG in case of input errors
+
+.fi
+.PP
+ 
+.SS "\fBgn_err_t\fP gn_log (char * log_tag, \fBgn_log_level_t\fP level, const char * message,  \&.\&.\&.)"
 
 .PP
 write ESP log, send log in the event queue and publish in network 
@@ -986,6 +1013,22 @@ GN_RET_ERR_LEAF_NOT_FOUND if the leaf is not found
 GN_RET_ERR_INVALID_ARG in case of input parameter error 
 .PP
 GN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION in case the parameter access is not write enable 
+.RE
+.PP
+
+.SS "\fBgn_err_t\fP gn_send_node_leaf_param_status (const \fBgn_node_config_handle_t\fP _node_config)"
+
+.PP
+send parameter status per each parameter 
+.PP
+\fBParameters\fP
+.RS 4
+\fI_node_config\fP the config
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+GN_RET_OK upon success 
 .RE
 .PP
 

@@ -1,4 +1,4 @@
-.TH "gn_watering_control_data_t" 3 "Wed Dec 8 2021" "GrowNode" \" -*- nroff -*-
+.TH "gn_watering_control_data_t" 3 "Thu Dec 30 2021" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -9,9 +9,6 @@ gn_watering_control_data_t
 .SS "Data Fields"
 
 .in +1c
-.ti -1c
-.RI "esp_timer_handle_t \fBwatering_timer\fP"
-.br
 .ti -1c
 .RI "\fBgn_leaf_param_handle_t\fP \fBparam_watering_interval\fP"
 .br
@@ -89,8 +86,6 @@ gn_watering_control_data_t
 .SS "\fBgn_wat_status\fP gn_watering_control_data_t::wat_cycle"
 
 .SS "int64_t gn_watering_control_data_t::wat_cycle_cumulative_time_ms"
-
-.SS "esp_timer_handle_t gn_watering_control_data_t::watering_timer"
 
 
 .SH "Author"

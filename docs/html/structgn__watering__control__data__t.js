@@ -14,6 +14,5 @@ var structgn__watering__control__data__t =
     [ "param_watering_t_temp", "structgn__watering__control__data__t.html#ab7eea1ab5e48341f0ad6a5098de6ac6d", null ],
     [ "param_watering_time", "structgn__watering__control__data__t.html#ab565de6e0075a3608f21cd85ffdee27c", null ],
     [ "wat_cycle", "structgn__watering__control__data__t.html#a5baba41bce5d0ff3de677d545ee6ef46", null ],
-    [ "wat_cycle_cumulative_time_ms", "structgn__watering__control__data__t.html#a04805034d42d1acd78f956be794ab2da", null ],
-    [ "watering_timer", "structgn__watering__control__data__t.html#a58dcc2b4b99b6bab251798b0ecafe3ea", null ]
+    [ "wat_cycle_cumulative_time_ms", "structgn__watering__control__data__t.html#a04805034d42d1acd78f956be794ab2da", null ]
 ];

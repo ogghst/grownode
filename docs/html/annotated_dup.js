@@ -15,6 +15,7 @@ var annotated_dup =
     [ "gn_leaf_descriptor_t", "structgn__leaf__descriptor__t.html", "structgn__leaf__descriptor__t" ],
     [ "gn_leaf_param", "structgn__leaf__param.html", "structgn__leaf__param" ],
     [ "gn_leaf_parameter_event_t", "structgn__leaf__parameter__event__t.html", "structgn__leaf__parameter__event__t" ],
+    [ "gn_leaf_status_led_data_t", "structgn__leaf__status__led__data__t.html", "structgn__leaf__status__led__data__t" ],
     [ "gn_leaves_list", "structgn__leaves__list.html", "structgn__leaves__list" ],
     [ "gn_mqtt_node_config_message_t", "structgn__mqtt__node__config__message__t.html", "structgn__mqtt__node__config__message__t" ],
     [ "gn_mqtt_startup_message_t", "structgn__mqtt__startup__message__t.html", "structgn__mqtt__startup__message__t" ],
