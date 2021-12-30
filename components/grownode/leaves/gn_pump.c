@@ -357,14 +357,14 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 				ret = gpio_set_level(gpio_toggle, 0);
 
 				if (ret != ESP_OK) {
-					ESP_LOGE(TAG, "error in disabling signal, channel %d",
+					gn_log(TAG, GN_LOG_ERROR, "error in disabling signal, channel %d",
 							(int )channel);
 				}
 
 				ret = mcpwm_set_duty(pwm_unit, pwm_timer, pwm_generator, 0);
 
 				if (ret != ESP_OK) {
-					ESP_LOGE(TAG, "error in changing power, channel %d",
+					gn_log(TAG, GN_LOG_ERROR, "error in changing power, channel %d",
 							(int )channel);
 				}
 
@@ -378,14 +378,14 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 				ret = gpio_set_level(gpio_toggle, 1);
 
 				if (ret != ESP_OK) {
-					ESP_LOGE(TAG, "error in setting signal, channel %d",
+					gn_log(TAG, GN_LOG_ERROR, "error in setting signal, channel %d",
 							(int )channel);
 				}
 
 				ret = mcpwm_set_duty(pwm_unit, pwm_timer, pwm_generator, power);
 
 				if (ret != ESP_OK) {
-					ESP_LOGE(TAG, "error in  changing power, channel %d",
+					gn_log(TAG, GN_LOG_ERROR, "error in  changing power, channel %d",
 							(int )channel);
 				}
 
