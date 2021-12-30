@@ -175,7 +175,7 @@ void gn_leaf_pwm_task(gn_leaf_config_handle_t leaf_config) {
 	ret = ledc_timer_config(&timer);
 
 	if (ret != ESP_OK) {
-		ESP_LOGE(TAG, "error in configuring timer config, channel %d",
+		gn_log(TAG, GN_LOG_ERROR, "error in configuring timer config, channel %d",
 				(int )channel);
 		descriptor->status = GN_LEAF_STATUS_ERROR;
 	} else {
@@ -202,7 +202,7 @@ void gn_leaf_pwm_task(gn_leaf_config_handle_t leaf_config) {
 #endif
 
 		if (ret != ESP_OK) {
-			ESP_LOGE(TAG, "error in configuring timer config, channel %d",
+			gn_log(TAG, GN_LOG_ERROR, "error in configuring timer config, channel %d",
 					(int )channel);
 			descriptor->status = GN_LEAF_STATUS_ERROR;
 		} else {
@@ -413,7 +413,7 @@ void gn_leaf_pwm_task(gn_leaf_config_handle_t leaf_config) {
 						(ledc_channel_t) channel, 0, GN_LEAF_PWM_FADE_SPEED);
 
 				if (ret != ESP_OK) {
-					ESP_LOGE(TAG, "error in  changing duty, channel %d",
+					gn_log(TAG, GN_LOG_ERROR, "error in  changing duty, channel %d",
 							(int )channel);
 					goto fail;
 				}
@@ -422,7 +422,7 @@ void gn_leaf_pwm_task(gn_leaf_config_handle_t leaf_config) {
 						(ledc_channel_t) channel, LEDC_FADE_NO_WAIT);
 
 				if (ret != ESP_OK) {
-					ESP_LOGE(TAG, "error in updating duty, channel %d",
+					gn_log(TAG, GN_LOG_ERROR, "error in updating duty, channel %d",
 							(int )channel);
 					goto fail;
 				}
@@ -432,7 +432,7 @@ void gn_leaf_pwm_task(gn_leaf_config_handle_t leaf_config) {
 						(ledc_channel_t) channel, 0);
 
 				if (ret != ESP_OK) {
-					ESP_LOGE(TAG, "error in changing duty, channel %d",
+					gn_log(TAG, GN_LOG_ERROR, "error in changing duty, channel %d",
 							(int )channel);
 					goto fail;
 				}
@@ -441,7 +441,7 @@ void gn_leaf_pwm_task(gn_leaf_config_handle_t leaf_config) {
 						(ledc_channel_t) channel);
 
 				if (ret != ESP_OK) {
-					ESP_LOGE(TAG, "error in updating duty, channel %d",
+					gn_log(TAG, GN_LOG_ERROR, "error in updating duty, channel %d",
 							(int )channel);
 					goto fail;
 				}
@@ -454,7 +454,7 @@ void gn_leaf_pwm_task(gn_leaf_config_handle_t leaf_config) {
 				ret = gpio_set_level(gpio_toggle, 0);
 
 				if (ret != ESP_OK) {
-					ESP_LOGE(TAG, "error in disabling signal, channel %d",
+					gn_log(TAG, GN_LOG_ERROR, "error in disabling signal, channel %d",
 							(int )channel);
 					goto fail;
 				}
@@ -470,7 +470,7 @@ void gn_leaf_pwm_task(gn_leaf_config_handle_t leaf_config) {
 				ret = gpio_set_level(gpio_toggle, 1);
 
 				if (ret != ESP_OK) {
-					ESP_LOGE(TAG, "error in setting signal, channel %d",
+					gn_log(TAG, GN_LOG_ERROR, "error in setting signal, channel %d",
 							(int )channel);
 					goto fail;
 				}
@@ -482,7 +482,7 @@ void gn_leaf_pwm_task(gn_leaf_config_handle_t leaf_config) {
 						(ledc_channel_t) channel, duty, GN_LEAF_PWM_FADE_SPEED);
 
 				if (ret != ESP_OK) {
-					ESP_LOGE(TAG, "error in  changing power, channel %d",
+					gn_log(TAG, GN_LOG_ERROR, "error in  changing power, channel %d",
 							(int )channel);
 					goto fail;
 				}
@@ -491,7 +491,7 @@ void gn_leaf_pwm_task(gn_leaf_config_handle_t leaf_config) {
 						(ledc_channel_t) channel, LEDC_FADE_NO_WAIT);
 
 				if (ret != ESP_OK) {
-					ESP_LOGE(TAG, "error in updating duty, channel %d",
+					gn_log(TAG, GN_LOG_ERROR, "error in updating duty, channel %d",
 							(int )channel);
 					goto fail;
 				}
@@ -501,7 +501,7 @@ void gn_leaf_pwm_task(gn_leaf_config_handle_t leaf_config) {
 						(ledc_channel_t) channel, duty);
 
 				if (ret != ESP_OK) {
-					ESP_LOGE(TAG, "error in  changing power, channel %d",
+					gn_log(TAG, GN_LOG_ERROR, "error in  changing power, channel %d",
 							(int )channel);
 					goto fail;
 				}
@@ -510,7 +510,7 @@ void gn_leaf_pwm_task(gn_leaf_config_handle_t leaf_config) {
 						(ledc_channel_t) channel);
 
 				if (ret != ESP_OK) {
-					ESP_LOGE(TAG, "error in updating duty, channel %d",
+					gn_log(TAG, GN_LOG_ERROR, "error in updating duty, channel %d",
 							(int )channel);
 					goto fail;
 				}
