@@ -121,6 +121,8 @@ void gn_ds18b20_temp_sensor_collect(gn_leaf_config_handle_t leaf_config) {
 
 	if (active == true) {
 
+		ESP_LOGD(TAG, "reading from GPIO %d..",(int)gpio);
+
 		//read data from sensors using GPIO parameter
 		res = ds18x20_measure_and_read_multi(gpio, data->addrs,
 				data->sensor_count, data->temp);

@@ -27,7 +27,7 @@ void led_blink_callback(const gn_leaf_config_handle_t blink) {
 
 	bool status;
 	//gets the previous parameter status
-	gn_leaf_param_get_bool(blink, GN_RELAY_PARAM_STATUS, &status);
+	gn_leaf_param_get_bool(blink, GN_RELAY_PARAM_TOGGLE, &status);
 
 	//invert the status
 	status = !status;
@@ -35,7 +35,7 @@ void led_blink_callback(const gn_leaf_config_handle_t blink) {
 	ESP_LOGI(TAG, "blinking - %d", status);
 
 	//set the new parameter
-	gn_leaf_param_send_bool(blink, GN_RELAY_PARAM_STATUS, status);
+	gn_leaf_param_send_bool(blink, GN_RELAY_PARAM_TOGGLE, status);
 
 }
 
@@ -56,7 +56,7 @@ void gn_configure_blink(gn_node_config_handle_t node) {
 	//set the GPIO 2
 	gn_leaf_param_init_double(blink, GN_RELAY_PARAM_GPIO, 2);
 	//set initial status to false (off)
-	gn_leaf_param_init_bool(blink, GN_RELAY_PARAM_STATUS, false);
+	gn_leaf_param_init_bool(blink, GN_RELAY_PARAM_TOGGLE, false);
 
 	//creates a timer that fires the led blinking every 5 seconds, using esp_timer API
 

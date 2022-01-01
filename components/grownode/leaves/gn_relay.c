@@ -43,6 +43,7 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config);
 
 typedef struct {
 	gn_leaf_param_handle_t gn_relay_status_param;
+	gn_leaf_param_handle_t gn_relay_inverted_param;
 	gn_leaf_param_handle_t gn_relay_gpio_param;
 } gn_relay_data_t;
 
@@ -57,8 +58,13 @@ gn_leaf_descriptor_handle_t gn_relay_config(gn_leaf_config_handle_t leaf_config)
 	gn_relay_data_t *data = malloc(sizeof(gn_relay_data_t));
 
 	data->gn_relay_status_param = gn_leaf_param_create(leaf_config,
-			GN_RELAY_PARAM_STATUS, GN_VAL_TYPE_BOOLEAN,
+			GN_RELAY_PARAM_TOGGLE, GN_VAL_TYPE_BOOLEAN,
 			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_WRITE,
+			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
+
+	data->gn_relay_inverted_param = gn_leaf_param_create(leaf_config,
+			GN_RELAY_PARAM_INVERTED, GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b =
+					false }, GN_LEAF_PARAM_ACCESS_WRITE,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	data->gn_relay_gpio_param = gn_leaf_param_create(leaf_config,
@@ -66,6 +72,7 @@ gn_leaf_descriptor_handle_t gn_relay_config(gn_leaf_config_handle_t leaf_config)
 			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	gn_leaf_param_add(leaf_config, data->gn_relay_status_param);
+	gn_leaf_param_add(leaf_config, data->gn_relay_inverted_param);
 	gn_leaf_param_add(leaf_config, data->gn_relay_gpio_param);
 
 	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
@@ -76,7 +83,8 @@ gn_leaf_descriptor_handle_t gn_relay_config(gn_leaf_config_handle_t leaf_config)
 
 void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 
-	ESP_LOGD(TAG, "Initializing relay leaf %s..", gn_leaf_get_config_name(leaf_config));
+	ESP_LOGD(TAG, "Initializing relay leaf %s..",
+			gn_leaf_get_config_name(leaf_config));
 
 	const size_t GN_RELAY_STATE_STOP = 0;
 	const size_t GN_RELAY_STATE_RUNNING = 1;
@@ -92,13 +100,18 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 	gn_leaf_param_get_double(leaf_config, GN_RELAY_PARAM_GPIO, &gpio);
 
 	bool status;
-	gn_leaf_param_get_bool(leaf_config, GN_RELAY_PARAM_STATUS, &status);
+	gn_leaf_param_get_bool(leaf_config, GN_RELAY_PARAM_TOGGLE, &status);
 
-	ESP_LOGD(TAG, "assigning to gpio %d status %d", (int)gpio, status ? 1 : 0);
+	bool inverted;
+	gn_leaf_param_get_bool(leaf_config, GN_RELAY_PARAM_INVERTED, &inverted);
+
+	ESP_LOGD(TAG, "configuring - gpio %d, status %d, inverted %d", (int )gpio,
+			status ? 1 : 0, inverted ? 1 : 0);
 
 	//setup relay
-	gpio_set_direction((int)gpio, GPIO_MODE_OUTPUT);
-	gpio_set_level((int)gpio, status ? 1 : 0);
+	gpio_set_direction((int) gpio, GPIO_MODE_OUTPUT);
+	gpio_set_level((int) gpio,
+			status ? (inverted ? 0 : 1) : (inverted ? 1 : 0));
 
 	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
@@ -169,23 +182,23 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 
 				//parameter is status
 				if (gn_common_leaf_event_mask_param(&evt,
-						data->gn_relay_status_param) == 0) {
+								data->gn_relay_status_param) == 0) {
 
 					int _active = atoi(evt.data);
 
 					//notify change
-					gn_leaf_param_set_bool(leaf_config, GN_RELAY_PARAM_STATUS,
+					gn_leaf_param_set_bool(leaf_config, GN_RELAY_PARAM_TOGGLE,
 							_active == 0 ? false : true);
 
 					status = _active;
 
-					ESP_LOGD(TAG, "%s - gpio %d, toggle %d",
+					ESP_LOGD(TAG, "%s - gpio %d, toggle %d, inverted %d",
 							gn_leaf_get_config_name(leaf_config), (int)gpio,
-							status ? 1 : 0);
+							status ? 1 : 0, inverted ? 1 : 0);
 
 					//update sensor using the parameter values
 					if (gn_relay_state == GN_RELAY_STATE_RUNNING) {
-						gpio_set_level((int)gpio, status ? 1 : 0);
+						gpio_set_level((int)gpio, status ? (inverted? 0:1) : (inverted? 1:0));
 					}
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
@@ -193,7 +206,39 @@ void gn_relay_task(gn_leaf_config_handle_t leaf_config) {
 
 						lv_label_set_text(label_status,
 								status ?
-										"status: on" : "status: off");
+								"status: on" : "status: off");
+
+						gn_display_leaf_refresh_end();
+					}
+#endif
+
+				} else if (gn_common_leaf_event_mask_param(&evt,
+						data->gn_relay_inverted_param) == 0
+				) {
+
+					int _inverted = atoi(evt.data);
+
+					//notify change
+					gn_leaf_param_set_bool(leaf_config, GN_RELAY_PARAM_INVERTED,
+					_inverted == 0 ? false : true);
+
+					inverted = _inverted;
+
+					ESP_LOGD(TAG, "%s - gpio %d, toggle %d, inverted %d",
+					gn_leaf_get_config_name(leaf_config), (int)gpio,
+					status ? 1 : 0, inverted ? 1 : 0);
+
+					//update sensor using the parameter values
+					if (gn_relay_state == GN_RELAY_STATE_RUNNING) {
+						gpio_set_level((int)gpio, status ? (inverted? 0:1) : (inverted? 1:0));
+					}
+
+#ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
+					if (pdTRUE == gn_display_leaf_refresh_start()) {
+
+						lv_label_set_text(label_status,
+						status ?
+						"status: on" : "status: off");
 
 						gn_display_leaf_refresh_end();
 					}

@@ -38,22 +38,24 @@ extern "C" {
 
 #include "gn_bme280.h"
 #include "gn_ds18b20.h"
-#include "gn_pump_hs.h"
+#include "gn_pwm.h"
 #include "gn_relay.h"
 #include "gn_capacitive_water_level.h"
 
-#include "gn_watering_control.h"
+#include "gn_hydroboard2_watering_control.h"
 
-#define TAG "gn_leaf_watering_control"
-static const char *HCC = "hcc";
-static const char *WATERPUMPIN = "waterpumpin";
-static const char *PLT_B = "plt_b";
-static const char *PLT_A = "plt_a";
-static const char *BME280 = "bme280";
-static const char *DS18B20 = "ds18b20";
-static const char *WATERLEVELIN = "waterlevelin";
+#define TAG "gn_leaf_hb2_watering_control"
 
-void gn_watering_control_task(gn_leaf_config_handle_t leaf_config);
+static const char *PLT_FAN = "plt_fan";
+static const char *PLT_PUMP = "plt_pump";
+static const char *WAT_PUMP = "wat_pump";
+static const char *PLT_COOL = "plt_b";
+static const char *PLT_HOT = "plt_a";
+static const char *BME280 = "env_thp";
+static const char *DS18B20 = "temps";
+static const char *WAT_LEV = "wat_lev";
+
+void gn_hb2_watering_control_task(gn_leaf_config_handle_t leaf_config);
 
 typedef enum {
 	HCC_HEATING, HCC_COOLING, HCC_OFF
@@ -75,9 +77,10 @@ typedef struct {
 	gn_leaf_config_handle_t leaf_cwl;
 	gn_leaf_config_handle_t leaf_ds18b20;
 	gn_leaf_config_handle_t leaf_bme280;
-	gn_leaf_config_handle_t leaf_plt_a;
-	gn_leaf_config_handle_t leaf_plt_b;
-	gn_leaf_config_handle_t leaf_hcc_pump;
+	gn_leaf_config_handle_t leaf_plt_hot;
+	gn_leaf_config_handle_t leaf_plt_cool;
+	gn_leaf_config_handle_t leaf_plt_pump;
+	gn_leaf_config_handle_t leaf_plt_fan;
 	gn_leaf_config_handle_t leaf_wat_pump;
 
 	gn_hcc_status hcc_cycle;
@@ -86,9 +89,9 @@ typedef struct {
 	gn_wat_status wat_cycle;
 	int64_t wat_cycle_cumulative_time_ms;
 
-} gn_watering_control_data_t;
+} gn_hb2_watering_control_data_t;
 
-gn_leaf_param_validator_result_t _gn_watering_interval_validator(
+gn_leaf_param_validator_result_t _gn_hb2_watering_interval_validator(
 		gn_leaf_param_handle_t param, void **param_value) {
 
 	double val;
@@ -98,13 +101,14 @@ gn_leaf_param_validator_result_t _gn_watering_interval_validator(
 	double _p1 = **(double**) param_value;
 	ESP_LOGD(TAG, "_watering_interval_validator - param: %d", (int )_p1);
 
-	if (MIN_WATERING_INTERVAL > **(double**) param_value) {
-		memcpy(param_value, &MIN_WATERING_INTERVAL,
-				sizeof(MIN_WATERING_INTERVAL));
+	if (GN_HYDROBOARD2_MIN_WATERING_INTERVAL > **(double**) param_value) {
+		memcpy(param_value, &GN_HYDROBOARD2_MIN_WATERING_INTERVAL,
+				sizeof(GN_HYDROBOARD2_MIN_WATERING_INTERVAL));
 		return GN_LEAF_PARAM_VALIDATOR_BELOW_MIN;
-	} else if (MAX_WATERING_INTERVAL < **(double**) param_value) {
-		memcpy(param_value, &MAX_WATERING_INTERVAL,
-				sizeof(MAX_WATERING_INTERVAL));
+	} else if (GN_HYDROBOARD2_MAX_WATERING_INTERVAL
+			< **(double**) param_value) {
+		memcpy(param_value, &GN_HYDROBOARD2_MAX_WATERING_INTERVAL,
+				sizeof(GN_HYDROBOARD2_MAX_WATERING_INTERVAL));
 		return GN_LEAF_PARAM_VALIDATOR_ABOVE_MAX;
 	}
 
@@ -115,7 +119,7 @@ gn_leaf_param_validator_result_t _gn_watering_interval_validator(
 
 }
 
-gn_leaf_param_validator_result_t _gn_watering_time_validator(
+gn_leaf_param_validator_result_t _gn_hb2_watering_time_validator(
 		gn_leaf_param_handle_t param, void **param_value) {
 
 	double val;
@@ -125,11 +129,13 @@ gn_leaf_param_validator_result_t _gn_watering_time_validator(
 	double _p1 = **(double**) param_value;
 	ESP_LOGD(TAG, "_watering_time_validator - param: %d", (int )_p1);
 
-	if (MIN_WATERING_TIME > **(double**) param_value) {
-		memcpy(param_value, &MIN_WATERING_TIME, sizeof(MIN_WATERING_TIME));
+	if (GN_HYDROBOARD2_MIN_WATERING_TIME > **(double**) param_value) {
+		memcpy(param_value, &GN_HYDROBOARD2_MIN_WATERING_TIME,
+				sizeof(GN_HYDROBOARD2_MIN_WATERING_TIME));
 		return GN_LEAF_PARAM_VALIDATOR_BELOW_MIN;
-	} else if (MAX_WATERING_TIME < **(double**) param_value) {
-		memcpy(param_value, &MIN_WATERING_TIME, sizeof(MAX_WATERING_TIME));
+	} else if (GN_HYDROBOARD2_MAX_WATERING_TIME < **(double**) param_value) {
+		memcpy(param_value, &GN_HYDROBOARD2_MAX_WATERING_TIME,
+				sizeof(GN_HYDROBOARD2_MAX_WATERING_TIME));
 		return GN_LEAF_PARAM_VALIDATOR_ABOVE_MAX;
 	}
 
@@ -140,7 +146,7 @@ gn_leaf_param_validator_result_t _gn_watering_time_validator(
 
 }
 
-gn_leaf_param_validator_result_t _gn_watering_target_temp_validator(
+gn_leaf_param_validator_result_t _gn_hb2_watering_target_temp_validator(
 		gn_leaf_param_handle_t param, void **param_value) {
 
 	double val;
@@ -150,13 +156,14 @@ gn_leaf_param_validator_result_t _gn_watering_target_temp_validator(
 	double _p1 = **(double**) param_value;
 	ESP_LOGD(TAG, "_watering_temp_validator - param: %d", (int )_p1);
 
-	if (MIN_WATERING_TIME > **(double**) param_value) {
-		memcpy(param_value, &MIN_WATERING_TARGET_TEMP,
-				sizeof(MIN_WATERING_TARGET_TEMP));
+	if (GN_HYDROBOARD2_MIN_WATERING_TARGET_TEMP > **(double**) param_value) {
+		memcpy(param_value, &GN_HYDROBOARD2_MIN_WATERING_TARGET_TEMP,
+				sizeof(GN_HYDROBOARD2_MIN_WATERING_TARGET_TEMP));
 		return GN_LEAF_PARAM_VALIDATOR_BELOW_MIN;
-	} else if (MAX_WATERING_TIME < **(double**) param_value) {
-		memcpy(param_value, &MAX_WATERING_TARGET_TEMP,
-				sizeof(MAX_WATERING_TARGET_TEMP));
+	} else if (GN_HYDROBOARD2_MAX_WATERING_TARGET_TEMP
+			< **(double**) param_value) {
+		memcpy(param_value, &GN_HYDROBOARD2_MAX_WATERING_TARGET_TEMP,
+				sizeof(GN_HYDROBOARD2_MAX_WATERING_TARGET_TEMP));
 
 		return GN_LEAF_PARAM_VALIDATOR_ABOVE_MAX;
 	}
@@ -168,38 +175,44 @@ gn_leaf_param_validator_result_t _gn_watering_target_temp_validator(
 
 }
 
-inline static void _gn_watering_control_stop_watering(
-		gn_watering_control_data_t *data) {
+inline static void _gn_hb2_watering_control_stop_watering(
+		gn_hb2_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Stop Watering Cycle");
-	gn_leaf_param_send_bool(data->leaf_wat_pump, GN_RELAY_PARAM_TOGGLE, false);
+	gn_leaf_param_send_bool(data->leaf_wat_pump, GN_LEAF_PWM_PARAM_TOGGLE,
+	false);
 	data->wat_cycle = WAT_OFF;
 	data->wat_cycle_cumulative_time_ms = 0;
 }
 
-inline static void _gn_watering_control_start_watering(
-		gn_watering_control_data_t *data) {
+inline static void _gn_hb2_watering_control_start_watering(
+		gn_hb2_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Start Watering Cycle");
-	gn_leaf_param_send_bool(data->leaf_wat_pump, GN_RELAY_PARAM_TOGGLE, true);
+	gn_leaf_param_send_bool(data->leaf_wat_pump, GN_LEAF_PWM_PARAM_TOGGLE,
+	true);
 	data->wat_cycle = WAT_ON;
 	data->wat_cycle_cumulative_time_ms = 0;
 }
 
-inline static void _gn_watering_control_stop_hcc(
-		gn_watering_control_data_t *data) {
+inline static void _gn_hb2_watering_control_stop_hcc(
+		gn_hb2_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Stop Water Temp Setup Cycle");
-	gn_leaf_param_send_bool(data->leaf_plt_a, GN_RELAY_PARAM_TOGGLE, false);
-	gn_leaf_param_send_bool(data->leaf_plt_b, GN_RELAY_PARAM_TOGGLE, false);
-	gn_leaf_param_send_bool(data->leaf_hcc_pump, GN_PUMP_HS_PARAM_TOGGLE,
+	gn_leaf_param_send_bool(data->leaf_plt_hot, GN_RELAY_PARAM_TOGGLE, false);
+	gn_leaf_param_send_bool(data->leaf_plt_cool, GN_RELAY_PARAM_TOGGLE, false);
+	gn_leaf_param_send_bool(data->leaf_plt_pump, GN_LEAF_PWM_PARAM_TOGGLE,
+	false);
+	gn_leaf_param_send_bool(data->leaf_plt_fan, GN_LEAF_PWM_PARAM_TOGGLE,
 	false);
 	data->hcc_cycle = HCC_OFF;
 }
 
-inline static void _gn_watering_control_start_hcc_heating(
-		gn_watering_control_data_t *data) {
+inline static void _gn_hb2_watering_control_start_hcc_heating(
+		gn_hb2_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Start Heating Cycle");
-	gn_leaf_param_send_bool(data->leaf_plt_a, GN_RELAY_PARAM_TOGGLE, false);
-	gn_leaf_param_send_bool(data->leaf_plt_b, GN_RELAY_PARAM_TOGGLE, true);
-	gn_leaf_param_send_bool(data->leaf_hcc_pump, GN_PUMP_HS_PARAM_TOGGLE, true);
+	gn_leaf_param_send_bool(data->leaf_plt_hot, GN_RELAY_PARAM_TOGGLE, true);
+	gn_leaf_param_send_bool(data->leaf_plt_cool, GN_RELAY_PARAM_TOGGLE, false);
+	gn_leaf_param_send_bool(data->leaf_plt_pump, GN_LEAF_PWM_PARAM_TOGGLE,
+	true);
+	gn_leaf_param_send_bool(data->leaf_plt_fan, GN_LEAF_PWM_PARAM_TOGGLE, true);
 	data->hcc_cycle = HCC_HEATING;
 	//store time of start water temp control cycle
 	struct timeval tv_now;
@@ -209,13 +222,14 @@ inline static void _gn_watering_control_start_hcc_heating(
 
 }
 
-inline static void _gn_watering_control_start_hcc_cooling(
-		gn_watering_control_data_t *data) {
+inline static void _gn_hb2_watering_control_start_hcc_cooling(
+		gn_hb2_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Start Cooling Cycle");
-	gn_leaf_param_send_bool(data->leaf_plt_a, GN_RELAY_PARAM_TOGGLE, true);
-	gn_leaf_param_send_bool(data->leaf_plt_b, GN_RELAY_PARAM_TOGGLE, false);
-
-	gn_leaf_param_send_bool(data->leaf_hcc_pump, GN_PUMP_HS_PARAM_TOGGLE, true);
+	gn_leaf_param_send_bool(data->leaf_plt_hot, GN_RELAY_PARAM_TOGGLE, false);
+	gn_leaf_param_send_bool(data->leaf_plt_cool, GN_RELAY_PARAM_TOGGLE, true);
+	gn_leaf_param_send_bool(data->leaf_plt_pump, GN_LEAF_PWM_PARAM_TOGGLE,
+	true);
+	gn_leaf_param_send_bool(data->leaf_plt_fan, GN_LEAF_PWM_PARAM_TOGGLE, true);
 	data->hcc_cycle = HCC_COOLING;
 	//store time of start water temp control cycle
 	struct timeval tv_now;
@@ -225,34 +239,34 @@ inline static void _gn_watering_control_start_hcc_cooling(
 
 }
 
-inline static bool _gn_watering_control_hcc_temp_low(double p_wat_temp,
+inline static bool _gn_hb2_watering_control_hcc_temp_low(double p_wat_temp,
 		double p_wat_t_temp) {
 	//ESP_LOGD(TAG, "_gn_watering_control_hcc_temp_low. Actual: %f, Target %f",
 	//		p_wat_temp, p_wat_t_temp);
 	return p_wat_temp < (p_wat_t_temp - 1);
 }
 
-inline static bool _gn_watering_control_hcc_temp_high(double p_wat_temp,
+inline static bool _gn_hb2_watering_control_hcc_temp_high(double p_wat_temp,
 		double p_wat_t_temp) {
 	//ESP_LOGD(TAG, "_gn_watering_control_hcc_temp_high. Actual: %f, Target %f",
 	//		p_wat_temp, p_wat_t_temp);
 	return p_wat_temp > (p_wat_t_temp + 1);
 }
 
-inline static bool _gn_watering_control_hcc_temp_ok(double p_wat_temp,
+inline static bool _gn_hb2_watering_control_hcc_temp_ok(double p_wat_temp,
 		double p_wat_t_temp) {
-	return (!_gn_watering_control_hcc_temp_low(p_wat_temp, p_wat_t_temp)
-			&& !_gn_watering_control_hcc_temp_high(p_wat_temp, p_wat_t_temp));
+	return (!_gn_hb2_watering_control_hcc_temp_low(p_wat_temp, p_wat_t_temp)
+			&& !_gn_hb2_watering_control_hcc_temp_high(p_wat_temp, p_wat_t_temp));
 }
 
-void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
+void _gn_hb2_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 
-	ESP_LOGD(TAG, "_gn_watering_callback");
+	ESP_LOGD(TAG, "_gn_hb2_watering_callback");
 
 	//retrieves status descriptor from config
 	gn_leaf_descriptor_handle_t descriptor = gn_leaf_get_descriptor(
 			leaf_config);
-	gn_watering_control_data_t *data = descriptor->data;
+	gn_hb2_watering_control_data_t *data = descriptor->data;
 
 	if (data->wat_cycle != WAT_WAIT) {
 		ESP_LOGW(TAG,
@@ -284,8 +298,8 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 	bool p_plt_a_status = false;
 	bool p_plt_b_status = false;
 
-	bool p_hcc_toggle = false;
-	double p_hcc_power = 0;
+	bool p_plt_pump_toggle = false;
+	double p_plt_pump_power = 0;
 
 	bool p_wat_pump = false;
 
@@ -294,7 +308,7 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 
 	//gets watering interval, out of the loop to configure it
 	ret = gn_leaf_param_get_double(leaf_config,
-			GN_WAT_CTR_PARAM_WATERING_INTERVAL_SEC, &p_wat_int_sec);
+			GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_INTERVAL_SEC, &p_wat_int_sec);
 	if (ret != GN_RET_OK) {
 		gn_log(TAG, GN_LOG_ERROR, "watering interval not found");
 	}
@@ -306,8 +320,8 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 
 		data->wat_cycle = WAT_OFF;
 
-		ret = gn_leaf_param_get_bool(leaf_config, GN_WAT_CTR_PARAM_ACTIVE,
-				&p_wat_active);
+		ret = gn_leaf_param_get_bool(leaf_config,
+				GN_HYDROBOARD2_WAT_CTR_PARAM_ACTIVE, &p_wat_active);
 		if (ret != GN_RET_OK) {
 			gn_log(TAG, GN_LOG_ERROR,
 					"watering cycle active parameter not found");
@@ -317,8 +331,8 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 		while (p_wat_active) {
 
 			//check if watering interval is true
-			ret = gn_leaf_param_get_bool(leaf_config, GN_WAT_CTR_PARAM_ACTIVE,
-					&p_wat_active);
+			ret = gn_leaf_param_get_bool(leaf_config,
+					GN_HYDROBOARD2_WAT_CTR_PARAM_ACTIVE, &p_wat_active);
 			if (ret != GN_RET_OK) {
 				gn_log(TAG, GN_LOG_ERROR,
 						"watering cycle active parameter not found");
@@ -326,7 +340,8 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 
 			//gets watering interval
 			ret = gn_leaf_param_get_double(leaf_config,
-					GN_WAT_CTR_PARAM_WATERING_INTERVAL_SEC, &p_wat_int_sec);
+					GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_INTERVAL_SEC,
+					&p_wat_int_sec);
 			if (ret != GN_RET_OK) {
 				gn_log(TAG, GN_LOG_ERROR, "watering interval not found");
 				break;
@@ -334,7 +349,8 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 
 			//gets watering time
 			ret = gn_leaf_param_get_double(leaf_config,
-					GN_WAT_CTR_PARAM_WATERING_TIME_SEC, &p_wat_time_sec);
+					GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TIME_SEC,
+					&p_wat_time_sec);
 			if (ret != GN_RET_OK) {
 				gn_log(TAG, GN_LOG_ERROR, "watering time not found");
 				break;
@@ -342,15 +358,16 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 
 			//gets watering target temp
 			ret = gn_leaf_param_get_double(leaf_config,
-					GN_WAT_CTR_PARAM_WATERING_TARGET_TEMP, &p_wat_t_temp);
+					GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TARGET_TEMP,
+					&p_wat_t_temp);
 			if (ret != GN_RET_OK) {
 				gn_log(TAG, GN_LOG_ERROR, "watering target temp not found");
 				break;
 			}
 
 			//gets water level sensor active
-			ret = gn_leaf_param_get_bool(leaf_config, GN_WAT_CTR_PARAM_ACTIVE,
-					&p_cwl_active);
+			ret = gn_leaf_param_get_bool(leaf_config,
+					GN_HYDROBOARD2_WAT_CTR_PARAM_ACTIVE, &p_cwl_active);
 			if (ret != GN_RET_OK) {
 				gn_log(TAG, GN_LOG_ERROR,
 						"watering level active flag not found");
@@ -426,7 +443,7 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 			}
 
 			//gets peltier A status
-			ret = gn_leaf_param_get_bool(data->leaf_plt_a,
+			ret = gn_leaf_param_get_bool(data->leaf_plt_hot,
 					GN_RELAY_PARAM_TOGGLE, &p_plt_a_status);
 			if (ret != GN_RET_OK) {
 				gn_log(TAG, GN_LOG_ERROR, "peltier A status not found");
@@ -434,7 +451,7 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 			}
 
 			//gets peltier B status
-			ret = gn_leaf_param_get_bool(data->leaf_plt_b,
+			ret = gn_leaf_param_get_bool(data->leaf_plt_cool,
 					GN_RELAY_PARAM_TOGGLE, &p_plt_b_status);
 			if (ret != GN_RET_OK) {
 				gn_log(TAG, GN_LOG_ERROR, "peltier B status not found");
@@ -443,23 +460,23 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 
 			//gets water pump status
 			ret = gn_leaf_param_get_bool(data->leaf_wat_pump,
-					GN_RELAY_PARAM_TOGGLE, &p_wat_pump);
+					GN_LEAF_PWM_PARAM_TOGGLE, &p_wat_pump);
 			if (ret != GN_RET_OK) {
 				gn_log(TAG, GN_LOG_ERROR, "water pump status not found");
 				break;
 			}
 
-			//gets hcc pump status
-			ret = gn_leaf_param_get_bool(data->leaf_hcc_pump,
-					GN_PUMP_HS_PARAM_TOGGLE, &p_hcc_toggle);
+			//gets plt pump status
+			ret = gn_leaf_param_get_bool(data->leaf_plt_pump,
+					GN_LEAF_PWM_PARAM_TOGGLE, &p_plt_pump_toggle);
 			if (ret != GN_RET_OK) {
 				gn_log(TAG, GN_LOG_ERROR, "hcc pump status not found");
 				break;
 			}
 
 			//gets hcc power status
-			ret = gn_leaf_param_get_double(data->leaf_hcc_pump,
-					GN_PUMP_HS_PARAM_POWER, &p_hcc_power);
+			ret = gn_leaf_param_get_double(data->leaf_plt_pump,
+					GN_LEAF_PWM_PARAM_POWER, &p_plt_pump_power);
 			if (ret != GN_RET_OK) {
 				gn_log(TAG, GN_LOG_ERROR, "hcc pump power not found");
 				break;
@@ -472,8 +489,8 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 			//if some of the sensors are not active, stop every operation and exit
 			if (!p_cwl_active || !p_ds18b20_temp_active) {
 				gn_log(TAG, GN_LOG_WARNING, "Sensors not active");
-				_gn_watering_control_stop_hcc(data);
-				_gn_watering_control_stop_watering(data);
+				_gn_hb2_watering_control_stop_hcc(data);
+				_gn_hb2_watering_control_stop_watering(data);
 				break;
 
 			}
@@ -482,44 +499,44 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 			if (p_cwl_trg_low == true) {
 				gn_log(TAG, GN_LOG_WARNING,
 						"Not Enough Water to start watering cycle");
-				_gn_watering_control_stop_hcc(data);
-				_gn_watering_control_stop_watering(data);
+				_gn_hb2_watering_control_stop_hcc(data);
+				_gn_hb2_watering_control_stop_watering(data);
 				break;
 
 			} else if (p_cwl_trg_high == true) {
 				gn_log(TAG, GN_LOG_WARNING,
 						"Water level too high to start watering cycle");
-				_gn_watering_control_stop_hcc(data);
-				_gn_watering_control_stop_watering(data);
+				_gn_hb2_watering_control_stop_hcc(data);
+				_gn_hb2_watering_control_stop_watering(data);
 				break;
 
 			}
 
 			//check need of cooling
 			if (data->hcc_cycle != HCC_COOLING
-					&& _gn_watering_control_hcc_temp_high(p_wat_temp,
+					&& _gn_hb2_watering_control_hcc_temp_high(p_wat_temp,
 							p_wat_t_temp)) {
-				_gn_watering_control_start_hcc_cooling(data);
+				_gn_hb2_watering_control_start_hcc_cooling(data);
 			}
 
 			//check need of heating
 			if (data->hcc_cycle != HCC_HEATING
-					&& _gn_watering_control_hcc_temp_low(p_wat_temp,
+					&& _gn_hb2_watering_control_hcc_temp_low(p_wat_temp,
 							p_wat_t_temp)) {
-				_gn_watering_control_start_hcc_heating(data);
+				_gn_hb2_watering_control_start_hcc_heating(data);
 			}
 
 			// make sure to return to normal parameter if temp within target
 			if (data->hcc_cycle != HCC_OFF
-					&& _gn_watering_control_hcc_temp_ok(p_wat_temp,
+					&& _gn_hb2_watering_control_hcc_temp_ok(p_wat_temp,
 							p_wat_t_temp)) {
-				_gn_watering_control_stop_hcc(data);
+				_gn_hb2_watering_control_stop_hcc(data);
 			}
 
 			//if water temp into normal threshold then start watering
-			if (_gn_watering_control_hcc_temp_ok(p_wat_temp, p_wat_t_temp)
+			if (_gn_hb2_watering_control_hcc_temp_ok(p_wat_temp, p_wat_t_temp)
 					&& data->wat_cycle == WAT_OFF) {
-				_gn_watering_control_start_watering(data);
+				_gn_hb2_watering_control_start_watering(data);
 			}
 
 			//check if water temp climate time is below maximum time
@@ -532,11 +549,12 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 
 				//check last hcc activation
 				if ((time_us - data->hcc_cycle_start)
-						> (((int64_t) MAX_HCC_CYCLE_TIME_SEC) * 1000000L)) {
+						> (((int64_t) GN_HYDROBOARD2_MAX_HCC_CYCLE_TIME_SEC)
+								* 1000000L)) {
 					gn_log(TAG, GN_LOG_INFO,
 							"Maximum Water Temp Climate Cycle (%l) reached, ending",
-							MAX_HCC_CYCLE_TIME_SEC);
-					_gn_watering_control_stop_hcc(data);
+							GN_HYDROBOARD2_MAX_HCC_CYCLE_TIME_SEC);
+					_gn_hb2_watering_control_stop_hcc(data);
 					break;
 				}
 
@@ -544,7 +562,8 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 
 			//add time to the watering time
 			if (data->wat_cycle == WAT_ON) {
-				data->wat_cycle_cumulative_time_ms += GN_WAT_CTR_CYCLE_TIME_MS;
+				data->wat_cycle_cumulative_time_ms +=
+						GN_HYDROBOARD2_WAT_CTR_CYCLE_TIME_MS;
 				ESP_LOGD(TAG, "Cumulative time (msec): %llu",
 						data->wat_cycle_cumulative_time_ms);
 			}
@@ -554,12 +573,13 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 				gn_log(TAG, GN_LOG_INFO,
 						"Maximum Watering time (%l) reached, ending",
 						p_wat_time_sec);
-				_gn_watering_control_stop_watering(data);
+				_gn_hb2_watering_control_stop_watering(data);
 				break;
 			}
 
 			//wait until next cycle
-			vTaskDelay(GN_WAT_CTR_CYCLE_TIME_MS / portTICK_PERIOD_MS);
+			vTaskDelay(
+					GN_HYDROBOARD2_WAT_CTR_CYCLE_TIME_MS / portTICK_PERIOD_MS);
 
 		}
 
@@ -582,21 +602,21 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
  }
  */
 
-gn_leaf_descriptor_handle_t gn_watering_control_config(
+gn_leaf_descriptor_handle_t gn_hb2_watering_control_config(
 		gn_leaf_config_handle_t leaf_config) {
 
 	gn_leaf_descriptor_handle_t descriptor =
 			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
-	strncpy(descriptor->type, GN_LEAF_WATERING_CONTROL_TYPE,
+	strncpy(descriptor->type, GN_LEAF_HYDROBOARD2_WATERING_CONTROL_TYPE,
 	GN_LEAF_DESC_TYPE_SIZE);
-	descriptor->callback = gn_watering_control_task;
+	descriptor->callback = gn_hb2_watering_control_task;
 	descriptor->status = GN_LEAF_STATUS_NOT_INITIALIZED;
 	descriptor->data = NULL;
 
 	gn_node_config_handle_t node_config = gn_leaf_get_node_config(leaf_config);
 
-	gn_watering_control_data_t *data = malloc(
-			sizeof(gn_watering_control_data_t));
+	gn_hb2_watering_control_data_t *data = malloc(
+			sizeof(gn_hb2_watering_control_data_t));
 
 	data->wat_cycle = WAT_WAIT;
 	data->wat_cycle_cumulative_time_ms = 0;
@@ -604,31 +624,33 @@ gn_leaf_descriptor_handle_t gn_watering_control_config(
 	data->hcc_cycle_start = 0;
 
 	data->param_watering_time = gn_leaf_param_create(leaf_config,
-			GN_WAT_CTR_PARAM_WATERING_TIME_SEC, GN_VAL_TYPE_DOUBLE,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TIME_SEC, GN_VAL_TYPE_DOUBLE,
 			(gn_val_t ) { .d = 20 }, GN_LEAF_PARAM_ACCESS_WRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED, _gn_watering_time_validator);
+			GN_LEAF_PARAM_STORAGE_PERSISTED, _gn_hb2_watering_time_validator);
 	gn_leaf_param_add(leaf_config, data->param_watering_time);
 
 	data->param_watering_interval = gn_leaf_param_create(leaf_config,
-			GN_WAT_CTR_PARAM_WATERING_INTERVAL_SEC, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 60 * 60 }, GN_LEAF_PARAM_ACCESS_WRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED, _gn_watering_interval_validator);
+			GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_INTERVAL_SEC,
+			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 60 * 60 },
+			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED,
+			_gn_hb2_watering_interval_validator);
 	gn_leaf_param_add(leaf_config, data->param_watering_interval);
 
 	data->param_watering_t_temp = gn_leaf_param_create(leaf_config,
-			GN_WAT_CTR_PARAM_WATERING_TARGET_TEMP, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 22 }, GN_LEAF_PARAM_ACCESS_WRITE,
-			GN_LEAF_PARAM_STORAGE_PERSISTED,
-			_gn_watering_target_temp_validator);
+			GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TARGET_TEMP,
+			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 22 },
+			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED,
+			_gn_hb2_watering_target_temp_validator);
 	gn_leaf_param_add(leaf_config, data->param_watering_t_temp);
 
 	data->param_active = gn_leaf_param_create(leaf_config,
-			GN_WAT_CTR_PARAM_ACTIVE, GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b =
+			GN_HYDROBOARD2_WAT_CTR_PARAM_ACTIVE, GN_VAL_TYPE_BOOLEAN,
+			(gn_val_t ) { .b =
 					false }, GN_LEAF_PARAM_ACCESS_READWRITE,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->param_active);
 
-	data->leaf_cwl = gn_leaf_get_config_handle(node_config, WATERLEVELIN);
+	data->leaf_cwl = gn_leaf_get_config_handle(node_config, WAT_LEV);
 	if (data->leaf_cwl == NULL) {
 		gn_log(TAG, GN_LOG_ERROR, "not possible to find cwl leaf");
 		goto fail;
@@ -646,25 +668,31 @@ gn_leaf_descriptor_handle_t gn_watering_control_config(
 		goto fail;
 	}
 
-	data->leaf_plt_a = gn_leaf_get_config_handle(node_config, PLT_A);
-	if (data->leaf_plt_a == NULL) {
+	data->leaf_plt_hot = gn_leaf_get_config_handle(node_config, PLT_HOT);
+	if (data->leaf_plt_hot == NULL) {
 		gn_log(TAG, GN_LOG_ERROR, "not possible to find plt_a leaf");
 		goto fail;
 	}
 
-	data->leaf_plt_b = gn_leaf_get_config_handle(node_config, PLT_B);
-	if (data->leaf_plt_b == NULL) {
+	data->leaf_plt_cool = gn_leaf_get_config_handle(node_config, PLT_COOL);
+	if (data->leaf_plt_cool == NULL) {
 		gn_log(TAG, GN_LOG_ERROR, "not possible to find plt_b leaf");
 		goto fail;
 	}
 
-	data->leaf_hcc_pump = gn_leaf_get_config_handle(node_config, HCC);
-	if (data->leaf_hcc_pump == NULL) {
+	data->leaf_plt_pump = gn_leaf_get_config_handle(node_config, PLT_PUMP);
+	if (data->leaf_plt_pump == NULL) {
 		gn_log(TAG, GN_LOG_ERROR, "not possible to find hcc_pump leaf");
 		goto fail;
 	}
 
-	data->leaf_wat_pump = gn_leaf_get_config_handle(node_config, WATERPUMPIN);
+	data->leaf_plt_fan = gn_leaf_get_config_handle(node_config, PLT_FAN);
+	if (data->leaf_plt_fan == NULL) {
+		gn_log(TAG, GN_LOG_ERROR, "not possible to find plt_fan leaf");
+		goto fail;
+	}
+
+	data->leaf_wat_pump = gn_leaf_get_config_handle(node_config, WAT_PUMP);
 	if (data->leaf_wat_pump == NULL) {
 		gn_log(TAG, GN_LOG_ERROR, "not possible to find wat_pump leaf");
 		goto fail;
@@ -681,9 +709,9 @@ gn_leaf_descriptor_handle_t gn_watering_control_config(
 
 }
 
-void gn_watering_control_task(gn_leaf_config_handle_t leaf_config) {
+void gn_hb2_watering_control_task(gn_leaf_config_handle_t leaf_config) {
 
-	ESP_LOGD(TAG, "%s - gn_watering_control_task",
+	ESP_LOGD(TAG, "%s - gn_hb2_watering_control_task",
 			gn_leaf_get_config_name(leaf_config));
 
 	gn_leaf_parameter_event_t evt;
@@ -691,16 +719,17 @@ void gn_watering_control_task(gn_leaf_config_handle_t leaf_config) {
 	//retrieves status descriptor from config
 	gn_leaf_descriptor_handle_t descriptor = gn_leaf_get_descriptor(
 			leaf_config);
-	gn_watering_control_data_t *data = descriptor->data;
+	gn_hb2_watering_control_data_t *data = descriptor->data;
 
 	gn_leaf_event_subscribe(leaf_config, GN_LEAF_PARAM_CHANGED_EVENT);
 
 	double p_wat_int_sec;
 	gn_leaf_param_get_double(leaf_config,
-			GN_WAT_CTR_PARAM_WATERING_INTERVAL_SEC, &p_wat_int_sec);
+			GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_INTERVAL_SEC, &p_wat_int_sec);
 
 	bool p_active;
-	gn_leaf_param_get_bool(leaf_config, GN_WAT_CTR_PARAM_ACTIVE, &p_active);
+	gn_leaf_param_get_bool(leaf_config, GN_HYDROBOARD2_WAT_CTR_PARAM_ACTIVE,
+			&p_active);
 
 	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
@@ -734,8 +763,8 @@ void gn_watering_control_task(gn_leaf_config_handle_t leaf_config) {
 
 #endif
 
-	xTaskCreate((void*) _gn_watering_callback_intl,
-			"_gn_watering_callback_intl", 4096, leaf_config, 1, NULL);
+	xTaskCreate((void*) _gn_hb2_watering_callback_intl,
+			"_gn_hb2_watering_callback_intl", 4096, leaf_config, 1, NULL);
 
 	//task cycle
 	while (true) {
@@ -759,10 +788,10 @@ void gn_watering_control_task(gn_leaf_config_handle_t leaf_config) {
 				if (gn_common_leaf_event_mask_param(&evt,
 						data->param_watering_interval) == 0) {
 					gn_leaf_param_set_double(leaf_config,
-							GN_WAT_CTR_PARAM_WATERING_INTERVAL_SEC,
+							GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_INTERVAL_SEC,
 							(double) atof(evt.data));
 					gn_leaf_param_get_double(leaf_config,
-							GN_WAT_CTR_PARAM_WATERING_INTERVAL_SEC,
+							GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_INTERVAL_SEC,
 							&p_wat_int_sec);
 					//esp_timer_stop(data->watering_timer);
 					//esp_timer_start_periodic(data->watering_timer,
@@ -770,20 +799,25 @@ void gn_watering_control_task(gn_leaf_config_handle_t leaf_config) {
 				} else
 				//parameter is watering time
 				if (gn_common_leaf_event_mask_param(&evt,
+						data->param_watering_time) == 0) {
+					gn_leaf_param_set_double(leaf_config,
+							GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TIME_SEC,
+							(double) atof(evt.data));
+				} else if (gn_common_leaf_event_mask_param(&evt,
 						data->param_watering_t_temp) == 0) {
 					gn_leaf_param_set_double(leaf_config,
-							GN_WAT_CTR_PARAM_WATERING_TARGET_TEMP,
+							GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TARGET_TEMP,
 							(double) atof(evt.data));
 				} else
 				//parameter is active
 				if (gn_common_leaf_event_mask_param(&evt, data->param_active)
 						== 0) {
 
-					bool prev_active = p_active;
 					int _active = atoi(evt.data);
 
 					//execute change
-					gn_leaf_param_set_bool(leaf_config, GN_WAT_CTR_PARAM_ACTIVE,
+					gn_leaf_param_set_bool(leaf_config,
+							GN_HYDROBOARD2_WAT_CTR_PARAM_ACTIVE,
 							_active == 0 ? false : true);
 
 					p_active = _active;
@@ -818,42 +852,6 @@ void gn_watering_control_task(gn_leaf_config_handle_t leaf_config) {
 	}
 
 }
-
-// workflow (into task loop)
-
-//if time to water
-
-//start watering task
-
-//check water temperature
-
-//start water temperature management loop
-
-//if not enough water - send error and end of cycle
-
-//if out of allowable range - send error and end of cycle
-
-//if out of maximum watering time - send error and end of cycle
-
-//if temperature not suitable for watering, enable peltier and climate control pump and add time
-
-//if suitable for watering
-
-//enable watering pump
-
-//add time to the watering time
-
-//if watering time is enough - end of cycle
-
-//check parameter update
-
-//check temperature treshold
-
-//check time between irrigation
-
-//check irrigation duration
-
-//check manual override to start or stop irrigation
 
 #ifdef __cplusplus
 }

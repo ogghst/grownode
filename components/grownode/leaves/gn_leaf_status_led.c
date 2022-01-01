@@ -69,9 +69,9 @@ void blink(int gpio, int time, int blinks) {
 			blinks);
 
 	for (int i = 0; i < blinks; i++) {
-		gpio_set_level((int) gpio, 1);
-		vTaskDelay(time / portTICK_PERIOD_MS);
 		gpio_set_level((int) gpio, 0);
+		vTaskDelay(time / portTICK_PERIOD_MS);
+		gpio_set_level((int) gpio, 1);
 		vTaskDelay(time / portTICK_PERIOD_MS);
 	}
 
@@ -114,7 +114,7 @@ void gn_leaf_status_led_task(gn_leaf_config_handle_t leaf_config) {
 
 //setup led
 	gpio_set_direction((int) gpio, GPIO_MODE_OUTPUT);
-	gpio_set_level((int) gpio, 0);
+	gpio_set_level((int) gpio, 1);
 
 //register for events
 	ESP_ERROR_CHECK(

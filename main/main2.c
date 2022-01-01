@@ -54,27 +54,27 @@ void app_main(void) {
 	gn_leaf_config_handle_t lights1in = gn_leaf_create(node, "lights1in",
 			gn_relay_task, 4096);
 	gn_leaf_param_init_double(lights1in, GN_RELAY_PARAM_GPIO, 25);
-	gn_leaf_param_init_bool(lights1in, GN_RELAY_PARAM_STATUS, false);
+	gn_leaf_param_init_bool(lights1in, GN_RELAY_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t lights2in = gn_leaf_create(node, "lights2in",
 			gn_relay_task, 4096);
 	gn_leaf_param_init_double(lights2in, GN_RELAY_PARAM_GPIO, 33);
-	gn_leaf_param_init_bool(lights2in, GN_RELAY_PARAM_STATUS, false);
+	gn_leaf_param_init_bool(lights2in, GN_RELAY_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t pltonoffin = gn_leaf_create(node, "pltonoffin",
 			gn_relay_task, 4096);
 	gn_leaf_param_init_double(pltonoffin, GN_RELAY_PARAM_GPIO, 23);
-	gn_leaf_param_init_bool(pltonoffin, GN_RELAY_PARAM_STATUS, false);
+	gn_leaf_param_init_bool(pltonoffin, GN_RELAY_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t pltin = gn_leaf_create(node, "pltin", gn_relay_task,
 			4096);
 	gn_leaf_param_init_double(pltin, GN_RELAY_PARAM_GPIO, 5);
-	gn_leaf_param_init_bool(pltin, GN_RELAY_PARAM_STATUS, false);
+	gn_leaf_param_init_bool(pltin, GN_RELAY_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t waterpumpin = gn_leaf_create(node, "waterpumpin",
 			gn_relay_task, 4096);
 	gn_leaf_param_init_double(waterpumpin, GN_RELAY_PARAM_GPIO, 17);
-	gn_leaf_param_init_bool(waterpumpin, GN_RELAY_PARAM_STATUS, false);
+	gn_leaf_param_init_bool(waterpumpin, GN_RELAY_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t waterlevelin = gn_leaf_create(node, "waterlevelin",
 			gn_capacitive_water_level_task, 4096);
@@ -84,7 +84,7 @@ void app_main(void) {
 	gn_leaf_config_handle_t hcc_in = gn_leaf_create(node, "hcc_in",
 			gn_relay_task, 4096);
 	gn_leaf_param_init_double(hcc_in, GN_RELAY_PARAM_GPIO, 26);
-	gn_leaf_param_init_bool(hcc_in, GN_RELAY_PARAM_STATUS, false);
+	gn_leaf_param_init_bool(hcc_in, GN_RELAY_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t hcc_speed = gn_leaf_create(node, "hcc_speed",
 			gn_pump_task, 4096);
@@ -95,7 +95,7 @@ void app_main(void) {
 	gn_leaf_config_handle_t fan_in = gn_leaf_create(node, "fan_in",
 			gn_relay_task, 4096);
 	gn_leaf_param_init_double(fan_in, GN_RELAY_PARAM_GPIO, 27);
-	gn_leaf_param_init_bool(fan_in, GN_RELAY_PARAM_STATUS, false);
+	gn_leaf_param_init_bool(fan_in, GN_RELAY_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t fan_speed = gn_leaf_create(node, "fan_speed",
 			gn_pump_task, 4096);

@@ -35,27 +35,27 @@ void gn_configure_hydroboard1(gn_node_config_handle_t node) {
 	gn_leaf_config_handle_t lights1in = gn_leaf_create(node, "lights1in",
 			gn_relay_config, 4096);
 	gn_leaf_param_init_double(lights1in, GN_RELAY_PARAM_GPIO, 25);
-	gn_leaf_param_init_bool(lights1in, GN_RELAY_PARAM_STATUS, false);
+	gn_leaf_param_init_bool(lights1in, GN_RELAY_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t lights2in = gn_leaf_create(node, "lights2in",
 			gn_relay_config, 4096);
 	gn_leaf_param_init_double(lights2in, GN_RELAY_PARAM_GPIO, 5);
-	gn_leaf_param_init_bool(lights2in, GN_RELAY_PARAM_STATUS, false);
+	gn_leaf_param_init_bool(lights2in, GN_RELAY_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t plt_a = gn_leaf_create(node, "plt_a",
 			gn_relay_config, 4096);
 	gn_leaf_param_init_double(plt_a, GN_RELAY_PARAM_GPIO, 23);
-	gn_leaf_param_init_bool(plt_a, GN_RELAY_PARAM_STATUS, false);
+	gn_leaf_param_init_bool(plt_a, GN_RELAY_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t plt_b = gn_leaf_create(node, "plt_b",
 			gn_relay_config, 4096);
 	gn_leaf_param_init_double(plt_b, GN_RELAY_PARAM_GPIO, 17);
-	gn_leaf_param_init_bool(plt_b, GN_RELAY_PARAM_STATUS, false);
+	gn_leaf_param_init_bool(plt_b, GN_RELAY_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t waterpumpin = gn_leaf_create(node, "waterpumpin",
 			gn_relay_config, 4096);
 	gn_leaf_param_init_double(waterpumpin, GN_RELAY_PARAM_GPIO, 19);
-	gn_leaf_param_init_bool(waterpumpin, GN_RELAY_PARAM_STATUS, false);
+	gn_leaf_param_init_bool(waterpumpin, GN_RELAY_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t waterlevelin = gn_leaf_create(node, "waterlevelin",
 			gn_capacitive_water_level_config, 4096);

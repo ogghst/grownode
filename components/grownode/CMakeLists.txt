@@ -115,6 +115,7 @@ idf_component_register(SRCS
 					"leaves/gn_bme280.c"
 					"leaves/gn_pump_control.c"
 					"leaves/gn_watering_control.c"
+					"leaves/gn_hydroboard2_watering_control.c"
 					"leaves/gn_capacitive_water_level.c"
 					"leaves/gn_relay.c"
 					"leaves/gn_leaf_status_led.c"

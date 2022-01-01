@@ -25,7 +25,8 @@ extern "C" {
 static const char GN_LEAF_RELAY_TYPE[] = "relay";
 
 //parameters
-static const char GN_RELAY_PARAM_STATUS[] = "status"; /*!< 0 = off, 1 = on */
+static const char GN_RELAY_PARAM_TOGGLE[] = "status"; /*!< 0 = off, 1 = on */
+static const char GN_RELAY_PARAM_INVERTED[] = "inverted"; /*!< 0 = off, 1 = on */
 static const char GN_RELAY_PARAM_GPIO[] = "gpio"; /*!< the GPIO to connect the relay */
 
 gn_leaf_descriptor_handle_t gn_relay_config(gn_leaf_config_handle_t leaf_config);

@@ -66,7 +66,7 @@ TEST_CASE("gn_receive_status_0", "[relay]") {
 	esp_mqtt_event_id_t event_id = MQTT_EVENT_DATA;
 	char *topic = calloc(_GN_MQTT_MAX_TOPIC_LENGTH, sizeof(char));
 
-	_gn_mqtt_build_leaf_parameter_command_topic(relay_config, GN_RELAY_PARAM_STATUS, topic);
+	_gn_mqtt_build_leaf_parameter_command_topic(relay_config, GN_RELAY_PARAM_TOGGLE, topic);
 
 	char data[] = "0";
 	event->topic = (char*) calloc(strlen(topic), sizeof(char));
@@ -98,7 +98,7 @@ TEST_CASE("gn_receive_status_1", "[relay]") {
 	esp_mqtt_event_id_t event_id = MQTT_EVENT_DATA;
 	char *topic = calloc(_GN_MQTT_MAX_TOPIC_LENGTH, sizeof(char));
 
-	_gn_mqtt_build_leaf_parameter_command_topic(relay_config, GN_RELAY_PARAM_STATUS, topic);
+	_gn_mqtt_build_leaf_parameter_command_topic(relay_config, GN_RELAY_PARAM_TOGGLE, topic);
 
 	char data[] = "1";
 	event->topic = (char*) calloc(strlen(topic), sizeof(char));
@@ -150,7 +150,7 @@ TEST_CASE("gn_relay_mqtt_stress_test", "[relay]") {
 	for (size_t j = 0; j < 100; j++) {
 
 		_gn_mqtt_build_leaf_parameter_command_topic(relay_config,
-				GN_RELAY_PARAM_STATUS, topic);
+				GN_RELAY_PARAM_TOGGLE, topic);
 
 		if (j % 20 == 0) {
 			strcpy(data, "1");
