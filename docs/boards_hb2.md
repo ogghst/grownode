@@ -20,15 +20,17 @@ The configuration code is contained in `components\grownode\boards\bydroboard2.c
 
 The working logic is onboard, represented by the leaf `components\grownode\leaves\gn_hydroboard2_watering_control`. Basically it keeps the reservoir at a controlled temperature and starts the watering periodically if the water is within admissible range.
 
-MQTT Messaging is then collected by a page in OpenHAB where I can display the status of the components.
+MQTT Messaging is then collected by a page in OpenHAB where I can display the status of the components:
+
+![openhab](../resources/solutions/hydroboard2/hb2_controller.png)
 
 EASYEDA Project: [link](https://oshwlab.com/nicola.muratori/test_hydroboard1_thruhole_copy)
 
-And a first prototype board:
+The first prototype board:
 
 ![front](../resources/solutions/hydroboard2/hb2_front.jpg)
 
-![back](../resources/solutions/hydroboard2/hb2_front.jpg)
+![back](../resources/solutions/hydroboard2/hb2_back.jpg)
 
 Here's the beautiful IKEA case :)
 
