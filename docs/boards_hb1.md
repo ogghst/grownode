@@ -1,8 +1,6 @@
-# Boards
+#Hydroboard1
 
-Here you can find resources to make your own board starting from existing works.
-
-##Hydroboard1
+![the prototype](../resources/solutions/hydroboard1/prototype2.jpeg)
 
 This is the first project done using GrowNode platform. It is basically a Water Tower with water reservoir temperature control (heating/cooling) done through a Peltier cell, and a water level measurement device done by a capacitance sensor.
 
