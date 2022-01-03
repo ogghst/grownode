@@ -4,7 +4,7 @@ Second attempt to release a Water Tower system. this time I've added some MOSFET
 
 ##Features
 
-- 4 12VDC PWM output (I personally used for water pump, peltier pump, peltier fan, environmental fan
+- 4 12VDC PWM output (I personally used them for water pump, peltier pump, peltier fan, environmental fan)
 - 4 12VDC Relay output (Lights 1, Lights2, Peltier cell Hot and Cold mode)
 - 2 temperature sensors (using DB18B20)
 - 1 temperature/humidity/pressure sensor (using BME280)
