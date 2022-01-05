@@ -58,7 +58,7 @@ void app_main(void) {
 	//creates a new node
 	gn_node_config_handle_t node = gn_node_create(config, "node");
 
-	gn_configure_easypot1(node);
+	gn_configure_blink(node);
 
 	//finally, start node
 	gn_node_start(node);

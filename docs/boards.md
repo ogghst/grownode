@@ -2,6 +2,13 @@
 
 Here you can find resources to make your own board starting from existing works.
 
+##Easypot1
+
+A good starting point to make sure your pot won't suffer due to lack of attention :)
+Goal of this board is to introduce you to GrowNode platform, using super common components you can buy online.
+
+[Board Detail](boards_easypot1.md)
+
 ##Hydroboard1
 
 This is the first project done using GrowNode platform. It is basically a Water Tower with water reservoir temperature control (heating/cooling) done through a Peltier cell, and a water level measurement device done by a capacitance sensor.

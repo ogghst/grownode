@@ -53,3 +53,7 @@ This page describe the steps needed to have a working development environment on
 - If everything runs well, you should see something like `Project build complete`
 - Plug your ESP32 into your USB port, create a new launch target with the COM port of the board, and run using Ctrl + F11
 
+## Connect to Network
+
+[work in progress]
+
