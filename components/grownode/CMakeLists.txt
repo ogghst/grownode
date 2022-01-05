@@ -117,6 +117,7 @@ idf_component_register(SRCS
 					"leaves/gn_watering_control.c"
 					"leaves/gn_hydroboard2_watering_control.c"
 					"leaves/gn_capacitive_water_level.c"
+					"leaves/gn_capacitive_moisture_sensor.c"
 					"leaves/gn_relay.c"
 					"leaves/gn_leaf_status_led.c"
 					"test/test_grownode.c"
@@ -126,9 +127,10 @@ idf_component_register(SRCS
 					"test/test_relay.c"
 					"boards/gn_hydroboard1.c"
 					"boards/gn_hydroboard2.c"
+					"boards/gn_easypot1.c"
 					"boards/gn_blink.c"
 					
-					REQUIRES lvgl lvgl_esp32_drivers unity mqtt spiffs json wifi_provisioning esp_https_ota app_update bmp280 ds18x20
+					REQUIRES lvgl lvgl_esp32_drivers unity mqtt spiffs json wifi_provisioning esp_https_ota app_update bmp280 ds18x20 esp_adc_cal
                     INCLUDE_DIRS 
                     "."
                     "leaves/"

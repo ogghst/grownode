@@ -958,6 +958,9 @@ return NULL;
 
 void _gn_display_gui_task(void *pvParameter) {
 
+
+#ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
+
 	(void) pvParameter;
 	_gn_xGuiSemaphore = xSemaphoreCreateMutex();
 
@@ -1069,6 +1072,9 @@ void _gn_display_gui_task(void *pvParameter) {
 	free(buf2);
 #endif
 	vTaskDelete(NULL);
+
+#endif
+
 }
 
 /**
