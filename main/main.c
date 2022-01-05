@@ -22,7 +22,7 @@
 #include "grownode.h"
 
 //include the board you want to start here
-#include "gn_easypot1.h"
+#include "gn_blink.h"
 
 #define TASK_STACK_SIZE 8192*4
 
@@ -43,7 +43,7 @@ void app_main(void) {
 	esp_log_level_set("gn_leaf_cms", ESP_LOG_INFO);
 
 	//boards
-	esp_log_level_set("gn_easypot1", ESP_LOG_INFO);
+	esp_log_level_set("gn_blink", ESP_LOG_INFO);
 
 	//creates the config handle
 	gn_config_handle_t config = gn_init();
