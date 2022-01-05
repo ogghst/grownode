@@ -2,10 +2,10 @@
 # CMakeLists in this exact order for cmake to work correctly
 cmake_minimum_required(VERSION 3.5)
 
-set(ENV{IDF_LIB_PATH} $ENV{IDF_PATH}/../esp-idf-lib-master/components)
+set(ENV{IDF_LIB_PATH} $ENV{IDF_PATH}/../esp-idf-lib/components)
 
 set(EXTRA_COMPONENT_DIRS $ENV{IDF_LIB_PATH})
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
-project(GrowNode_HB2)
+project(grownode)
