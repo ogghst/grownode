@@ -163,7 +163,7 @@ Basic leaves as per today:
 
 - Capacitive Water Level: gives you the value of a touch sensing device, here used to detect water level
 - BME280: gets the data from this temperature/humidity/pressure sensor
-- DS18B20: gets the temperature of multiple temperature sensors connected to SDA/SDL pin
+- DS18B20: gets the temperature of multiple temperature sensors connected to a GPIO
 
 #### Controllers:
 
