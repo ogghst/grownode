@@ -56,11 +56,8 @@ struct gn_config_t {
 	uint8_t macAddress[6];
 	gn_config_status_t status;
 	gn_node_config_handle_intl_t node_config;
-	char* ota_url;
-	char* mqtt_url;
-	char* mqtt_base_topic;
-	uint32_t mqtt_keepalive_timer_sec;
-	char* sntp_server_name;
+	gn_config_init_param_t* config_init_params;
+
 };
 
 struct gn_node_config_t {

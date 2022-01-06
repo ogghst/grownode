@@ -31,6 +31,23 @@ extern "C" {
 #include "esp_event.h"
 #include "gn_event_source.h"
 
+static const int16_t GN_CONFIG_MAX_SERVER_KEEPALIVE_SEC = 3600;
+
+typedef struct {
+	bool provisioning_security;
+	char provisioning_password[9];
+	bool server_board_id_topic;
+	char server_base_topic[80];
+	char server_url[255];
+	uint32_t server_keepalive_timer_sec;
+	bool server_discovery;
+	char server_discovery_prefix[80];
+	char firmware_url[255];
+	char sntp_url[255];
+} gn_config_init_param_t;
+
+typedef struct gn_config_init_param_t *gn_config_init_param_handle_t;
+
 typedef enum {
 	GN_CONFIG_STATUS_NOT_INITIALIZED,
 	GN_CONFIG_STATUS_INITIALIZING,
@@ -38,7 +55,14 @@ typedef enum {
 	GN_CONFIG_STATUS_NETWORK_ERROR,
 	GN_CONFIG_STATUS_SERVER_ERROR,
 	GN_CONFIG_STATUS_COMPLETED,
-	GN_CONFIG_STATUS_STARTED
+	GN_CONFIG_STATUS_STARTED,
+	GN_CONFIG_STATUS_ERROR_MISSING_FIRMWARE_URL,
+	GN_CONFIG_STATUS_ERROR_MISSING_PROVISIONING_PASSWORD,
+	GN_CONFIG_STATUS_ERROR_MISSING_SERVER_BASE_TOPIC,
+	GN_CONFIG_STATUS_ERROR_MISSING_SERVER_URL,
+	GN_CONFIG_STATUS_ERROR_BAD_SERVER_KEEPALIVE_SEC,
+	GN_CONFIG_STATUS_ERROR_MISSING_SNTP_URL,
+	GN_CONFIG_STATUS_ERROR_MISSING_SERVER_DISCOVERY_PREFIX
 } gn_config_status_t;
 
 typedef enum {

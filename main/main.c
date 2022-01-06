@@ -34,7 +34,7 @@ void app_main(void) {
 	esp_log_level_set("*", ESP_LOG_INFO);
 
 	//core
-	esp_log_level_set("grownode", ESP_LOG_INFO);
+	esp_log_level_set("grownode", ESP_LOG_DEBUG);
 	esp_log_level_set("gn_commons", ESP_LOG_INFO);
 	esp_log_level_set("gn_nvs", ESP_LOG_INFO);
 	esp_log_level_set("gn_mqtt_protocol", ESP_LOG_INFO);
@@ -45,8 +45,21 @@ void app_main(void) {
 	//boards
 	esp_log_level_set("gn_blink", ESP_LOG_INFO);
 
+	gn_config_init_param_t config_init = {
+		.provisioning_security = true,
+		.provisioning_password = "grownode",
+		.server_board_id_topic = false,
+		.server_base_topic = "/grownode/test",
+		.server_url = "mqtt://discoboy.duckdns.org:11883",
+		.server_keepalive_timer_sec = 60,
+		.server_discovery = false,
+		.server_discovery_prefix = "homeassistant",
+		.firmware_url = "http://discoboy.duckdns.org/grownode/hydroboard2/GrowNode_HB2.bin",
+		.sntp_url = "pool.ntp.org"
+	};
+
 	//creates the config handle
-	gn_config_handle_t config = gn_init();
+	gn_config_handle_t config = gn_init(&config_init);
 
 	//waits until the config process ends
 	while (gn_get_config_status(config) != GN_CONFIG_STATUS_COMPLETED) {

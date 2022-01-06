@@ -27,6 +27,12 @@
 
 //static const char TAG[10] = "test_pump";
 
+gn_config_init_param_t config_init = { .provisioning_security = true,
+		.provisioning_password = "grownode", .server_board_id_topic = false,
+		.server_base_topic = "server_base_topic", .server_url = "server_url",
+		.server_keepalive_timer_sec = 60, .server_discovery = false,
+		.firmware_url = "firmware_url", .sntp_url = "sntp_url" };
+
 //functions hidden to be tested
 void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 		int32_t event_id, void *event_data);
@@ -44,7 +50,7 @@ gn_leaf_config_handle_t cwl_config;
 
 TEST_CASE("gn_pump_control_stress_test", "[pump_control]") {
 
-	config = gn_init();
+	config = gn_init(&config_init);
 
 	TEST_ASSERT(config != NULL);
 	node_config = gn_node_create(config, "node");
@@ -58,8 +64,8 @@ TEST_CASE("gn_pump_control_stress_test", "[pump_control]") {
 			4096);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 2);
 
-	ds18b20_config = gn_leaf_create(node_config, "cwl", gn_capacitive_water_level_config,
-			8192);
+	ds18b20_config = gn_leaf_create(node_config, "cwl",
+			gn_capacitive_water_level_config, 8192);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 3);
 
 	pump_control_config = gn_leaf_create(node_config, "pump_control",

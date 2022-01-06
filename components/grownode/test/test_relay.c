@@ -24,6 +24,20 @@
 
 static const char *TAG = "test_relay";
 
+
+gn_config_init_param_t
+config_init = {
+	.provisioning_security = true,
+	.provisioning_password = "grownode",
+	.server_board_id_topic = false,
+	.server_base_topic = "server_base_topic",
+	.server_url = "server_url",
+	.server_keepalive_timer_sec = 60,
+	.server_discovery = false,
+	.firmware_url = "firmware_url",
+	.sntp_url = "sntp_url"
+};
+
 //functions hidden to be tested
 void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 		int32_t event_id, void *event_data);
@@ -37,7 +51,7 @@ extern gn_node_config_handle_t node_config;
 gn_leaf_config_handle_t relay_config;
 
 TEST_CASE("gn_init_add_relay", "[relay]") {
-	config = gn_init();
+	config = gn_init(&config_init);
 	TEST_ASSERT(config != NULL);
 	node_config = gn_node_create(config, "node");
 	TEST_ASSERT_EQUAL_STRING("node", gn_get_node_config_name(node_config));
@@ -124,7 +138,10 @@ TEST_CASE("gn_receive_status_1", "[relay]") {
 
 TEST_CASE("gn_relay_mqtt_stress_test", "[relay]") {
 
-	config = gn_init();
+
+	//creates the config handle
+	gn_config_handle_t config = gn_init(&config_init);
+
 	TEST_ASSERT(config != NULL);
 	node_config = gn_node_create(config, "node");
 	TEST_ASSERT_EQUAL_STRING("node", gn_get_node_config_name(node_config));

@@ -31,24 +31,23 @@ menu "GrowNode Configuration"
         default 1 if GROWNODE_PROV_TRANSPORT_BLE
         default 2 if GROWNODE_PROV_TRANSPORT_SOFTAP
         depends on GROWNODE_WIFI_ENABLED
-        
-        
-    config GROWNODE_KEEPALIVE_TIMER_SEC
-    	int "Kepalive message (sec)"
-    	depends on GROWNODE_WIFI_ENABLED
-    	default 60
+               
+#    config GROWNODE_KEEPALIVE_TIMER_SEC
+#		int "Kepalive message (sec)"
+#    	depends on GROWNODE_WIFI_ENABLED
+#    	default 60
     	
-    config GROWNODE_PROV_SECURITY
-    	bool "Provisioning security"
-    	depends on GROWNODE_WIFI_ENABLED
-    	default true
+#    config GROWNODE_PROV_SECURITY
+#    	bool "Provisioning security"
+#    	depends on GROWNODE_WIFI_ENABLED
+#    	default true
     	
-   	config GROWNODE_PROV_POP
-    	string "SoftAP Proof of Possession"
-    	default "grownode"
-    	depends on GROWNODE_PROV_SECURITY
-    	help
-    		Password to prove provisioning is coming from trusted source
+#	config GROWNODE_PROV_POP
+#    	string "SoftAP Proof of Possession"
+#    	default "grownode"
+#    	depends on GROWNODE_PROV_SECURITY
+#    	help
+#    		Password to prove provisioning is coming from trusted source
     	
    	config GROWNODE_PROV_SOFTAP_PREFIX
     	string "SoftAP Prefix"
@@ -57,38 +56,38 @@ menu "GrowNode Configuration"
     	help
     		Name of the WiFi Network. the final will be prefix+"-"+6 MAC address letters
 
-   	config GROWNODE_FIRMWARE_URL
-    	string "Firmware URL"
-    	default "http://discoboy.duckdns.org/esp/GrowNode2.bin"
-    	depends on GROWNODE_WIFI_ENABLED
-    	help
-    		Firmware URL to update
+#	config GROWNODE_FIRMWARE_URL
+#    	string "Firmware URL"
+#    	default "http://discoboy.duckdns.org/esp/GrowNode2.bin"
+#    	depends on GROWNODE_WIFI_ENABLED
+#    	help
+#     		Firmware URL to update
     		
-   	config GROWNODE_MQTT_URL
-    	string "MQTT URL"
-    	default "192.168.1.10:1883"
-    	depends on GROWNODE_WIFI_ENABLED
-    	help
-    		MQTT URL to connect to
+#	config GROWNODE_MQTT_URL
+#    	string "MQTT URL"
+#    	default "192.168.1.10:1883"
+#    	depends on GROWNODE_WIFI_ENABLED
+#    	help
+#    		MQTT URL to connect to
     		
-   	config GROWNODE_MQTT_BASE_TOPIC
-    	string "Base MQTT Topic"
-    	default "/grownode"
-    	depends on GROWNODE_WIFI_ENABLED
-    	help
-    		base topic, default is "/grownode"
+#	config GROWNODE_MQTT_BASE_TOPIC
+#    	string "Base MQTT Topic"
+#    	default "/grownode"
+#    	depends on GROWNODE_WIFI_ENABLED
+#    	help
+#    		base topic, default is "/grownode"
     		
-    config GROWNODE_MQTT_MAC_ADDRESS_PREFIX_TOPIC
-    	bool "Add MAC Address of the board in the topic prefix"
-    	depends on GROWNODE_WIFI_ENABLED
-    	default false
+#    config GROWNODE_MQTT_MAC_ADDRESS_PREFIX_TOPIC
+#    	bool "Add MAC Address of the board in the topic prefix"
+#    	depends on GROWNODE_WIFI_ENABLED
+#    	default false
     		
-    config GROWNODE_MQTT_DISCOVERY_ENABLED
-    	bool "Enable MQTT Discovery"
-    	default true
-    	depends on GROWNODE_WIFI_ENABLED
-    	help
-    		Enable Sensors to be discovered through network via MQTT (useful in Home Assistant)
+#    config GROWNODE_MQTT_DISCOVERY_ENABLED
+#    	bool "Enable MQTT Discovery"
+#    	default true
+#    	depends on GROWNODE_WIFI_ENABLED
+#    	help
+#    		Enable Sensors to be discovered through network via MQTT (useful in Home Assistant)
     		
    	config GROWNODE_MQTT_DISCOVERY_PREFIX
     	string "Discovery MQTT Topic"
@@ -97,12 +96,12 @@ menu "GrowNode Configuration"
     	help
     		MQTT Discovery prefix, default is "homeassistant"
     		
-    config GROWNODE_SNTP_SERVER_NAME
-        string "SNTP Server Name"
-        default "pool.ntp.org"
-        depends on GROWNODE_WIFI_ENABLED
-        help
-            Default SNTP Server which is used for time synchronization.
+#    config GROWNODE_SNTP_SERVER_NAME
+#        string "SNTP Server Name"
+#        default "pool.ntp.org"
+#        depends on GROWNODE_WIFI_ENABLED
+#        help
+#            Default SNTP Server which is used for time synchronization.
            
     config GROWNODE_DISPLAY_ENABLED
     	bool "Enable Display"

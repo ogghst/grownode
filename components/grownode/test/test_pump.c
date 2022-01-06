@@ -17,28 +17,35 @@
 #include "esp_log.h"
 #include "mqtt_client.h"
 
-
 #include "grownode.h"
 #include "grownode_intl.h"
 #include "gn_mqtt_protocol.h"
 #include "gn_pump.h"
 
-
 static const char *TAG = "test_pump";
+
+gn_config_init_param_t config_init = { .provisioning_security = true,
+		.provisioning_password = "grownode", .server_board_id_topic = false,
+		.server_base_topic = "server_base_topic", .server_url = "server_url",
+		.server_keepalive_timer_sec = 60, .server_discovery = false,
+		.firmware_url = "firmware_url", .sntp_url = "sntp_url" };
 
 //functions hidden to be tested
 void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 		int32_t event_id, void *event_data);
 
 void _gn_mqtt_build_leaf_parameter_command_topic(
-		const gn_leaf_config_handle_t _leaf_config, const char *param_name, char *buf);
+		const gn_leaf_config_handle_t _leaf_config, const char *param_name,
+		char *buf);
 
 extern gn_config_handle_t config;
 extern gn_node_config_handle_t node_config;
 gn_leaf_config_handle_t pump_config;
 
 TEST_CASE("gn_init_add_pump", "[pump]") {
-	config = gn_init();
+
+	config = gn_init(&config_init);
+
 	TEST_ASSERT(config != NULL);
 	node_config = gn_node_create(config, "node");
 	TEST_ASSERT_EQUAL_STRING("node", gn_get_node_config_name(node_config));
@@ -54,7 +61,7 @@ TEST_CASE("gn_leaf_create pump", "[pump]") {
 
 	size_t oldsize = gn_node_get_size(node_config);
 	pump_config = gn_leaf_create(node_config, "pump", gn_pump_config, 4096);
-	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), oldsize+1);
+	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), oldsize + 1);
 	TEST_ASSERT(pump_config != NULL);
 
 }
@@ -67,7 +74,8 @@ TEST_CASE("gn_receive_status_0", "[pump]") {
 	esp_mqtt_event_id_t event_id = MQTT_EVENT_DATA;
 	char *topic = calloc(_GN_MQTT_MAX_TOPIC_LENGTH, sizeof(char));
 
-	_gn_mqtt_build_leaf_parameter_command_topic(pump_config, GN_PUMP_PARAM_TOGGLE, topic);
+	_gn_mqtt_build_leaf_parameter_command_topic(pump_config,
+			GN_PUMP_PARAM_TOGGLE, topic);
 
 	char data[] = "0";
 	event->topic = (char*) calloc(strlen(topic), sizeof(char));
@@ -99,7 +107,8 @@ TEST_CASE("gn_receive_status_1", "[pump]") {
 	esp_mqtt_event_id_t event_id = MQTT_EVENT_DATA;
 	char *topic = calloc(_GN_MQTT_MAX_TOPIC_LENGTH, sizeof(char));
 
-	_gn_mqtt_build_leaf_parameter_command_topic(pump_config, GN_PUMP_PARAM_TOGGLE, topic);
+	_gn_mqtt_build_leaf_parameter_command_topic(pump_config,
+			GN_PUMP_PARAM_TOGGLE, topic);
 
 	char data[] = "1";
 	event->topic = (char*) calloc(strlen(topic), sizeof(char));
@@ -131,7 +140,8 @@ TEST_CASE("gn_receive_power_0", "[pump]") {
 	esp_mqtt_event_id_t event_id = MQTT_EVENT_DATA;
 	char *topic = calloc(_GN_MQTT_MAX_TOPIC_LENGTH, sizeof(char));
 
-	_gn_mqtt_build_leaf_parameter_command_topic(pump_config, GN_PUMP_PARAM_POWER, topic);
+	_gn_mqtt_build_leaf_parameter_command_topic(pump_config,
+			GN_PUMP_PARAM_POWER, topic);
 
 	char data[] = "0";
 	event->topic = (char*) calloc(strlen(topic), sizeof(char));
@@ -163,7 +173,8 @@ TEST_CASE("gn_receive_power_128", "[pump]") {
 	esp_mqtt_event_id_t event_id = MQTT_EVENT_DATA;
 	char *topic = calloc(_GN_MQTT_MAX_TOPIC_LENGTH, sizeof(char));
 
-	_gn_mqtt_build_leaf_parameter_command_topic(pump_config, GN_PUMP_PARAM_POWER, topic);
+	_gn_mqtt_build_leaf_parameter_command_topic(pump_config,
+			GN_PUMP_PARAM_POWER, topic);
 
 	char data[] = "128";
 	event->topic = (char*) calloc(strlen(topic), sizeof(char));
@@ -195,7 +206,8 @@ TEST_CASE("gn_receive_power_500", "[pump]") {
 	esp_mqtt_event_id_t event_id = MQTT_EVENT_DATA;
 	char *topic = calloc(_GN_MQTT_MAX_TOPIC_LENGTH, sizeof(char));
 
-	_gn_mqtt_build_leaf_parameter_command_topic(pump_config, GN_PUMP_PARAM_POWER, topic);
+	_gn_mqtt_build_leaf_parameter_command_topic(pump_config,
+			GN_PUMP_PARAM_POWER, topic);
 
 	char data[] = "500";
 	event->topic = (char*) calloc(strlen(topic), sizeof(char));
@@ -221,7 +233,7 @@ TEST_CASE("gn_receive_power_500", "[pump]") {
 
 TEST_CASE("gn_pump_mqtt_stress_test", "[pump]") {
 
-	config = gn_init();
+	config = gn_init(&config_init);
 	TEST_ASSERT(config != NULL);
 	node_config = gn_node_create(config, "node");
 	TEST_ASSERT_EQUAL_STRING("node", gn_get_node_config_name(node_config));
@@ -247,7 +259,6 @@ TEST_CASE("gn_pump_mqtt_stress_test", "[pump]") {
 	for (size_t j = 0; j < 100; j++) {
 
 		for (size_t i = 0; i < 1000; i++) {
-
 
 			if (i % 10 == 0) {
 

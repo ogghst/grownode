@@ -87,8 +87,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 			wifi_prov_sta_fail_reason_t *reason =
 					(wifi_prov_sta_fail_reason_t*) event_data;
 
-			gn_log(TAG, GN_LOG_ERROR,
-					"Provisioning failed!\n\tReason : %s",
+			gn_log(TAG, GN_LOG_ERROR, "Provisioning failed!\n\tReason : %s",
 					((*reason == WIFI_PROV_STA_AUTH_ERROR) ?
 							"Wi-Fi station authentication failed" :
 							"Wi-Fi access-point not found"));
@@ -128,10 +127,11 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		//ESP_LOGI(TAG, "IP : " IPSTR, IP2STR(&event->ip_info.ip));
 
 		if (ESP_OK
-				!= esp_event_post_to(_conf->event_loop,
-						GN_BASE_EVENT, GN_NET_CONNECTED_EVENT, NULL, 0,
+				!= esp_event_post_to(_conf->event_loop, GN_BASE_EVENT,
+						GN_NET_CONNECTED_EVENT, NULL, 0,
 						portMAX_DELAY)) {
-			gn_log(TAG, GN_LOG_ERROR, "failed to send GN_NETWORK_DISCONNECTED_EVENT event");
+			gn_log(TAG, GN_LOG_ERROR,
+					"failed to send GN_NETWORK_DISCONNECTED_EVENT event");
 		}
 
 		/* Signal main application to continue execution */
@@ -143,20 +143,21 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		ESP_LOGI(TAG, "Disconnected. Connecting to the AP again.");
 
 		if (ESP_OK
-				!= esp_event_post_to(_conf->event_loop,
-						GN_BASE_EVENT, GN_NET_DISCONNECTED_EVENT, NULL, 0,
+				!= esp_event_post_to(_conf->event_loop, GN_BASE_EVENT,
+						GN_NET_DISCONNECTED_EVENT, NULL, 0,
 						portMAX_DELAY)) {
-			gn_log(TAG, GN_LOG_ERROR, "failed to send GN_NETWORK_DISCONNECTED_EVENT event");
+			gn_log(TAG, GN_LOG_ERROR,
+					"failed to send GN_NETWORK_DISCONNECTED_EVENT event");
 		}
 
-        if (s_retry_num < 3) {
-            esp_wifi_connect();
-            s_retry_num++;
-            ESP_LOGI(TAG, "retry to connect to the AP");
-        } else {
-            xEventGroupSetBits(_gn_event_group_wifi, GN_WIFI_FAIL_EVENT);
-        }
-        //ESP_LOGI(TAG,"connect to the AP fail");
+		if (s_retry_num < 3) {
+			esp_wifi_connect();
+			s_retry_num++;
+			ESP_LOGI(TAG, "retry to connect to the AP");
+		} else {
+			xEventGroupSetBits(_gn_event_group_wifi, GN_WIFI_FAIL_EVENT);
+		}
+		//ESP_LOGI(TAG,"connect to the AP fail");
 
 	}
 
@@ -172,29 +173,28 @@ void _gn_wifi_init_sta(void) {
 	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
 	ESP_ERROR_CHECK(esp_wifi_start());
 
-    EventBits_t bits = xEventGroupWaitBits(_gn_event_group_wifi,
-    		GN_WIFI_CONNECTED_EVENT | GN_WIFI_FAIL_EVENT,
-            pdFALSE,
-            pdFALSE,
-            portMAX_DELAY);
+	EventBits_t bits = xEventGroupWaitBits(_gn_event_group_wifi,
+			GN_WIFI_CONNECTED_EVENT | GN_WIFI_FAIL_EVENT,
+			pdFALSE,
+			pdFALSE,
+			portMAX_DELAY);
 
-    if (bits & GN_WIFI_CONNECTED_EVENT) {
-        ESP_LOGI(TAG, "connected to AP");
-    } else if (bits & GN_WIFI_FAIL_EVENT) {
-        ESP_LOGI(TAG, "Failed to connect to AP");
+	if (bits & GN_WIFI_CONNECTED_EVENT) {
+		ESP_LOGI(TAG, "connected to AP");
+	} else if (bits & GN_WIFI_FAIL_EVENT) {
+		ESP_LOGI(TAG, "Failed to connect to AP");
 		wifi_prov_mgr_reset_provisioning();
 		gn_reboot();
 
-    } else {
-        gn_log(TAG, GN_LOG_ERROR, "UNEXPECTED EVENT");
-    }
+	} else {
+		gn_log(TAG, GN_LOG_ERROR, "UNEXPECTED EVENT");
+	}
 
 #endif
 
 }
 
 void _gn_wifi_get_device_service_name(char *service_name, size_t max) {
-
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
@@ -264,8 +264,7 @@ esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
 	esp_netif_create_default_wifi_ap();
 #endif /* CONFIG_GROWNODE_PROV_TRANSPORT_SOFTAP */
 
-	wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT()
-	;
+	wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
 
 	ESP_GOTO_ON_ERROR(esp_wifi_init(&cfg), fail, TAG, "");
 
@@ -333,23 +332,18 @@ esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
 		 *          for encryption/decryption of messages.
 		 */
 
-
 		/* Do we want a proof-of-possession (ignored if Security 0 is selected):
 		 *      - this should be a string with length > 0
 		 *      - NULL if not used
 		 */
 
-#ifdef CONFIG_GROWNODE_PROV_SECURITY
-		wifi_prov_security_t security = WIFI_PROV_SECURITY_1;
-#else
 		wifi_prov_security_t security = WIFI_PROV_SECURITY_0;
-#endif
 
-#ifdef CONFIG_GROWNODE_PROV_POP
-		const char *pop = CONFIG_GROWNODE_PROV_POP;
-#else
-		const char *pop = NULL;
-#endif
+		if (_conf->config_init_params->provisioning_security) {
+			security = WIFI_PROV_SECURITY_1;
+		}
+
+		const char *pop = _conf->config_init_params->provisioning_password;
 
 		/* What is the service key (could be NULL)
 		 * This translates to :
@@ -419,7 +413,6 @@ esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
 	/* Wait for Wi-Fi connection */
 	//xEventGroupWaitBits(_gn_event_group_wifi, GN_WIFI_CONNECTED_EVENT, false,
 	//true, portMAX_DELAY);
-
 	fail: return ret;
 
 #else
@@ -440,9 +433,10 @@ esp_err_t _gn_init_time_sync(gn_config_handle_t conf) {
 		return ESP_OK;
 	}
 	ESP_LOGI(TAG, "Initializing SNTP. Using the SNTP server: %s",
-			((gn_config_handle_intl_t)conf)->sntp_server_name);
+			((gn_config_handle_intl_t )conf)->config_init_params->sntp_url);
 	sntp_setoperatingmode(SNTP_OPMODE_POLL);
-	sntp_setservername(0, ((gn_config_handle_intl_t)conf)->sntp_server_name);
+	sntp_setservername(0,
+			((gn_config_handle_intl_t) conf)->config_init_params->sntp_url);
 	sntp_init();
 	time_sync_init_done = true;
 	return ESP_OK;
@@ -452,7 +446,6 @@ esp_err_t _gn_init_time_sync(gn_config_handle_t conf) {
 #endif /* CONFIG_GROWNODE_WIFI_ENABLED */
 
 }
-
 
 void _gn_ota_task(void *pvParameter) {
 
@@ -469,7 +462,7 @@ void _gn_ota_task(void *pvParameter) {
 	esp_wifi_set_ps(WIFI_PS_NONE);
 
 	esp_http_client_config_t config = { };
-	config.url = _conf->ota_url;
+	config.url = _conf->config_init_params->firmware_url;
 	//config.event_handler = _http_event_handler;
 	config.cert_pem = (char*) server_cert_pem_start;
 

@@ -22,6 +22,12 @@
 gn_config_handle_t config;
 gn_node_config_handle_t node_config;
 
+gn_config_init_param_t config_init = { .provisioning_security = true,
+		.provisioning_password = "grownode", .server_board_id_topic = false,
+		.server_base_topic = "server_base_topic", .server_url = "server_url",
+		.server_keepalive_timer_sec = 60, .server_discovery = false,
+		.firmware_url = "firmware_url", .sntp_url = "sntp_url" };
+
 void setUp() {
 
 }
@@ -31,7 +37,7 @@ void tearDown() {
 }
 
 TEST_CASE("gn_init", "[gn_system]") {
-	config = gn_init();
+	config = gn_init(&config_init);
 	TEST_ASSERT(config != NULL);
 }
 
