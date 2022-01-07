@@ -14,11 +14,12 @@ theme:
   logo: img/grownode_logo_24.png
   favicon: img/grownode_logo_24.png
 nav:
-  - Why GrowNode: 'index.md'
+  - Introduction: 'index.md'
   - The Platform: 'platform.md'
   - Install: 'start.md'
   - Play: 'workflow.md'
   - GrowNode Boards: 'boards.md'
+  - Story: 'story.md'
   - API: 'html\index.html'
 plugins:
     - search
