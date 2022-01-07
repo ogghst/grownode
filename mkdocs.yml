@@ -15,10 +15,10 @@ theme:
   favicon: img/grownode_logo_24.png
 nav:
   - Introduction: 'index.md'
-  - The Platform: 'platform.md'
+  - Platform: 'platform.md'
   - Install: 'start.md'
   - Play: 'workflow.md'
-  - GrowNode Boards: 'boards.md'
+  - Boards: 'boards.md'
   - Story: 'story.md'
   - API: 'html\index.html'
 plugins:
