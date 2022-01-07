@@ -11,11 +11,13 @@
 
 Grownode is targeted for whoever has the need to build an automatic growing system, from DIY home growing to more advanced farming solutions.
 
-## How it can help you
+## How GrowNode can help you
 
 This platform will facilitate the hardware and software design and implementation phase, by giving you a ready made set of functionalities, materials and knowledge base. 
 
 ## Skills required
 
-In order to startup a basic system a basic knowledge of C programming, ESP-IDF development environment, and electrical engineering is required
+In order to startup a basic prebuilt system, you just need to follow the instructions in [boards](boards.md) section.
+
+If you want to play hard and develop your own customized system, a basic knowledge of C programming, ESP-IDF development environment, and electrical engineering is required.
 

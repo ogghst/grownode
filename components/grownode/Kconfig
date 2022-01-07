@@ -39,20 +39,20 @@ menu "GrowNode Configuration"
     	
 #    config GROWNODE_PROV_SECURITY
 #    	bool "Provisioning security"
-#    	depends on GROWNODE_WIFI_ENABLED
+#    	depends on GROWNODE_PROV_TRANSPORT_SOFTAP
 #    	default true
     	
 #	config GROWNODE_PROV_POP
 #    	string "SoftAP Proof of Possession"
 #    	default "grownode"
-#    	depends on GROWNODE_PROV_SECURITY
+#    	depends on GROWNODE_PROV_TRANSPORT_SOFTAP
 #    	help
 #    		Password to prove provisioning is coming from trusted source
     	
    	config GROWNODE_PROV_SOFTAP_PREFIX
     	string "SoftAP Prefix"
     	default "GROWNODE_"
-    	depends on GROWNODE_WIFI_ENABLED
+    	depends on GROWNODE_PROV_TRANSPORT_SOFTAP
     	help
     		Name of the WiFi Network. the final will be prefix+"-"+6 MAC address letters
 
@@ -89,12 +89,12 @@ menu "GrowNode Configuration"
 #    	help
 #    		Enable Sensors to be discovered through network via MQTT (useful in Home Assistant)
     		
-   	config GROWNODE_MQTT_DISCOVERY_PREFIX
-    	string "Discovery MQTT Topic"
-    	default "homeassistant"
-    	depends on GROWNODE_WIFI_ENABLED && GROWNODE_MQTT_DISCOVERY_ENABLED
-    	help
-    		MQTT Discovery prefix, default is "homeassistant"
+#   	config GROWNODE_MQTT_DISCOVERY_PREFIX
+#    	string "Discovery MQTT Topic"
+#    	default "homeassistant"
+#    	depends on GROWNODE_WIFI_ENABLED && GROWNODE_MQTT_DISCOVERY_ENABLED
+#    	help
+#    		MQTT Discovery prefix, default is "homeassistant"
     		
 #    config GROWNODE_SNTP_SERVER_NAME
 #        string "SNTP Server Name"

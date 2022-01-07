@@ -63,25 +63,18 @@ Some basic configuration parameters:
  - `reset flash at every startup`: every time the board is started up, all information stored are wiped out. This is useful when you are testing the board and you want to restart every time with a clean situation. please note that this removes also your provisioning status (wifi SSID and password)
  - `enable networking`: in order to have all the network related functionalities. in case of local boards or issues with firmware size this will reduce a lot the firware footprint and enhance performances. Dependant parameters are:
  - `provisioning transport`: how the board will receive wifi credentials at startup. SoftAP means by becoming a local access point, Bluetooth is the other option. Depending on the choice, you will have to use one of the Espressif provisioning apps (at this page)[https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/provisioning/provisioning.html]
-- `keepalive message`: how often the board should publish a status message [see API](html/index.html)
-- `provisioning security`: whether provisioning data shall be encrypted and if yes the use of a proof of possession (password) is required
-- `SoftAP Prefix`: the name of the temporary network the board will create to ask for wifi credentials
-- `firmare URL`: where to search for an updated firmware when the OTA process will start
-- `MQTT URL`: where to find the messaging server
-- `Base MQTT Topic`: the 'address' of the MQTT messages created by the board and the server
-- `Enable MQTT Discovery`: if enabled, once the board is started up it will publish a special message that can be used by controllers like HomeAssistant to autoconfigure baord parameters
-- `SNTP Server name`: the address of the time server the board will use to sync his clock
-- `Enable Display`: if set, it will start the display driver. the configuration of the display will be taken from `LVGL` component configuration settings 
+ - `SoftAP Prefix`: the name of the temporary network the board will create to ask for wifi credentials
+ - `Enable Display`: if set, it will start the display driver. the configuration of the display will be taken from `LVGL` component configuration settings 
 
-###Code your application
+### Code your application
 
 In the `main` folder of the project you will find a `main.c` file. This is the entry point of the application. Understanding the code requires a knowledge of the C language and it is not the goal of this tutorial. 
 
 Here is a standard `main` application workflow walkthrough:
 
-- Define log configuration directives, done by using the ESP-IDF logging system. Every GrowNode subsystem has his own log tag so it's easy to enable different logging levels depending on what you want to track.
+#### Define log configuration directives
 
-Code:
+Done by using the ESP-IDF logging system. Every GrowNode subsystem has his own log tag so it's easy to enable different logging levels depending on what you want to track.
 
     esp_log_level_set("*", ESP_LOG_INFO);
     esp_log_level_set("grownode", ESP_LOG_DEBUG);
@@ -89,15 +82,42 @@ Code:
     esp_log_level_set("gn_nvs", ESP_LOG_INFO);
     ...
 
-- Obtain the GrowNode configuration handle. This starts the various subsystems like networking, server messaging, provisioning, display, depending on the configuration you choose in previous steps.
+#### Configure the application parameters
 
-Code:
+Here the basic code block in a standard wifi configuration:
 
-	gn_config_handle_t config = gn_init();
+	gn_config_init_param_t config_init = {
+		.provisioning_security = true,
+		.provisioning_password = "grownode",
+		.server_board_id_topic = false,
+		.server_base_topic = "/grownode",
+		.server_url = "mqtt://mymqttserver.com",
+		.server_keepalive_timer_sec = 60,
+		.firmware_url = "http://myserver/grownode.bin",
+		.sntp_url = "pool.ntp.org"
+	};
 
-- Wait for the configuration to be completed, as it takes several seconds depending on the actions needed. In this area you can add your custom code that catches the configuration process status 
+Here's the explanation of those parameters
 
-Code:
+- `provisioning_security`: whether provisioning data shall be encrypted and if yes the use of a proof of possession (password) is required. See [esp-idf provisioning manual](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/provisioning/provisioning.html) for details
+- `provisioning_password`: the proof of possession password you will need to enter in the provisioning mobile app to let the board enter in your wifi network 
+- `server_url`: where to find the MQTT messaging server
+- `server_base_topic`: the 'address' of the MQTT messages created by the board and the server
+- `server_board_id_topic`: whether the board shall publish to the MQTT server its unique ID (calculated from MAC address). if true, the topic will be `/grownode/ADBC1234` where 'abcd1234' is your board unique ID
+- `server_keepalive_timer_sec`: how often the board shall publish a keepalive message [see API](html/index.html)
+- `firmare_url`: where to search for an updated firmware when the OTA process will start
+- `sntp_url`: the address of the time server the board will use to sync its clock
+
+
+#### Obtain the GrowNode configuration handle
+
+This starts the various subsystems like networking, server messaging, provisioning, display, depending on the configuration you choose in previous steps.
+
+	gn_config_handle_t config = gn_init(config_init);
+
+#### Wait for the configuration to be completed
+
+It takes several seconds depending on the actions needed. In this area you can add your custom code that catches the configuration process status 
 
 	while (gn_get_config_status(config) != GN_CONFIG_STATUS_COMPLETED) {
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -105,24 +125,22 @@ Code:
 				gn_get_config_status(config));
 	}
 	
-- Once the GrowNode configuration process has ended, you can then start defining your project structure. First step is to obtain a Node handler. This can be seen as the 'tree trunk' where the 'leaves' will be attached.
+#### Create the Node
 
-Code:
+Once the GrowNode configuration process has ended, you can then start defining your project structure. First step is to obtain a Node handler. This can be seen as the 'tree trunk' where the 'leaves' will be attached.
 
 	gn_node_config_handle_t node = gn_node_create(config, "node");
 
-- And then you can add your sensors and actuators, that in GrowNode languages are called **leaves**. Standard leaves code is contained on `components/grownode/leaves` folder
+#### Add leaves
 
-Code:
+And then you can add your sensors and actuators, that in GrowNode languages are called **leaves**. Standard leaves code is contained on `components/grownode/leaves` folder
 
 	gn_leaf_config_handle_t lights1in = gn_leaf_create(node, "lights1in", gn_relay_config, 4096);
 
 In this example we have created an handle to a relay leaf, called `lights1in`, using the config callback `gn_relay_config`, with a memory space of 4K.
 Every leaf has his own characteristic and purposes. Some represents sensors, some actuators, and some has the only purpose to implement control logic for other leaves. The `relay` leaf, for instance, can be reused for multiple actuators in multiple pins. Some others may have limitations due to the specific hardware used.
 
-- In order to make a leaf usable you probably have to configure it. The `relay` leaf need to know what is the GPIO pin attached and the initial status:
-
-Code:
+In order to make a leaf usable you probably have to configure it. The `relay` leaf need to know what is the GPIO pin attached and the initial status:
 
 	gn_leaf_param_init_double(lights1in, GN_RELAY_PARAM_GPIO, 25);
 	gn_leaf_param_init_bool(lights1in, GN_RELAY_PARAM_STATUS, false);
@@ -131,17 +149,18 @@ Some paramaters are stored in the board non volatile storage (NVS) for later use
 
 Please look at the header file of the leaf you want to use to understand the needed parameters.
 
-- At this point the leaf is ready for the startup. This is made by calling:
+#### Start the node
 
- Code:
+At this point the leaf is ready for the startup. This is made by calling:
 
 	gn_node_start(node);
 	
 The framework will  tell the network that the board is online, publish the board sensor data, start all the leaves callbacks , start the listeners for leaves dialogue (in the `relay` leaf, this means the relay can be controlled by setting the `status` parameter). 
 	
-- Last step, you should implement an infinite loop:
 
-Code:
+#### ...And do nothing forever!
+
+Last step, you should implement an infinite loop:
 
 	while (true) {
 		vTaskDelay(10000 / portTICK_PERIOD_MS);
@@ -162,6 +181,7 @@ Basic leaves as per today:
 #### Sensors:
 
 - Capacitive Water Level: gives you the value of a touch sensing device, here used to detect water level
+- Capacitive Moisture Sensor: gives you the value of the water level through an external moisture sensor
 - BME280: gets the data from this temperature/humidity/pressure sensor
 - DS18B20: gets the temperature of multiple temperature sensors connected to a GPIO
 
