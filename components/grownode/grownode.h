@@ -77,7 +77,7 @@ typedef gn_leaf_param_validator_result_t (*gn_validator_t)(
 
 gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
 		const char *name, const gn_val_type_t type, const gn_val_t val,
-		gn_leaf_param_access_t access, gn_leaf_param_storage_t storage,
+		gn_leaf_param_visibility_t access, gn_leaf_param_storage_t storage,
 		gn_validator_t validator);
 
 gn_err_t gn_leaf_param_add(const gn_leaf_config_handle_t leaf,
@@ -89,7 +89,7 @@ gn_leaf_param_handle_t gn_leaf_param_get_param_handle(
 gn_err_t gn_leaf_param_get_value(const gn_leaf_param_handle_t param, void *val);
 
 gn_err_t gn_leaf_param_get_string(const gn_leaf_config_handle_t leaf_config,
-		const char *name, char *val, size_t *lenght);
+		const char *name, char *val, size_t max_lenght);
 
 gn_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf,
 		const char *name, char *val);

@@ -112,39 +112,39 @@ gn_leaf_descriptor_handle_t gn_bme280_config(
 
 	data->active_param = gn_leaf_param_create(leaf_config,
 			GN_BME280_PARAM_ACTIVE, GN_VAL_TYPE_BOOLEAN,
-			(gn_val_t ) { .b = true }, GN_LEAF_PARAM_ACCESS_WRITE,
+			(gn_val_t ) { .b = true }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->active_param);
 
 	data->sda_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_SDA,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 21 },
-			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
+			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->sda_param);
 
 	data->scl_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_SCL,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 22 },
-			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
+			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->scl_param);
 
 	data->update_time_param = gn_leaf_param_create(leaf_config,
 			GN_BME280_PARAM_UPDATE_TIME_SEC, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
-							.d = 120 }, GN_LEAF_PARAM_ACCESS_WRITE,
+							.d = 120 }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->update_time_param);
 
 	data->temp_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_TEMP,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
-			GN_LEAF_PARAM_ACCESS_READ, GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
+			GN_LEAF_PARAM_ACCESS_NODE, GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
 	gn_leaf_param_add(leaf_config, data->temp_param);
 
 	data->hum_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_HUM,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
-			GN_LEAF_PARAM_ACCESS_READ, GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
+			GN_LEAF_PARAM_ACCESS_NODE, GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
 	gn_leaf_param_add(leaf_config, data->hum_param);
 
 	data->press_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_PRESS,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
-			GN_LEAF_PARAM_ACCESS_READ, GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
+			GN_LEAF_PARAM_ACCESS_NODE, GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
 	gn_leaf_param_add(leaf_config, data->press_param);
 
 	descriptor->status = GN_LEAF_STATUS_INITIALIZED;

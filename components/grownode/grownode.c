@@ -993,7 +993,7 @@ gn_err_t gn_leaf_event_unsubscribe(gn_leaf_config_handle_t leaf_config,
  */
 gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
 		const char *name, const gn_val_type_t type, gn_val_t val,
-		gn_leaf_param_access_t access, gn_leaf_param_storage_t storage,
+		gn_leaf_param_visibility_t access, gn_leaf_param_storage_t storage,
 		gn_validator_t validator) {
 
 	if (!name) {
@@ -1304,8 +1304,19 @@ gn_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf_config,
 
 }
 
+/**
+ * @brief gets the parameter value
+ *
+ * @param 	leaf_config	the leaf to get the parameter from
+ * @param 	name		the name of the parameter, null terminated
+ * @param	val			pointer where the parameter is put
+ * @param	max_lenght	the maximum lenght of the parameter value to be copied
+ *
+ * 	@return GN_RET_OK if the parameter is set
+ * 	@return GN_RET_ERR_INVALID_ARG if the parameter is not found
+ */
 gn_err_t gn_leaf_param_get_string(const gn_leaf_config_handle_t leaf_config,
-		const char *name, char *val, size_t *lenght) {
+		const char *name, char *val, size_t max_lenght) {
 
 	if (!leaf_config || !name)
 		return GN_RET_ERR_INVALID_ARG;
@@ -1314,17 +1325,16 @@ gn_err_t gn_leaf_param_get_string(const gn_leaf_config_handle_t leaf_config,
 			(gn_leaf_param_handle_intl_t) gn_leaf_param_get_param_handle(
 					leaf_config, name);
 	if (!_param) {
-		return GN_RET_ERR;
+		return GN_RET_ERR_INVALID_ARG;
 	}
 
 	gn_param_val_handle_int_t _val =
 			(gn_param_val_handle_int_t) _param->param_val;
 	if (!_val) {
-		return GN_RET_ERR;
+		return GN_RET_ERR_INVALID_ARG;
 	}
 
-	strcpy(val, _val->v.s);
-	*lenght = strlen(val);
+	strncpy(val, _val->v.s, max_lenght);
 
 	return GN_RET_OK;
 
@@ -1889,8 +1899,8 @@ gn_err_t _gn_leaf_parameter_update(const gn_leaf_config_handle_t leaf_config,
 			//param is the one to update
 
 			//check if has write access
-			if (leaf_params->access != GN_LEAF_PARAM_ACCESS_WRITE
-					&& leaf_params->access != GN_LEAF_PARAM_ACCESS_READWRITE) {
+			if (leaf_params->access != GN_LEAF_PARAM_ACCESS_NETWORK
+					&& leaf_params->access != GN_LEAF_PARAM_ACCESS_ALL) {
 				gn_log(TAG, GN_LOG_ERROR,
 						"gn_leaf_parameter_update - paramater has no WRITE access, change discarded");
 				return GN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION;

@@ -37,6 +37,20 @@ static const int64_t GN_HYDROBOARD2_MAX_HCC_CYCLE_TIME_SEC = 60 * 5;
 //define type
 static const char GN_LEAF_HYDROBOARD2_WATERING_CONTROL_TYPE[] = "watering_control";
 
+
+static const char  GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_FAN[] = "leaf_PLT_FAN";
+static const char  GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_PUMP[] = "leaf_PLT_PUMP";
+static const char  GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_WAT_PUMP[] = "leaf_WAT_PUMP";
+static const char  GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_COOL[] = "leaf_PLT_COOL";
+static const char  GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_HOT[] = "leaf_PLT_HOT";
+static const char  GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_ENV_FAN[] = "leaf_ENV_FAN";
+static const char  GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_BME280[] = "leaf_BME280";
+static const char  GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_DS18B20[] = "leaf_DS18B20";
+static const char  GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_WAT_LEV[] = "leaf_WAT_LEV";
+static const char  GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_LIGHT_1[] = "leaf_LIGHT_1";
+static const char  GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_LIGHT_2[] = "leaf_LIGHT_2";
+
+
 static const char GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_INTERVAL_SEC[] = "wat_int_sec"; //time between two watering cycles
 static const char GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TIME_SEC[] = "wat_time_sec"; //time of one watering cycle
 static const char GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TARGET_TEMP[] = "wat_t_temp";

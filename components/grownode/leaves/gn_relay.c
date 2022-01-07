@@ -59,17 +59,17 @@ gn_leaf_descriptor_handle_t gn_relay_config(gn_leaf_config_handle_t leaf_config)
 
 	data->gn_relay_status_param = gn_leaf_param_create(leaf_config,
 			GN_RELAY_PARAM_TOGGLE, GN_VAL_TYPE_BOOLEAN,
-			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_WRITE,
+			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	data->gn_relay_inverted_param = gn_leaf_param_create(leaf_config,
 			GN_RELAY_PARAM_INVERTED, GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b =
-					false }, GN_LEAF_PARAM_ACCESS_WRITE,
+					false }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	data->gn_relay_gpio_param = gn_leaf_param_create(leaf_config,
 			GN_RELAY_PARAM_GPIO, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 32 },
-			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
+			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	gn_leaf_param_add(leaf_config, data->gn_relay_status_param);
 	gn_leaf_param_add(leaf_config, data->gn_relay_inverted_param);

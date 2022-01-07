@@ -179,13 +179,14 @@ typedef union {
 } gn_val_t;
 
 /*
- * type of parameter access
+ * type of parameter visibility
  */
 typedef enum {
-	GN_LEAF_PARAM_ACCESS_WRITE, /*!< param can be modified only by network (eg. configuration settings from environment)*/
-	GN_LEAF_PARAM_ACCESS_READ, /*!< param can be modified only by the node (eg. sensor data)*/
-	GN_LEAF_PARAM_ACCESS_READWRITE /*!< param can be modified both by the node and network (eg. local configuration settings)*/
-} gn_leaf_param_access_t;
+	GN_LEAF_PARAM_ACCESS_ALL = 0x01, /*!< param can be modified both by the node and network (eg. local configuration settings)*/
+	GN_LEAF_PARAM_ACCESS_NETWORK = 0x02, /*!< param can be modified only by network (eg. configuration settings from environment)*/
+	GN_LEAF_PARAM_ACCESS_NODE = 0x03, /*!< param can be modified only by the node (eg. sensor data)*/
+	GN_LEAF_PARAM_ACCESS_NODE_INTERNAL = 0x04 /*!< param can be modified only by the node (eg. sensor data) and it is not shown externally*/
+} gn_leaf_param_visibility_t;
 
 /*
  * storage policy
