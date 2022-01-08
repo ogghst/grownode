@@ -335,8 +335,9 @@ gn_err_t gn_mqtt_publish_leaf(gn_leaf_config_handle_t _leaf_config) {
 			strncat(d_param_id, _param->name, _GN_MQTT_MAX_TOPIC_LENGTH);
 
 			//build payload
-			strncpy(_d_msg_topic, _config->config_init_params->server_discovery_prefix,
-			_GN_MQTT_MAX_TOPIC_LENGTH);
+			strncpy(_d_msg_topic,
+					_config->config_init_params->server_discovery_prefix,
+					_GN_MQTT_MAX_TOPIC_LENGTH);
 			strncat(_d_msg_topic, "/binary_sensor/", _GN_MQTT_MAX_TOPIC_LENGTH);
 			strncat(_d_msg_topic, d_param_id, _GN_MQTT_MAX_TOPIC_LENGTH);
 			strncat(_d_msg_topic, "/config", _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -484,32 +485,35 @@ esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
 		//ESP_LOGD(TAG, "gn_mqtt_send_node_config - building parameter: %s", _param->name);
 		while (_param) {
 
-			leaf_param = cJSON_CreateObject();
-			cJSON_AddItemToArray(leaf_params, leaf_param);
-			//leaf_param_name = cJSON_CreateString(_param->name);
-			cJSON_AddStringToObject(leaf_param, "name", _param->name);
-			//leaf_param_val = cJSON_CreateString(_param->param_val->val.s);
-			switch (_param->param_val->t) {
-			case GN_VAL_TYPE_STRING:
-				cJSON_AddStringToObject(leaf_param, "type", "string");
-				cJSON_AddStringToObject(leaf_param, "val",
-						_param->param_val->v.s);
-				break;
-			case GN_VAL_TYPE_DOUBLE:
-				cJSON_AddStringToObject(leaf_param, "type", "number");
-				cJSON_AddNumberToObject(leaf_param, "val",
-						_param->param_val->v.d);
-				break;
-			case GN_VAL_TYPE_BOOLEAN:
-				cJSON_AddStringToObject(leaf_param, "type", "bool");
-				cJSON_AddBoolToObject(leaf_param, "val",
-						_param->param_val->v.b);
-				break;
-			default:
-				ESP_LOGE(TAG, "parameter type not handled");
-				goto fail;
-				break;
+			if (_param->access != GN_LEAF_PARAM_ACCESS_NODE_INTERNAL) {
 
+				leaf_param = cJSON_CreateObject();
+				cJSON_AddItemToArray(leaf_params, leaf_param);
+				//leaf_param_name = cJSON_CreateString(_param->name);
+				cJSON_AddStringToObject(leaf_param, "name", _param->name);
+				//leaf_param_val = cJSON_CreateString(_param->param_val->val.s);
+				switch (_param->param_val->t) {
+				case GN_VAL_TYPE_STRING:
+					cJSON_AddStringToObject(leaf_param, "type", "string");
+					cJSON_AddStringToObject(leaf_param, "val",
+							_param->param_val->v.s);
+					break;
+				case GN_VAL_TYPE_DOUBLE:
+					cJSON_AddStringToObject(leaf_param, "type", "number");
+					cJSON_AddNumberToObject(leaf_param, "val",
+							_param->param_val->v.d);
+					break;
+				case GN_VAL_TYPE_BOOLEAN:
+					cJSON_AddStringToObject(leaf_param, "type", "bool");
+					cJSON_AddBoolToObject(leaf_param, "val",
+							_param->param_val->v.b);
+					break;
+				default:
+					ESP_LOGE(TAG, "parameter type not handled");
+					goto fail;
+					break;
+
+				}
 			}
 			_param = _param->next;
 		}
@@ -1238,9 +1242,9 @@ esp_err_t gn_mqtt_init(gn_config_handle_t _conf) {
 	_gn_mqtt_build_status_topic(_conf, _topic);
 
 	esp_mqtt_client_config_t mqtt_cfg = { .uri =
-			conf->config_init_params->server_url, .lwt_topic = _topic, .lwt_msg =
-			"{\"msgtype\": \"offline\"}", .lwt_qos = 1, .lwt_retain = 1,
-			.buffer_size = 4096, };
+			conf->config_init_params->server_url, .lwt_topic = _topic,
+			.lwt_msg = "{\"msgtype\": \"offline\"}", .lwt_qos = 1, .lwt_retain =
+					1, .buffer_size = 4096, };
 
 	esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
 

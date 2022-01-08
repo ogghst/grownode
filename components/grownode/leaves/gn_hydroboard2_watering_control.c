@@ -46,14 +46,17 @@ extern "C" {
 
 #define TAG "gn_leaf_hb2_watering_control"
 
-static const char *PLT_FAN = "plt_fan";
-static const char *PLT_PUMP = "plt_pump";
-static const char *WAT_PUMP = "wat_pump";
-static const char *PLT_COOL = "plt_b";
-static const char *PLT_HOT = "plt_a";
-static const char *BME280 = "env_thp";
-static const char *DS18B20 = "temps";
-static const char *WAT_LEV = "wat_lev";
+static  char *PLT_FAN = "plt_fan";
+static  char *PLT_PUMP = "plt_pump";
+static  char *WAT_PUMP = "wat_pump";
+static  char *PLT_COOL = "plt_b";
+static  char *PLT_HOT = "plt_a";
+static  char *ENV_FAN = "env_fan";
+static  char *BME280 = "env_thp";
+static  char *DS18B20 = "temps";
+static  char *WAT_LEV = "wat_lev";
+static  char *LIGHT_1 = "lig_1";
+static  char *LIGHT_2 = "lig_2";
 
 void gn_hb2_watering_control_task(gn_leaf_config_handle_t leaf_config);
 
@@ -74,6 +77,20 @@ typedef struct {
 	gn_leaf_param_handle_t param_active;
 	gn_leaf_param_handle_t param_watering_t_temp;
 
+	//child leaves name
+	gn_leaf_config_handle_t param_leaf_plt_fan_name;
+	gn_leaf_config_handle_t param_leaf_plt_pump_name;
+	gn_leaf_config_handle_t param_leaf_wat_pump_name;
+	gn_leaf_config_handle_t param_leaf_plt_cool_name;
+	gn_leaf_config_handle_t param_leaf_plt_hot_name;
+	gn_leaf_config_handle_t param_leaf_env_fan_name;
+	gn_leaf_config_handle_t param_leaf_bme280_name;
+	gn_leaf_config_handle_t param_leaf_ds18b20_name;
+	gn_leaf_config_handle_t param_leaf_wat_lev_name;
+	gn_leaf_config_handle_t param_leaf_light_1_name;
+	gn_leaf_config_handle_t param_leaf_light_2_name;
+
+	//child leaves
 	gn_leaf_config_handle_t leaf_cwl;
 	gn_leaf_config_handle_t leaf_ds18b20;
 	gn_leaf_config_handle_t leaf_bme280;
@@ -82,6 +99,8 @@ typedef struct {
 	gn_leaf_config_handle_t leaf_plt_pump;
 	gn_leaf_config_handle_t leaf_plt_fan;
 	gn_leaf_config_handle_t leaf_wat_pump;
+	gn_leaf_config_handle_t leaf_light_1_name;
+	gn_leaf_config_handle_t leaf_light_2_name;
 
 	gn_hcc_status hcc_cycle;
 	int64_t hcc_cycle_start;
@@ -613,7 +632,7 @@ gn_leaf_descriptor_handle_t gn_hb2_watering_control_config(
 	descriptor->status = GN_LEAF_STATUS_NOT_INITIALIZED;
 	descriptor->data = NULL;
 
-	gn_node_config_handle_t node_config = gn_leaf_get_node_config(leaf_config);
+	//gn_node_config_handle_t node_config = gn_leaf_get_node_config(leaf_config);
 
 	gn_hb2_watering_control_data_t *data = malloc(
 			sizeof(gn_hb2_watering_control_data_t));
@@ -625,88 +644,120 @@ gn_leaf_descriptor_handle_t gn_hb2_watering_control_config(
 
 	data->param_watering_time = gn_leaf_param_create(leaf_config,
 			GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TIME_SEC, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 20 }, GN_LEAF_PARAM_ACCESS_WRITE,
+			(gn_val_t ) { .d = 20 }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, _gn_hb2_watering_time_validator);
 	gn_leaf_param_add(leaf_config, data->param_watering_time);
 
 	data->param_watering_interval = gn_leaf_param_create(leaf_config,
 			GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_INTERVAL_SEC,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 60 * 60 },
-			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED,
+			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED,
 			_gn_hb2_watering_interval_validator);
 	gn_leaf_param_add(leaf_config, data->param_watering_interval);
 
 	data->param_watering_t_temp = gn_leaf_param_create(leaf_config,
 			GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TARGET_TEMP,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 22 },
-			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED,
+			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED,
 			_gn_hb2_watering_target_temp_validator);
 	gn_leaf_param_add(leaf_config, data->param_watering_t_temp);
 
 	data->param_active = gn_leaf_param_create(leaf_config,
 			GN_HYDROBOARD2_WAT_CTR_PARAM_ACTIVE, GN_VAL_TYPE_BOOLEAN,
 			(gn_val_t ) { .b =
-					false }, GN_LEAF_PARAM_ACCESS_READWRITE,
+					false }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->param_active);
 
-	data->leaf_cwl = gn_leaf_get_config_handle(node_config, WAT_LEV);
-	if (data->leaf_cwl == NULL) {
-		gn_log(TAG, GN_LOG_ERROR, "not possible to find cwl leaf");
-		goto fail;
-	}
+	//parameters for leaves
+	data->param_leaf_plt_fan_name = gn_leaf_param_create(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_FAN, GN_VAL_TYPE_STRING,
+			(gn_val_t ) { .s = PLT_FAN },
+			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
+			NULL);
+	gn_leaf_param_add(leaf_config, data->param_leaf_plt_fan_name);
 
-	data->leaf_ds18b20 = gn_leaf_get_config_handle(node_config, DS18B20);
-	if (data->leaf_ds18b20 == NULL) {
-		gn_log(TAG, GN_LOG_ERROR, "not possible to find ds18b20 leaf");
-		goto fail;
-	}
+	data->param_leaf_plt_pump_name = gn_leaf_param_create(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_PUMP, GN_VAL_TYPE_STRING,
+			(gn_val_t ) { .s = PLT_PUMP },
+			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
+			NULL);
+	gn_leaf_param_add(leaf_config, data->param_leaf_plt_pump_name);
 
-	data->leaf_bme280 = gn_leaf_get_config_handle(node_config, BME280);
-	if (data->leaf_bme280 == NULL) {
-		gn_log(TAG, GN_LOG_ERROR, "not possible to find bme280 leaf");
-		goto fail;
-	}
+	data->param_leaf_wat_pump_name = gn_leaf_param_create(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_WAT_PUMP, GN_VAL_TYPE_STRING,
+			(gn_val_t ) { .s = WAT_PUMP },
+			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
+			NULL);
+	gn_leaf_param_add(leaf_config, data->param_leaf_wat_pump_name);
 
-	data->leaf_plt_hot = gn_leaf_get_config_handle(node_config, PLT_HOT);
-	if (data->leaf_plt_hot == NULL) {
-		gn_log(TAG, GN_LOG_ERROR, "not possible to find plt_a leaf");
-		goto fail;
-	}
+	data->param_leaf_plt_cool_name = gn_leaf_param_create(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_COOL, GN_VAL_TYPE_STRING,
+			(gn_val_t ) { .s = PLT_COOL },
+			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
+			NULL);
+	gn_leaf_param_add(leaf_config, data->param_leaf_plt_cool_name);
 
-	data->leaf_plt_cool = gn_leaf_get_config_handle(node_config, PLT_COOL);
-	if (data->leaf_plt_cool == NULL) {
-		gn_log(TAG, GN_LOG_ERROR, "not possible to find plt_b leaf");
-		goto fail;
-	}
+	data->param_leaf_plt_hot_name = gn_leaf_param_create(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_HOT, GN_VAL_TYPE_STRING,
+			(gn_val_t ) { .s = PLT_HOT },
+			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
+			NULL);
+	gn_leaf_param_add(leaf_config, data->param_leaf_plt_hot_name);
 
-	data->leaf_plt_pump = gn_leaf_get_config_handle(node_config, PLT_PUMP);
-	if (data->leaf_plt_pump == NULL) {
-		gn_log(TAG, GN_LOG_ERROR, "not possible to find hcc_pump leaf");
-		goto fail;
-	}
+	data->param_leaf_env_fan_name = gn_leaf_param_create(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_ENV_FAN, GN_VAL_TYPE_STRING,
+			(gn_val_t ) { .s = ENV_FAN },
+			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
+			NULL);
+	gn_leaf_param_add(leaf_config, data->param_leaf_env_fan_name);
 
-	data->leaf_plt_fan = gn_leaf_get_config_handle(node_config, PLT_FAN);
-	if (data->leaf_plt_fan == NULL) {
-		gn_log(TAG, GN_LOG_ERROR, "not possible to find plt_fan leaf");
-		goto fail;
-	}
+	data->param_leaf_bme280_name = gn_leaf_param_create(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_BME280, GN_VAL_TYPE_STRING,
+			(gn_val_t ) { .s = BME280 },
+			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
+			NULL);
+	gn_leaf_param_add(leaf_config, data->param_leaf_bme280_name);
 
-	data->leaf_wat_pump = gn_leaf_get_config_handle(node_config, WAT_PUMP);
-	if (data->leaf_wat_pump == NULL) {
-		gn_log(TAG, GN_LOG_ERROR, "not possible to find wat_pump leaf");
-		goto fail;
-	}
+	data->param_leaf_ds18b20_name = gn_leaf_param_create(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_DS18B20, GN_VAL_TYPE_STRING,
+			(gn_val_t ) { .s = DS18B20 },
+			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
+			NULL);
+	gn_leaf_param_add(leaf_config, data->param_leaf_ds18b20_name);
+
+	data->param_leaf_wat_lev_name = gn_leaf_param_create(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_WAT_LEV, GN_VAL_TYPE_STRING,
+			(gn_val_t ) { .s = WAT_LEV },
+			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
+			NULL);
+	gn_leaf_param_add(leaf_config, data->param_leaf_wat_lev_name);
+
+	data->param_leaf_light_1_name = gn_leaf_param_create(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_LIGHT_1, GN_VAL_TYPE_STRING,
+			(gn_val_t ) { .s = LIGHT_1 },
+			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
+			NULL);
+	gn_leaf_param_add(leaf_config, data->param_leaf_light_1_name);
+
+	data->param_leaf_light_2_name = gn_leaf_param_create(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_LIGHT_2, GN_VAL_TYPE_STRING,
+			(gn_val_t ) { .s = LIGHT_2 },
+			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
+			NULL);
+	gn_leaf_param_add(leaf_config, data->param_leaf_light_1_name);
 
 	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
 
 	descriptor->data = data;
 	return descriptor;
 
-	fail: descriptor->status = GN_LEAF_STATUS_ERROR;
+	/*
+	fail:
+	descriptor->status = GN_LEAF_STATUS_ERROR;
 	descriptor->data = data;
 	return descriptor;
-
+	*/
 }
 
 void gn_hb2_watering_control_task(gn_leaf_config_handle_t leaf_config) {
@@ -714,12 +765,102 @@ void gn_hb2_watering_control_task(gn_leaf_config_handle_t leaf_config) {
 	ESP_LOGD(TAG, "%s - gn_hb2_watering_control_task",
 			gn_leaf_get_config_name(leaf_config));
 
+	gn_node_config_handle_t node_config = gn_leaf_get_node_config(leaf_config);
+
 	gn_leaf_parameter_event_t evt;
 
 	//retrieves status descriptor from config
 	gn_leaf_descriptor_handle_t descriptor = gn_leaf_get_descriptor(
 			leaf_config);
 	gn_hb2_watering_control_data_t *data = descriptor->data;
+
+	char plt_fan_name[16];
+	gn_leaf_param_get_string(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_FAN, plt_fan_name, 16);
+	data->leaf_plt_fan =
+			gn_leaf_get_config_handle(node_config, plt_fan_name);
+	if (data->leaf_plt_fan == NULL) {
+		gn_log(TAG, GN_LOG_ERROR, "not possible to find plt_fan leaf");
+		goto fail;
+	}
+
+	char plt_pump_name[16];
+	gn_leaf_param_get_string(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_PUMP, plt_pump_name, 16), data->leaf_plt_pump =
+			gn_leaf_get_config_handle(node_config, plt_pump_name);
+	if (data->leaf_plt_pump == NULL) {
+		gn_log(TAG, GN_LOG_ERROR, "not possible to find hcc_pump leaf");
+		goto fail;
+	}
+
+	char wat_pump_name[16];
+	gn_leaf_param_get_string(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_WAT_PUMP, wat_pump_name, 16), data->leaf_wat_pump =
+			gn_leaf_get_config_handle(node_config, wat_pump_name);
+	if (data->leaf_wat_pump == NULL) {
+		gn_log(TAG, GN_LOG_ERROR, "not possible to find wat_pump leaf");
+		goto fail;
+	}
+
+	char plt_cool_name[16];
+	gn_leaf_param_get_string(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_COOL, plt_cool_name, 16), data->leaf_plt_cool =
+			gn_leaf_get_config_handle(node_config, plt_cool_name);
+	if (data->leaf_plt_cool == NULL) {
+		gn_log(TAG, GN_LOG_ERROR, "not possible to find plt_b leaf");
+		goto fail;
+	}
+
+	char plt_hot_name[16];
+	gn_leaf_param_get_string(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_HOT, plt_hot_name, 16), data->leaf_plt_hot =
+			gn_leaf_get_config_handle(node_config, plt_hot_name);
+	if (data->leaf_plt_hot == NULL) {
+		gn_log(TAG, GN_LOG_ERROR, "not possible to find plt_a leaf");
+		goto fail;
+	}
+
+	char env_fan_name[16];
+	gn_leaf_param_get_string(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_ENV_FAN, env_fan_name, 16);
+	//TODO not yet implemented
+
+	char bme280_name[16];
+	gn_leaf_param_get_string(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_BME280, bme280_name, 16);
+	data->leaf_bme280 = gn_leaf_get_config_handle(node_config, bme280_name);
+	if (data->leaf_bme280 == NULL) {
+		gn_log(TAG, GN_LOG_ERROR, "not possible to find bme280 leaf");
+		goto fail;
+	}
+
+	char ds18b20_name[16];
+	gn_leaf_param_get_string(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_DS18B20, ds18b20_name, 16);
+	data->leaf_ds18b20 = gn_leaf_get_config_handle(node_config, ds18b20_name);
+	if (data->leaf_ds18b20 == NULL) {
+		gn_log(TAG, GN_LOG_ERROR, "not possible to find ds18b20 leaf");
+		goto fail;
+	}
+
+	char wat_lev_name[16];
+	gn_leaf_param_get_string(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_WAT_LEV, wat_lev_name, 16);
+	data->leaf_cwl = gn_leaf_get_config_handle(node_config, wat_lev_name);
+	if (data->leaf_cwl == NULL) {
+		gn_log(TAG, GN_LOG_ERROR, "not possible to find cwl leaf");
+		goto fail;
+	}
+
+	char light_1_name[16];
+	gn_leaf_param_get_string(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_LIGHT_1, light_1_name, 16);
+	//TODO not yet implemented
+
+	char light_2_name[16];
+	gn_leaf_param_get_string(leaf_config,
+			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_LIGHT_1, light_2_name, 16);
+	//TODO not yet implemented
 
 	gn_leaf_event_subscribe(leaf_config, GN_LEAF_PARAM_CHANGED_EVENT);
 
@@ -849,6 +990,12 @@ void gn_hb2_watering_control_task(gn_leaf_config_handle_t leaf_config) {
 
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 
+	}
+
+	//in case of error, the leaf goes in an infinite loop doing nothing
+	fail: descriptor->status = GN_LEAF_STATUS_ERROR;
+	while(true) {
+		vTaskDelay(10000 / portTICK_PERIOD_MS);
 	}
 
 }

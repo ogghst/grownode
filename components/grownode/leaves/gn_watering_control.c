@@ -605,26 +605,26 @@ gn_leaf_descriptor_handle_t gn_watering_control_config(
 
 	data->param_watering_time = gn_leaf_param_create(leaf_config,
 			GN_WAT_CTR_PARAM_WATERING_TIME_SEC, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 20 }, GN_LEAF_PARAM_ACCESS_WRITE,
+			(gn_val_t ) { .d = 20 }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, _gn_watering_time_validator);
 	gn_leaf_param_add(leaf_config, data->param_watering_time);
 
 	data->param_watering_interval = gn_leaf_param_create(leaf_config,
 			GN_WAT_CTR_PARAM_WATERING_INTERVAL_SEC, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 60 * 60 }, GN_LEAF_PARAM_ACCESS_WRITE,
+			(gn_val_t ) { .d = 60 * 60 }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, _gn_watering_interval_validator);
 	gn_leaf_param_add(leaf_config, data->param_watering_interval);
 
 	data->param_watering_t_temp = gn_leaf_param_create(leaf_config,
 			GN_WAT_CTR_PARAM_WATERING_TARGET_TEMP, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 22 }, GN_LEAF_PARAM_ACCESS_WRITE,
+			(gn_val_t ) { .d = 22 }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED,
 			_gn_watering_target_temp_validator);
 	gn_leaf_param_add(leaf_config, data->param_watering_t_temp);
 
 	data->param_active = gn_leaf_param_create(leaf_config,
 			GN_WAT_CTR_PARAM_ACTIVE, GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b =
-					false }, GN_LEAF_PARAM_ACCESS_READWRITE,
+					false }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->param_active);
 

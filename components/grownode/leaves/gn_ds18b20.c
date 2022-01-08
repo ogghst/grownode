@@ -174,28 +174,28 @@ gn_leaf_descriptor_handle_t gn_ds18b20_config(
 
 	data->active_param = gn_leaf_param_create(leaf_config,
 			GN_DS18B20_PARAM_ACTIVE, GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b =
-					true }, GN_LEAF_PARAM_ACCESS_WRITE,
+					true }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->active_param);
 
 	//get update time in sec, default 30
 	data->update_time_param = gn_leaf_param_create(leaf_config,
 			GN_DS18B20_PARAM_UPDATE_TIME_SEC, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
-							.d = 30 }, GN_LEAF_PARAM_ACCESS_WRITE,
+							.d = 30 }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, _gn_upd_time_sec_validator);
 	gn_leaf_param_add(leaf_config, data->update_time_param);
 
 	//get gpio from params. default 27
 	data->gpio_param = gn_leaf_param_create(leaf_config, GN_DS18B20_PARAM_GPIO,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 27 },
-			GN_LEAF_PARAM_ACCESS_WRITE, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
+			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->gpio_param);
 
 	//get params for temp. init to 0
 	for (int i = 0; i < GN_DS18B20_MAX_SENSORS; i++) {
 		data->temp_param[i] = gn_leaf_param_create(leaf_config,
 				GN_DS18B20_PARAM_SENSOR_NAMES[i], GN_VAL_TYPE_DOUBLE,
-				(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_READ,
+				(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_NODE,
 				GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
 		gn_leaf_param_add(leaf_config, data->temp_param[i]);
 	}

@@ -52,7 +52,7 @@ gn_leaf_descriptor_handle_t gn_leaf_status_led_config(
 
 	data->gn_leaf_status_led_gpio_param = gn_leaf_param_create(leaf_config,
 			GN_LEAF_STATUS_LED_PARAM_GPIO, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
-							.d = 32 }, GN_LEAF_PARAM_ACCESS_WRITE,
+							.d = 32 }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	gn_leaf_param_add(leaf_config, data->gn_leaf_status_led_gpio_param);

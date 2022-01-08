@@ -140,41 +140,41 @@ gn_leaf_descriptor_handle_t gn_capacitive_moisture_sensor_config(
 
 	data->active_param = gn_leaf_param_create(leaf_config, GN_CMS_PARAM_ACTIVE,
 			GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b = false },
-			GN_LEAF_PARAM_ACCESS_READWRITE, GN_LEAF_PARAM_STORAGE_PERSISTED,
+			GN_LEAF_PARAM_ACCESS_ALL, GN_LEAF_PARAM_STORAGE_PERSISTED,
 			NULL);
 
 	data->adc_channel_param = gn_leaf_param_create(leaf_config,
 			GN_CMS_PARAM_ADC_CHANNEL, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_READWRITE,
+			(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	data->max_level_param = gn_leaf_param_create(leaf_config,
 			GN_CMS_PARAM_MAX_LEVEL, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 1000 }, GN_LEAF_PARAM_ACCESS_READWRITE,
+			(gn_val_t ) { .d = 1000 }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	data->min_level_param = gn_leaf_param_create(leaf_config,
 			GN_CMS_PARAM_MIN_LEVEL, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
-			GN_LEAF_PARAM_ACCESS_READWRITE, GN_LEAF_PARAM_STORAGE_PERSISTED,
+			GN_LEAF_PARAM_ACCESS_ALL, GN_LEAF_PARAM_STORAGE_PERSISTED,
 			NULL);
 
 	data->act_level_param = gn_leaf_param_create(leaf_config,
 			GN_CMS_PARAM_ACT_LEVEL, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
-			GN_LEAF_PARAM_ACCESS_READ, GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
+			GN_LEAF_PARAM_ACCESS_NODE, GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
 
 	data->trg_hig_param = gn_leaf_param_create(leaf_config,
 			GN_CMS_PARAM_TRG_HIGH, GN_VAL_TYPE_BOOLEAN,
-			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_READ,
+			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_NODE,
 			GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
 
 	data->trg_low_param = gn_leaf_param_create(leaf_config,
 			GN_CMS_PARAM_TRG_LOW, GN_VAL_TYPE_BOOLEAN,
-			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_READ,
+			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_NODE,
 			GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
 
 	data->upd_time_sec_param = gn_leaf_param_create(leaf_config,
 			GN_CMS_PARAM_UPDATE_TIME_SEC, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d =
-							10 }, GN_LEAF_PARAM_ACCESS_READWRITE,
+							10 }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	gn_leaf_param_add(leaf_config, data->active_param);

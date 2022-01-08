@@ -69,30 +69,30 @@ gn_leaf_descriptor_handle_t gn_pump_config(gn_leaf_config_handle_t leaf_config) 
 	//parameter definition. if found in flash storage, they will be created with found values instead of default
 	data->gn_pump_toggle_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_PARAM_TOGGLE, GN_VAL_TYPE_BOOLEAN,
-			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_READWRITE,
+			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->gn_pump_toggle_param);
 
 	data->gn_pump_channel_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_PARAM_CHANNEL, GN_VAL_TYPE_BOOLEAN,
-			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_READWRITE,
+			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->gn_pump_channel_param);
 
 	data->gn_pump_gpio_toggle_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_PARAM_GPIO_TOGGLE, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 32 }, GN_LEAF_PARAM_ACCESS_WRITE,
+			(gn_val_t ) { .d = 32 }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->gn_pump_gpio_toggle_param);
 
 	data->gn_pump_power_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_PARAM_POWER, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
-			GN_LEAF_PARAM_ACCESS_READWRITE, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
+			GN_LEAF_PARAM_ACCESS_ALL, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->gn_pump_power_param);
 
 	data->gn_pump_gpio_power_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_PARAM_GPIO_POWER, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 32 }, GN_LEAF_PARAM_ACCESS_WRITE,
+			(gn_val_t ) { .d = 32 }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add(leaf_config, data->gn_pump_gpio_power_param);
 
