@@ -114,38 +114,38 @@ gn_leaf_descriptor_handle_t gn_bme280_config(
 			GN_BME280_PARAM_ACTIVE, GN_VAL_TYPE_BOOLEAN,
 			(gn_val_t ) { .b = true }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
-	gn_leaf_param_add(leaf_config, data->active_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->active_param);
 
 	data->sda_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_SDA,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 21 },
 			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
-	gn_leaf_param_add(leaf_config, data->sda_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->sda_param);
 
 	data->scl_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_SCL,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 22 },
 			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
-	gn_leaf_param_add(leaf_config, data->scl_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->scl_param);
 
 	data->update_time_param = gn_leaf_param_create(leaf_config,
 			GN_BME280_PARAM_UPDATE_TIME_SEC, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
 							.d = 120 }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
-	gn_leaf_param_add(leaf_config, data->update_time_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->update_time_param);
 
 	data->temp_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_TEMP,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
 			GN_LEAF_PARAM_ACCESS_NODE, GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
-	gn_leaf_param_add(leaf_config, data->temp_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->temp_param);
 
 	data->hum_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_HUM,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
 			GN_LEAF_PARAM_ACCESS_NODE, GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
-	gn_leaf_param_add(leaf_config, data->hum_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->hum_param);
 
 	data->press_param = gn_leaf_param_create(leaf_config, GN_BME280_PARAM_PRESS,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
 			GN_LEAF_PARAM_ACCESS_NODE, GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
-	gn_leaf_param_add(leaf_config, data->press_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->press_param);
 
 	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
 	descriptor->data = data;
@@ -178,8 +178,9 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 	double press;
 	gn_leaf_param_get_double(leaf_config, GN_BME280_PARAM_PRESS, &press);
 
-	ESP_LOGD(TAG, "%s - bme280 task started",
-			gn_leaf_get_config_name(leaf_config));
+	char leaf_name[GN_LEAF_NAME_SIZE];
+	gn_leaf_get_name(leaf_config, leaf_name);
+	ESP_LOGD(TAG, "%s - bme280 task started", leaf_name);
 
 	esp_err_t ret = i2cdev_init();
 
@@ -295,12 +296,12 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 	if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 		//parent container where adding elements
-		lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf_display(leaf_config);
+		lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf(leaf_config);
 
 		if (_cnt) {
 
 			//style from the container
-			lv_style_t *style = _cnt->styles->style;
+			//lv_style_t *style = _cnt->styles->style;
 
 			ESP_LOGD(TAG, "Set Layout");
 			//lv_obj_set_layout(_cnt, LV_LAYOUT_GRID);
@@ -311,8 +312,7 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 
 			ESP_LOGD(TAG, "label_title");
 			label_title = lv_label_create(_cnt);
-			lv_label_set_text(label_title,
-					gn_leaf_get_config_name(leaf_config));
+			lv_label_set_text(label_title, leaf_name);
 			//lv_obj_add_style(label_title, style, 0);
 			//lv_obj_align_to(label_title, _cnt, LV_ALIGN_TOP_MID, 0, LV_PCT(10));
 			lv_obj_set_grid_cell(label_title, LV_GRID_ALIGN_CENTER, 0, 2,
@@ -395,7 +395,7 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 						evt.param_name, evt.data);
 
 				//parameter is update time
-				if (gn_common_leaf_event_mask_param(&evt,
+				if (gn_leaf_event_mask_param(&evt,
 						data->update_time_param) == 0) {
 
 					//check limits
@@ -417,7 +417,7 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 								update_time * 1000000);
 					}
 
-				} else if (gn_common_leaf_event_mask_param(&evt,
+				} else if (gn_leaf_event_mask_param(&evt,
 						data->sda_param) == 0) {
 
 					//check limits
@@ -429,7 +429,7 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 						sda = _sda;
 					}
 
-				} else if (gn_common_leaf_event_mask_param(&evt,
+				} else if (gn_leaf_event_mask_param(&evt,
 						data->scl_param) == 0) {
 
 					//check limits
@@ -441,7 +441,7 @@ void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
 						scl = _scl;
 					}
 
-				} else if (gn_common_leaf_event_mask_param(&evt,
+				} else if (gn_leaf_event_mask_param(&evt,
 						data->active_param) == 0) {
 
 					bool prev_active = active;

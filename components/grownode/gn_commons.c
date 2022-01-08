@@ -24,7 +24,7 @@ extern "C" {
 
 #define TAG "gn_commons"
 
-inline size_t gn_common_leaf_event_mask_param(gn_leaf_parameter_event_handle_t evt,
+inline size_t gn_leaf_event_mask_param(gn_leaf_parameter_event_handle_t evt,
 		gn_leaf_param_handle_t param) {
 
 	if (!evt || !param)
@@ -43,7 +43,7 @@ inline size_t gn_common_leaf_event_mask_param(gn_leaf_parameter_event_handle_t e
 	return 1;
 }
 
-uint64_t inline gn_common_hash(const char *key) {
+uint64_t inline gn_hash(const char *key) {
 	uint64_t h = 525201411107845655ull;
 	for (; *key; ++key) {
 		h ^= *key;
@@ -56,15 +56,15 @@ uint64_t inline gn_common_hash(const char *key) {
 /*
  * hashes to a len bytes max
  */
-void inline gn_common_hash_str(const char *key, char *buf, size_t len) {
+void inline gn_hash_str(const char *key, char *buf, size_t len) {
 
-	uint64_t r = gn_common_hash(key);
+	uint64_t r = gn_hash(key);
 	snprintf(buf, len, "%llu", r);
 	ESP_LOGD(TAG, "gn_common_hash_str(%s) - %s", key, buf);
 
 }
 
-gn_leaf_param_validator_result_t _gn_commons_double_positive_validator(
+gn_leaf_param_validator_result_t gn_validator_double_positive(
 		gn_leaf_param_handle_t param, void **param_value) {
 
 	double val;
@@ -92,7 +92,7 @@ gn_leaf_param_validator_result_t _gn_commons_double_positive_validator(
 
 }
 
-gn_leaf_param_validator_result_t _gn_commons_double_validator(
+gn_leaf_param_validator_result_t _gn_validator_double(
 		gn_leaf_param_handle_t param, void **param_value) {
 
 	double val;

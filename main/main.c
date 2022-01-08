@@ -40,10 +40,11 @@ void app_main(void) {
 	esp_log_level_set("gn_mqtt_protocol", ESP_LOG_INFO);
 	esp_log_level_set("gn_network", ESP_LOG_INFO);
 	esp_log_level_set("gn_display", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_cms", ESP_LOG_INFO);
+
+	esp_log_level_set("gn_leaf_relay", ESP_LOG_DEBUG);
 
 	//boards
-	esp_log_level_set("gn_blink", ESP_LOG_INFO);
+	esp_log_level_set("gn_blink", ESP_LOG_DEBUG);
 
 	gn_config_init_param_t config_init = {
 		.provisioning_security = true,
@@ -62,10 +63,10 @@ void app_main(void) {
 	gn_config_handle_t config = gn_init(&config_init);
 
 	//waits until the config process ends
-	while (gn_get_config_status(config) != GN_CONFIG_STATUS_COMPLETED) {
+	while (gn_get_status(config) != GN_CONFIG_STATUS_COMPLETED) {
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 		ESP_LOGI(TAG, "grownode startup sequence code: %d",
-				gn_get_config_status(config));
+				gn_get_status(config));
 	}
 
 	//creates a new node

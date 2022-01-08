@@ -21,17 +21,22 @@ extern "C" {
 
 #include "grownode.h"
 
+#ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
+
 esp_err_t gn_init_display(gn_config_handle_t conf);
 
 void gn_display_leaf_start(gn_leaf_config_handle_t leaf_config);
 
-gn_display_container_t gn_display_setup_leaf_display(gn_leaf_config_handle_t leaf_config);
+gn_display_container_t gn_display_setup_leaf(gn_leaf_config_handle_t leaf_config);
 
 BaseType_t gn_display_leaf_refresh_start();
 
 BaseType_t gn_display_leaf_refresh_end();
 
 SemaphoreHandle_t _gn_xGuiSemaphore;
+
+#endif
+
 
 #ifdef __cplusplus
 }

@@ -99,7 +99,6 @@ void gn_cms_sensor_collect(gn_leaf_config_handle_t leaf_config) {
 
 	ESP_LOGD(TAG, "Output Data: %f", result);
 
-
 	//store parameter and notify network
 	gn_leaf_param_set_double(leaf_config, GN_CMS_PARAM_ACT_LEVEL, result);
 
@@ -177,14 +176,14 @@ gn_leaf_descriptor_handle_t gn_capacitive_moisture_sensor_config(
 							10 }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
-	gn_leaf_param_add(leaf_config, data->active_param);
-	gn_leaf_param_add(leaf_config, data->adc_channel_param);
-	gn_leaf_param_add(leaf_config, data->max_level_param);
-	gn_leaf_param_add(leaf_config, data->min_level_param);
-	gn_leaf_param_add(leaf_config, data->act_level_param);
-	gn_leaf_param_add(leaf_config, data->trg_hig_param);
-	gn_leaf_param_add(leaf_config, data->trg_low_param);
-	gn_leaf_param_add(leaf_config, data->upd_time_sec_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->active_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->adc_channel_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->max_level_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->min_level_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->act_level_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->trg_hig_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->trg_low_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->upd_time_sec_param);
 
 	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
 	descriptor->data = data;
@@ -195,6 +194,9 @@ gn_leaf_descriptor_handle_t gn_capacitive_moisture_sensor_config(
 void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 
 	ESP_LOGD(TAG, "gn_cms_task");
+
+	char leaf_name[GN_LEAF_NAME_SIZE];
+	gn_leaf_get_name(leaf_config, leaf_name);
 
 	esp_err_t ret;
 	gn_leaf_parameter_event_t evt;
@@ -228,25 +230,26 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 	gn_leaf_param_get_double(leaf_config, GN_CMS_PARAM_UPDATE_TIME_SEC,
 			&update_time_sec);
 
-	ESP_LOGD(TAG, "Configuring moisture sensor. Unit=%d, width = %d, channel=%d, atten=%d", unit, width, (int)adc_channel, atten);
+	ESP_LOGD(TAG,
+			"Configuring moisture sensor. Unit=%d, width = %d, channel=%d, atten=%d",
+			unit, width, (int )adc_channel, atten);
 
 	//configure ADC
 	adc1_config_width(width);
-	adc1_config_channel_atten((int)adc_channel, atten);
+	adc1_config_channel_atten((int) adc_channel, atten);
 
 	//Characterize ADC
 	data->adc_chars = calloc(1, sizeof(esp_adc_cal_characteristics_t));
 	esp_adc_cal_value_t val_type = esp_adc_cal_characterize(unit, atten, width,
 	DEFAULT_VREF, data->adc_chars);
 
-    if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP) {
-    	ESP_LOGD(TAG, "Characterized using Two Point Value");
-    } else if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF) {
-    	ESP_LOGD(TAG, "Characterized using eFuse Vref");
-    } else {
-    	ESP_LOGD(TAG, "Characterized using Default Vref");
-    }
-
+	if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP) {
+		ESP_LOGD(TAG, "Characterized using Two Point Value");
+	} else if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF) {
+		ESP_LOGD(TAG, "Characterized using eFuse Vref");
+	} else {
+		ESP_LOGD(TAG, "Characterized using Default Vref");
+	}
 
 	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
@@ -266,7 +269,7 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 	if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 		//parent container where adding elements
-		lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf_display(leaf_config);
+		lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf(leaf_config);
 
 		if (_cnt) {
 
@@ -282,8 +285,7 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 
 			ESP_LOGD(TAG, "label_title");
 			label_title = lv_label_create(_cnt);
-			lv_label_set_text(label_title,
-					gn_leaf_get_config_name(leaf_config));
+			lv_label_set_text(label_title, leaf_name);
 			//lv_obj_add_style(label_title, style, 0);
 			//lv_obj_align_to(label_title, _cnt, LV_ALIGN_TOP_MID, 0, LV_PCT(10));
 			lv_obj_set_grid_cell(label_title, LV_GRID_ALIGN_CENTER, 0, 2,
@@ -394,8 +396,8 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 						evt.param_name, evt.data);
 
 				//parameter is update time
-				if (gn_common_leaf_event_mask_param(&evt,
-						data->upd_time_sec_param) == 0) {
+				if (gn_leaf_event_mask_param(&evt, data->upd_time_sec_param)
+						== 0) {
 
 					//check limits
 					double updtime = strtod(evt.data, NULL);
@@ -414,8 +416,8 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 					gn_leaf_param_set_double(leaf_config,
 							GN_CMS_PARAM_UPDATE_TIME_SEC, updtime);
 
-				} else if (gn_common_leaf_event_mask_param(&evt,
-						data->active_param) == 0) {
+				} else if (gn_leaf_event_mask_param(&evt, data->active_param)
+						== 0) {
 
 					bool prev_active = active;
 					int _active = atoi(evt.data);
@@ -452,25 +454,22 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 			char _buf[21];
 
 			double act_level;
-			gn_leaf_param_get_double(leaf_config, GN_CWL_PARAM_ACT_LEVEL, &act_level);
+			gn_leaf_param_get_double(leaf_config, GN_CMS_PARAM_ACT_LEVEL,
+					&act_level);
 
 			snprintf(_buf, 20, "%4.2f", act_level);
 			lv_label_set_text(trg_act_value, _buf);
 
-			if (trg_high == true
-					&& trg_low == false)
+			if (trg_high == true && trg_low == false)
 				strncpy(_buf, "HIGH", 20);
 
-			if (trg_high == false
-					&& trg_low == true)
+			if (trg_high == false && trg_low == true)
 				strncpy(_buf, "LOW", 20);
 
-			if (trg_high == true
-					&& trg_low == true)
+			if (trg_high == true && trg_low == true)
 				strncpy(_buf, "ERR_H", 20);
 
-			if (trg_high == false
-					&& trg_low == false)
+			if (trg_high == false && trg_low == false)
 				strncpy(_buf, "OK", 20);
 
 			lv_label_set_text(trg_value, _buf);

@@ -55,7 +55,7 @@ gn_leaf_descriptor_handle_t gn_leaf_status_led_config(
 							.d = 32 }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
-	gn_leaf_param_add(leaf_config, data->gn_leaf_status_led_gpio_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->gn_leaf_status_led_gpio_param);
 
 	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
 	descriptor->data = data;
@@ -102,8 +102,9 @@ void gn_leaf_led_status_event_handler(void *handler_args, esp_event_base_t base,
 
 void gn_leaf_status_led_task(gn_leaf_config_handle_t leaf_config) {
 
-	ESP_LOGD(TAG, "Initializing leaf status led %s..",
-			gn_leaf_get_config_name(leaf_config));
+	char leaf_name[GN_LEAF_NAME_SIZE];
+	gn_leaf_get_name(leaf_config, leaf_name);
+	ESP_LOGD(TAG, "Initializing leaf status led %s..",leaf_name);
 
 	gn_leaf_parameter_event_t evt;
 
@@ -118,7 +119,7 @@ void gn_leaf_status_led_task(gn_leaf_config_handle_t leaf_config) {
 
 //register for events
 	ESP_ERROR_CHECK(
-			esp_event_handler_instance_register_with(gn_leaf_get_config_event_loop(leaf_config), GN_BASE_EVENT, GN_EVENT_ANY_ID, gn_leaf_led_status_event_handler, leaf_config, NULL));
+			esp_event_handler_instance_register_with(gn_leaf_get_event_loop(leaf_config), GN_BASE_EVENT, GN_EVENT_ANY_ID, gn_leaf_led_status_event_handler, leaf_config, NULL));
 
 //task cycle
 	while (true) {
@@ -129,8 +130,7 @@ void gn_leaf_status_led_task(gn_leaf_config_handle_t leaf_config) {
 		if (xQueueReceive(gn_leaf_get_event_queue(leaf_config), &evt,
 				pdMS_TO_TICKS(100)) == pdPASS) {
 
-			ESP_LOGD(TAG, "%s - received message: %d",
-					gn_leaf_get_config_name(leaf_config), evt.id);
+			ESP_LOGD(TAG, "%s - received message: %d", leaf_name, evt.id);
 
 			//event arrived for this node
 			switch (evt.id) {

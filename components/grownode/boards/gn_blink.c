@@ -35,7 +35,7 @@ void led_blink_callback(const gn_leaf_config_handle_t blink) {
 	ESP_LOGI(TAG, "blinking - %d", status);
 
 	//set the new parameter
-	gn_leaf_param_send_bool(blink, GN_RELAY_PARAM_TOGGLE, status);
+	gn_leaf_param_update_bool(blink, GN_RELAY_PARAM_TOGGLE, status);
 
 }
 

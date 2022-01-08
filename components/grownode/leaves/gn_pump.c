@@ -71,30 +71,30 @@ gn_leaf_descriptor_handle_t gn_pump_config(gn_leaf_config_handle_t leaf_config) 
 			GN_PUMP_PARAM_TOGGLE, GN_VAL_TYPE_BOOLEAN,
 			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
-	gn_leaf_param_add(leaf_config, data->gn_pump_toggle_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->gn_pump_toggle_param);
 
 	data->gn_pump_channel_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_PARAM_CHANNEL, GN_VAL_TYPE_BOOLEAN,
 			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
-	gn_leaf_param_add(leaf_config, data->gn_pump_channel_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->gn_pump_channel_param);
 
 	data->gn_pump_gpio_toggle_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_PARAM_GPIO_TOGGLE, GN_VAL_TYPE_DOUBLE,
 			(gn_val_t ) { .d = 32 }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
-	gn_leaf_param_add(leaf_config, data->gn_pump_gpio_toggle_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->gn_pump_gpio_toggle_param);
 
 	data->gn_pump_power_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_PARAM_POWER, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
 			GN_LEAF_PARAM_ACCESS_ALL, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
-	gn_leaf_param_add(leaf_config, data->gn_pump_power_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->gn_pump_power_param);
 
 	data->gn_pump_gpio_power_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_PARAM_GPIO_POWER, GN_VAL_TYPE_DOUBLE,
 			(gn_val_t ) { .d = 32 }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
-	gn_leaf_param_add(leaf_config, data->gn_pump_gpio_power_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->gn_pump_gpio_power_param);
 
 	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
 	descriptor->data = data;
@@ -137,8 +137,11 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 
 	//setup pwm
 
+	char leaf_name[GN_LEAF_NAME_SIZE];
+	gn_leaf_get_name(leaf_config, leaf_name);
+
 	ESP_LOGD(TAG, "%s - setting pwm pin %d channel %d",
-			gn_leaf_get_config_name(leaf_config), (int )gpio_toggle,
+			leaf_name, (int )gpio_toggle,
 			(int )channel);
 
 	mcpwm_unit_t pwm_unit = channel ? MCPWM_UNIT_1 : MCPWM_UNIT_0;
@@ -166,7 +169,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 	pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
 	mcpwm_init(pwm_unit, pwm_timer, &pwm_config); //Configure PWM0A & PWM0B with above settings
 
-	ESP_LOGD(TAG, "%s - pwm initialized", gn_leaf_get_config_name(leaf_config));
+	ESP_LOGD(TAG, "%s - pwm initialized", leaf_name);
 
 	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
@@ -177,7 +180,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 	if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 		//parent container where adding elements
-		lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf_display(leaf_config);
+		lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf(leaf_config);
 
 		if (_cnt) {
 
@@ -191,8 +194,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 			lv_obj_set_grid_dsc_array(_cnt, col_dsc, row_dsc);
 
 			label_title = lv_label_create(_cnt);
-			lv_label_set_text(label_title,
-					gn_leaf_get_config_name(leaf_config));
+			lv_label_set_text(label_title, leaf_name);
 			//lv_obj_add_style(label_title, style, 0);
 			//lv_obj_align_to(label_title, _cnt, LV_ALIGN_TOP_MID, 0, LV_PCT(10));
 			lv_obj_set_grid_cell(label_title, LV_GRID_ALIGN_CENTER, 0, 2,
@@ -247,7 +249,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 						evt.param_name, evt.data);
 
 				//parameter is status
-				if (gn_common_leaf_event_mask_param(&evt,
+				if (gn_leaf_event_mask_param(&evt,
 						data->gn_pump_toggle_param) == 0) {
 
 					const bool ret =
@@ -272,7 +274,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 #endif
 
 					//parameter is power
-				} else if (gn_common_leaf_event_mask_param(&evt,
+				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_pump_gpio_toggle_param) == 0) {
 
 					//check limits
@@ -283,7 +285,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 								GN_PUMP_PARAM_GPIO_TOGGLE, gpio);
 					}
 
-				} else if (gn_common_leaf_event_mask_param(&evt,
+				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_pump_power_param) == 0) {
 
 					double pow = strtod(evt.data, NULL);
@@ -308,7 +310,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 					}
 #endif
 
-				} else if (gn_common_leaf_event_mask_param(&evt,
+				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_pump_gpio_power_param) == 0) {
 
 					//check limits
@@ -369,7 +371,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 				}
 
 				ESP_LOGD(TAG, "%s - toggle off",
-						gn_leaf_get_config_name(leaf_config));
+						leaf_name);
 
 				need_update = false;
 
@@ -390,7 +392,7 @@ void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
 				}
 
 				ESP_LOGD(TAG, "%s - setting power pin %d to %d",
-						gn_leaf_get_config_name(leaf_config), (int )gpio_power,
+						leaf_name, (int )gpio_power,
 						(int )power);
 				need_update = false;
 			}

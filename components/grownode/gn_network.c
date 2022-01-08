@@ -421,7 +421,9 @@ esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
 
 }
 
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
 static bool time_sync_init_done = false;
+#endif
 
 esp_err_t _gn_init_time_sync(gn_config_handle_t conf) {
 

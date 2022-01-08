@@ -200,12 +200,12 @@ typedef void *gn_leaf_param_handle_t;
 
 //typedef void* gn_leaf_context_handle_t;
 
-size_t gn_common_leaf_event_mask_param(gn_leaf_parameter_event_handle_t evt,
+size_t gn_leaf_event_mask_param(gn_leaf_parameter_event_handle_t evt,
 		gn_leaf_param_handle_t param);
 
-uint64_t gn_common_hash(const char *key);
+uint64_t gn_hash(const char *key);
 
-void gn_common_hash_str(const char *key, char *buf, size_t len);
+void gn_hash_str(const char *key, char *buf, size_t len);
 
 
 #ifdef __cplusplus

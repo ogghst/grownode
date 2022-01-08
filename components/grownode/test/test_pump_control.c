@@ -54,7 +54,9 @@ TEST_CASE("gn_pump_control_stress_test", "[pump_control]") {
 
 	TEST_ASSERT(config != NULL);
 	node_config = gn_node_create(config, "node");
-	TEST_ASSERT_EQUAL_STRING("node", gn_get_node_config_name(node_config));
+	char node_name[GN_LEAF_NAME_SIZE];
+	gn_node_get_name(node_config, node_name);
+	TEST_ASSERT_EQUAL_STRING("node", node_name);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 0);
 
 	pump_config = gn_leaf_create(node_config, "pump", gn_pump_config, 4096);

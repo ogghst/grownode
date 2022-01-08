@@ -176,20 +176,20 @@ gn_leaf_descriptor_handle_t gn_ds18b20_config(
 			GN_DS18B20_PARAM_ACTIVE, GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b =
 					true }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
-	gn_leaf_param_add(leaf_config, data->active_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->active_param);
 
 	//get update time in sec, default 30
 	data->update_time_param = gn_leaf_param_create(leaf_config,
 			GN_DS18B20_PARAM_UPDATE_TIME_SEC, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
 							.d = 30 }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, _gn_upd_time_sec_validator);
-	gn_leaf_param_add(leaf_config, data->update_time_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->update_time_param);
 
 	//get gpio from params. default 27
 	data->gpio_param = gn_leaf_param_create(leaf_config, GN_DS18B20_PARAM_GPIO,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 27 },
 			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
-	gn_leaf_param_add(leaf_config, data->gpio_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->gpio_param);
 
 	//get params for temp. init to 0
 	for (int i = 0; i < GN_DS18B20_MAX_SENSORS; i++) {
@@ -197,7 +197,7 @@ gn_leaf_descriptor_handle_t gn_ds18b20_config(
 				GN_DS18B20_PARAM_SENSOR_NAMES[i], GN_VAL_TYPE_DOUBLE,
 				(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_NODE,
 				GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
-		gn_leaf_param_add(leaf_config, data->temp_param[i]);
+		gn_leaf_param_add_to_leaf(leaf_config, data->temp_param[i]);
 	}
 
 	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
@@ -214,6 +214,10 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 	gn_leaf_descriptor_handle_t descriptor = gn_leaf_get_descriptor(
 			leaf_config);
 	gn_ds18b20_data_t *data = descriptor->data;
+
+	char leaf_name[GN_LEAF_NAME_SIZE];
+	gn_leaf_get_name(leaf_config, leaf_name);
+
 
 	bool active;
 	gn_leaf_param_get_bool(leaf_config, GN_DS18B20_PARAM_ACTIVE, &active);
@@ -260,17 +264,17 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 	lv_obj_t *label_temp_names[GN_DS18B20_MAX_SENSORS];
 	lv_obj_t *label_temp[GN_DS18B20_MAX_SENSORS];
 	lv_obj_t *label_title;
-	lv_obj_t *obj;
+	//lv_obj_t *obj;
 
 	if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 		//parent container where adding elements
-		lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf_display(leaf_config);
+		lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf(leaf_config);
 
 		if (_cnt) {
 
 			//style from the container
-			lv_style_t *style = _cnt->styles->style;
+			//lv_style_t *style = _cnt->styles->style;
 
 			//lv_obj_set_layout(_cnt, LV_LAYOUT_GRID);
 			lv_coord_t col_dsc[] = { 90, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST };
@@ -285,8 +289,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 			//		LV_GRID_ALIGN_STRETCH, 0, 1);
 
 			label_title = lv_label_create(_cnt);
-			lv_label_set_text(label_title,
-					gn_leaf_get_config_name(leaf_config));
+			lv_label_set_text(label_title, leaf_name);
 			//lv_obj_add_style(label_title, style, 0);
 			//lv_obj_align_to(label_title, _cnt, LV_ALIGN_TOP_MID, 0, 0);
 			lv_obj_set_grid_cell(label_title, LV_GRID_ALIGN_CENTER, 0, 2,
@@ -398,7 +401,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 						evt.param_name, evt.data);
 
 				//parameter is update time
-				if (gn_common_leaf_event_mask_param(&evt,
+				if (gn_leaf_event_mask_param(&evt,
 						data->update_time_param) == 0) {
 					gn_leaf_param_set_double(leaf_config,
 							GN_DS18B20_PARAM_UPDATE_TIME_SEC,
@@ -407,7 +410,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 					esp_timer_start_periodic(data->sensor_timer,
 							update_time_sec * 1000000);
 
-				} else if (gn_common_leaf_event_mask_param(&evt,
+				} else if (gn_leaf_event_mask_param(&evt,
 						data->active_param) == 0) {
 
 					bool prev_active = active;
@@ -426,7 +429,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 								update_time_sec * 1000000);
 					}
 
-				} else if (gn_common_leaf_event_mask_param(&evt,
+				} else if (gn_leaf_event_mask_param(&evt,
 						data->gpio_param) == 0) {
 
 					//check limits

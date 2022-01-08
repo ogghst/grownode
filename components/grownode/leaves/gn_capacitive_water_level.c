@@ -58,35 +58,35 @@ typedef struct {
 } gn_cwl_data_t;
 
 /*
-gn_leaf_param_validator_result_t gm_capacitive_water_level_validator(gn_leaf_param_handle_t param, void** param_value) {
+ gn_leaf_param_validator_result_t gm_capacitive_water_level_validator(gn_leaf_param_handle_t param, void** param_value) {
 
-	double MIN_WATERING_INTERVAL = 1140;
-	double MAX_WATERING_INTERVAL = 1150;
+ double MIN_WATERING_INTERVAL = 1140;
+ double MAX_WATERING_INTERVAL = 1150;
 
-	double val;
-	if (gn_leaf_param_get_value(param, &val) != GN_RET_OK)
-		return GN_LEAF_PARAM_VALIDATOR_ERROR;
+ double val;
+ if (gn_leaf_param_get_value(param, &val) != GN_RET_OK)
+ return GN_LEAF_PARAM_VALIDATOR_ERROR;
 
-	double _p1 = **(double**) param_value;
-	ESP_LOGD(TAG, "_watering_interval_validator - param: %d", (int)_p1);
+ double _p1 = **(double**) param_value;
+ ESP_LOGD(TAG, "_watering_interval_validator - param: %d", (int)_p1);
 
-	if (MIN_WATERING_INTERVAL > **(double**)param_value) {
-		*param_value = &MIN_WATERING_INTERVAL;
-		return GN_LEAF_PARAM_VALIDATOR_BELOW_MIN;
-	}
-	else if (MAX_WATERING_INTERVAL < **(double**)param_value) {
-		*param_value = &MAX_WATERING_INTERVAL;
-		return GN_LEAF_PARAM_VALIDATOR_ABOVE_MAX;
-	}
+ if (MIN_WATERING_INTERVAL > **(double**)param_value) {
+ *param_value = &MIN_WATERING_INTERVAL;
+ return GN_LEAF_PARAM_VALIDATOR_BELOW_MIN;
+ }
+ else if (MAX_WATERING_INTERVAL < **(double**)param_value) {
+ *param_value = &MAX_WATERING_INTERVAL;
+ return GN_LEAF_PARAM_VALIDATOR_ABOVE_MAX;
+ }
 
-	_p1 = **(double**) param_value;
-		ESP_LOGD(TAG, "_watering_interval_validator - param: %d", (int)_p1);
+ _p1 = **(double**) param_value;
+ ESP_LOGD(TAG, "_watering_interval_validator - param: %d", (int)_p1);
 
 
-	return GN_LEAF_PARAM_VALIDATOR_PASSED;
+ return GN_LEAF_PARAM_VALIDATOR_PASSED;
 
-}
-*/
+ }
+ */
 
 void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config);
 
@@ -199,14 +199,14 @@ gn_leaf_descriptor_handle_t gn_capacitive_water_level_config(
 							10 }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
-	gn_leaf_param_add(leaf_config, data->active_param);
-	gn_leaf_param_add(leaf_config, data->gn_cwl_touch_channel_param);
-	gn_leaf_param_add(leaf_config, data->max_level_param);
-	gn_leaf_param_add(leaf_config, data->min_level_param);
-	gn_leaf_param_add(leaf_config, data->act_level_param);
-	gn_leaf_param_add(leaf_config, data->trg_hig_param);
-	gn_leaf_param_add(leaf_config, data->trg_low_param);
-	gn_leaf_param_add(leaf_config, data->upd_time_sec_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->active_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->gn_cwl_touch_channel_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->max_level_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->min_level_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->act_level_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->trg_hig_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->trg_low_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->upd_time_sec_param);
 
 	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
 	descriptor->data = data;
@@ -215,6 +215,9 @@ gn_leaf_descriptor_handle_t gn_capacitive_water_level_config(
 }
 
 void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
+
+	char leaf_name[GN_LEAF_NAME_SIZE];
+	gn_leaf_get_name(leaf_config, leaf_name);
 
 	gn_leaf_parameter_event_t evt;
 
@@ -255,7 +258,8 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 
 	ret = touch_pad_init();
 	if (ret != ESP_OK) {
-		gn_log(TAG, GN_LOG_ERROR, "failed to init capacitive water level sensor");
+		gn_log(TAG, GN_LOG_ERROR,
+				"failed to init capacitive water level sensor");
 		return;
 	}
 
@@ -289,7 +293,7 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 	if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 		//parent container where adding elements
-		lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf_display(leaf_config);
+		lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf(leaf_config);
 
 		if (_cnt) {
 
@@ -305,8 +309,7 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 
 			ESP_LOGD(TAG, "label_title");
 			label_title = lv_label_create(_cnt);
-			lv_label_set_text(label_title,
-					gn_leaf_get_config_name(leaf_config));
+			lv_label_set_text(label_title, leaf_name);
 			//lv_obj_add_style(label_title, style, 0);
 			//lv_obj_align_to(label_title, _cnt, LV_ALIGN_TOP_MID, 0, LV_PCT(10));
 			lv_obj_set_grid_cell(label_title, LV_GRID_ALIGN_CENTER, 0, 2,
@@ -379,7 +382,8 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 
 	ret = esp_timer_create(&water_sensor_timer_args, &data->sensor_timer);
 	if (ret != ESP_OK) {
-		gn_log(TAG, GN_LOG_ERROR, "failed to init capacitive water level timer");
+		gn_log(TAG, GN_LOG_ERROR,
+				"failed to init capacitive water level timer");
 	}
 
 	if (ret == ESP_OK && active == true) {
@@ -388,7 +392,8 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 		ret = esp_timer_start_periodic(data->sensor_timer,
 				update_time_sec * 1000000);
 		if (ret != ESP_OK) {
-			gn_log(TAG, GN_LOG_ERROR, "failed to start capacitive water level timer");
+			gn_log(TAG, GN_LOG_ERROR,
+					"failed to start capacitive water level timer");
 			gn_leaf_get_descriptor(leaf_config)->status = GN_LEAF_STATUS_ERROR;
 			gn_leaf_param_set_bool(leaf_config, GN_CWL_PARAM_ACTIVE,
 			false);
@@ -416,8 +421,8 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 						evt.param_name, evt.data);
 
 				//parameter is update time
-				if (gn_common_leaf_event_mask_param(&evt,
-						data->upd_time_sec_param) == 0) {
+				if (gn_leaf_event_mask_param(&evt, data->upd_time_sec_param)
+						== 0) {
 
 					//check limits
 					double updtime = strtod(evt.data, NULL);
@@ -436,8 +441,8 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 					gn_leaf_param_set_double(leaf_config,
 							GN_CWL_PARAM_UPDATE_TIME_SEC, updtime);
 
-				} else if (gn_common_leaf_event_mask_param(&evt,
-						data->active_param) == 0) {
+				} else if (gn_leaf_event_mask_param(&evt, data->active_param)
+						== 0) {
 
 					bool prev_active = active;
 					int _active = atoi(evt.data);
@@ -458,7 +463,6 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 
 				}
 
-
 				break;
 
 			default:
@@ -475,25 +479,22 @@ void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
 			char _buf[21];
 
 			double act_level;
-			gn_leaf_param_get_double(leaf_config, GN_CWL_PARAM_ACT_LEVEL, &act_level);
+			gn_leaf_param_get_double(leaf_config, GN_CWL_PARAM_ACT_LEVEL,
+					&act_level);
 
 			snprintf(_buf, 20, "%4.2f", act_level);
 			lv_label_set_text(trg_act_value, _buf);
 
-			if (trg_high == true
-					&& trg_low == false)
+			if (trg_high == true && trg_low == false)
 				strncpy(_buf, "HIGH", 20);
 
-			if (trg_high == false
-					&& trg_low == true)
+			if (trg_high == false && trg_low == true)
 				strncpy(_buf, "LOW", 20);
 
-			if (trg_high == true
-					&& trg_low == true)
+			if (trg_high == true && trg_low == true)
 				strncpy(_buf, "ERR_H", 20);
 
-			if (trg_high == false
-					&& trg_low == false)
+			if (trg_high == false && trg_low == false)
 				strncpy(_buf, "OK", 20);
 
 			lv_label_set_text(trg_value, _buf);

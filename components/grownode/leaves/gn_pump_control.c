@@ -135,6 +135,10 @@ gn_leaf_descriptor_handle_t gn_pump_control_config(
 
 void gn_pump_control_task(gn_leaf_config_handle_t leaf_config) {
 
+	char leaf_name[GN_LEAF_NAME_SIZE];
+	gn_leaf_get_name(leaf_config, leaf_name);
+
+
 	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 	lv_obj_t *label_title = NULL;
@@ -142,7 +146,7 @@ void gn_pump_control_task(gn_leaf_config_handle_t leaf_config) {
 	if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 		//parent container where adding elements
-		lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf_display(leaf_config);
+		lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf(leaf_config);
 
 		if (_cnt) {
 
@@ -153,8 +157,7 @@ void gn_pump_control_task(gn_leaf_config_handle_t leaf_config) {
 			lv_obj_set_grid_dsc_array(_cnt, col_dsc, row_dsc);
 
 			label_title = lv_label_create(_cnt);
-			lv_label_set_text(label_title,
-					gn_leaf_get_config_name(leaf_config));
+			lv_label_set_text(label_title, leaf_name);
 			//lv_obj_add_style(label_title, style, 0);
 			//lv_obj_align_to(label_title, _cnt, LV_ALIGN_TOP_MID, 0, LV_PCT(10));
 			lv_obj_set_grid_cell(label_title, LV_GRID_ALIGN_CENTER, 0, 2,
@@ -172,7 +175,7 @@ void gn_pump_control_task(gn_leaf_config_handle_t leaf_config) {
 
 	//register for events
 	ESP_ERROR_CHECK(
-			esp_event_handler_instance_register_with(gn_leaf_get_config_event_loop(leaf_config), GN_BASE_EVENT, GN_EVENT_ANY_ID, gn_pump_control_task_event_handler, leaf_config, NULL));
+			esp_event_handler_instance_register_with(gn_leaf_get_event_loop(leaf_config), GN_BASE_EVENT, GN_EVENT_ANY_ID, gn_pump_control_task_event_handler, leaf_config, NULL));
 
 	while (true) {
 		vTaskDelay(pdMS_TO_TICKS(1000));

@@ -23,9 +23,7 @@ extern "C" {
 #include "lvgl/lvgl.h"
 #endif
 
-#include "lvgl_helpers.h"
-
-#include "esp_heap_caps.h"
+#ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 
 //#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 #include "esp_log.h"
@@ -34,6 +32,10 @@ extern "C" {
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
 #include "freertos/semphr.h"
+
+#include "lvgl_helpers.h"
+
+#include "esp_heap_caps.h"
 
 #include "gn_display.h"
 #include "gn_commons.h"
@@ -909,10 +911,8 @@ BaseType_t gn_display_leaf_refresh_end() {
  *
  * @return a pointer to lv_obj_t (to be casted)
  */
-gn_display_container_t gn_display_setup_leaf_display(
+gn_display_container_t gn_display_setup_leaf(
 		gn_leaf_config_handle_t leaf_config) {
-
-#ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 
 	ESP_LOGD(TAG, "gn_display_setup_leaf_display - %s",
 			((gn_leaf_config_handle_intl_t )leaf_config)->name);
@@ -943,9 +943,7 @@ gn_display_container_t gn_display_setup_leaf_display(
 	_current_leaf = _leaf_config;
 
 	return _a_leaf_cont;
-#else
-return NULL;
-#endif
+
 }
 
 /*
@@ -958,36 +956,35 @@ return NULL;
 
 void _gn_display_gui_task(void *pvParameter) {
 
-
-#ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
-
 	(void) pvParameter;
 	_gn_xGuiSemaphore = xSemaphoreCreateMutex();
 
-	lv_init();
+	/* Initialize the needed peripherals */
+	lvgl_interface_init();
+	/* Initialize needed GPIOs, e.g. backlight, reset GPIOs */
+	display_bsp_init_io();
+	/* ToDo Initialize used display driver passing registered lv_disp_drv_t as parameter */
 
-	lvgl_driver_init();
-
-	 lv_color_t *buf1 = heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t),
-	MALLOC_CAP_DMA);
+	size_t display_buffer_size = lvgl_get_display_buffer_size();
+	lv_color_t *buf1 = heap_caps_malloc(
+			display_buffer_size * sizeof(lv_color_t), MALLOC_CAP_DMA);
 	assert(buf1 != NULL);
 
-	 lv_color_t *buf2 = heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t),
-			 MALLOC_CAP_DMA);
+	lv_color_t *buf2 = heap_caps_malloc(
+			display_buffer_size * sizeof(lv_color_t), MALLOC_CAP_DMA);
 	assert(buf2 != NULL);
 
 	static lv_disp_draw_buf_t disp_buf;
 
-	uint32_t size_in_px = DISP_BUF_SIZE;
-
-	lv_disp_draw_buf_init(&disp_buf, buf1, buf2, size_in_px);
+	lv_disp_draw_buf_init(&disp_buf, buf1, buf2, display_buffer_size * 8);
 
 	static lv_disp_drv_t disp_drv;
 	lv_disp_drv_init(&disp_drv);
 	disp_drv.flush_cb = disp_driver_flush;
+	disp_drv.rounder_cb = disp_driver_rounder;
+	disp_drv.set_px_cb = disp_driver_set_px;
 	disp_drv.hor_res = 240;
 	disp_drv.ver_res = 320;
-
 	disp_drv.draw_buf = &disp_buf;
 	lv_disp_drv_register(&disp_drv);
 
@@ -1006,49 +1003,49 @@ void _gn_display_gui_task(void *pvParameter) {
 			esp_timer_start_periodic(periodic_timer, LV_TICK_PERIOD_MS * 1000));
 
 	//if (pdTRUE == gn_display_leaf_refresh_start()) {
-		//_gn_display_create_gui();
+	//_gn_display_create_gui();
 
 ///////////////////////////////////////////////////////////////
 
-		ESP_LOGD(TAG, "style init");
-		style_init();
+	ESP_LOGD(TAG, "style init");
+	style_init();
 
-		ESP_LOGD(TAG, "create screen");
-		grownode_scr = lv_obj_create(NULL);
-		main_scr = lv_obj_create(NULL);
+	ESP_LOGD(TAG, "create screen");
+	grownode_scr = lv_obj_create(NULL);
+	main_scr = lv_obj_create(NULL);
 
-		ESP_LOGD(TAG, "init screen");
-		grownode_scr_init(grownode_scr);
-		lv_obj_t *cont = main_scr_init(main_scr);
+	ESP_LOGD(TAG, "init screen");
+	grownode_scr_init(grownode_scr);
+	lv_obj_t *cont = main_scr_init(main_scr);
 
-		ESP_LOGD(TAG, "building status bar");
-		status_bar = build_status_bar(cont, cont);
-		ESP_LOGD(TAG, "building bottom panel");
-		bottom_panel = build_bottom_panel(cont, cont);
-		ESP_LOGD(TAG, "building leaf panel");
-		leaf_panel = build_leaf_panel(cont, status_bar);
-		//lv_obj_add_flag(leaf_panel, LV_OBJ_FLAG_HIDDEN);
-		ESP_LOGD(TAG, "building action panel");
-		action_panel = build_action_panel(cont, status_bar);
-		lv_obj_add_flag(action_panel, LV_OBJ_FLAG_HIDDEN);
-		ESP_LOGD(TAG, "building log panel");
-		log_panel = build_log_panel(cont, status_bar);
-		lv_obj_add_flag(log_panel, LV_OBJ_FLAG_HIDDEN);
+	ESP_LOGD(TAG, "building status bar");
+	status_bar = build_status_bar(cont, cont);
+	ESP_LOGD(TAG, "building bottom panel");
+	bottom_panel = build_bottom_panel(cont, cont);
+	ESP_LOGD(TAG, "building leaf panel");
+	leaf_panel = build_leaf_panel(cont, status_bar);
+	//lv_obj_add_flag(leaf_panel, LV_OBJ_FLAG_HIDDEN);
+	ESP_LOGD(TAG, "building action panel");
+	action_panel = build_action_panel(cont, status_bar);
+	lv_obj_add_flag(action_panel, LV_OBJ_FLAG_HIDDEN);
+	ESP_LOGD(TAG, "building log panel");
+	log_panel = build_log_panel(cont, status_bar);
+	lv_obj_add_flag(log_panel, LV_OBJ_FLAG_HIDDEN);
 
-		ESP_LOGD(TAG, "load screen");
-		//init_grownode_elements();
+	ESP_LOGD(TAG, "load screen");
+	//init_grownode_elements();
 
-		lv_scr_load(grownode_scr);
+	lv_scr_load(grownode_scr);
 
 ///////////////////////////////////////////////////////////////
-		//gn_display_leaf_refresh_end();
+	//gn_display_leaf_refresh_end();
 
-		const esp_timer_create_args_t main_panel_timer_args = { .callback =
-				&main_panel_open, .name = "_gn_display_main_panel_open" };
-		esp_timer_handle_t main_panel_timer;
-		ESP_ERROR_CHECK(
-				esp_timer_create(&main_panel_timer_args, &main_panel_timer));
-		ESP_ERROR_CHECK(esp_timer_start_once(main_panel_timer, 4000 * 1000));
+	const esp_timer_create_args_t main_panel_timer_args = { .callback =
+			&main_panel_open, .name = "_gn_display_main_panel_open" };
+	esp_timer_handle_t main_panel_timer;
+	ESP_ERROR_CHECK(
+			esp_timer_create(&main_panel_timer_args, &main_panel_timer));
+	ESP_ERROR_CHECK(esp_timer_start_once(main_panel_timer, 4000 * 1000));
 
 	//}
 
@@ -1072,8 +1069,6 @@ void _gn_display_gui_task(void *pvParameter) {
 	free(buf2);
 #endif
 	vTaskDelete(NULL);
-
-#endif
 
 }
 
@@ -1133,6 +1128,8 @@ esp_err_t gn_init_display(gn_config_handle_t config) {
 	return ESP_OK;
 
 }
+
+#endif
 
 #ifdef __cplusplus
 }

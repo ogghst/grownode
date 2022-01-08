@@ -197,7 +197,7 @@ gn_leaf_param_validator_result_t _gn_hb2_watering_target_temp_validator(
 inline static void _gn_hb2_watering_control_stop_watering(
 		gn_hb2_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Stop Watering Cycle");
-	gn_leaf_param_send_bool(data->leaf_wat_pump, GN_LEAF_PWM_PARAM_TOGGLE,
+	gn_leaf_param_update_bool(data->leaf_wat_pump, GN_LEAF_PWM_PARAM_TOGGLE,
 	false);
 	data->wat_cycle = WAT_OFF;
 	data->wat_cycle_cumulative_time_ms = 0;
@@ -206,7 +206,7 @@ inline static void _gn_hb2_watering_control_stop_watering(
 inline static void _gn_hb2_watering_control_start_watering(
 		gn_hb2_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Start Watering Cycle");
-	gn_leaf_param_send_bool(data->leaf_wat_pump, GN_LEAF_PWM_PARAM_TOGGLE,
+	gn_leaf_param_update_bool(data->leaf_wat_pump, GN_LEAF_PWM_PARAM_TOGGLE,
 	true);
 	data->wat_cycle = WAT_ON;
 	data->wat_cycle_cumulative_time_ms = 0;
@@ -215,11 +215,11 @@ inline static void _gn_hb2_watering_control_start_watering(
 inline static void _gn_hb2_watering_control_stop_hcc(
 		gn_hb2_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Stop Water Temp Setup Cycle");
-	gn_leaf_param_send_bool(data->leaf_plt_hot, GN_RELAY_PARAM_TOGGLE, false);
-	gn_leaf_param_send_bool(data->leaf_plt_cool, GN_RELAY_PARAM_TOGGLE, false);
-	gn_leaf_param_send_bool(data->leaf_plt_pump, GN_LEAF_PWM_PARAM_TOGGLE,
+	gn_leaf_param_update_bool(data->leaf_plt_hot, GN_RELAY_PARAM_TOGGLE, false);
+	gn_leaf_param_update_bool(data->leaf_plt_cool, GN_RELAY_PARAM_TOGGLE, false);
+	gn_leaf_param_update_bool(data->leaf_plt_pump, GN_LEAF_PWM_PARAM_TOGGLE,
 	false);
-	gn_leaf_param_send_bool(data->leaf_plt_fan, GN_LEAF_PWM_PARAM_TOGGLE,
+	gn_leaf_param_update_bool(data->leaf_plt_fan, GN_LEAF_PWM_PARAM_TOGGLE,
 	false);
 	data->hcc_cycle = HCC_OFF;
 }
@@ -227,11 +227,11 @@ inline static void _gn_hb2_watering_control_stop_hcc(
 inline static void _gn_hb2_watering_control_start_hcc_heating(
 		gn_hb2_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Start Heating Cycle");
-	gn_leaf_param_send_bool(data->leaf_plt_hot, GN_RELAY_PARAM_TOGGLE, true);
-	gn_leaf_param_send_bool(data->leaf_plt_cool, GN_RELAY_PARAM_TOGGLE, false);
-	gn_leaf_param_send_bool(data->leaf_plt_pump, GN_LEAF_PWM_PARAM_TOGGLE,
+	gn_leaf_param_update_bool(data->leaf_plt_hot, GN_RELAY_PARAM_TOGGLE, true);
+	gn_leaf_param_update_bool(data->leaf_plt_cool, GN_RELAY_PARAM_TOGGLE, false);
+	gn_leaf_param_update_bool(data->leaf_plt_pump, GN_LEAF_PWM_PARAM_TOGGLE,
 	true);
-	gn_leaf_param_send_bool(data->leaf_plt_fan, GN_LEAF_PWM_PARAM_TOGGLE, true);
+	gn_leaf_param_update_bool(data->leaf_plt_fan, GN_LEAF_PWM_PARAM_TOGGLE, true);
 	data->hcc_cycle = HCC_HEATING;
 	//store time of start water temp control cycle
 	struct timeval tv_now;
@@ -244,11 +244,11 @@ inline static void _gn_hb2_watering_control_start_hcc_heating(
 inline static void _gn_hb2_watering_control_start_hcc_cooling(
 		gn_hb2_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Start Cooling Cycle");
-	gn_leaf_param_send_bool(data->leaf_plt_hot, GN_RELAY_PARAM_TOGGLE, false);
-	gn_leaf_param_send_bool(data->leaf_plt_cool, GN_RELAY_PARAM_TOGGLE, true);
-	gn_leaf_param_send_bool(data->leaf_plt_pump, GN_LEAF_PWM_PARAM_TOGGLE,
+	gn_leaf_param_update_bool(data->leaf_plt_hot, GN_RELAY_PARAM_TOGGLE, false);
+	gn_leaf_param_update_bool(data->leaf_plt_cool, GN_RELAY_PARAM_TOGGLE, true);
+	gn_leaf_param_update_bool(data->leaf_plt_pump, GN_LEAF_PWM_PARAM_TOGGLE,
 	true);
-	gn_leaf_param_send_bool(data->leaf_plt_fan, GN_LEAF_PWM_PARAM_TOGGLE, true);
+	gn_leaf_param_update_bool(data->leaf_plt_fan, GN_LEAF_PWM_PARAM_TOGGLE, true);
 	data->hcc_cycle = HCC_COOLING;
 	//store time of start water temp control cycle
 	struct timeval tv_now;
@@ -632,7 +632,7 @@ gn_leaf_descriptor_handle_t gn_hb2_watering_control_config(
 	descriptor->status = GN_LEAF_STATUS_NOT_INITIALIZED;
 	descriptor->data = NULL;
 
-	//gn_node_config_handle_t node_config = gn_leaf_get_node_config(leaf_config);
+	//gn_node_config_handle_t node_config = gn_leaf_get_node(leaf_config);
 
 	gn_hb2_watering_control_data_t *data = malloc(
 			sizeof(gn_hb2_watering_control_data_t));
@@ -646,28 +646,28 @@ gn_leaf_descriptor_handle_t gn_hb2_watering_control_config(
 			GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TIME_SEC, GN_VAL_TYPE_DOUBLE,
 			(gn_val_t ) { .d = 20 }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, _gn_hb2_watering_time_validator);
-	gn_leaf_param_add(leaf_config, data->param_watering_time);
+	gn_leaf_param_add_to_leaf(leaf_config, data->param_watering_time);
 
 	data->param_watering_interval = gn_leaf_param_create(leaf_config,
 			GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_INTERVAL_SEC,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 60 * 60 },
 			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED,
 			_gn_hb2_watering_interval_validator);
-	gn_leaf_param_add(leaf_config, data->param_watering_interval);
+	gn_leaf_param_add_to_leaf(leaf_config, data->param_watering_interval);
 
 	data->param_watering_t_temp = gn_leaf_param_create(leaf_config,
 			GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TARGET_TEMP,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 22 },
 			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED,
 			_gn_hb2_watering_target_temp_validator);
-	gn_leaf_param_add(leaf_config, data->param_watering_t_temp);
+	gn_leaf_param_add_to_leaf(leaf_config, data->param_watering_t_temp);
 
 	data->param_active = gn_leaf_param_create(leaf_config,
 			GN_HYDROBOARD2_WAT_CTR_PARAM_ACTIVE, GN_VAL_TYPE_BOOLEAN,
 			(gn_val_t ) { .b =
 					false }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
-	gn_leaf_param_add(leaf_config, data->param_active);
+	gn_leaf_param_add_to_leaf(leaf_config, data->param_active);
 
 	//parameters for leaves
 	data->param_leaf_plt_fan_name = gn_leaf_param_create(leaf_config,
@@ -675,77 +675,77 @@ gn_leaf_descriptor_handle_t gn_hb2_watering_control_config(
 			(gn_val_t ) { .s = PLT_FAN },
 			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
 			NULL);
-	gn_leaf_param_add(leaf_config, data->param_leaf_plt_fan_name);
+	gn_leaf_param_add_to_leaf(leaf_config, data->param_leaf_plt_fan_name);
 
 	data->param_leaf_plt_pump_name = gn_leaf_param_create(leaf_config,
 			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_PUMP, GN_VAL_TYPE_STRING,
 			(gn_val_t ) { .s = PLT_PUMP },
 			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
 			NULL);
-	gn_leaf_param_add(leaf_config, data->param_leaf_plt_pump_name);
+	gn_leaf_param_add_to_leaf(leaf_config, data->param_leaf_plt_pump_name);
 
 	data->param_leaf_wat_pump_name = gn_leaf_param_create(leaf_config,
 			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_WAT_PUMP, GN_VAL_TYPE_STRING,
 			(gn_val_t ) { .s = WAT_PUMP },
 			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
 			NULL);
-	gn_leaf_param_add(leaf_config, data->param_leaf_wat_pump_name);
+	gn_leaf_param_add_to_leaf(leaf_config, data->param_leaf_wat_pump_name);
 
 	data->param_leaf_plt_cool_name = gn_leaf_param_create(leaf_config,
 			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_COOL, GN_VAL_TYPE_STRING,
 			(gn_val_t ) { .s = PLT_COOL },
 			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
 			NULL);
-	gn_leaf_param_add(leaf_config, data->param_leaf_plt_cool_name);
+	gn_leaf_param_add_to_leaf(leaf_config, data->param_leaf_plt_cool_name);
 
 	data->param_leaf_plt_hot_name = gn_leaf_param_create(leaf_config,
 			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_HOT, GN_VAL_TYPE_STRING,
 			(gn_val_t ) { .s = PLT_HOT },
 			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
 			NULL);
-	gn_leaf_param_add(leaf_config, data->param_leaf_plt_hot_name);
+	gn_leaf_param_add_to_leaf(leaf_config, data->param_leaf_plt_hot_name);
 
 	data->param_leaf_env_fan_name = gn_leaf_param_create(leaf_config,
 			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_ENV_FAN, GN_VAL_TYPE_STRING,
 			(gn_val_t ) { .s = ENV_FAN },
 			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
 			NULL);
-	gn_leaf_param_add(leaf_config, data->param_leaf_env_fan_name);
+	gn_leaf_param_add_to_leaf(leaf_config, data->param_leaf_env_fan_name);
 
 	data->param_leaf_bme280_name = gn_leaf_param_create(leaf_config,
 			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_BME280, GN_VAL_TYPE_STRING,
 			(gn_val_t ) { .s = BME280 },
 			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
 			NULL);
-	gn_leaf_param_add(leaf_config, data->param_leaf_bme280_name);
+	gn_leaf_param_add_to_leaf(leaf_config, data->param_leaf_bme280_name);
 
 	data->param_leaf_ds18b20_name = gn_leaf_param_create(leaf_config,
 			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_DS18B20, GN_VAL_TYPE_STRING,
 			(gn_val_t ) { .s = DS18B20 },
 			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
 			NULL);
-	gn_leaf_param_add(leaf_config, data->param_leaf_ds18b20_name);
+	gn_leaf_param_add_to_leaf(leaf_config, data->param_leaf_ds18b20_name);
 
 	data->param_leaf_wat_lev_name = gn_leaf_param_create(leaf_config,
 			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_WAT_LEV, GN_VAL_TYPE_STRING,
 			(gn_val_t ) { .s = WAT_LEV },
 			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
 			NULL);
-	gn_leaf_param_add(leaf_config, data->param_leaf_wat_lev_name);
+	gn_leaf_param_add_to_leaf(leaf_config, data->param_leaf_wat_lev_name);
 
 	data->param_leaf_light_1_name = gn_leaf_param_create(leaf_config,
 			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_LIGHT_1, GN_VAL_TYPE_STRING,
 			(gn_val_t ) { .s = LIGHT_1 },
 			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
 			NULL);
-	gn_leaf_param_add(leaf_config, data->param_leaf_light_1_name);
+	gn_leaf_param_add_to_leaf(leaf_config, data->param_leaf_light_1_name);
 
 	data->param_leaf_light_2_name = gn_leaf_param_create(leaf_config,
 			GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_LIGHT_2, GN_VAL_TYPE_STRING,
 			(gn_val_t ) { .s = LIGHT_2 },
 			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
 			NULL);
-	gn_leaf_param_add(leaf_config, data->param_leaf_light_1_name);
+	gn_leaf_param_add_to_leaf(leaf_config, data->param_leaf_light_1_name);
 
 	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
 
@@ -762,10 +762,11 @@ gn_leaf_descriptor_handle_t gn_hb2_watering_control_config(
 
 void gn_hb2_watering_control_task(gn_leaf_config_handle_t leaf_config) {
 
-	ESP_LOGD(TAG, "%s - gn_hb2_watering_control_task",
-			gn_leaf_get_config_name(leaf_config));
+	char leaf_name[GN_LEAF_NAME_SIZE];
+	gn_leaf_get_name(leaf_config, leaf_name);
+	ESP_LOGD(TAG, "%s - gn_hb2_watering_control_task", leaf_name);
 
-	gn_node_config_handle_t node_config = gn_leaf_get_node_config(leaf_config);
+	gn_node_config_handle_t node_config = gn_leaf_get_node(leaf_config);
 
 	gn_leaf_parameter_event_t evt;
 
@@ -879,7 +880,7 @@ void gn_hb2_watering_control_task(gn_leaf_config_handle_t leaf_config) {
 	if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 		//parent container where adding elements
-		lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf_display(leaf_config);
+		lv_obj_t *_cnt = (lv_obj_t*) gn_display_setup_leaf(leaf_config);
 
 		if (_cnt) {
 
@@ -890,8 +891,7 @@ void gn_hb2_watering_control_task(gn_leaf_config_handle_t leaf_config) {
 			lv_obj_set_grid_dsc_array(_cnt, col_dsc, row_dsc);
 
 			label_title = lv_label_create(_cnt);
-			lv_label_set_text(label_title,
-					gn_leaf_get_config_name(leaf_config));
+			lv_label_set_text(label_title, leaf_name);
 			//lv_obj_add_style(label_title, style, 0);
 			//lv_obj_align_to(label_title, _cnt, LV_ALIGN_TOP_MID, 0, LV_PCT(10));
 			lv_obj_set_grid_cell(label_title, LV_GRID_ALIGN_CENTER, 0, 2,
@@ -926,7 +926,7 @@ void gn_hb2_watering_control_task(gn_leaf_config_handle_t leaf_config) {
 				//		evt.param_name, evt.data);
 
 				//parameter is watering interval
-				if (gn_common_leaf_event_mask_param(&evt,
+				if (gn_leaf_event_mask_param(&evt,
 						data->param_watering_interval) == 0) {
 					gn_leaf_param_set_double(leaf_config,
 							GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_INTERVAL_SEC,
@@ -939,19 +939,19 @@ void gn_hb2_watering_control_task(gn_leaf_config_handle_t leaf_config) {
 					//		p_wat_int_sec * 1000000);
 				} else
 				//parameter is watering time
-				if (gn_common_leaf_event_mask_param(&evt,
+				if (gn_leaf_event_mask_param(&evt,
 						data->param_watering_time) == 0) {
 					gn_leaf_param_set_double(leaf_config,
 							GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TIME_SEC,
 							(double) atof(evt.data));
-				} else if (gn_common_leaf_event_mask_param(&evt,
+				} else if (gn_leaf_event_mask_param(&evt,
 						data->param_watering_t_temp) == 0) {
 					gn_leaf_param_set_double(leaf_config,
 							GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TARGET_TEMP,
 							(double) atof(evt.data));
 				} else
 				//parameter is active
-				if (gn_common_leaf_event_mask_param(&evt, data->param_active)
+				if (gn_leaf_event_mask_param(&evt, data->param_active)
 						== 0) {
 
 					int _active = atoi(evt.data);
