@@ -1,6 +1,10 @@
 # Boards
 
-Here you can find resources to make your own board starting from existing works.
+Here you can find resources to make your own board starting from existing works. Code is in 'components\grownode\boards' folder 
+
+##Blink
+
+This is just a test board. Scope is to have your development board LED blinking to show you've done a great job :)
 
 ##Easypot1
 

@@ -46,6 +46,8 @@ This page describe the steps needed to have a working development environment on
  
  - If everything runs well, you should see something like `Project build complete`
  - Plug your ESP32 into your USB port, take note of the COM port you are attached, and run `idf.py -p (PORT) flash`
+ 
+   > Note: Some boards requires a lower communication speed. In this case, you should use the command `idf.py -p (PORT) -b 115200 flash`
 
 ### Via Eclipse IDE
 
