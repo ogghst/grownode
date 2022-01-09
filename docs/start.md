@@ -57,6 +57,8 @@ This page describe the steps needed to have a working development environment on
 
 ![launch target](../resources/images/eclipse_run_toolboard.png)
 
+![new target](../resources/images/eclipse_new_target.png)
+
 With default installation, you will see something like:
 
 ```
