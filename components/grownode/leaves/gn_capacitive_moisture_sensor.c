@@ -64,7 +64,10 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config);
 
 void gn_cms_sensor_collect(gn_leaf_config_handle_t leaf_config) {
 
-	ESP_LOGD(TAG, "gn_cms_sensor_collect");
+	char leaf_name[GN_LEAF_NAME_SIZE];
+	gn_leaf_get_name(leaf_config, leaf_name);
+
+	ESP_LOGD(TAG, "[%s] gn_cms_sensor_collect", leaf_name);
 
 	double adc_channel;
 	gn_leaf_param_get_double(leaf_config, GN_CMS_PARAM_ADC_CHANNEL,
@@ -92,12 +95,12 @@ void gn_cms_sensor_collect(gn_leaf_config_handle_t leaf_config) {
 	//uint32_t voltage = esp_adc_cal_raw_to_voltage(result, adc_chars);
 	//ESP_LOGD(TAG, "Raw: %d\tVoltage: %dmV\n", result, voltage);
 
-	ESP_LOGD(TAG, "Raw Data: %f", result);
+	ESP_LOGD(TAG, "[%s] raw data: %f", leaf_name, result);
 
 	//convert to a percentage (4095 = 12 bit width * 100)
 	result = result / 40.95;
 
-	ESP_LOGD(TAG, "Output Data: %f", result);
+	ESP_LOGD(TAG, "[%s] output data: %f", leaf_name, result);
 
 	//store parameter and notify network
 	gn_leaf_param_set_double(leaf_config, GN_CMS_PARAM_ACT_LEVEL, result);
@@ -127,7 +130,10 @@ void gn_cms_sensor_collect(gn_leaf_config_handle_t leaf_config) {
 gn_leaf_descriptor_handle_t gn_capacitive_moisture_sensor_config(
 		gn_leaf_config_handle_t leaf_config) {
 
-	ESP_LOGD(TAG, "gn_capacitive_moisture_sensor_config");
+	char leaf_name[GN_LEAF_NAME_SIZE];
+	gn_leaf_get_name(leaf_config, leaf_name);
+
+	ESP_LOGD(TAG, "[%s] gn_capacitive_moisture_sensor_config", leaf_name);
 
 	gn_leaf_descriptor_handle_t descriptor =
 			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
@@ -193,10 +199,10 @@ gn_leaf_descriptor_handle_t gn_capacitive_moisture_sensor_config(
 
 void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 
-	ESP_LOGD(TAG, "gn_cms_task");
-
 	char leaf_name[GN_LEAF_NAME_SIZE];
 	gn_leaf_get_name(leaf_config, leaf_name);
+
+	ESP_LOGD(TAG, "[%s] gn_cms_task", leaf_name);
 
 	esp_err_t ret;
 	gn_leaf_parameter_event_t evt;
@@ -231,8 +237,8 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 			&update_time_sec);
 
 	ESP_LOGD(TAG,
-			"Configuring moisture sensor. Unit=%d, width = %d, channel=%d, atten=%d",
-			unit, width, (int )adc_channel, atten);
+			"[%s] configuring moisture sensor. Unit=%d, width = %d, channel=%d, atten=%d",
+			leaf_name, unit, width, (int )adc_channel, atten);
 
 	//configure ADC
 	adc1_config_width(width);
@@ -244,17 +250,17 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 	DEFAULT_VREF, data->adc_chars);
 
 	if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP) {
-		ESP_LOGD(TAG, "Characterized using Two Point Value");
+		ESP_LOGD(TAG, "[%s] characterized using Two Point Value", leaf_name);
 	} else if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF) {
-		ESP_LOGD(TAG, "Characterized using eFuse Vref");
+		ESP_LOGD(TAG, "[%s] characterized using eFuse Vref", leaf_name);
 	} else {
-		ESP_LOGD(TAG, "Characterized using Default Vref");
+		ESP_LOGD(TAG, "[%s] characterized using Default Vref", leaf_name);
 	}
 
 	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 
-	ESP_LOGD(TAG, "Starting GUI..");
+	ESP_LOGD(TAG, "[%s] starting GUI...", leaf_name);
 
 	lv_obj_t *label_title = NULL;
 	lv_obj_t *active_title = NULL;
@@ -276,14 +282,14 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 			//style from the container
 			//lv_style_t *style = _cnt->styles->style;
 
-			ESP_LOGD(TAG, "Set Layout");
+			ESP_LOGD(TAG, "[%s] set layout", leaf_name);
 			//lv_obj_set_layout(_cnt, LV_LAYOUT_GRID);
 			lv_coord_t col_dsc[] = { 90, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST };
 			lv_coord_t row_dsc[] = { 20, 20, 20, LV_GRID_FR(1),
 			LV_GRID_TEMPLATE_LAST };
 			lv_obj_set_grid_dsc_array(_cnt, col_dsc, row_dsc);
 
-			ESP_LOGD(TAG, "label_title");
+			ESP_LOGD(TAG, "[%s] label_title", leaf_name);
 			label_title = lv_label_create(_cnt);
 			lv_label_set_text(label_title, leaf_name);
 			//lv_obj_add_style(label_title, style, 0);
@@ -291,7 +297,7 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 			lv_obj_set_grid_cell(label_title, LV_GRID_ALIGN_CENTER, 0, 2,
 					LV_GRID_ALIGN_STRETCH, 0, 1);
 
-			ESP_LOGD(TAG, "active_title");
+			ESP_LOGD(TAG, "[%s] active_title", leaf_name);
 			active_title = lv_label_create(_cnt);
 			lv_label_set_text(active_title, "Trigger");
 			//lv_obj_add_style(active_title, style, 0);
@@ -299,7 +305,7 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 			lv_obj_set_grid_cell(active_title, LV_GRID_ALIGN_STRETCH, 0, 1,
 					LV_GRID_ALIGN_STRETCH, 1, 1);
 
-			ESP_LOGD(TAG, "active_value");
+			ESP_LOGD(TAG, "[%s] active_value", leaf_name);
 			active_value = lv_label_create(_cnt);
 			lv_label_set_text(active_value, "---");
 			//lv_obj_add_style(trg_value, style, 0);
@@ -307,7 +313,7 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 			lv_obj_set_grid_cell(active_value, LV_GRID_ALIGN_STRETCH, 1, 1,
 					LV_GRID_ALIGN_STRETCH, 1, 1);
 
-			ESP_LOGD(TAG, "trg_title");
+			ESP_LOGD(TAG, "[%s] trg_title", leaf_name);
 			trg_title = lv_label_create(_cnt);
 			lv_label_set_text(trg_title, "Trigger");
 			//lv_obj_add_style(trg_title, style, 0);
@@ -315,7 +321,7 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 			lv_obj_set_grid_cell(trg_title, LV_GRID_ALIGN_STRETCH, 0, 1,
 					LV_GRID_ALIGN_STRETCH, 2, 1);
 
-			ESP_LOGD(TAG, "trg_value");
+			ESP_LOGD(TAG, "[%s] trg_value", leaf_name);
 			trg_value = lv_label_create(_cnt);
 			lv_label_set_text(trg_value, "---");
 			//lv_obj_add_style(trg_value, style, 0);
@@ -323,7 +329,7 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 			lv_obj_set_grid_cell(trg_value, LV_GRID_ALIGN_STRETCH, 1, 1,
 					LV_GRID_ALIGN_STRETCH, 2, 1);
 
-			ESP_LOGD(TAG, "trg_act_title");
+			ESP_LOGD(TAG, "[%s] trg_act_title", leaf_name);
 			trg_act_title = lv_label_create(_cnt);
 			lv_label_set_text(trg_act_title, "Value");
 			//lv_obj_add_style(trg_act_title, style, 0);
@@ -333,7 +339,7 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 
 			snprintf(_buf, 20, "%4.2f", 0.0);
 
-			ESP_LOGD(TAG, "trg_act_value");
+			ESP_LOGD(TAG, "[%s] trg_act_value", leaf_name);
 			trg_act_value = lv_label_create(_cnt);
 			lv_label_set_text(trg_act_value, _buf);
 			//lv_obj_add_style(trg_act_value, style, 0);
@@ -341,7 +347,7 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 			lv_obj_set_grid_cell(trg_act_value, LV_GRID_ALIGN_STRETCH, 1, 1,
 					LV_GRID_ALIGN_STRETCH, 3, 1);
 
-			ESP_LOGD(TAG, "end");
+			ESP_LOGD(TAG, "[%s] end", leaf_name);
 
 		}
 
@@ -351,7 +357,7 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 
 #endif
 
-	ESP_LOGD(TAG, "Starting timer..");
+	ESP_LOGD(TAG, "[%s] starting timer...", leaf_name);
 	//create a timer to update temps
 	const esp_timer_create_args_t water_sensor_timer_args = { .callback =
 			&gn_cms_sensor_collect, .arg = leaf_config, .name = "cms_timer" };
@@ -359,7 +365,7 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 	ret = esp_timer_create(&water_sensor_timer_args, &data->sensor_timer);
 	if (ret != ESP_OK) {
 		gn_log(TAG, GN_LOG_ERROR,
-				"failed to init capacitive moisture sensor timer");
+				"[%s] failed to init capacitive moisture sensor timer", leaf_name);
 	}
 
 	if (ret == ESP_OK && active == true) {
@@ -369,13 +375,13 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 				update_time_sec * 1000000);
 		if (ret != ESP_OK) {
 			gn_log(TAG, GN_LOG_ERROR,
-					"failed to start capacitive moisture sensor timer");
+					"[%s] failed to start capacitive moisture sensor timer", leaf_name);
 			gn_leaf_get_descriptor(leaf_config)->status = GN_LEAF_STATUS_ERROR;
 			gn_leaf_param_set_bool(leaf_config, GN_CMS_PARAM_ACTIVE, false);
 			descriptor->status = GN_LEAF_STATUS_ERROR;
 		}
 
-		ESP_LOGD(TAG, "Listening to events..");
+		ESP_LOGD(TAG, "[%s] listening to events...", leaf_name);
 
 	}
 
@@ -392,8 +398,8 @@ void gn_cms_task(gn_leaf_config_handle_t leaf_config) {
 			//parameter change
 			case GN_LEAF_PARAM_CHANGE_REQUEST_EVENT:
 
-				ESP_LOGD(TAG, "request to update param %s, data = '%s'",
-						evt.param_name, evt.data);
+				ESP_LOGD(TAG, "[%s] request to update param %s, data = '%s'",
+						leaf_name, evt.param_name, evt.data);
 
 				//parameter is update time
 				if (gn_leaf_event_mask_param(&evt, data->upd_time_sec_param)

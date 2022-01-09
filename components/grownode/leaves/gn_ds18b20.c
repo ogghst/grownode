@@ -104,7 +104,10 @@ gn_leaf_param_validator_result_t _gn_upd_time_sec_validator(
 
 void gn_ds18b20_temp_sensor_collect(gn_leaf_config_handle_t leaf_config) {
 
-	ESP_LOGD(TAG, "gn_ds18b20_temp_sensor_collect");
+	char leaf_name[GN_LEAF_NAME_SIZE];
+	gn_leaf_get_name(leaf_config, leaf_name);
+
+	ESP_LOGD(TAG, "[%s] gn_ds18b20_temp_sensor_collect", leaf_name);
 
 	//struct leaf_data *data = (struct leaf_data*) arg;
 
@@ -121,14 +124,16 @@ void gn_ds18b20_temp_sensor_collect(gn_leaf_config_handle_t leaf_config) {
 
 	if (active == true) {
 
-		ESP_LOGD(TAG, "reading from GPIO %d..",(int)gpio);
+		ESP_LOGD(TAG, "[%s] reading from GPIO %d..", leaf_name, (int)gpio);
 
 		//read data from sensors using GPIO parameter
 		res = ds18x20_measure_and_read_multi(gpio, data->addrs,
 				data->sensor_count, data->temp);
 
 		if (res != ESP_OK) {
-			gn_log(TAG, GN_LOG_ERROR, "Sensors read error %d (%s)", res,
+			gn_log(TAG, GN_LOG_ERROR, "[%s] sensors read error %d (%s)",
+					leaf_name,
+					res,
 					esp_err_to_name(res));
 			gn_leaf_get_descriptor(leaf_config)->status = GN_LEAF_STATUS_ERROR;
 			gn_leaf_param_set_bool(leaf_config, GN_DS18B20_PARAM_ACTIVE,
@@ -140,7 +145,8 @@ void gn_ds18b20_temp_sensor_collect(gn_leaf_config_handle_t leaf_config) {
 		for (int j = 0; j < data->sensor_count; j++) {
 			float temp_c = data->temp[j];
 			float temp_f = (temp_c * 1.8) + 32;
-			ESP_LOGD(TAG, "Sensor %08x%08x (%s) reports %.3f °C (%.3f °F)",
+			ESP_LOGD(TAG, "[%s] sensor %08x%08x (%s) reports %.3f ï¿½C (%.3f ï¿½F)",
+					leaf_name,
 					(uint32_t )(data->addrs[j] >> 32),
 					(uint32_t )data->addrs[j],
 					(data->addrs[j] & 0xff) == DS18B20_FAMILY_ID ? "DS18B20" : "DS18S20",
@@ -158,6 +164,11 @@ void gn_ds18b20_temp_sensor_collect(gn_leaf_config_handle_t leaf_config) {
 
 gn_leaf_descriptor_handle_t gn_ds18b20_config(
 		gn_leaf_config_handle_t leaf_config) {
+
+	char leaf_name[GN_LEAF_NAME_SIZE];
+	gn_leaf_get_name(leaf_config, leaf_name);
+
+	ESP_LOGD(TAG, "[%s] gn_ds18b20_config", leaf_name);
 
 	gn_leaf_descriptor_handle_t descriptor =
 			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
@@ -229,6 +240,9 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 	gn_leaf_param_get_double(leaf_config, GN_DS18B20_PARAM_UPDATE_TIME_SEC,
 			&update_time_sec);
 
+
+	ESP_LOGD(TAG, "[%s] gn_ds18b20_task", leaf_name);
+
 	//init sensors
 
 	//setup gpio
@@ -243,7 +257,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 
 	esp_err_t ret = esp_timer_create(&sensor_timer_args, &data->sensor_timer);
 	if (ret != ESP_OK) {
-		gn_log(TAG, GN_LOG_ERROR, "failed to init ds18b20 leaf timer");
+		gn_log(TAG, GN_LOG_ERROR, "[%s] failed to init ds18b20 leaf timer", leaf_name);
 		descriptor->status = GN_LEAF_STATUS_ERROR;
 	}
 
@@ -251,7 +265,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 		ret = esp_timer_start_periodic(data->sensor_timer,
 				update_time_sec * 1000000);
 		if (ret != ESP_OK) {
-			gn_log(TAG, GN_LOG_ERROR, "failed to start ds18b20 leaf timer");
+			gn_log(TAG, GN_LOG_ERROR, "[%s] failed to start ds18b20 leaf timer", leaf_name);
 			gn_leaf_get_descriptor(leaf_config)->status = GN_LEAF_STATUS_ERROR;
 			gn_leaf_param_set_bool(data->active_param, GN_DS18B20_PARAM_ACTIVE,
 			false);
@@ -261,6 +275,9 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 
 	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
+
+	ESP_LOGD(TAG, "[%s] starting GUI...", leaf_name);
+
 	lv_obj_t *label_temp_names[GN_DS18B20_MAX_SENSORS];
 	lv_obj_t *label_temp[GN_DS18B20_MAX_SENSORS];
 	lv_obj_t *label_title;
@@ -276,6 +293,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 			//style from the container
 			//lv_style_t *style = _cnt->styles->style;
 
+			ESP_LOGD(TAG, "[%s] set layout", leaf_name);
 			//lv_obj_set_layout(_cnt, LV_LAYOUT_GRID);
 			lv_coord_t col_dsc[] = { 90, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST };
 			lv_coord_t row_dsc[] = { 20, 20, 20, 20, 20, LV_GRID_FR(1),
@@ -288,6 +306,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 			//lv_obj_set_grid_cell(obj, LV_GRID_ALIGN_STRETCH, 0, 2,
 			//		LV_GRID_ALIGN_STRETCH, 0, 1);
 
+			ESP_LOGD(TAG, "[%s] label_title", leaf_name);
 			label_title = lv_label_create(_cnt);
 			lv_label_set_text(label_title, leaf_name);
 			//lv_obj_add_style(label_title, style, 0);
@@ -295,6 +314,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 			lv_obj_set_grid_cell(label_title, LV_GRID_ALIGN_CENTER, 0, 2,
 					LV_GRID_ALIGN_STRETCH, 0, 1);
 
+			ESP_LOGD(TAG, "[%s] actual values", leaf_name);
 			for (int i = 0; i < data->sensor_count; i++) {
 
 				//obj = lv_obj_create(_cnt);
@@ -333,6 +353,7 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 
 			}
 
+			ESP_LOGD(TAG, "[%s] end", leaf_name);
 		}
 		gn_display_leaf_refresh_end();
 	}
@@ -397,8 +418,8 @@ void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
 				//parameter change
 			case GN_LEAF_PARAM_CHANGE_REQUEST_EVENT:
 
-				ESP_LOGD(TAG, "request to update param %s, data = '%s'",
-						evt.param_name, evt.data);
+				ESP_LOGD(TAG, "[%s] request to update param %s, data = '%s'",
+						leaf_name, evt.param_name, evt.data);
 
 				//parameter is update time
 				if (gn_leaf_event_mask_param(&evt,
