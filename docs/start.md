@@ -8,7 +8,7 @@ This page describe the steps needed to have a working development environment on
 
 > [ESP-IDF](https://www.espressif.com/en/products/sdks/esp-idf) is the development environment provided by the ESP32 chipmaker. It lets you design application using the full chipset capabilities. I've decided to use it instead of higher level solutions like Arduino in order to achieve maximum flexibility and control.
 
- - install ESP-IDF as per [ESP-IDF getting started guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/)
+ - install ESP-IDF as per [ESP-IDF getting started guide]https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32/index.html)
  
  > Note: actual grownode library is made over esp-idf release 4.4. make sure to download the appropriate version
  
