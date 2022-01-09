@@ -34,17 +34,17 @@ void app_main(void) {
 	esp_log_level_set("*", ESP_LOG_INFO);
 
 	//core
-	esp_log_level_set("grownode", ESP_LOG_DEBUG);
+	esp_log_level_set("grownode", ESP_LOG_INFO);
 	esp_log_level_set("gn_commons", ESP_LOG_INFO);
 	esp_log_level_set("gn_nvs", ESP_LOG_INFO);
 	esp_log_level_set("gn_mqtt_protocol", ESP_LOG_INFO);
 	esp_log_level_set("gn_network", ESP_LOG_INFO);
 	esp_log_level_set("gn_display", ESP_LOG_INFO);
 
-	esp_log_level_set("gn_leaf_relay", ESP_LOG_DEBUG);
+	esp_log_level_set("gn_leaf_relay", ESP_LOG_INFO);
 
 	//boards
-	esp_log_level_set("gn_blink", ESP_LOG_DEBUG);
+	esp_log_level_set("gn_blink", ESP_LOG_INFO);
 
 	gn_config_init_param_t config_init = {
 		.provisioning_security = true,

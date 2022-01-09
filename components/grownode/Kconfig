@@ -7,7 +7,7 @@ menu "GrowNode Configuration"
     		
     config GROWNODE_WIFI_ENABLED
     	bool "Enable Networking"
-    	default true
+    	default false
     	help
     		If false, reduces memory consumption
 
@@ -105,7 +105,7 @@ menu "GrowNode Configuration"
            
     config GROWNODE_DISPLAY_ENABLED
     	bool "Enable Display"
-    	default true
+    	default false
     	help
     		If false, reduces memory consumption 
 

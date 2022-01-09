@@ -4,7 +4,7 @@ This page describes how the GrowNode platform is structured and the technology b
 
 ## Architecture
 
-A typical GrowNode system architecture is composed by
+A full GrowNode system architecture is composed by
 
  - one or more grownode boards (called nodes)
  - each board is connected to several sensors (called leaves)
@@ -23,25 +23,20 @@ GrowNode aims to use most common development tools. Actual release is composed b
 
 ### Hardware
 
- - ESP32 and above microcontrollers
- - Various displays tested (ILI9341) with touch screen (tested XPT2046) capabilities
+ - [ESP32](https://www.espressif.com/en/products/socs/esp32) and above microcontrollers
  - Common sensors and actuators (relay, PWM output, temperature probes, capacitance sensors..) with any esp-idf compatible libraries
+ 
+ - (optional) Various displays tested (ILI9341) with touch screen (tested XPT2046) capabilities
+ - (optional) A server like a raspberry to host the server side components in case you want to develop a network solution
+ 
 
 ### Software Components
 
  - ESP-IDF (release 4.4) programming environment
- - MQTT as a messaging system
- - LVGL as display library
-
-### Others (optional)
-
- - A server like a raspberry
- - A MQTT server like mosquitto
- - OpenHab/Home Assistant as a controller
- - Fusion360/EasyEDA as Schematic CAD
- - A 3D CAD like Fusion360
- - A 3D print slicer software like Ultimaker Cura
- - a 3D printer
+ 
+ - (optional) MQTT broker as a messaging system - if you want to exchange info between boards and servers
+ - (optional) LVGL as display library - if you want to attach a screen to display your sensor values 
+ - (optional) OpenHab/Home Assistant as a controller 
 
 ## Functionalities
 
@@ -54,5 +49,5 @@ Grownode provides functionalities that lets you kickstart your projects in minut
 - Persistent storage of parameters
 - Sensor and Actuators configuration abstracting the hardware level
 - Transparent networking protocol (presentation, keepalive, logging)
-- Client/Server and Client/Client parameter retrieval and update through MQTT, having in mind highly distributed environment (mesh networks, cloud communication)
+- Client/Server and Client/Client parameter retrieval and update through MQTT
   
