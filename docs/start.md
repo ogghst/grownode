@@ -1,14 +1,14 @@
 # Getting Started
 
-This page describe the steps needed to have a working development environment on your PC. 
+This page describes the steps needed to have a working development environment on your PC. 
 
 ## Set up your environment
 
 ### ESP-IDF
 
-> [ESP-IDF](https://www.espressif.com/en/products/sdks/esp-idf) is the development environment provided by the ESP32 chipmaker. It lets you design application using the full chipset capabilities. I've decided to use it instead of higher level solutions like Arduino in order to achieve maximum flexibility and control.
+> [ESP-IDF](https://www.espressif.com/en/products/sdks/esp-idf) is the development environment provided by the ESP32 chipmaker. It lets you design applications using the full chipset capabilities. I've decided to use it instead of higher level solutions like Arduino in order to achieve maximum flexibility and control.
 
- - install ESP-IDF as per [ESP-IDF getting started guide]https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32/index.html)
+ - install ESP-IDF as per [ESP-IDF getting started guide](https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32/index.html)
  
  > Note: actual grownode library is made over esp-idf release 4.4. make sure to download the appropriate version
  
@@ -23,24 +23,24 @@ This page describe the steps needed to have a working development environment on
 
 ### IDE
 
- - Latest Windows ESP-IDF installation are including an Eclipse development environment that is already configured to run an ESP-IDF project. 
- - If you want to install your own IDE, prepare your favorite development environment (Anyway, I am personally using [eclipse](https://www.eclipse.org/downloads/) with [ESP-IDF plugin](https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md). You should install the 'eclipse for c/c++ developers'
+ - Latest Windows ESP-IDF installations are including an Eclipse development environment that is already configured to run an ESP-IDF project. 
+ - If you want to install your own IDE, prepare your favorite development environment (Anyway, I am personally using [eclipse](https://www.eclipse.org/downloads/) with [ESP-IDF plugin](https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md). You should install the 'Eclipse for C/C++ developers').
 
 ## Obtain GrowNode
 
- - Open an IDF shell (in Windows you should find in in your windows start menu - it is called ESP-IDF 4.4 CMD), change dir where you want to install grownode
+ - Open an IDF shell (in Windows you should find in in your Windows start menu - it is called ESP-IDF 4.4 CMD), change dir where you want to install grownode
 
   > Note: if you have installed Eclipse, I recommend to start a new workspace, then open a shell to the workspace directory
 
  - Clone GrowNode repository using [GIT](https://git-scm.com/) command `git clone --recurse-submodules https://github.com/ogghst/grownode.git`
 
-  > Note: if you have installed Eclipse, you can now import the project using `Import projects.. -> Espressif -> Existing IDF project` and select the grownode directory created with `git clone` command
+  > Note: if you have installed Eclipse, you can now import the project using `Import projects... -> Espressif -> Existing IDF project` and select the grownode directory created with `git clone` command
 
 ## Check everything works
 
 ### Via ESP-IDF command prompt
 
- - Open an IDF shell (you should find in in your windows start menu - it is called ESP-IDF 4.4 CMD), change dir where you have downloaded grownode git folder, run `idf.py build`. It will compile for few minutes. 
+ - Open an IDF shell (you should find it in your Windows start menu - it is called ESP-IDF 4.4 CMD), change dir where you have downloaded the grownode git folder, run `idf.py build`. It will compile for few minutes. 
  
    > Note: in Eclipse, select an esp32 target and build the grownode project
  
@@ -156,7 +156,7 @@ Now, you need to download the app:
 Android: [Google PlayStore](https://play.google.com/store/apps/details?id=com.espressif.provsoftap)
 iOS: [Apple App Store](https://apps.apple.com/in/app/esp-softap-provisioning/id1474040630)
 
-Follow these steps on the Phone apps:
+Follow these steps on the Phone app:
  
 - Click on "Provision Device" 
 
@@ -171,15 +171,15 @@ Follow these steps on the Phone apps:
 
 ![launch target](../resources/images/provisioning2.png)
 
-- As proof of possession, default is 'grownode'. you can configure it in 'main' application
+- As proof of possession, default is 'grownode'. You can configure it in the 'main' application
 
 ![launch target](../resources/images/provisioning3.png)
 
-- if the password is OK you will see this screen
+- if the password is correct you will see this screen
 
 ![launch target](../resources/images/provisioning4.png)
 
-the board console will show something like:
+The board console will show something like:
 
 
 
@@ -202,4 +202,4 @@ I (132388) gn_blink: blinking - 1
 ...
 ```
 
-That's it! you're online!
+That's it! You're online!
