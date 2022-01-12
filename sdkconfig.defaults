@@ -9,6 +9,15 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
+# Serial flasher config
+#
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+CONFIG_ESPTOOLPY_FLASHSIZE="4MB"
+#
+# end of Serial flasher config
+#
+
+#
 # Log output
 #
 CONFIG_LOG_DEFAULT_LEVEL_INFO=y
