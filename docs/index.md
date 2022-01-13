@@ -27,7 +27,7 @@ If you want to play hard and develop your own customized system, a basic knowled
 
 You can use GrowNode to build a system that warns you when humidity and temperature on a plant is outside determined range, by blinking a LED:
 
-![easypot1](../resources/images/easypot1.png)
+![easypot1](/grownode/resources/images/easypot1.png)
 
 ### Network connected system
 
