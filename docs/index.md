@@ -44,3 +44,5 @@ GrowNode has a growing list of supported sensors and actuators, in order to buil
 ### Distributed, orchestrated system
 
 Grownode is born having in mind IoT distributed environments. You can add nodes to your system and those nodes will easily talk between each other, acting as a unique orchestrated platform, with no limits over its scalability.
+
+![orchestration](resources/images/easypot1_orchestration.png)
