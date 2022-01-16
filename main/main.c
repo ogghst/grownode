@@ -22,7 +22,7 @@
 #include "grownode.h"
 
 //include the board you want to start here
-#include "gn_easypot1.h"
+#include "gn_blink.h"
 
 #define TASK_STACK_SIZE 8192*4
 
@@ -70,7 +70,7 @@ void app_main(void) {
 	//creates a new node
 	gn_node_config_handle_t node = gn_node_create(config, "node");
 
-	gn_configure_easypot1(node);
+	gn_configure_blink(node);
 
 	//finally, start node
 	gn_node_start(node);
