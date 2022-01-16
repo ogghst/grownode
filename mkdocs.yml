@@ -19,6 +19,7 @@ nav:
   - Install: 'start.md'
   - Play: 'workflow.md'
   - Boards: 'boards.md'
+  - Tutorials: 'tutorials\index.md'
   - Story: 'story.md'
   - API: 'html\index.html'
 plugins:
