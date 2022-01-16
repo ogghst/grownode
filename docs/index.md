@@ -27,15 +27,19 @@ If you want to play hard and develop your own customized system, a basic knowled
 
 You can use GrowNode to build a system that warns you when humidity and temperature on a plant is outside determined range, by blinking a LED:
 
-![easypot1](/grownode/resources/images/easypot1.png)
+![simple configuration](resources/images/easypot1.png)
 
 ### Network connected system
 
 You can then add network connectivity to a server and have your board warns you on your PC or mobile phone, and change the system parameters via a simple interface.
 
+![network configuration](resources/images/easypot1_network.png)
+
 ### Environment controlled system
 
 GrowNode has a growing list of supported sensors and actuators, in order to build a more sophisticated system. You can add sensors, motors, lights, pumps, everything needed to build your own solution customized to your needs.
+
+![network controlled configuration](resources/images/easypot1_network_full.png)
 
 ### Distributed, orchestrated system
 
