@@ -208,6 +208,18 @@ uint64_t gn_hash(const char *key);
 void gn_hash_str(const char *key, char *buf, size_t len);
 
 
+//validators
+gn_leaf_param_validator_result_t gn_validator_double_positive(
+		gn_leaf_param_handle_t param, void **param_value);
+
+gn_leaf_param_validator_result_t gn_validator_double(
+		gn_leaf_param_handle_t param, void **param_value);
+
+gn_leaf_param_validator_result_t gn_validator_boolean(
+		gn_leaf_param_handle_t param, void **param_value);
+
+
+
 #ifdef __cplusplus
 }
 #endif //__cplusplus

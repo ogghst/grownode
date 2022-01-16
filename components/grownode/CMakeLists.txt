@@ -105,7 +105,7 @@ else()
 		"unity" "mqtt" "spiffs" "json" "wifi_provisioning" "esp_https_ota" "app_update" "esp_adc_cal"
 	)
 	
-	if(IDF_LIB_PATH)
+	if(DEFINED ENV{IDF_LIB_PATH})
 	    list(APPEND components_required 
      		"bmp280" "ds18x20" 
      	)
@@ -137,7 +137,8 @@ else()
 					"leaves/gn_hydroboard2_watering_control.c"
 					"leaves/gn_capacitive_water_level.c"
 					"leaves/gn_capacitive_moisture_sensor.c"
-					"leaves/gn_relay.c"
+					"leaves/gn_gpio.c"
+					"leaves/gn_led.c"
 					"leaves/gn_leaf_status_led.c"
 					"test/test_grownode.c"
 					"test/test_pump.c"

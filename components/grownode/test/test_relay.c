@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <gn_gpio.h>
 #include "unity.h"
 
 #include "esp_log.h"
@@ -20,7 +21,6 @@
 #include "grownode.h"
 #include "grownode_intl.h"
 #include "gn_mqtt_protocol.h"
-#include "gn_relay.h"
 
 static const char *TAG = "test_relay";
 
@@ -58,7 +58,7 @@ TEST_CASE("gn_init_add_relay", "[relay]") {
 	gn_node_get_name(node_config, node_name);
 	TEST_ASSERT_EQUAL_STRING("node", node_name);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 0);
-	relay_config = gn_leaf_create(node_config, "relay", gn_relay_config, 4096);
+	relay_config = gn_leaf_create(node_config, "relay", gn_gpio_config, 4096);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 1);
 	esp_err_t ret = gn_node_start(node_config);
 	TEST_ASSERT_EQUAL(ret, ESP_OK);
@@ -68,7 +68,7 @@ TEST_CASE("gn_init_add_relay", "[relay]") {
 TEST_CASE("gn_leaf_create relay", "[relay]") {
 
 	size_t oldsize = gn_node_get_size(node_config);
-	relay_config = gn_leaf_create(node_config, "relay", gn_relay_config, 4096);
+	relay_config = gn_leaf_create(node_config, "relay", gn_gpio_config, 4096);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), oldsize+1);
 	TEST_ASSERT(relay_config != NULL);
 
@@ -82,7 +82,7 @@ TEST_CASE("gn_receive_status_0", "[relay]") {
 	esp_mqtt_event_id_t event_id = MQTT_EVENT_DATA;
 	char *topic = calloc(_GN_MQTT_MAX_TOPIC_LENGTH, sizeof(char));
 
-	_gn_mqtt_build_leaf_parameter_command_topic(relay_config, GN_RELAY_PARAM_TOGGLE, topic);
+	_gn_mqtt_build_leaf_parameter_command_topic(relay_config, GN_GPIO_PARAM_TOGGLE, topic);
 
 	char data[] = "0";
 	event->topic = (char*) calloc(strlen(topic), sizeof(char));
@@ -114,7 +114,7 @@ TEST_CASE("gn_receive_status_1", "[relay]") {
 	esp_mqtt_event_id_t event_id = MQTT_EVENT_DATA;
 	char *topic = calloc(_GN_MQTT_MAX_TOPIC_LENGTH, sizeof(char));
 
-	_gn_mqtt_build_leaf_parameter_command_topic(relay_config, GN_RELAY_PARAM_TOGGLE, topic);
+	_gn_mqtt_build_leaf_parameter_command_topic(relay_config, GN_GPIO_PARAM_TOGGLE, topic);
 
 	char data[] = "1";
 	event->topic = (char*) calloc(strlen(topic), sizeof(char));
@@ -150,7 +150,7 @@ TEST_CASE("gn_relay_mqtt_stress_test", "[relay]") {
 	gn_node_get_name(node_config, node_name);
 	TEST_ASSERT_EQUAL_STRING("node", node_name);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 0);
-	relay_config = gn_leaf_create(node_config, "relay", gn_relay_config, 4096);
+	relay_config = gn_leaf_create(node_config, "relay", gn_gpio_config, 4096);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 1);
 	esp_err_t ret = gn_node_start(node_config);
 	TEST_ASSERT_EQUAL(ret, ESP_OK);
@@ -171,7 +171,7 @@ TEST_CASE("gn_relay_mqtt_stress_test", "[relay]") {
 	for (size_t j = 0; j < 100; j++) {
 
 		_gn_mqtt_build_leaf_parameter_command_topic(relay_config,
-				GN_RELAY_PARAM_TOGGLE, topic);
+				GN_GPIO_PARAM_TOGGLE, topic);
 
 		if (j % 20 == 0) {
 			strcpy(data, "1");

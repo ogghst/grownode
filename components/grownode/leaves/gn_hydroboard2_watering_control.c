@@ -41,7 +41,7 @@ extern "C" {
 #include "gn_bme280.h"
 #include "gn_ds18b20.h"
 #include "gn_pwm.h"
-#include "gn_relay.h"
+#include <gn_gpio.h>
 #include "gn_capacitive_water_level.h"
 
 #include "gn_hydroboard2_watering_control.h"
@@ -217,8 +217,8 @@ inline static void _gn_hb2_watering_control_start_watering(
 inline static void _gn_hb2_watering_control_stop_hcc(
 		gn_hb2_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Stop Water Temp Setup Cycle");
-	gn_leaf_param_update_bool(data->leaf_plt_hot, GN_RELAY_PARAM_TOGGLE, false);
-	gn_leaf_param_update_bool(data->leaf_plt_cool, GN_RELAY_PARAM_TOGGLE, false);
+	gn_leaf_param_update_bool(data->leaf_plt_hot, GN_GPIO_PARAM_TOGGLE, false);
+	gn_leaf_param_update_bool(data->leaf_plt_cool, GN_GPIO_PARAM_TOGGLE, false);
 	gn_leaf_param_update_bool(data->leaf_plt_pump, GN_LEAF_PWM_PARAM_TOGGLE,
 	false);
 	gn_leaf_param_update_bool(data->leaf_plt_fan, GN_LEAF_PWM_PARAM_TOGGLE,
@@ -229,8 +229,8 @@ inline static void _gn_hb2_watering_control_stop_hcc(
 inline static void _gn_hb2_watering_control_start_hcc_heating(
 		gn_hb2_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Start Heating Cycle");
-	gn_leaf_param_update_bool(data->leaf_plt_hot, GN_RELAY_PARAM_TOGGLE, true);
-	gn_leaf_param_update_bool(data->leaf_plt_cool, GN_RELAY_PARAM_TOGGLE, false);
+	gn_leaf_param_update_bool(data->leaf_plt_hot, GN_GPIO_PARAM_TOGGLE, true);
+	gn_leaf_param_update_bool(data->leaf_plt_cool, GN_GPIO_PARAM_TOGGLE, false);
 	gn_leaf_param_update_bool(data->leaf_plt_pump, GN_LEAF_PWM_PARAM_TOGGLE,
 	true);
 	gn_leaf_param_update_bool(data->leaf_plt_fan, GN_LEAF_PWM_PARAM_TOGGLE, true);
@@ -246,8 +246,8 @@ inline static void _gn_hb2_watering_control_start_hcc_heating(
 inline static void _gn_hb2_watering_control_start_hcc_cooling(
 		gn_hb2_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Start Cooling Cycle");
-	gn_leaf_param_update_bool(data->leaf_plt_hot, GN_RELAY_PARAM_TOGGLE, false);
-	gn_leaf_param_update_bool(data->leaf_plt_cool, GN_RELAY_PARAM_TOGGLE, true);
+	gn_leaf_param_update_bool(data->leaf_plt_hot, GN_GPIO_PARAM_TOGGLE, false);
+	gn_leaf_param_update_bool(data->leaf_plt_cool, GN_GPIO_PARAM_TOGGLE, true);
 	gn_leaf_param_update_bool(data->leaf_plt_pump, GN_LEAF_PWM_PARAM_TOGGLE,
 	true);
 	gn_leaf_param_update_bool(data->leaf_plt_fan, GN_LEAF_PWM_PARAM_TOGGLE, true);
@@ -465,7 +465,7 @@ void _gn_hb2_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 
 			//gets peltier A status
 			ret = gn_leaf_param_get_bool(data->leaf_plt_hot,
-					GN_RELAY_PARAM_TOGGLE, &p_plt_a_status);
+					GN_GPIO_PARAM_TOGGLE, &p_plt_a_status);
 			if (ret != GN_RET_OK) {
 				gn_log(TAG, GN_LOG_ERROR, "peltier A status not found");
 				break;
@@ -473,7 +473,7 @@ void _gn_hb2_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 
 			//gets peltier B status
 			ret = gn_leaf_param_get_bool(data->leaf_plt_cool,
-					GN_RELAY_PARAM_TOGGLE, &p_plt_b_status);
+					GN_GPIO_PARAM_TOGGLE, &p_plt_b_status);
 			if (ret != GN_RET_OK) {
 				gn_log(TAG, GN_LOG_ERROR, "peltier B status not found");
 				break;

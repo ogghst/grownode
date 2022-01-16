@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <gn_gpio.h>
 #include <stdio.h>
 
 #include "esp_log.h"
 
 #include "grownode.h"
-#include "gn_relay.h"
-
 #include "gn_blink.h"
 
 #define TAG "gn_blink"
@@ -27,7 +26,7 @@ void led_blink_callback(const gn_leaf_config_handle_t blink) {
 
 	bool status;
 	//gets the previous parameter status
-	gn_leaf_param_get_bool(blink, GN_RELAY_PARAM_TOGGLE, &status);
+	gn_leaf_param_get_bool(blink, GN_GPIO_PARAM_TOGGLE, &status);
 
 	//invert the status
 	status = !status;
@@ -35,7 +34,7 @@ void led_blink_callback(const gn_leaf_config_handle_t blink) {
 	ESP_LOGI(TAG, "blinking - %d", status);
 
 	//set the new parameter
-	gn_leaf_param_update_bool(blink, GN_RELAY_PARAM_TOGGLE, status);
+	gn_leaf_param_update_bool(blink, GN_GPIO_PARAM_TOGGLE, status);
 
 }
 
@@ -51,12 +50,12 @@ void gn_configure_blink(gn_node_config_handle_t node) {
 
 	//creates the blink leave
 	gn_leaf_config_handle_t blink = gn_leaf_create(node, "blink",
-			gn_relay_config, 4096);
+			gn_gpio_config, 4096);
 
 	//set the GPIO 2
-	gn_leaf_param_init_double(blink, GN_RELAY_PARAM_GPIO, 2);
+	gn_leaf_param_init_double(blink, GN_GPIO_PARAM_GPIO, 2);
 	//set initial status to false (off)
-	gn_leaf_param_init_bool(blink, GN_RELAY_PARAM_TOGGLE, false);
+	gn_leaf_param_init_bool(blink, GN_GPIO_PARAM_TOGGLE, false);
 
 	//creates a timer that fires the led blinking every 5 seconds, using esp_timer API
 

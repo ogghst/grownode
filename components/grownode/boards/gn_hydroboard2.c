@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <gn_gpio.h>
 #include <stdio.h>
 
 //#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
@@ -22,7 +23,6 @@
 #include "grownode.h"
 #include "gn_pump_hs.h"
 #include "gn_ds18b20.h"
-#include "gn_relay.h"
 #include "gn_capacitive_water_level.h"
 #include "gn_pwm.h"
 #include "gn_bme280.h"
@@ -34,7 +34,7 @@
 void gn_configure_hydroboard2(gn_node_config_handle_t node) {
 
 	//leaves
-	esp_log_level_set("gn_leaf_relay", ESP_LOG_INFO);
+	esp_log_level_set("gn_leaf_gpio", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_pump_hs", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_ds18b20", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_cwl", ESP_LOG_INFO);
@@ -59,28 +59,28 @@ void gn_configure_hydroboard2(gn_node_config_handle_t node) {
 	const char *LIGHT_2 = "lig_2";
 
 	gn_leaf_config_handle_t lights1in = gn_leaf_create(node, LIGHT_1,
-			gn_relay_config, 4096);
-	gn_leaf_param_init_double(lights1in, GN_RELAY_PARAM_GPIO, 25);
-	gn_leaf_param_init_bool(lights1in, GN_RELAY_PARAM_INVERTED, true);
-	gn_leaf_param_init_bool(lights1in, GN_RELAY_PARAM_TOGGLE, false);
+			gn_gpio_config, 4096);
+	gn_leaf_param_init_double(lights1in, GN_GPIO_PARAM_GPIO, 25);
+	gn_leaf_param_init_bool(lights1in, GN_GPIO_PARAM_INVERTED, true);
+	gn_leaf_param_init_bool(lights1in, GN_GPIO_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t lights2in = gn_leaf_create(node, LIGHT_2,
-			gn_relay_config, 4096);
-	gn_leaf_param_init_double(lights2in, GN_RELAY_PARAM_GPIO, 33);
-	gn_leaf_param_init_bool(lights2in, GN_RELAY_PARAM_INVERTED, true);
-	gn_leaf_param_init_bool(lights2in, GN_RELAY_PARAM_TOGGLE, false);
+			gn_gpio_config, 4096);
+	gn_leaf_param_init_double(lights2in, GN_GPIO_PARAM_GPIO, 33);
+	gn_leaf_param_init_bool(lights2in, GN_GPIO_PARAM_INVERTED, true);
+	gn_leaf_param_init_bool(lights2in, GN_GPIO_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t plt_a = gn_leaf_create(node, PLT_HOT,
-			gn_relay_config, 4096);
-	gn_leaf_param_init_double(plt_a, GN_RELAY_PARAM_GPIO, 5);
-	gn_leaf_param_init_bool(plt_a, GN_RELAY_PARAM_INVERTED, true);
-	gn_leaf_param_init_bool(plt_a, GN_RELAY_PARAM_TOGGLE, false);
+			gn_gpio_config, 4096);
+	gn_leaf_param_init_double(plt_a, GN_GPIO_PARAM_GPIO, 5);
+	gn_leaf_param_init_bool(plt_a, GN_GPIO_PARAM_INVERTED, true);
+	gn_leaf_param_init_bool(plt_a, GN_GPIO_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t plt_b = gn_leaf_create(node, PLT_COOL,
-			gn_relay_config, 4096);
-	gn_leaf_param_init_double(plt_b, GN_RELAY_PARAM_GPIO, 23);
-	gn_leaf_param_init_bool(plt_b, GN_RELAY_PARAM_INVERTED, true);
-	gn_leaf_param_init_bool(plt_b, GN_RELAY_PARAM_TOGGLE, false);
+			gn_gpio_config, 4096);
+	gn_leaf_param_init_double(plt_b, GN_GPIO_PARAM_GPIO, 23);
+	gn_leaf_param_init_bool(plt_b, GN_GPIO_PARAM_INVERTED, true);
+	gn_leaf_param_init_bool(plt_b, GN_GPIO_PARAM_TOGGLE, false);
 
 	gn_leaf_config_handle_t wat_pump = gn_leaf_create(node, WAT_PUMP,
 			gn_leaf_pwm_config, 4096);

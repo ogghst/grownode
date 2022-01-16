@@ -22,7 +22,7 @@
 #include "grownode.h"
 
 //include the board you want to start here
-#include "gn_blink.h"
+#include "gn_easypot1.h"
 
 #define TASK_STACK_SIZE 8192*4
 
@@ -40,8 +40,6 @@ void app_main(void) {
 	esp_log_level_set("gn_mqtt_protocol", ESP_LOG_INFO);
 	esp_log_level_set("gn_network", ESP_LOG_INFO);
 	esp_log_level_set("gn_display", ESP_LOG_INFO);
-
-	esp_log_level_set("gn_leaf_relay", ESP_LOG_INFO);
 
 	//boards
 	esp_log_level_set("gn_blink", ESP_LOG_INFO);
@@ -72,7 +70,7 @@ void app_main(void) {
 	//creates a new node
 	gn_node_config_handle_t node = gn_node_create(config, "node");
 
-	gn_configure_blink(node);
+	gn_configure_easypot1(node);
 
 	//finally, start node
 	gn_node_start(node);

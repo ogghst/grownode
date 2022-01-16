@@ -64,7 +64,7 @@ Some basic configuration parameters:
  - `enable networking`: in order to have all the network related functionalities. in case of local boards or issues with firmware size this will reduce a lot the firware footprint and enhance performances. Dependant parameters are:
  - `provisioning transport`: how the board will receive wifi credentials at startup. SoftAP means by becoming a local access point, Bluetooth is the other option. Depending on the choice, you will have to use one of the Espressif provisioning apps (at this page)[https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/provisioning/provisioning.html]
  - `SoftAP Prefix`: the name of the temporary network the board will create to ask for wifi credentials
- - `Enable Display`: if set, it will start the display driver. the configuration of the display will be taken from `LVGL` component configuration settings 
+ - `Enable Display`: if set, it will start the display driver. the configuration of the display will be taken from `LVGL` component configuration settings. Note: if you enable display, make sure in cmakelists.txt you have enabled the build of LVGL uncommenting the line `set(ENV{LVGL_PATH} "lvgl/lvgl lvgl/lvgl_esp32_drivers")`
 
 ### Code your application
 

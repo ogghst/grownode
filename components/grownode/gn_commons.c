@@ -64,6 +64,15 @@ void inline gn_hash_str(const char *key, char *buf, size_t len) {
 
 }
 
+//validators
+
+const double min = DBL_MIN;
+const double zero = 0;
+const double max = DBL_MAX;
+
+const bool bool_false = false;
+const bool bool_true = !bool_false;
+
 gn_leaf_param_validator_result_t gn_validator_double_positive(
 		gn_leaf_param_handle_t param, void **param_value) {
 
@@ -72,13 +81,10 @@ gn_leaf_param_validator_result_t gn_validator_double_positive(
 		return GN_LEAF_PARAM_VALIDATOR_ERROR;
 
 	double _p1 = **(double**) param_value;
-	ESP_LOGD(TAG, "_watering_interval_validator - param: %d", (int )_p1);
-
-	double min = 0;
-	double max = DBL_MAX;
+	ESP_LOGD(TAG, "gn_validator_double_positive - param: %f", _p1);
 
 	if (min > **(double**) param_value) {
-		memcpy(param_value, &min, sizeof(min));
+		memcpy(param_value, &zero, sizeof(min));
 		return GN_LEAF_PARAM_VALIDATOR_BELOW_MIN;
 	} else if (max < **(double**) param_value) {
 		memcpy(param_value, &max, sizeof(max));
@@ -86,13 +92,13 @@ gn_leaf_param_validator_result_t gn_validator_double_positive(
 	}
 
 	_p1 = **(double**) param_value;
-	ESP_LOGD(TAG, "_watering_interval_validator - param: %d", (int )_p1);
+	ESP_LOGD(TAG, "gn_validator_double_positive - param: %f", _p1);
 
 	return GN_LEAF_PARAM_VALIDATOR_PASSED;
 
 }
 
-gn_leaf_param_validator_result_t _gn_validator_double(
+gn_leaf_param_validator_result_t gn_validator_double(
 		gn_leaf_param_handle_t param, void **param_value) {
 
 	double val;
@@ -100,10 +106,7 @@ gn_leaf_param_validator_result_t _gn_validator_double(
 		return GN_LEAF_PARAM_VALIDATOR_ERROR;
 
 	double _p1 = **(double**) param_value;
-	ESP_LOGD(TAG, "_watering_interval_validator - param: %d", (int )_p1);
-
-	double min = DBL_MIN;
-	double max = DBL_MAX;
+	ESP_LOGD(TAG, "gn_validator_double - param: %f", _p1);
 
 	if (min > **(double**) param_value) {
 		memcpy(param_value, &min, sizeof(min));
@@ -114,13 +117,33 @@ gn_leaf_param_validator_result_t _gn_validator_double(
 	}
 
 	_p1 = **(double**) param_value;
-	ESP_LOGD(TAG, "_watering_interval_validator - param: %d", (int )_p1);
+	ESP_LOGD(TAG, "_watering_interval_validator - param: %f", _p1);
 
 	return GN_LEAF_PARAM_VALIDATOR_PASSED;
 
 }
 
+gn_leaf_param_validator_result_t gn_validator_boolean(
+		gn_leaf_param_handle_t param, void **param_value) {
 
+	bool val;
+	if (gn_leaf_param_get_value(param, &val) != GN_RET_OK)
+		return GN_LEAF_PARAM_VALIDATOR_ERROR;
+
+	bool _p1 = **(bool**) param_value;
+	ESP_LOGD(TAG, "gn_validator_boolean - param: %d", _p1);
+
+	if (_p1) {
+		memcpy(param_value, &bool_true, sizeof(bool_true));
+	} else {
+		memcpy(param_value, &bool_false, sizeof(bool_false));
+	}
+
+	ESP_LOGD(TAG, "gn_validator_boolean - param: %d", _p1);
+
+	return GN_LEAF_PARAM_VALIDATOR_PASSED;
+
+}
 
 
 

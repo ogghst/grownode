@@ -41,7 +41,7 @@ extern "C" {
 #include "gn_bme280.h"
 #include "gn_ds18b20.h"
 #include "gn_pump_hs.h"
-#include "gn_relay.h"
+#include <gn_gpio.h>
 #include "gn_capacitive_water_level.h"
 
 #include "gn_watering_control.h"
@@ -173,7 +173,7 @@ gn_leaf_param_validator_result_t _gn_watering_target_temp_validator(
 inline static void _gn_watering_control_stop_watering(
 		gn_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Stop Watering Cycle");
-	gn_leaf_param_update_bool(data->leaf_wat_pump, GN_RELAY_PARAM_TOGGLE, false);
+	gn_leaf_param_update_bool(data->leaf_wat_pump, GN_GPIO_PARAM_TOGGLE, false);
 	data->wat_cycle = WAT_OFF;
 	data->wat_cycle_cumulative_time_ms = 0;
 }
@@ -181,7 +181,7 @@ inline static void _gn_watering_control_stop_watering(
 inline static void _gn_watering_control_start_watering(
 		gn_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Start Watering Cycle");
-	gn_leaf_param_update_bool(data->leaf_wat_pump, GN_RELAY_PARAM_TOGGLE, true);
+	gn_leaf_param_update_bool(data->leaf_wat_pump, GN_GPIO_PARAM_TOGGLE, true);
 	data->wat_cycle = WAT_ON;
 	data->wat_cycle_cumulative_time_ms = 0;
 }
@@ -189,8 +189,8 @@ inline static void _gn_watering_control_start_watering(
 inline static void _gn_watering_control_stop_hcc(
 		gn_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Stop Water Temp Setup Cycle");
-	gn_leaf_param_update_bool(data->leaf_plt_a, GN_RELAY_PARAM_TOGGLE, false);
-	gn_leaf_param_update_bool(data->leaf_plt_b, GN_RELAY_PARAM_TOGGLE, false);
+	gn_leaf_param_update_bool(data->leaf_plt_a, GN_GPIO_PARAM_TOGGLE, false);
+	gn_leaf_param_update_bool(data->leaf_plt_b, GN_GPIO_PARAM_TOGGLE, false);
 	gn_leaf_param_update_bool(data->leaf_hcc_pump, GN_PUMP_HS_PARAM_TOGGLE,
 	false);
 	data->hcc_cycle = HCC_OFF;
@@ -199,8 +199,8 @@ inline static void _gn_watering_control_stop_hcc(
 inline static void _gn_watering_control_start_hcc_heating(
 		gn_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Start Heating Cycle");
-	gn_leaf_param_update_bool(data->leaf_plt_a, GN_RELAY_PARAM_TOGGLE, false);
-	gn_leaf_param_update_bool(data->leaf_plt_b, GN_RELAY_PARAM_TOGGLE, true);
+	gn_leaf_param_update_bool(data->leaf_plt_a, GN_GPIO_PARAM_TOGGLE, false);
+	gn_leaf_param_update_bool(data->leaf_plt_b, GN_GPIO_PARAM_TOGGLE, true);
 	gn_leaf_param_update_bool(data->leaf_hcc_pump, GN_PUMP_HS_PARAM_TOGGLE, true);
 	data->hcc_cycle = HCC_HEATING;
 	//store time of start water temp control cycle
@@ -214,8 +214,8 @@ inline static void _gn_watering_control_start_hcc_heating(
 inline static void _gn_watering_control_start_hcc_cooling(
 		gn_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Start Cooling Cycle");
-	gn_leaf_param_update_bool(data->leaf_plt_a, GN_RELAY_PARAM_TOGGLE, true);
-	gn_leaf_param_update_bool(data->leaf_plt_b, GN_RELAY_PARAM_TOGGLE, false);
+	gn_leaf_param_update_bool(data->leaf_plt_a, GN_GPIO_PARAM_TOGGLE, true);
+	gn_leaf_param_update_bool(data->leaf_plt_b, GN_GPIO_PARAM_TOGGLE, false);
 
 	gn_leaf_param_update_bool(data->leaf_hcc_pump, GN_PUMP_HS_PARAM_TOGGLE, true);
 	data->hcc_cycle = HCC_COOLING;
@@ -429,7 +429,7 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 
 			//gets peltier A status
 			ret = gn_leaf_param_get_bool(data->leaf_plt_a,
-					GN_RELAY_PARAM_TOGGLE, &p_plt_a_status);
+					GN_GPIO_PARAM_TOGGLE, &p_plt_a_status);
 			if (ret != GN_RET_OK) {
 				gn_log(TAG, GN_LOG_ERROR, "peltier A status not found");
 				break;
@@ -437,7 +437,7 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 
 			//gets peltier B status
 			ret = gn_leaf_param_get_bool(data->leaf_plt_b,
-					GN_RELAY_PARAM_TOGGLE, &p_plt_b_status);
+					GN_GPIO_PARAM_TOGGLE, &p_plt_b_status);
 			if (ret != GN_RET_OK) {
 				gn_log(TAG, GN_LOG_ERROR, "peltier B status not found");
 				break;
@@ -445,7 +445,7 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
 
 			//gets water pump status
 			ret = gn_leaf_param_get_bool(data->leaf_wat_pump,
-					GN_RELAY_PARAM_TOGGLE, &p_wat_pump);
+					GN_GPIO_PARAM_TOGGLE, &p_wat_pump);
 			if (ret != GN_RET_OK) {
 				gn_log(TAG, GN_LOG_ERROR, "water pump status not found");
 				break;
