@@ -80,7 +80,7 @@ gn_leaf_descriptor_handle_t gn_led_config(gn_leaf_config_handle_t leaf_config) {
 					false }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, gn_validator_boolean);
 
-	data->gn_led_gpio_param = gn_leaf_param_create(leaf_config,
+	data->gn_led_blinktime_param = gn_leaf_param_create(leaf_config,
 			GN_LED_PARAM_BLINK_TIME_MS, GN_VAL_TYPE_DOUBLE,
 			(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, gn_validator_double_positive);

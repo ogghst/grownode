@@ -100,8 +100,8 @@ void gn_configure_easypot1(gn_node_config_handle_t node) {
 	esp_log_level_set("gn_leaf_led", ESP_LOG_DEBUG);
 
 	//sets the tresholds
-	moist_min = 100;
-	moist_max = 500;
+	moist_min = 1;
+	moist_max = 3;
 	temp_min = 15;
 	temp_max = 28;
 
@@ -118,9 +118,9 @@ void gn_configure_easypot1(gn_node_config_handle_t node) {
 	//creates the temperature sensor
 	temp = gn_leaf_create(node, "temp", gn_ds18b20_config, 4096);
 	//set GPIO
-	gn_leaf_param_init_double(moist, GN_DS18B20_PARAM_GPIO, 0);
+	gn_leaf_param_init_double(temp, GN_DS18B20_PARAM_GPIO, 0);
 	//set update time
-	gn_leaf_param_init_double(moist, GN_DS18B20_PARAM_UPDATE_TIME_SEC, 5);
+	gn_leaf_param_init_double(temp, GN_DS18B20_PARAM_UPDATE_TIME_SEC, 5);
 	//set initial status to active (on)
 	gn_leaf_param_init_bool(temp, GN_DS18B20_PARAM_ACTIVE, true);
 
