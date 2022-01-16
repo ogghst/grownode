@@ -16,6 +16,16 @@
 extern "C" {
 #endif
 
+#ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
+/* Littlevgl specific */
+#ifdef LV_LVGL_H_INCLUDE_SIMPLE
+#include "lvgl.h"
+#else
+#include "lvgl/lvgl.h"
+#endif
+#include "lvgl_helpers.h"
+#endif
+
 #define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 #include "esp_log.h"
 

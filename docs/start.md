@@ -11,15 +11,6 @@ This page describes the steps needed to have a working development environment o
  - install ESP-IDF as per [ESP-IDF getting started guide](https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32/index.html)
  
  > Note: actual grownode library is made over esp-idf release 4.4. make sure to download the appropriate version
- 
- - install ESP_IDF-LIB as per [ESP-IDF Components library](https://github.com/UncleRus/esp-idf-lib) in the same root folder of ESP-IDF
- - you should have then a folder structure like:
- 
-```
-     root folder
-     +--esp-idf
-     +--esp-idf-lib
-```
 
 ### IDE
 

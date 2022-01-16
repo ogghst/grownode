@@ -1,6 +1,9 @@
-[submodule "components/lvgl"]
-	path = components/lvgl
+[submodule "esp-idf-lib"]
+	path = esp-idf-lib
+	url = https://github.com/UncleRus/esp-idf-lib.git
+[submodule "lvgl/lvgl"]
+	path = lvgl/lvgl
 	url = https://github.com/lvgl/lvgl.git
-[submodule "components/lvgl_esp32_drivers"]
-	path = components/lvgl_esp32_drivers
+[submodule "lvgl/lvgl_esp32_drivers"]
+	path = lvgl/lvgl_esp32_drivers
 	url = https://github.com/lvgl/lvgl_esp32_drivers.git

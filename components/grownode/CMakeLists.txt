@@ -98,7 +98,26 @@ if(${grownode_mock})
       )
 
 else()
-idf_component_register(SRCS 
+
+#normal build
+
+	set(components_required 
+		"unity" "mqtt" "spiffs" "json" "wifi_provisioning" "esp_https_ota" "app_update" "esp_adc_cal"
+	)
+	
+	if(IDF_LIB_PATH)
+	    list(APPEND components_required 
+     		"bmp280" "ds18x20" 
+     	)
+   	endif()
+
+ 	if(CONFIG_GROWNODE_DISPLAY_ENABLED)
+    	list(APPEND components_required 
+     		"lvgl" "lvgl_esp32_drivers"
+     	)
+ 	endif()
+
+	idf_component_register(SRCS 
 					"gn_commons.c"
 					"gn_display.c"
 					"grownode.c"
@@ -130,7 +149,7 @@ idf_component_register(SRCS
 					"boards/gn_easypot1.c"
 					"boards/gn_blink.c"
 					
-					REQUIRES lvgl lvgl_esp32_drivers unity mqtt spiffs json wifi_provisioning esp_https_ota app_update bmp280 ds18x20 esp_adc_cal
+					REQUIRES "${components_required}"
                     INCLUDE_DIRS 
                     "."
                     "leaves/"

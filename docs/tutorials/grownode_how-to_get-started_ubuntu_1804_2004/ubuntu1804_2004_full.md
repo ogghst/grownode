@@ -90,8 +90,6 @@ cd ~/esp/esp-idf
 ./install.sh esp32
 echo -e "\nalias get_idf='. $HOME/esp/esp-idf/export.sh'" >> ~/.bashrc
 source ~/.bashrc
-cd ~/esp
-git clone https://github.com/UncleRus/esp-idf-lib.git
 ```
 
 Congratulations! You have just installed the base environment that will allow you to build your Grownode boards!

@@ -19,9 +19,9 @@
 extern "C" {
 #endif
 
-#include "grownode.h"
-
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
+
+#include "grownode.h"
 
 esp_err_t gn_init_display(gn_config_handle_t conf);
 

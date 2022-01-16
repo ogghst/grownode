@@ -18,6 +18,7 @@ extern "C" {
 
 #include "esp_log.h"
 
+#ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 /* Littlevgl specific */
 #ifdef LV_LVGL_H_INCLUDE_SIMPLE
 #include "lvgl.h"
@@ -25,6 +26,7 @@ extern "C" {
 #include "lvgl/lvgl.h"
 #endif
 #include "lvgl_helpers.h"
+#endif
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
