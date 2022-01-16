@@ -19,7 +19,7 @@
 		- [B. Installing Grownode into an Ubuntu virtual machine using VirtualBox](#b-installing-grownode-into-an-ubuntu-virtual-machine-using-virtualbox)
 			* [Properly link the host and guest serial ports](#properly-link-the-host-and-guest-serial-ports)
 * [Installing the Eclipse IDE with the ESP-IDF plugin](#installing-the-eclipse-ide-with-the-esp-idf-plugin)
-	+ [Step 1: Installing JAVA](#stcompileep-1-installing-java)
+	+ [Step 1: Installing JAVA](#step-1-installing-java)
 		- [Option 1: Installing the system OpenJDK JAVA package](#option-1-installing-the-system-openjdk-java-package)
 		- [Option 2: Installing the Azul Zulu OpenJDK JAVA 11 package](#option-2-installing-the-azul-zulu-openjdk-java-11-package)
 	+ [Step 2: Installing Eclipse IDE for C/C++ Developers 2021-09](#step-2-installing-eclipse-ide-for-cc-developers-2021-09)
