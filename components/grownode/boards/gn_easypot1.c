@@ -27,10 +27,17 @@
 
 gn_leaf_config_handle_t moist, temp, led_moist, led_temp;
 
-double moist_min, moist_max, moist_last, temp_min, temp_max, temp_last;
+double moist_last, temp_last;
 
-double blink_time_high = 1000;
-double blink_time_low = 300;
+//sets the tresholds
+const double moist_min = 1;
+const double moist_max = 3;
+const double temp_min = 15;
+const double temp_max = 28;
+
+//milliseconds to blink for low and high values
+const double blink_time_high = 300;
+const double blink_time_low = 2000;
 
 void moisture_callback(const gn_leaf_config_handle_t moist) {
 
@@ -97,13 +104,7 @@ void temp_callback(const gn_leaf_config_handle_t temp) {
 void gn_configure_easypot1(gn_node_config_handle_t node) {
 
 	//leaves
-	esp_log_level_set("gn_leaf_led", ESP_LOG_DEBUG);
-
-	//sets the tresholds
-	moist_min = 1;
-	moist_max = 3;
-	temp_min = 15;
-	temp_max = 28;
+	//esp_log_level_set("gn_leaf_led", ESP_LOG_INFO);
 
 	//creates the moisture sensor
 	moist = gn_leaf_create(node, "moist", gn_capacitive_moisture_sensor_config,

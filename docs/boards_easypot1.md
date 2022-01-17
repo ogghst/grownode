@@ -10,7 +10,7 @@ Goal of this board is to introduce you to GrowNode platform, using super common 
 - Temperature detection
 - Access to online tracking system to track your growing progress
 
-The board is equipped with LED showing the need to water your plant, excess light and temperature out of target
+The board is equipped with LED showing the need to water your plant, excess light and temperature out of target. They will start to blink fast when the parameters are exceeding a treshold, and low when getting lower than this.
 
 ##Bill of Material
 
@@ -34,8 +34,48 @@ final configuration will look like:
 
 ##Code
 
-The configuration code is contained in `components\grownode\boards\easypot1.c`.
+The configuration code, other than `main\main.c` is contained in `components\grownode\boards\easypot1.c`. The code is meant to be basic in order to give you some training to basic features.
+
+### The Main
+
+You just need to 'load' the board into the firmware
+
+- add an `include "easypot1.h"` directive on the header declarations
+- change the configuration row from the standard `gn_configure_blink(node)` to `gn_configure_easypot1(node)` 
+
+This will tell the compiler to load the easypot1 code into the firmware upon the next build.
+
+### The Board
+
+On top of `easypot1.c` you have some configuration parameters:
+
+```
+...
+//sets the tresholds
+const double moist_min = 1;
+const double moist_max = 3;
+const double temp_min = 15;
+const double temp_max = 28;
+...
+```
+
+Those are setting the tresholds where the board shall start warning you with LED blinking
+
+There is also the possibility to configure the blinking time in msec
+
+```
+...
+//milliseconds to blink for low and high values
+const double blink_time_high = 300;
+const double blink_time_low = 2000;
+...
+```
 
 ##Controlling the pot
 
-todo
+If you enable networking, you will start receiving MQTT messages to your broker. For a detailed explanation, see [Reference Guide](reference.md).
+What you can do is
+ - Receive updates over moisture and temperature sensors
+ - Monitor LED statuses
+ - Enable/disable the sensor updates
+ - Manually turn on/off LEDs 

@@ -70,6 +70,7 @@ void app_main(void) {
 	//creates a new node
 	gn_node_config_handle_t node = gn_node_create(config, "node");
 
+	//the board to start
 	gn_configure_blink(node);
 
 	//finally, start node
