@@ -1,6 +1,6 @@
 # How to get started with Grownode on Ubuntu 18.04 and 20.04
 
-> Updated on January 15, 2022
+> Updated on January 18, 2022
 
 ## Index
 
@@ -87,8 +87,6 @@ cd ~/esp/esp-idf
 ./install.sh esp32
 echo -e "\nalias get_idf='. $HOME/esp/esp-idf/export.sh'" >> ~/.bashrc
 source ~/.bashrc
-cd ~/esp
-git clone https://github.com/UncleRus/esp-idf-lib.git
 ```
 
 Congratulations! You have just installed the base environment that will allow you to build your Grownode boards!
@@ -195,7 +193,7 @@ If you want to check the actual name, follow these steps:
 3. type the command `dmesg`
 4. a line with a text similar to the following should appear at the end of the log, indicating the name of your new serial device in place of `your-serial-device-id`:
 
-	`usb 1-1: ch341-uart converter now attached to`**`your-serial-device-id`**
+`usb 1-1: ch341-uart converter now attached to`**`your-serial-device-id`**
 
 5. use the name `/dev/your-serial-device-id` when flashing your board or when looking at debug messages through a serial monitor (i.e., in steps 4 and 5 replace `/dev/ttyUSB0` with the `/dev/your-serial-device-id` you discovered here)
 
@@ -223,7 +221,7 @@ When working inside a VM you have to be aware of the following issues/requiremen
 
 In VirtualBox, open the "Serial Ports" tab of the VM settings, shown in figure.
 
-![Serial Ports tab in VirtualBox](img/appendix_b_virtualbox_serial.png)
+<p align="center"><img alt="Serial Ports tab in VirtualBox" src="img/appendix_b_virtualbox_serial.png"></p>
 
 To properly set the serial communication, you have to:
 - flag "Enable Serial Port"
@@ -244,29 +242,27 @@ This is the latest version officially supported by the plugin, and you can get i
 - open a terminal and move to the folder where you downloaded the tar.gz file (usually `~/Downloads`)
 - use the following commands to extract Eclipse from the compressed file and make it available for use in the whole system:
  
-	```
-	sudo tar xf eclipse-cpp-2021-09-R-linux-gtk-x86_64.tar.gz -C /opt
-	sudo ln -s /opt/eclipse/eclipse /usr/local/bin/
-	```
+```
+sudo tar xf eclipse-cpp-2021-09-R-linux-gtk-x86_64.tar.gz -C /opt
+sudo ln -s /opt/eclipse/eclipse /usr/local/bin/
+```
 	
 - *(optional)* if you want to add a desktop icon to avoid launching Eclipse from terminal you need to create a shortcut:
 	- open a terminal and launch:
-		`sudo nano /usr/share/applications/eclipse.desktop`
+`sudo nano /usr/share/applications/eclipse.desktop`
 
-	- paste the following text into the new empty file:
+	- paste the following text into the new empty file and press `CTLR+x` to save it:
 
-		```
-		[Desktop Entry]
-		Version = 2021-09
-		Type = Application
-		Terminal = false
-		Name = Eclipse C/C++
-		Exec = /usr/local/bin/eclipse
-		Icon = /opt/eclipse/icon.xpm
-		Categories = Application;
-		```
-
-	- press `CTLR+x` and save the file
+```
+[Desktop Entry]
+Version = 2021-09
+Type = Application
+Terminal = false
+Name = Eclipse C/C++
+Exec = /usr/local/bin/eclipse
+Icon = /opt/eclipse/icon.xpm
+Categories = Application;
+```
  
 - run Eclipse using the command `eclipse` from a terminal, or by using the Eclipse icon in your desktop (if you created it)
  
@@ -285,7 +281,7 @@ Once Eclipse is launched, do as follows to install the ESP-IDF plugin:
 - click on "Add"
 - select the whole "Espressif IDF" tree, as in figure, and then click on "Next >"
 
-![Download Espressif IDF Plugin for Eclipse](img/eclipse_install_esp-idf_plugin.png)
+<p align="center"><img alt="Download Espressif IDF Plugin for Eclipse" src="img/eclipse_install_esp-idf_plugin.png"></p>
 
 - click again on "Next >"
 - select "I accept the terms..." and then click on "Finish"
@@ -301,7 +297,7 @@ Now you are ready to link the ESP-IDF environment you installed at the beginning
 - check "Use an existing ESP-IDF directory from the file system"
 - choose the `esp-idf` folder you created at the beginning of this tutorial, as in figure
 
-![Link existing ESP-IDF environment to Eclipse](img/eclipse_link_esp-idf_environment.png)
+<p align="center"><img alt="Link existing ESP-IDF environment to Eclipse" src="img/eclipse_link_esp-idf_environment.png"></p>
 
 - click on "Finish"
 - click on "Yes" in the pop-up window asking to install some new tools
@@ -310,7 +306,7 @@ Now you are ready to link the ESP-IDF environment you installed at the beginning
 	- Git Executable Location: `/usr/bin/git`
 	- Python Executable Location: `/usr/bin/python3`
 	
-![Install ESP-IDF tools in Eclipse](img/eclipse_esp-idf_tools.png)
+<p align="center"><img alt="Install ESP-IDF tools in Eclipse" src="img/eclipse_esp-idf_tools.png"></p>
 
 - click on "Install Tools" and monitor the installation in the status bar at the bottom right
 
@@ -327,7 +323,7 @@ Once the tool installation of the previous step is finished, import your first G
 ...and here you go! Grownode is imported into Eclipse. Well done!
 In the Project Explorer on the left you can see the Grownode workspace:
 
-![Grownode Project explorer in Eclipse](img/eclipse_grownode_project_explorer.png)
+<p align="center"><img alt="Grownode Project explorer in Eclipse" src="img/eclipse_grownode_project_explorer.png"></p>
 
 Try your first build by clicking on the hammer icon at the top left, or typing `CTRL+B`.
 In the console at the bottom you should see your project compiling and ending with the message `Build complete (0 errors...`. That means it was successful. Great!
@@ -338,7 +334,7 @@ Before flashing you must complete some configuration steps:
 
 - click on the setting gear beside "esp32" in the top icon bar (see point 1 in figure)
 
-![ESP32 serial port in Eclipse](img/eclipse_flashing_settings.png)
+<p align="center"><img alt="ESP32 serial port in Eclipse" src="img/eclipse_flashing_settings.png"></p>
 
 - select the right "Serial Port" from the list (the one you identified while installing ESP-IDF, most probably `/dev/ttyUSB0`) and click on "Finish"
 
@@ -355,12 +351,12 @@ Done
 
 Did you?! Yes? Perfect! Congratulations!
 
-If the answer is not, probably you need to manually set the serial port speed and re-trigger the flashing procedure:
+If the answer is no, probably you need to manually set the serial port speed and re-trigger the flashing procedure:
 
 - click on the setting gear beside "grownode" in the top icon bar (see point 2 in the figure above)
 - in the "Arguments" section add the following bold parameter exactly in the same position:
 
-	`idf.py` **`-b 115200`** `-p /dev/your-serial-device-id flash`
+`idf.py` **`-b 115200`** `-p /dev/your-serial-device-id flash`
 
 ### Step 6: Monitor the serial output of your board from Eclipse
 
@@ -369,6 +365,6 @@ The board will restart you you will see the "blinking" messages.
 
 To stop the monitor, just close the "Terminal" window or click on the red "Disconnect Terminal Connection" at the top right of the terminal itself (point 2 in figure below).
 
-![Monitor ESP-IDF from Eclipse](img/eclipse_monitor.png)
+<p align="center"><img alt="Monitor ESP-IDF from Eclipse" src="img/eclipse_monitor.png"></p>
 
 Great job! You are ready to play more with Grownode ;)
