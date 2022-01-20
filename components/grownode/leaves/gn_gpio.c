@@ -41,6 +41,53 @@ extern "C" {
 
 #define TAG "gn_leaf_gpio"
 
+/**
+ * creates a GPIO leaf defining all parameters
+ *
+ * @param	node		the parent node
+ * @param	leaf_name	the name of the leaf to be created
+ * @param	gpio		the GPIO number to attach this leaf
+ * @param	inverted	if the GPIO need to work in inverted mode (toggle = true -> gpio = false)
+ * @param	toggled		the initial status
+ *
+ * @return	an handle to the leaf initialized
+ * @return	NULL		in case of errors
+ */
+gn_leaf_config_handle_t gn_gpio_fastcreate(gn_node_config_handle_t node,
+		const char *leaf_name, int gpio, bool inverted, bool toggled) {
+
+	if (node == NULL) {
+		ESP_LOGE(TAG, "gn_gpio_fastcreate - node is null");
+		return NULL;
+	}
+
+	if (leaf_name == NULL) {
+		ESP_LOGE(TAG, "gn_gpio_fastcreate - leaf_name is null");
+		return NULL;
+	}
+
+	if (gpio < GPIO_NUM_0 || gpio > GPIO_NUM_MAX) {
+		ESP_LOGE(TAG, "gn_gpio_fastcreate - gpio out of limits");
+		return NULL;
+	}
+
+	//creates the blink leave
+	gn_leaf_config_handle_t leaf = gn_leaf_create(node, leaf_name,
+			gn_gpio_config, 4096);
+
+	if (leaf == NULL) {
+		ESP_LOGE(TAG, "gn_gpio_fastcreate - cannot create leaf %s", leaf_name);
+		return NULL;
+	}
+
+	gn_leaf_param_init_double(leaf, GN_GPIO_PARAM_GPIO, gpio);
+	gn_leaf_param_init_bool(leaf, GN_GPIO_PARAM_TOGGLE, toggled);
+	gn_leaf_param_init_bool(leaf, GN_GPIO_PARAM_TOGGLE, toggled);
+
+	return leaf;
+
+}
+
 void gn_gpio_task(gn_leaf_config_handle_t leaf_config);
 
 typedef struct {
@@ -98,8 +145,8 @@ void gn_gpio_task(gn_leaf_config_handle_t leaf_config) {
 	gn_leaf_parameter_event_t evt;
 
 	//retrieves status descriptor from config
-	gn_gpio_data_t *data = (gn_gpio_data_t*) gn_leaf_get_descriptor(
-			leaf_config)->data;
+	gn_gpio_data_t *data =
+			(gn_gpio_data_t*) gn_leaf_get_descriptor(leaf_config)->data;
 
 	double gpio;
 	gn_leaf_param_get_double(leaf_config, GN_GPIO_PARAM_GPIO, &gpio);
@@ -172,8 +219,7 @@ void gn_gpio_task(gn_leaf_config_handle_t leaf_config) {
 		if (xQueueReceive(gn_leaf_get_event_queue(leaf_config), &evt,
 				pdMS_TO_TICKS(100)) == pdPASS) {
 
-			ESP_LOGD(TAG, "%s - received message: %d",
-					leaf_name, evt.id);
+			ESP_LOGD(TAG, "%s - received message: %d", leaf_name, evt.id);
 
 			//event arrived for this node
 			switch (evt.id) {
@@ -185,8 +231,8 @@ void gn_gpio_task(gn_leaf_config_handle_t leaf_config) {
 						evt.param_name, evt.data);
 
 				//parameter is status
-				if (gn_leaf_event_mask_param(&evt,
-						data->gn_gpio_status_param) == 0) {
+				if (gn_leaf_event_mask_param(&evt, data->gn_gpio_status_param)
+						== 0) {
 
 					int _active = atoi(evt.data);
 
@@ -197,8 +243,8 @@ void gn_gpio_task(gn_leaf_config_handle_t leaf_config) {
 					status = _active;
 
 					ESP_LOGD(TAG, "%s - gpio %d, toggle %d, inverted %d",
-							leaf_name, (int )gpio,
-							status ? 1 : 0, inverted ? 1 : 0);
+							leaf_name, (int )gpio, status ? 1 : 0,
+							inverted ? 1 : 0);
 
 					//update sensor using the parameter values
 					if (gn_gpio_state == GN_GPIO_STATE_RUNNING) {
@@ -231,8 +277,8 @@ void gn_gpio_task(gn_leaf_config_handle_t leaf_config) {
 					inverted = _inverted;
 
 					ESP_LOGD(TAG, "%s - gpio %d, toggle %d, inverted %d",
-							leaf_name, (int )gpio,
-							status ? 1 : 0, inverted ? 1 : 0);
+							leaf_name, (int )gpio, status ? 1 : 0,
+							inverted ? 1 : 0);
 
 					//update sensor using the parameter values
 					if (gn_gpio_state == GN_GPIO_STATE_RUNNING) {

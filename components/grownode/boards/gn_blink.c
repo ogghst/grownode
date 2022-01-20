@@ -48,14 +48,8 @@ void led_blink_callback(const gn_leaf_config_handle_t blink) {
  */
 void gn_configure_blink(gn_node_config_handle_t node) {
 
-	//creates the blink leave
-	gn_leaf_config_handle_t blink = gn_leaf_create(node, "blink",
-			gn_gpio_config, 4096);
-
-	//set the GPIO 2
-	gn_leaf_param_init_double(blink, GN_GPIO_PARAM_GPIO, 2);
-	//set initial status to false (off)
-	gn_leaf_param_init_bool(blink, GN_GPIO_PARAM_TOGGLE, false);
+	//fastcreate call
+	gn_leaf_config_handle_t blink = gn_gpio_fastcreate(node, "blink", 2, false, false);
 
 	//creates a timer that fires the led blinking every 5 seconds, using esp_timer API
 
