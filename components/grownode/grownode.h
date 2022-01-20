@@ -140,6 +140,8 @@ typedef struct gn_config_init_param_t *gn_config_init_param_handle_t;
 
 gn_config_status_t gn_get_status(gn_config_handle_t config);
 
+const char* gn_get_status_description(gn_config_handle_t config);
+
 esp_event_loop_handle_t gn_get_event_loop(gn_config_handle_t config);
 
 esp_event_loop_handle_t gn_leaf_get_event_loop(

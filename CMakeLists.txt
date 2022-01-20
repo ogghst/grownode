@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.5)
 set(ENV{IDF_LIB_PATH} "./esp-idf-lib/components")
 
 #uncomment if you are using LVGL. makes the build process slower
-#set(ENV{LVGL_PATH} "lvgl/lvgl lvgl/lvgl_esp32_drivers")
+set(ENV{LVGL_PATH} "./lvgl/lvgl ./lvgl/lvgl_esp32_drivers")
 
 set(EXTRA_COMPONENT_DIRS $ENV{IDF_LIB_PATH} $ENV{LVGL_PATH})
 

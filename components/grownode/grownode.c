@@ -525,11 +525,27 @@ gn_node_config_handle_intl_t _gn_node_config_create() {
  * 	@return GN_CONFIG_STATUS_ERROR if config is NULL
  * 	@return the configuration status
  */
-gn_config_status_t gn_get_status(gn_config_handle_t config) {
+inline gn_config_status_t gn_get_status(gn_config_handle_t config) {
 
 	if (!config)
 		return GN_CONFIG_STATUS_ERROR;
 	return ((gn_config_handle_intl_t) config)->status;
+
+}
+
+/**
+ * 	@brief retrieves the configuration status description
+ *
+ * 	@param config	the configuration handle to check
+ *
+ * 	@return GN_CONFIG_STATUS_ERROR if config is NULL
+ * 	@return the configuration status
+ */
+inline const char* gn_get_status_description(gn_config_handle_t config) {
+
+	if (!config)
+		return gn_config_status_descriptions[GN_CONFIG_STATUS_ERROR];
+	return gn_config_status_descriptions[((gn_config_handle_intl_t) config)->status];
 
 }
 

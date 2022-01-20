@@ -24,6 +24,23 @@ extern "C" {
 
 #define TAG "gn_commons"
 
+const char *gn_config_status_descriptions [14] = {
+	"Not Initialized",
+	"Initializing",
+	"Generic Error",
+	"Network Error",
+	 "Server Error",
+	 "Completed",
+	"Started",
+	 "Bad Firmware URL",
+	 "Bad Provisioning Password",
+	 "Bad Server Base Topic",
+	 "Bad Server URL",
+	 "Bad Server Keepalive",
+	 "Bad SNTP URL",
+	 "Bad Server Discovery Prefix"
+};
+
 inline size_t gn_leaf_event_mask_param(gn_leaf_parameter_event_handle_t evt,
 		gn_leaf_param_handle_t param) {
 

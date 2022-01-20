@@ -63,8 +63,8 @@ void app_main(void) {
 	//waits until the config process ends
 	while (gn_get_status(config) != GN_CONFIG_STATUS_COMPLETED) {
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
-		ESP_LOGI(TAG, "grownode startup sequence code: %d",
-				gn_get_status(config));
+		ESP_LOGI(TAG, "grownode startup status: %s",
+				gn_get_status_description(config));
 	}
 
 	//creates a new node

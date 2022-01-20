@@ -111,7 +111,7 @@ else()
      	)
    	endif()
 
- 	if(CONFIG_GROWNODE_DISPLAY_ENABLED)
+	if(DEFINED ENV{LVGL_PATH})
     	list(APPEND components_required 
      		"lvgl" "lvgl_esp32_drivers"
      	)
