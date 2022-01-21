@@ -19,12 +19,12 @@
 		- [B. Installing Grownode into an Ubuntu virtual machine using VirtualBox](#b-installing-grownode-into-an-ubuntu-virtual-machine-using-virtualbox)
 			* [Properly link the host and guest serial ports](#properly-link-the-host-and-guest-serial-ports)
 * [Installing the Eclipse IDE with the ESP-IDF plugin](#installing-the-eclipse-ide-with-the-esp-idf-plugin)
-	+ [Step 1: Installing Eclipse IDE for C/C++ Developers 2021-09](#step-2-installing-eclipse-ide-for-cc-developers-2021-09)
-	+ [Step 2: Installing the ESP-IDF plugin for Eclipse](#step-3-installing-the-esp-idf-plugin-for-eclipse)
-	+ [Step 3: Configure Eclipse for using the local ESP-IDF environment](#step-4-configure-eclipse-for-using-the-local-esp-idf-environment)
-	+ [Step 4: Import your first Grownode project and build it](#step-5-import-your-first-grownode-project-and-build-it)
-	+ [Step 5: Flash your board from Eclipse](#step-6-flash-your-board-from-eclipse)
-	+ [Step 6: Monitor the serial output of your board from Eclipse](#step-7-monitor-the-serial-output-of-your-board-from-eclipse)
+	+ [Step 1: Installing Eclipse IDE for C/C++ Developers 2021-09](#step-1-installing-eclipse-ide-for-cc-developers-2021-09)
+	+ [Step 2: Installing the ESP-IDF plugin for Eclipse](#step-2-installing-the-esp-idf-plugin-for-eclipse)
+	+ [Step 3: Configure Eclipse for using the local ESP-IDF environment](#step-3-configure-eclipse-for-using-the-local-esp-idf-environment)
+	+ [Step 4: Import your first Grownode project and build it](#step-4-import-your-first-grownode-project-and-build-it)
+	+ [Step 5: Flash your board from Eclipse](#step-5-flash-your-board-from-eclipse)
+	+ [Step 6: Monitor the serial output of your board from Eclipse](#step-6-monitor-the-serial-output-of-your-board-from-eclipse)
 
 
 
