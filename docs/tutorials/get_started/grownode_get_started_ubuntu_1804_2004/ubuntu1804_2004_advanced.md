@@ -1,4 +1,4 @@
-# How to get started with Grownode on Ubuntu 18.04 and 20.04
+# How to get started with Grownode on Ubuntu 18.04 and 20.04 - Advanced version
 
 > Updated on January 18, 2022
 
@@ -344,7 +344,7 @@ Now plug your board into the USB port and click on the green play icon on the to
 Leaving...
 Hard resetting via RTS pin...
 Executing action: flash
-Running ninja in directory /home/adamo/esp/grownode/build
+Running ninja in directory /home/your-username-here/esp/grownode/build
 Executing "ninja flash"...
 Done
 ```
