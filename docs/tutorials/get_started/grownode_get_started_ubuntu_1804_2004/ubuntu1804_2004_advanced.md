@@ -221,7 +221,7 @@ When working inside a VM you have to be aware of the following issues/requiremen
 
 In VirtualBox, open the "Serial Ports" tab of the VM settings, shown in figure.
 
-<p align="center"><img alt="Serial Ports tab in VirtualBox" src="img/appendix_b_virtualbox_serial.png"></p>
+<p align="center"><img alt="Serial Ports tab in VirtualBox" src="../img/appendix_b_virtualbox_serial.png"></p>
 
 To properly set the serial communication, you have to:
 - flag "Enable Serial Port"
@@ -281,7 +281,7 @@ Once Eclipse is launched, do as follows to install the ESP-IDF plugin:
 - click on "Add"
 - select the whole "Espressif IDF" tree, as in figure, and then click on "Next >"
 
-<p align="center"><img alt="Download Espressif IDF Plugin for Eclipse" src="img/eclipse_install_esp-idf_plugin.png"></p>
+<p align="center"><img alt="Download Espressif IDF Plugin for Eclipse" src="../img/eclipse_install_esp-idf_plugin.png"></p>
 
 - click again on "Next >"
 - select "I accept the terms..." and then click on "Finish"
@@ -297,7 +297,7 @@ Now you are ready to link the ESP-IDF environment you installed at the beginning
 - check "Use an existing ESP-IDF directory from the file system"
 - choose the `esp-idf` folder you created at the beginning of this tutorial, as in figure
 
-<p align="center"><img alt="Link existing ESP-IDF environment to Eclipse" src="img/eclipse_link_esp-idf_environment.png"></p>
+<p align="center"><img alt="Link existing ESP-IDF environment to Eclipse" src="../img/eclipse_link_esp-idf_environment.png"></p>
 
 - click on "Finish"
 - click on "Yes" in the pop-up window asking to install some new tools
@@ -306,7 +306,7 @@ Now you are ready to link the ESP-IDF environment you installed at the beginning
 	- Git Executable Location: `/usr/bin/git`
 	- Python Executable Location: `/usr/bin/python3`
 	
-<p align="center"><img alt="Install ESP-IDF tools in Eclipse" src="img/eclipse_esp-idf_tools.png"></p>
+<p align="center"><img alt="Install ESP-IDF tools in Eclipse" src="../img/eclipse_esp-idf_tools.png"></p>
 
 - click on "Install Tools" and monitor the installation in the status bar at the bottom right
 
@@ -323,7 +323,7 @@ Once the tool installation of the previous step is finished, import your first G
 ...and here you go! Grownode is imported into Eclipse. Well done!
 In the Project Explorer on the left you can see the Grownode workspace:
 
-<p align="center"><img alt="Grownode Project explorer in Eclipse" src="img/eclipse_grownode_project_explorer.png"></p>
+<p align="center"><img alt="Grownode Project explorer in Eclipse" src="../img/eclipse_grownode_project_explorer.png"></p>
 
 Try your first build by clicking on the hammer icon at the top left, or typing `CTRL+B`.
 In the console at the bottom you should see your project compiling and ending with the message `Build complete (0 errors...`. That means it was successful. Great!
@@ -334,7 +334,7 @@ Before flashing you must complete some configuration steps:
 
 - click on the setting gear beside "esp32" in the top icon bar (see point 1 in figure)
 
-<p align="center"><img alt="ESP32 serial port in Eclipse" src="img/eclipse_flashing_settings.png"></p>
+<p align="center"><img alt="ESP32 serial port in Eclipse" src="../img/eclipse_flashing_settings.png"></p>
 
 - select the right "Serial Port" from the list (the one you identified while installing ESP-IDF, most probably `/dev/ttyUSB0`) and click on "Finish"
 
@@ -365,6 +365,6 @@ The board will restart you you will see the "blinking" messages.
 
 To stop the monitor, just close the "Terminal" window or click on the red "Disconnect Terminal Connection" at the top right of the terminal itself (point 2 in figure below).
 
-<p align="center"><img alt="Monitor ESP-IDF from Eclipse" src="img/eclipse_monitor.png"></p>
+<p align="center"><img alt="Monitor ESP-IDF from Eclipse" src="../img/eclipse_monitor.png"></p>
 
 Great job! You are ready to play more with Grownode ;)

@@ -126,7 +126,7 @@ Now you are ready to download the ESP-IDF environment from Eclipse:
 - select "Download and Configure ESP-IDF" in the "Espressif" menu
 - in the "Download ESP-IDF" box select the "master" version and the folder `esp` you created before, as in figure
 
-<p align="center"><img alt="Install ESP-IDF from Eclipse" src="img/eclipse_install_esp-idf.png"></p>
+<p align="center"><img alt="Install ESP-IDF from Eclipse" src="../img/eclipse_install_esp-idf.png"></p>
 
 - click on "Finish"
 - in the Console area you will see the status of ESP-IDF download
@@ -136,7 +136,7 @@ Now you are ready to download the ESP-IDF environment from Eclipse:
 	- Git Executable Location: `/usr/bin/git`
 	- Python Executable Location: `/usr/bin/python3`
 	
-<p align="center"><img alt="Install ESP-IDF tools in Eclipse" src="img/eclipse_esp-idf_tools.png"></p>
+<p align="center"><img alt="Install ESP-IDF tools in Eclipse" src="../img/eclipse_esp-idf_tools.png"></p>
 
 - click on "Install Tools" and monitor the installation in the status bar at the bottom right
 
@@ -149,26 +149,26 @@ Once the tool installation of the previous step is finished, import your first G
 - select "Clone URI" from the list and click on "Next >"
 - fill the field "URI" with `https://github.com/ogghst/grownode.git` and the remaining fields will auto-complete, as in figure, and click on "Next >"
 
-<p align="center"><img alt="Grownode GIT clone URI in Eclipse" src="img/eclipse_grownode_git_clone_uri.png"></p>
+<p align="center"><img alt="Grownode GIT clone URI in Eclipse" src="../img/eclipse_grownode_git_clone_uri.png"></p>
 
 - unless you are interested in other branches, select only the "master" branch, as in figure, and then click on "Next >" (with smart import)
 
-<p align="center"><img alt="Grownode GIT master clone in Eclipse" src="img/eclipse_grownode_git_clone_master.png"></p>
+<p align="center"><img alt="Grownode GIT master clone in Eclipse" src="../img/eclipse_grownode_git_clone_master.png"></p>
 
 - change the "Directory" field setting a `grownode` folder inside the `esp` folder you created before and flag the "Clone submodules" option, as in figure; click on "Next >"
 
-<p align="center"><img alt="Grownode GIT folder clone in Eclipse" src="img/eclipse_grownode_git_clone_folder.png"></p>
+<p align="center"><img alt="Grownode GIT folder clone in Eclipse" src="../img/eclipse_grownode_git_clone_folder.png"></p>
 
 - click on "Next >" in the following window, leaving unchanged the selection of "Import existing Eclipse projects"
 
 - unless you are interested in other projects, select only the `grownode` project from the list, as in figure, and click on "Finish"
 
-<p align="center"><img alt="Grownode GIT project clone in Eclipse" src="img/eclipse_grownode_git_clone_project.png"></p>
+<p align="center"><img alt="Grownode GIT project clone in Eclipse" src="../img/eclipse_grownode_git_clone_project.png"></p>
 
 ...and here you go! Grownode is imported into Eclipse. Well done!
 In the Project Explorer on the left you can see the Grownode workspace:
 
-<p align="center"><img alt="Grownode Project explorer in Eclipse" src="img/eclipse_grownode_project_explorer.png"></p>
+<p align="center"><img alt="Grownode Project explorer in Eclipse" src="../img/eclipse_grownode_project_explorer.png"></p>
 
 Try your first build by clicking on the hammer icon at the top left, or typing `CTRL+B`.
 In the console at the bottom you should see your project compiling and ending with the message `Build complete (0 errors...`. That means it was successful. Great!
@@ -179,7 +179,7 @@ Before flashing you must complete some configuration steps:
 
 - click on the setting gear beside "esp32" in the top icon bar (see point 1 in figure)
 
-<p align="center"><img alt="ESP32 serial port in Eclipse" src="img/eclipse_flashing_settings.png"></p>
+<p align="center"><../img alt="ESP32 serial port in Eclipse" src="img/eclipse_flashing_settings.png"></p>
 
 - select the right "Serial Port" from the list (the one you identified while installing ESP-IDF, most probably `/dev/ttyUSB0`) and click on "Finish"
 
@@ -209,7 +209,7 @@ The board will restart you you will see the "blinking" messages.
 
 To stop the monitor, just close the "Terminal" window or click on the red "Disconnect Terminal Connection" at the top right of the terminal itself (point 2 in figure below).
 
-<p align="center"><img alt="Monitor ESP-IDF from Eclipse" src="img/eclipse_monitor.png"></p>
+<p align="center"><img alt="Monitor ESP-IDF from Eclipse" src="../img/eclipse_monitor.png"></p>
 
 Great job! You are ready to play more with Grownode ;)
 
@@ -257,7 +257,7 @@ When working inside a VM you have to be aware of the following issues/requiremen
 
 In VirtualBox, open the "Serial Ports" tab of the VM settings, shown in figure.
 
-<p align="center"><img alt="Serial Ports tab in VirtualBox" src="img/appendix_b_virtualbox_serial.png"></p>
+<p align="center"><img alt="Serial Ports tab in VirtualBox" src="../img/appendix_b_virtualbox_serial.png"></p>
 
 To properly set the serial communication, you have to:
 - flag "Enable Serial Port"
