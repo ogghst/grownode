@@ -62,7 +62,7 @@ Run the installer, accept the terms and conditions, and follow these steps:
 - click on "Yes" and "Install" on the popup windows that will appear during the installation process. The installation may require a bit depending on your internet connection
 - in the last window ("Completing the ESP-IDF...") leave only the last flag selected, as in figure, and click on "Finish"
 
-<p align="center"><img alt="ESP-IDF installation end" src="img/esp-idf_installation_end.png"></p>
+<p align="center"><img alt="ESP-IDF installation end" src="../img/esp-idf_installation_end.png"></p>
 
 - click on "Yes" on the permission popup window (if any appears)
 
