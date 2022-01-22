@@ -1,6 +1,6 @@
-# How to get started with Grownode on Ubuntu 18.04 and 20.04
+# How to get started with Grownode on Ubuntu 18.04 and 20.04 - Advanced version
 
-> Updated on January 15, 2022
+> Updated on January 18, 2022
 
 ## Index
 
@@ -19,15 +19,12 @@
 		- [B. Installing Grownode into an Ubuntu virtual machine using VirtualBox](#b-installing-grownode-into-an-ubuntu-virtual-machine-using-virtualbox)
 			* [Properly link the host and guest serial ports](#properly-link-the-host-and-guest-serial-ports)
 * [Installing the Eclipse IDE with the ESP-IDF plugin](#installing-the-eclipse-ide-with-the-esp-idf-plugin)
-	+ [Step 1: Installing JAVA](#step-1-installing-java)
-		- [Option 1: Installing the system OpenJDK JAVA package](#option-1-installing-the-system-openjdk-java-package)
-		- [Option 2: Installing the Azul Zulu OpenJDK JAVA 11 package](#option-2-installing-the-azul-zulu-openjdk-java-11-package)
-	+ [Step 2: Installing Eclipse IDE for C/C++ Developers 2021-09](#step-2-installing-eclipse-ide-for-cc-developers-2021-09)
-	+ [Step 3: Installing the ESP-IDF plugin for Eclipse](#step-3-installing-the-esp-idf-plugin-for-eclipse)
-	+ [Step 4: Configure Eclipse for using the local ESP-IDF environment](#step-4-configure-eclipse-for-using-the-local-esp-idf-environment)
-	+ [Step 5: Import your first Grownode project and build it](#step-5-import-your-first-grownode-project-and-build-it)
-	+ [Step 6: Flash your board from Eclipse](#step-6-flash-your-board-from-eclipse)
-	+ [Step 7: Monitor the serial output of your board from Eclipse](#step-7-monitor-the-serial-output-of-your-board-from-eclipse)
+	+ [Step 1: Installing Eclipse IDE for C/C++ Developers 2021-09](#step-1-installing-eclipse-ide-for-cc-developers-2021-09)
+	+ [Step 2: Installing the ESP-IDF plugin for Eclipse](#step-2-installing-the-esp-idf-plugin-for-eclipse)
+	+ [Step 3: Configure Eclipse for using the local ESP-IDF environment](#step-3-configure-eclipse-for-using-the-local-esp-idf-environment)
+	+ [Step 4: Import your first Grownode project and build it](#step-4-import-your-first-grownode-project-and-build-it)
+	+ [Step 5: Flash your board from Eclipse](#step-5-flash-your-board-from-eclipse)
+	+ [Step 6: Monitor the serial output of your board from Eclipse](#step-6-monitor-the-serial-output-of-your-board-from-eclipse)
 
 
 
@@ -196,7 +193,7 @@ If you want to check the actual name, follow these steps:
 3. type the command `dmesg`
 4. a line with a text similar to the following should appear at the end of the log, indicating the name of your new serial device in place of `your-serial-device-id`:
 
-	`usb 1-1: ch341-uart converter now attached to`**`your-serial-device-id`**
+`usb 1-1: ch341-uart converter now attached to`**`your-serial-device-id`**
 
 5. use the name `/dev/your-serial-device-id` when flashing your board or when looking at debug messages through a serial monitor (i.e., in steps 4 and 5 replace `/dev/ttyUSB0` with the `/dev/your-serial-device-id` you discovered here)
 
@@ -224,7 +221,7 @@ When working inside a VM you have to be aware of the following issues/requiremen
 
 In VirtualBox, open the "Serial Ports" tab of the VM settings, shown in figure.
 
-![Serial Ports tab in VirtualBox](img/appendix_b_virtualbox_serial.png)
+<p align="center"><img alt="Serial Ports tab in VirtualBox" src="img/appendix_b_virtualbox_serial.png"></p>
 
 To properly set the serial communication, you have to:
 - flag "Enable Serial Port"
@@ -237,43 +234,7 @@ To properly set the serial communication, you have to:
 
 Eclipse and the ESP-IDF plugin have several requirements which allow one to use only certain versions of softwares and libraries. You have not to worry about this, as this tutorial already makes you install the right things.
 
-### Step 1: Installing JAVA
-
-The Eclipse version needed to use the ESP-IDF plugin needs at least JAVA 11 to run. You may have already installed JAVA on your system. Check it by running the command:
-
-```
-java --version
-```
-
-If the command runs and returns a JAVA version greater or equal than 11, you can move to the next step.
-
-If not, you have two alternative options:
-1. installing the OpenJDK JAVA package included in your Linux distribution
-	This is the fastest and simplest solution and is sufficient for running Eclipse and the ESP-IDF plugin
-2. installing manually the Azul Zulu OpenJDK JAVA 11 package
-	This option is almost as simple as the other and allows you to prepare your system for a future optimal installation of openHAB. OpenHAB is an IoT orchestrator that allows you to monitor and manage Grownode remotely. If you don't plan to use this software, option 1 will be ok.
-
-#### Option 1: Installing the system OpenJDK JAVA package
-
-Open a terminal and use the command:
-
-```
-sudo apt-get install default-jre
-```
-
-That's all! :)
-Check that a JAVA version greater or equal than 11 has been installed with `java --version`.
-
-#### Option 2: Installing the Azul Zulu OpenJDK JAVA 11 package
-
-Open the [Azul Zulu Download page](https://www.azul.com/downloads/?package=jdk#download-openjdk) and download the latest **Linux** JAVA 11 package for your architecture in **.deb format**.
-
-> If you have a standard Linux workstation or virtual machine your architecture is most probably *x86 64-bit*
-
-Open the downloaded file (double click on it) and select "Install" in the window that appears... and that's all! :)
-Check the proper installation with `java --version` in a terminal.
-
-### Step 2: Installing Eclipse IDE for C/C++ Developers 2021-09
+### Step 1: Installing Eclipse IDE for C/C++ Developers 2021-09
 
 This is the latest version officially supported by the plugin, and you can get it following these steps:
 
@@ -281,36 +242,34 @@ This is the latest version officially supported by the plugin, and you can get i
 - open a terminal and move to the folder where you downloaded the tar.gz file (usually `~/Downloads`)
 - use the following commands to extract Eclipse from the compressed file and make it available for use in the whole system:
  
-	```
-	sudo tar xf eclipse-cpp-2021-09-R-linux-gtk-x86_64.tar.gz -C /opt
-	sudo ln -s /opt/eclipse/eclipse /usr/local/bin/
-	```
+```
+sudo tar xf eclipse-cpp-2021-09-R-linux-gtk-x86_64.tar.gz -C /opt
+sudo ln -s /opt/eclipse/eclipse /usr/local/bin/
+```
 	
 - *(optional)* if you want to add a desktop icon to avoid launching Eclipse from terminal you need to create a shortcut:
 	- open a terminal and launch:
-		`sudo nano /usr/share/applications/eclipse.desktop`
+`sudo nano /usr/share/applications/eclipse.desktop`
 
-	- paste the following text into the new empty file:
+	- paste the following text into the new empty file and press `CTLR+x` to save it:
 
-		```
-		[Desktop Entry]
-		Version = 2021-09
-		Type = Application
-		Terminal = false
-		Name = Eclipse C/C++
-		Exec = /usr/local/bin/eclipse
-		Icon = /opt/eclipse/icon.xpm
-		Categories = Application;
-		```
-
-	- press `CTLR+x` and save the file
+```
+[Desktop Entry]
+Version = 2021-09
+Type = Application
+Terminal = false
+Name = Eclipse C/C++
+Exec = /usr/local/bin/eclipse
+Icon = /opt/eclipse/icon.xpm
+Categories = Application;
+```
  
 - run Eclipse using the command `eclipse` from a terminal, or by using the Eclipse icon in your desktop (if you created it)
  
 - at the first start, Eclipse will ask for the default workspace folder. If you followed these instructions, select the `esp` folder inside your home and then click on "Launch"
 > you may also select "Use this as the default..." if you are going to use Eclipse only for Grownode
 
-### Step 3: Installing the ESP-IDF plugin for Eclipse
+### Step 2: Installing the ESP-IDF plugin for Eclipse
 
 Once Eclipse is launched, do as follows to install the ESP-IDF plugin:
 
@@ -322,7 +281,7 @@ Once Eclipse is launched, do as follows to install the ESP-IDF plugin:
 - click on "Add"
 - select the whole "Espressif IDF" tree, as in figure, and then click on "Next >"
 
-![Download Espressif IDF Plugin for Eclipse](img/eclipse_install_esp-idf_plugin.png)
+<p align="center"><img alt="Download Espressif IDF Plugin for Eclipse" src="img/eclipse_install_esp-idf_plugin.png"></p>
 
 - click again on "Next >"
 - select "I accept the terms..." and then click on "Finish"
@@ -330,7 +289,7 @@ Once Eclipse is launched, do as follows to install the ESP-IDF plugin:
 - at the end of the process click on "Restart Now"
 - if a sort of error window appears, close it and re-launch Eclipse manually
 
-### Step 4: Configure Eclipse for using the local ESP-IDF environment
+### Step 3: Configure Eclipse for using the local ESP-IDF environment
 
 Now you are ready to link the ESP-IDF environment you installed at the beginning of this tutorial to Eclipse:
 
@@ -338,7 +297,7 @@ Now you are ready to link the ESP-IDF environment you installed at the beginning
 - check "Use an existing ESP-IDF directory from the file system"
 - choose the `esp-idf` folder you created at the beginning of this tutorial, as in figure
 
-![Link existing ESP-IDF environment to Eclipse](img/eclipse_link_esp-idf_environment.png)
+<p align="center"><img alt="Link existing ESP-IDF environment to Eclipse" src="img/eclipse_link_esp-idf_environment.png"></p>
 
 - click on "Finish"
 - click on "Yes" in the pop-up window asking to install some new tools
@@ -347,11 +306,11 @@ Now you are ready to link the ESP-IDF environment you installed at the beginning
 	- Git Executable Location: `/usr/bin/git`
 	- Python Executable Location: `/usr/bin/python3`
 	
-![Install ESP-IDF tools in Eclipse](img/eclipse_esp-idf_tools.png)
+<p align="center"><img alt="Install ESP-IDF tools in Eclipse" src="img/eclipse_esp-idf_tools.png"></p>
 
 - click on "Install Tools" and monitor the installation in the status bar at the bottom right
 
-### Step 5: Import your first Grownode project and build it
+### Step 4: Import your first Grownode project and build it
 
 Once the tool installation of the previous step is finished, import your first Grownode project doing:
 
@@ -364,18 +323,18 @@ Once the tool installation of the previous step is finished, import your first G
 ...and here you go! Grownode is imported into Eclipse. Well done!
 In the Project Explorer on the left you can see the Grownode workspace:
 
-![Grownode Project explorer in Eclipse](img/eclipse_grownode_project_explorer.png)
+<p align="center"><img alt="Grownode Project explorer in Eclipse" src="img/eclipse_grownode_project_explorer.png"></p>
 
 Try your first build by clicking on the hammer icon at the top left, or typing `CTRL+B`.
 In the console at the bottom you should see your project compiling and ending with the message `Build complete (0 errors...`. That means it was successful. Great!
 
-### Step 6: Flash your board from Eclipse
+### Step 5: Flash your board from Eclipse
 
 Before flashing you must complete some configuration steps:
 
 - click on the setting gear beside "esp32" in the top icon bar (see point 1 in figure)
 
-![ESP32 serial port in Eclipse](img/eclipse_flashing_settings.png)
+<p align="center"><img alt="ESP32 serial port in Eclipse" src="img/eclipse_flashing_settings.png"></p>
 
 - select the right "Serial Port" from the list (the one you identified while installing ESP-IDF, most probably `/dev/ttyUSB0`) and click on "Finish"
 
@@ -385,27 +344,27 @@ Now plug your board into the USB port and click on the green play icon on the to
 Leaving...
 Hard resetting via RTS pin...
 Executing action: flash
-Running ninja in directory /home/adamo/esp/grownode/build
+Running ninja in directory /home/your-username-here/esp/grownode/build
 Executing "ninja flash"...
 Done
 ```
 
 Did you?! Yes? Perfect! Congratulations!
 
-If the answer is not, probably you need to manually set the serial port speed and re-trigger the flashing procedure:
+If the answer is no, probably you need to manually set the serial port speed and re-trigger the flashing procedure:
 
 - click on the setting gear beside "grownode" in the top icon bar (see point 2 in the figure above)
 - in the "Arguments" section add the following bold parameter exactly in the same position:
 
-	`idf.py` **`-b 115200`** `-p /dev/your-serial-device-id flash`
+`idf.py` **`-b 115200`** `-p /dev/your-serial-device-id flash`
 
-### Step 7: Monitor the serial output of your board from Eclipse
+### Step 6: Monitor the serial output of your board from Eclipse
 
 To start the ESP-IDF monitor click on the icon "Open a Terminal" in the top icon bar (see point 1 in figure below). Check the correctness of the serial port and then click on "Ok".
 The board will restart you you will see the "blinking" messages.
 
 To stop the monitor, just close the "Terminal" window or click on the red "Disconnect Terminal Connection" at the top right of the terminal itself (point 2 in figure below).
 
-![Monitor ESP-IDF from Eclipse](img/eclipse_monitor.png)
+<p align="center"><img alt="Monitor ESP-IDF from Eclipse" src="img/eclipse_monitor.png"></p>
 
 Great job! You are ready to play more with Grownode ;)
