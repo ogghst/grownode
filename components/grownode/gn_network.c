@@ -73,9 +73,11 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 	if (event_base == WIFI_PROV_EVENT) {
 		switch (event_id) {
 		case WIFI_PROV_START:
+			ESP_LOGD(TAG, "WIFI_PROV_START");
 			gn_log(TAG, GN_LOG_INFO, "Provisioning Started");
 			break;
 		case WIFI_PROV_CRED_RECV: {
+			ESP_LOGD(TAG, "WIFI_PROV_CRED_RECV");
 			wifi_sta_config_t *wifi_sta_cfg = (wifi_sta_config_t*) event_data;
 			ESP_LOGD(TAG,
 					"Received Wi-Fi credentials" "\n\tSSID     : %s\n\tPassword : %s",
@@ -84,6 +86,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 			break;
 		}
 		case WIFI_PROV_CRED_FAIL: {
+			ESP_LOGD(TAG, "WIFI_PROV_CRED_FAIL");
 			wifi_prov_sta_fail_reason_t *reason =
 					(wifi_prov_sta_fail_reason_t*) event_data;
 
@@ -96,6 +99,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 			break;
 		}
 		case WIFI_PROV_CRED_SUCCESS:
+			ESP_LOGD(TAG, "WIFI_PROV_CRED_SUCCESS");
 			break;
 		case WIFI_PROV_END:
 			ESP_LOGD(TAG, "WIFI_PROV_END");
@@ -108,11 +112,14 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		ESP_LOGD(TAG, "WIFI_EVENT_STA_START");
 		esp_wifi_connect();
 	} else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+		ESP_LOGD(TAG, "IP_EVENT_STA_GOT_IP");
+		s_retry_num = 0;
 		ip_event_got_ip_t *event = (ip_event_got_ip_t*) event_data;
-		char log[33]; //TODO make configurable lenght
 
+		char log[42];
 		uint8_t eth_mac[6];
-		const char ssid_prefix[10] = CONFIG_GROWNODE_PROV_SOFTAP_PREFIX;
+		const char ssid_prefix[10];
+		strncpy(ssid_prefix, CONFIG_GROWNODE_PROV_SOFTAP_PREFIX, 10);
 		esp_wifi_get_mac(WIFI_IF_STA, eth_mac);
 		char deviceName[17];
 		snprintf(deviceName, 16, "%s%02X%02X%02X", ssid_prefix, eth_mac[3],
@@ -121,39 +128,37 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		memcpy(_conf->macAddress, eth_mac, 6);
 		strcpy(_conf->deviceName, deviceName);
 
-		sprintf(log, "%s-%d.%d.%d.%d", deviceName, IP2STR(&event->ip_info.ip));
+		snprintf(log, 41, "%s-%d.%d.%d.%d", deviceName,
+				IP2STR(&event->ip_info.ip));
 		gn_log(TAG, GN_LOG_DEBUG, log);
 
 		//ESP_LOGI(TAG, "IP : " IPSTR, IP2STR(&event->ip_info.ip));
 
-		if (ESP_OK
-				!= esp_event_post_to(_conf->event_loop, GN_BASE_EVENT,
-						GN_NET_CONNECTED_EVENT, NULL, 0,
-						portMAX_DELAY)) {
-			gn_log(TAG, GN_LOG_ERROR,
-					"failed to send GN_NETWORK_DISCONNECTED_EVENT event");
-		}
+		esp_event_post_to(_conf->event_loop, GN_BASE_EVENT,
+				GN_NET_CONNECTED_EVENT, NULL, 0,
+				portMAX_DELAY);
 
 		/* Signal main application to continue execution */
 		xEventGroupSetBits(_gn_event_group_wifi, GN_WIFI_CONNECTED_EVENT);
 
 	} else if (event_base == WIFI_EVENT
 			&& event_id == WIFI_EVENT_STA_DISCONNECTED) {
+		ESP_LOGD(TAG, "WIFI_EVENT_STA_DISCONNECTED");
+		wifi_event_sta_disconnected_t *disconnected = (wifi_event_sta_disconnected_t *) event_data;
+		ESP_LOGE(TAG,"Wifi disconnected. reason: %d", disconnected->reason);
+		//ESP_LOGI(TAG, "Disconnected. Connecting to the AP again.");
 
-		ESP_LOGI(TAG, "Disconnected. Connecting to the AP again.");
+		esp_event_post_to(_conf->event_loop, GN_BASE_EVENT,
+				GN_NET_DISCONNECTED_EVENT, NULL, 0,
+				portMAX_DELAY);
 
-		if (ESP_OK
-				!= esp_event_post_to(_conf->event_loop, GN_BASE_EVENT,
-						GN_NET_DISCONNECTED_EVENT, NULL, 0,
-						portMAX_DELAY)) {
-			gn_log(TAG, GN_LOG_ERROR,
-					"failed to send GN_NETWORK_DISCONNECTED_EVENT event");
-		}
-
-		if (s_retry_num < 3) {
-			esp_wifi_connect();
+		if (_conf->config_init_params->wifi_retries_before_reset_provisioning
+				== -1
+				|| s_retry_num
+						< _conf->config_init_params->wifi_retries_before_reset_provisioning) {
+			ESP_LOGI(TAG, "Retry to connect - attempt %i of %i", s_retry_num, _conf->config_init_params->wifi_retries_before_reset_provisioning);
 			s_retry_num++;
-			ESP_LOGI(TAG, "retry to connect to the AP");
+			esp_wifi_connect();
 		} else {
 			xEventGroupSetBits(_gn_event_group_wifi, GN_WIFI_FAIL_EVENT);
 		}
@@ -180,12 +185,11 @@ void _gn_wifi_init_sta(void) {
 			portMAX_DELAY);
 
 	if (bits & GN_WIFI_CONNECTED_EVENT) {
-		ESP_LOGI(TAG, "connected to AP");
+		gn_log(TAG, GN_LOG_INFO, "Connected to AP");
 	} else if (bits & GN_WIFI_FAIL_EVENT) {
-		ESP_LOGI(TAG, "Failed to connect to AP");
+		gn_log(TAG, GN_LOG_ERROR, "Failed to connect to AP. Resetting Provisioning Status");
 		wifi_prov_mgr_reset_provisioning();
 		gn_reboot();
-
 	} else {
 		gn_log(TAG, GN_LOG_ERROR, "UNEXPECTED EVENT");
 	}
@@ -332,10 +336,7 @@ esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
 		 *          for encryption/decryption of messages.
 		 */
 
-		/* Do we want a proof-of-possession (ignored if Security 0 is selected):
-		 *      - this should be a string with length > 0
-		 *      - NULL if not used
-		 */
+
 
 		wifi_prov_security_t security = WIFI_PROV_SECURITY_0;
 
@@ -343,6 +344,10 @@ esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
 			security = WIFI_PROV_SECURITY_1;
 		}
 
+		/* Do we want a proof-of-possession (ignored if Security 0 is selected):
+		 *      - this should be a string with length > 0
+		 *      - NULL if not used
+		 */
 		const char *pop = _conf->config_init_params->provisioning_password;
 
 		/* What is the service key (could be NULL)

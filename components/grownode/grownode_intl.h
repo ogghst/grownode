@@ -52,7 +52,7 @@ struct gn_config_t {
 	esp_event_loop_handle_t event_loop;
 	wifi_init_config_t wifi_config;
 	wifi_prov_mgr_config_t prov_config;
-	char deviceName[30];
+	char deviceName[17];
 	uint8_t macAddress[6];
 	gn_config_status_t status;
 	gn_node_config_handle_intl_t node_config;

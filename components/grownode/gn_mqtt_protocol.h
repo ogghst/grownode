@@ -22,9 +22,8 @@ extern "C" {
 #include "gn_commons.h"
 //#include "esp_log.h"
 
-
 #define _GN_MQTT_MAX_TOPIC_LENGTH 80
-#define _GN_MQTT_MAX_PAYLOAD_LENGTH 4096
+#define _GN_MQTT_MAX_PAYLOAD_LENGTH CONFIG_GROWNODE_MQTT_BUFFER_SIZE
 
 #define _GN_MQTT_COMMAND_MESS "cmd"
 #define _GN_MQTT_STATUS_MESS "sts"
@@ -36,16 +35,16 @@ extern "C" {
 
 #define _GN_MQTT_DEFAULT_QOS 0
 
-
 gn_err_t gn_mqtt_publish_leaf(gn_leaf_config_handle_t leaf_config);
 
 esp_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t param);
 
-esp_err_t gn_mqtt_init(gn_config_handle_t conf);
+gn_err_t gn_mqtt_init(gn_config_handle_t config);
 
-esp_err_t gn_mqtt_send_node_config(gn_node_config_handle_t conf);
+gn_err_t gn_mqtt_send_node_config(gn_node_config_handle_t conf);
 
-gn_err_t gn_mqtt_send_leaf_message(gn_leaf_config_handle_t leaf, const char* msg);
+gn_err_t gn_mqtt_send_leaf_message(gn_leaf_config_handle_t leaf,
+		const char *msg);
 
 gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t config);
 
@@ -57,10 +56,8 @@ gn_err_t gn_mqtt_send_reset_message(gn_config_handle_t _config);
 
 gn_err_t gn_mqtt_send_ota_message(gn_config_handle_t _config);
 
-gn_err_t gn_mqtt_send_log_message(gn_config_handle_t _config, char *log_tag, gn_log_level_t level, char *message);
-
-
-gn_server_status_t gn_mqtt_get_status();
+gn_err_t gn_mqtt_send_log_message(gn_config_handle_t _config, char *log_tag,
+		gn_log_level_t level, char *message);
 
 #ifdef __cplusplus
 }

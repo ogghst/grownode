@@ -80,13 +80,11 @@ extern "C" {
 #define TAG_EVENT "gn_event"
 #define TAG_NVS "gn_nvs"
 
-esp_event_loop_handle_t gn_event_loop;
+esp_event_loop_handle_t gn_event_loop = NULL;
 
-gn_config_handle_intl_t _gn_default_conf;
+gn_config_handle_intl_t _gn_default_conf = NULL;
 
 //SemaphoreHandle_t _gn_xEvtSemaphore;
-
-bool initialized = false;
 
 ESP_EVENT_DEFINE_BASE(GN_BASE_EVENT);
 ESP_EVENT_DEFINE_BASE(GN_LEAF_EVENT);
@@ -101,7 +99,7 @@ ESP_EVENT_DEFINE_BASE(GN_LEAF_EVENT);
 gn_err_t _gn_leaf_start(gn_leaf_config_handle_intl_t leaf_config) {
 
 	int ret = GN_RET_OK;
-	ESP_LOGI(TAG, "_gn_start_leaf %s", leaf_config->name);
+	ESP_LOGI(TAG, "_gn_leaf_start %s", leaf_config->name);
 
 	if (xTaskCreate((void*) leaf_config->leaf_descriptor->callback,
 			leaf_config->name, leaf_config->task_size, leaf_config, 1, //configMAX_PRIORITIES - 1,
@@ -204,22 +202,18 @@ static bool IRAM_ATTR _gn_timer_callback_isr(void *args) {
 	if (!gn_event_loop)
 		return high_task_awoken;
 	esp_event_isr_post_to(gn_event_loop, GN_BASE_EVENT,
-			GN_SRV_KEEPALIVE_START_EVENT, NULL, 0, &high_task_awoken);
+			GN_SRV_KEEPALIVE_TRIGGERED_EVENT, NULL, 0, &high_task_awoken);
 	return high_task_awoken == pdTRUE;
 }
 
 void _gn_keepalive_start() {
-
-	timer_start(TIMER_GROUP_0, TIMER_0);
 	ESP_LOGD(TAG, "timer started");
-
+	timer_start(TIMER_GROUP_0, TIMER_0);
 }
 
 void _gn_keepalive_stop() {
-
-	timer_pause(TIMER_GROUP_0, TIMER_0);
 	ESP_LOGD(TAG, "timer paused");
-
+	timer_pause(TIMER_GROUP_0, TIMER_0);
 }
 
 gn_leaf_config_handle_intl_t _gn_leaf_get_by_name(char *leaf_name) {
@@ -292,25 +286,50 @@ void _gn_evt_handler(void *handler_args, esp_event_base_t base, int32_t id,
 		break;
 	case GN_SRV_CONNECTED_EVENT:
 		//start keepalive service
+		if (!_gn_default_conf)
+			break;
 
-		if (_gn_default_conf != NULL
-				&& _gn_default_conf->status == GN_CONFIG_STATUS_STARTED)
-			_gn_keepalive_start();
+		//from unknown status: reboot - to keep consistency
+		if (_gn_default_conf->status != GN_CONFIG_STATUS_READY_TO_START
+				&& _gn_default_conf->status != GN_CONFIG_STATUS_STARTED) {
+			gn_reboot();
+			break;
+		}
+
+		_gn_keepalive_start();
+
 		break;
 	case GN_SRV_DISCONNECTED_EVENT:
 		//stop keepalive service
 		_gn_keepalive_stop();
 		break;
 
-	case GN_NODE_STARTED_EVENT:
-		if (_gn_default_conf != NULL
-				&& _gn_default_conf->status == GN_CONFIG_STATUS_STARTED)
-			_gn_keepalive_start();
-		break;
+		/*
+		 case GN_NODE_STARTED_EVENT:
 
-	case GN_SRV_KEEPALIVE_START_EVENT:
+		 //start keepalive service
+		 if (!_gn_default_conf)
+		 break;
+
+		 //from unknown status: reboot - to keep consistency
+		 if (_gn_default_conf != NULL
+		 && _gn_default_conf->status != GN_CONFIG_STATUS_STARTED) {
+		 gn_reboot();
+		 }
+
+		 if (_gn_default_conf != NULL
+		 && _gn_default_conf->status == GN_CONFIG_STATUS_STARTED) {
+		 _gn_keepalive_start();
+		 }
+		 break;
+		 */
+
+	case GN_SRV_KEEPALIVE_TRIGGERED_EVENT:
 		//publish node
-		gn_mqtt_send_node_config(_gn_default_conf->node_config);
+		if (gn_mqtt_send_node_config(_gn_default_conf->node_config)
+				!= GN_RET_OK) {
+			ESP_LOGE(TAG, "Error in sending node config message");
+		}
 		break;
 
 	case GN_LEAF_PARAM_CHANGE_REQUEST_EVENT: {
@@ -1237,6 +1256,7 @@ gn_err_t gn_leaf_param_init_string(const gn_leaf_config_handle_t leaf_config,
  *
  * 	@return GN_RET_OK if the parameter is set
  * 	@return GN_RET_ERR_INVALID_ARG in case of input errors
+ * 	@return GN_RET_ERR in case of messaging error
  */
 gn_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf_config,
 		const char *name, char *val) {
@@ -2013,18 +2033,22 @@ gn_err_t gn_leaf_param_add_to_leaf(const gn_leaf_config_handle_t leaf,
 		((gn_leaf_config_handle_intl_t) leaf)->params = new_param;
 	}
 
-	if (gn_mqtt_subscribe_leaf_param(new_param) != ESP_OK) {
+	gn_err_t ret = GN_RET_OK;
+
+	ret = gn_mqtt_subscribe_leaf_param(new_param);
+	if (ret != GN_RET_OK) {
 		gn_log(TAG, GN_LOG_ERROR,
 				"gn_leaf_param_add failed to subscribe param %s of leaf %s",
 				new_param->name, ((gn_leaf_config_handle_intl_t) leaf)->name);
-		return GN_RET_ERR;
+		return ret;
 	}
 
-	if (gn_mqtt_send_leaf_param(new_param) != GN_RET_OK) {
+	ret = gn_mqtt_send_leaf_param(new_param);
+	if (ret != GN_RET_OK) {
 		gn_log(TAG, GN_LOG_ERROR,
 				"gn_leaf_param_add failed to send param configuration %s of leaf %s",
 				new_param->name, ((gn_leaf_config_handle_intl_t) leaf)->name);
-		return GN_RET_ERR;
+		return ret;
 	}
 
 	ESP_LOGD(TAG, "Param %s added in %s", new_param->name,
@@ -2058,13 +2082,14 @@ gn_err_t gn_send_node_leaf_param_status(
 
 			if (_param->storage == GN_LEAF_PARAM_STORAGE_PERSISTED) {
 
-				if (gn_mqtt_send_leaf_param(_param) != GN_RET_OK) {
+				gn_err_t ret = gn_mqtt_send_leaf_param(_param);
+				if (ret != GN_RET_OK) {
 					gn_log(TAG, GN_LOG_ERROR,
 							"gn_leaf_param_add failed to send param configuration %s of leaf %s",
 							_param->name, leaf_config->name);
-					return GN_RET_ERR;
+					return ret;
 				}
-				vTaskDelay(200 / portTICK_PERIOD_MS);
+				//vTaskDelay(200 / portTICK_PERIOD_MS);
 			}
 
 			_param = _param->next;
@@ -2421,7 +2446,9 @@ void* _gn_leaf_context_get_key_to_leaf(const gn_leaf_config_handle_t leaf,
 gn_err_t gn_firmware_update() {
 
 #if CONFIG_GROWNODE_WIFI_ENABLED
-	gn_mqtt_send_ota_message(_gn_default_conf);
+	if (gn_mqtt_send_ota_message(_gn_default_conf) != GN_RET_OK) {
+		ESP_LOGE(TAG, "OTA message not sent");
+	}
 	vTaskDelay(1000 / portTICK_PERIOD_MS);
 	xTaskCreate(_gn_ota_task, "gn_ota_task", 8196, NULL, 10, NULL);
 #endif
@@ -2537,7 +2564,7 @@ gn_config_handle_t gn_init(gn_config_init_param_t *config_init) {
 
 	gn_err_t ret = GN_RET_OK;
 
-	if (initialized)
+	if (_gn_default_conf)
 		return _gn_default_conf;
 
 	ESP_LOGD(TAG, "gn_init");
@@ -2592,8 +2619,7 @@ gn_config_handle_t gn_init(gn_config_init_param_t *config_init) {
 #endif
 
 	ESP_LOGI(TAG, "grownode startup sequence completed!");
-	_gn_default_conf->status = GN_CONFIG_STATUS_COMPLETED;
-	initialized = true;
+	_gn_default_conf->status = GN_CONFIG_STATUS_READY_TO_START;
 	return _gn_default_conf;
 
 	err: _gn_default_conf->status = GN_CONFIG_STATUS_ERROR;

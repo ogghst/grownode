@@ -36,6 +36,7 @@ static const int16_t GN_CONFIG_MAX_SERVER_KEEPALIVE_SEC = 3600;
 typedef struct {
 	bool provisioning_security;
 	char provisioning_password[9];
+	int16_t wifi_retries_before_reset_provisioning; /*!< -1 to never lose provisioning (warning: in case of SSID change, no way to reset!*/
 	bool server_board_id_topic;
 	char server_base_topic[80];
 	char server_url[255];
@@ -54,7 +55,7 @@ typedef enum {
 	GN_CONFIG_STATUS_ERROR = 2,
 	GN_CONFIG_STATUS_NETWORK_ERROR = 3,
 	GN_CONFIG_STATUS_SERVER_ERROR = 4,
-	GN_CONFIG_STATUS_COMPLETED = 5,
+	GN_CONFIG_STATUS_READY_TO_START = 5,
 	GN_CONFIG_STATUS_STARTED = 6,
 	GN_CONFIG_STATUS_ERROR_MISSING_FIRMWARE_URL = 7,
 	GN_CONFIG_STATUS_ERROR_MISSING_PROVISIONING_PASSWORD = 8,
@@ -86,7 +87,8 @@ typedef enum {
 	GN_RET_ERR_EVENT_LOOP_ERROR = 0x205,/*!< impossible to send message to event loop */
 	GN_RET_ERR_LEAF_NOT_FOUND = 0x206,
 	GN_RET_ERR_EVENT_NOT_SENT = 0x207,
-	GN_RET_ERR_MQTT_SUBSCRIBE = 0x208
+	GN_RET_ERR_MQTT_SUBSCRIBE = 0x208,
+	GN_RET_ERR_MQTT_ERROR = 0x209
 } gn_err_t;
 
 typedef enum {

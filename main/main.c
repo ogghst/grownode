@@ -30,8 +30,11 @@
 
 void app_main(void) {
 
-	//set appropriate log level
+	//set default log level
 	esp_log_level_set("*", ESP_LOG_INFO);
+
+	//set this file log level
+	esp_log_level_set("gn_main", ESP_LOG_INFO);
 
 	//core
 	esp_log_level_set("grownode", ESP_LOG_INFO);
@@ -47,9 +50,10 @@ void app_main(void) {
 	gn_config_init_param_t config_init = {
 		.provisioning_security = true,
 		.provisioning_password = "grownode",
+		.wifi_retries_before_reset_provisioning = 5,
 		.server_board_id_topic = false,
 		.server_base_topic = "/grownode/test",
-		.server_url = "mqtt://mymqttserver",
+		.server_url = "mqtt://192.168.1.170:1883",
 		.server_keepalive_timer_sec = 60,
 		.server_discovery = false,
 		.server_discovery_prefix = "homeassistant",
@@ -61,7 +65,7 @@ void app_main(void) {
 	gn_config_handle_t config = gn_init(&config_init);
 
 	//waits until the config process ends
-	while (gn_get_status(config) != GN_CONFIG_STATUS_COMPLETED) {
+	while (gn_get_status(config) != GN_CONFIG_STATUS_READY_TO_START) {
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 		ESP_LOGI(TAG, "grownode startup status: %s",
 				gn_get_status_description(config));
@@ -78,7 +82,8 @@ void app_main(void) {
 
 	while (true) {
 		vTaskDelay(10000 / portTICK_PERIOD_MS);
-		ESP_LOGD(TAG, "main loop");
+		ESP_LOGD(TAG, "grownode startup status: %s",
+				gn_get_status_description(config));
 	}
 
 }
