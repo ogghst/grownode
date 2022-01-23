@@ -49,11 +49,11 @@ void app_main(void) {
 		.provisioning_password = "grownode",
 		.server_board_id_topic = false,
 		.server_base_topic = "/grownode/test",
-		.server_url = "mqtt://discoboy.duckdns.org:11883",
+		.server_url = "mqtt://mymqttserver",
 		.server_keepalive_timer_sec = 60,
 		.server_discovery = false,
 		.server_discovery_prefix = "homeassistant",
-		.firmware_url = "http://discoboy.duckdns.org/grownode/hydroboard2/GrowNode_HB2.bin",
+		.firmware_url = "http://myserver/myfirmware.bin",
 		.sntp_url = "pool.ntp.org"
 	};
 
