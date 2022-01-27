@@ -1,3 +1,9 @@
 [submodule "ext/collections-c/Collections-C"]
 	path = ext/collections-c/Collections-C
 	url = https://github.com/srdja/Collections-C.git
+[submodule "ext/lvgl_esp32_drivers"]
+	path = ext/lvgl_esp32_drivers
+	url = https://github.com/lvgl/lvgl_esp32_drivers.git
+[submodule "ext/lvgl"]
+	path = ext/lvgl
+	url = https://github.com/lvgl/lvgl.git
