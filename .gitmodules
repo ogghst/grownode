@@ -7,3 +7,6 @@
 [submodule "ext/lvgl"]
 	path = ext/lvgl
 	url = https://github.com/lvgl/lvgl.git
+[submodule "ext/esp-idf-lib"]
+	path = ext/esp-idf-lib
+	url = https://github.com/UncleRus/esp-idf-lib.git
