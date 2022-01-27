@@ -1,9 +1,3 @@
-[submodule "esp-idf-lib"]
-	path = esp-idf-lib
-	url = https://github.com/UncleRus/esp-idf-lib.git
-[submodule "lvgl/lvgl"]
-	path = lvgl/lvgl
-	url = https://github.com/lvgl/lvgl.git
-[submodule "lvgl/lvgl_esp32_drivers"]
-	path = lvgl/lvgl_esp32_drivers
-	url = https://github.com/lvgl/lvgl_esp32_drivers.git
+[submodule "ext/collections-c/Collections-C"]
+	path = ext/collections-c/Collections-C
+	url = https://github.com/srdja/Collections-C.git
