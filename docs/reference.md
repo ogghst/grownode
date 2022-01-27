@@ -7,11 +7,12 @@ GrowNode is developed on top of the [ESP-IDF](https://docs.espressif.com/project
 ## Basic Concepts
 
 THe highest level structure on a GrowNode system is the board itself. Every solution you want to build is basically a combination of 
+
 - Devices attached to the IO pins (tipycally handled by specific HAL - Hardware Abstraction Layers - like ESP-IDF core libraries or third party devices. 
 
 > Example: I2C driver, a GPIO pin
 
-- several logics to access to those devices and present to the GrowNode framwork [Leaves](#Leaves) - several are prebuilt and more can be user defined. 
+- several logics to access to those devices and present to the GrowNode framwork [Leaves](#leaves) - several are prebuilt and more can be user defined. 
 
 > Example: a temperature sensor, a relay, a LED, a motor
 
@@ -19,19 +20,19 @@ THe highest level structure on a GrowNode system is the board itself. Every solu
 
 > Example: the temperature retrieved, a motor switch, a light power
 
-- one centralized controller that orchestrates and exposes to the Leaves the services needed to work: [Node](#Node). This is common on all the GrowNode implementation
+- one centralized controller that orchestrates and exposes to the Leaves the services needed to work: [Node](#node). This is common on all the GrowNode implementation
 
-- one entry point of the application, where the Node and Leaves are declared and configured [Board](#Board). 
+- one entry point of the application, where the Node and Leaves are declared and configured [Board](#boards). 
 
 > Example: a Water Tower Board, a simple Temperature and Humidity pot controller
 
-### Code reference
+###Code reference
 
 Code Documentation is described in [API](../html/index.html) section. The entry point of all GrowNode functionalities resides in `grownode.h` header file. Users just have to reference it in their code. 
 
 
 
-## Node
+##Node
 
 The core element of a GrowNode implementation is the Node. 
 
@@ -45,7 +46,7 @@ todo
 todo
 
 
-## Leaves
+##Leaves
 
 ### Responsibilites
 todo
@@ -56,7 +57,7 @@ todo
 ### Examples
 todo
 
-## Parameters
+##Parameters
 
 ### Responsibilites
 todo
@@ -67,7 +68,10 @@ todo
 ### Examples
 todo
 
-## MQTT Protocol
+##Boards
+todo
+
+##MQTT Protocol
 
 todo 
 
