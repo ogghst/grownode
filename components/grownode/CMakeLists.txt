@@ -105,6 +105,12 @@ else()
 		"unity" "mqtt" "spiffs" "json" "wifi_provisioning" "esp_https_ota" "app_update" "esp_adc_cal"
 	)
 	
+		if(DEFINED ENV{COLLECTIONS_C_PATH})
+	    list(APPEND components_required 
+     		"collections-c" 
+     	)
+   	endif()
+	
 	if(DEFINED ENV{IDF_LIB_PATH})
 	    list(APPEND components_required 
      		"bmp280" "ds18x20" 
@@ -124,9 +130,6 @@ else()
 					"gn_mqtt_protocol.c"
 					"gn_network.c"
 					"gn_leaf_context.c"
-					"cc_array.c"
-					"cc_common.c"
-					"cc_hashtable.c"
 					"leaves/gn_pwm.c"
 					"leaves/gn_pump.c"
 					"leaves/gn_pump_hs.c"
