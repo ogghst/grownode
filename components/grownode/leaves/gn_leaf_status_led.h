@@ -27,7 +27,7 @@ static const char GN_LEAF_STATUS_LED_TYPE[] = "status_led";
 //parameters
 static const char GN_LEAF_STATUS_LED_PARAM_GPIO[] = "gpio"; /*!< the GPIO to connect the relay */
 
-gn_leaf_descriptor_handle_t gn_leaf_status_led_config(gn_leaf_config_handle_t leaf_config);
+gn_leaf_descriptor_handle_t gn_leaf_status_led_config(gn_leaf_handle_t leaf_config);
 
 
 #ifdef __cplusplus

@@ -55,7 +55,7 @@ static const char *BME280 = "bme280";
 static const char *DS18B20 = "ds18b20";
 static const char *WATERLEVELIN = "waterlevelin";
 
-void gn_watering_control_task(gn_leaf_config_handle_t leaf_config);
+void gn_watering_control_task(gn_leaf_handle_t leaf_config);
 
 typedef enum {
 	HCC_HEATING, HCC_COOLING, HCC_OFF
@@ -74,13 +74,13 @@ typedef struct {
 	gn_leaf_param_handle_t param_active;
 	gn_leaf_param_handle_t param_watering_t_temp;
 
-	gn_leaf_config_handle_t leaf_cwl;
-	gn_leaf_config_handle_t leaf_ds18b20;
-	gn_leaf_config_handle_t leaf_bme280;
-	gn_leaf_config_handle_t leaf_plt_a;
-	gn_leaf_config_handle_t leaf_plt_b;
-	gn_leaf_config_handle_t leaf_hcc_pump;
-	gn_leaf_config_handle_t leaf_wat_pump;
+	gn_leaf_handle_t leaf_cwl;
+	gn_leaf_handle_t leaf_ds18b20;
+	gn_leaf_handle_t leaf_bme280;
+	gn_leaf_handle_t leaf_plt_a;
+	gn_leaf_handle_t leaf_plt_b;
+	gn_leaf_handle_t leaf_hcc_pump;
+	gn_leaf_handle_t leaf_wat_pump;
 
 	gn_hcc_status hcc_cycle;
 	int64_t hcc_cycle_start;
@@ -247,7 +247,7 @@ inline static bool _gn_watering_control_hcc_temp_ok(double p_wat_temp,
 			&& !_gn_watering_control_hcc_temp_high(p_wat_temp, p_wat_t_temp));
 }
 
-void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
+void _gn_watering_callback_intl(gn_leaf_handle_t leaf_config) {
 
 	ESP_LOGD(TAG, "_gn_watering_callback");
 
@@ -585,7 +585,7 @@ void _gn_watering_callback_intl(gn_leaf_config_handle_t leaf_config) {
  */
 
 gn_leaf_descriptor_handle_t gn_watering_control_config(
-		gn_leaf_config_handle_t leaf_config) {
+		gn_leaf_handle_t leaf_config) {
 
 	gn_leaf_descriptor_handle_t descriptor =
 			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
@@ -595,7 +595,7 @@ gn_leaf_descriptor_handle_t gn_watering_control_config(
 	descriptor->status = GN_LEAF_STATUS_NOT_INITIALIZED;
 	descriptor->data = NULL;
 
-	gn_node_config_handle_t node_config = gn_leaf_get_node(leaf_config);
+	gn_node_handle_t node_config = gn_leaf_get_node(leaf_config);
 
 	gn_watering_control_data_t *data = malloc(
 			sizeof(gn_watering_control_data_t));
@@ -683,7 +683,7 @@ gn_leaf_descriptor_handle_t gn_watering_control_config(
 
 }
 
-void gn_watering_control_task(gn_leaf_config_handle_t leaf_config) {
+void gn_watering_control_task(gn_leaf_handle_t leaf_config) {
 
 	char leaf_name[GN_LEAF_NAME_SIZE];
 	gn_leaf_get_name(leaf_config, leaf_name);

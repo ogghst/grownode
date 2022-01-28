@@ -20,7 +20,7 @@
 #include "grownode_intl.h"
 
 gn_config_handle_t config;
-gn_node_config_handle_t node_config;
+gn_node_handle_t node_config;
 
 gn_config_init_param_t config_init = { .provisioning_security = true,
 		.provisioning_password = "grownode", .server_board_id_topic = false,

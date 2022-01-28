@@ -41,7 +41,7 @@ extern "C" {
 
 #define TAG "gn_leaf_led"
 
-void gn_led_task(gn_leaf_config_handle_t leaf_config);
+void gn_led_task(gn_leaf_handle_t leaf_config);
 
 typedef struct {
 	gn_leaf_param_handle_t gn_led_status_param;
@@ -52,7 +52,7 @@ typedef struct {
 	int gpio;
 } gn_led_data_t;
 
-void blink_callback(const gn_leaf_config_handle_t leaf_config) {
+void blink_callback(const gn_leaf_handle_t leaf_config) {
 
 	gn_led_data_t *data =
 			(gn_led_data_t*) gn_leaf_get_descriptor(leaf_config)->data;
@@ -60,7 +60,7 @@ void blink_callback(const gn_leaf_config_handle_t leaf_config) {
 	gpio_set_level(data->gpio, data->blink_status);
 }
 
-gn_leaf_descriptor_handle_t gn_led_config(gn_leaf_config_handle_t leaf_config) {
+gn_leaf_descriptor_handle_t gn_led_config(gn_leaf_handle_t leaf_config) {
 
 	gn_leaf_descriptor_handle_t descriptor =
 			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
@@ -101,7 +101,7 @@ gn_leaf_descriptor_handle_t gn_led_config(gn_leaf_config_handle_t leaf_config) {
 
 }
 
-void gn_led_task(gn_leaf_config_handle_t leaf_config) {
+void gn_led_task(gn_leaf_handle_t leaf_config) {
 
 	char leaf_name[GN_LEAF_NAME_SIZE];
 	gn_leaf_get_name(leaf_config, leaf_name);

@@ -53,7 +53,7 @@ typedef struct {
 typedef gn_mqtt_startup_message_t *gn_mqtt_startup_message_handle_t;
 
 typedef struct {
-	gn_node_config_handle_t config;
+	gn_node_handle_t config;
 	char topic[_GN_MQTT_MAX_TOPIC_LENGTH];
 //char nodeName[30];
 } gn_mqtt_node_config_message_t;
@@ -74,7 +74,7 @@ inline char* _gn_mqtt_build_node_name(gn_config_handle_intl_t config) {
 
 }
 
-void _gn_mqtt_build_leaf_command_topic(gn_leaf_config_handle_t _leaf_config,
+void _gn_mqtt_build_leaf_command_topic(gn_leaf_handle_t _leaf_config,
 		char *buf) {
 
 	gn_leaf_config_handle_intl_t leaf_config =
@@ -99,7 +99,7 @@ void _gn_mqtt_build_leaf_command_topic(gn_leaf_config_handle_t _leaf_config,
 }
 
 void _gn_mqtt_build_leaf_parameter_command_topic(
-		const gn_leaf_config_handle_t _leaf_config, const char *param_name,
+		const gn_leaf_handle_t _leaf_config, const char *param_name,
 		char *buf) {
 
 	gn_leaf_config_handle_intl_t leaf_config =
@@ -126,7 +126,7 @@ void _gn_mqtt_build_leaf_parameter_command_topic(
 }
 
 void _gn_mqtt_build_leaf_parameter_status_topic(
-		gn_leaf_config_handle_t _leaf_config, char *param_name, char *buf) {
+		gn_leaf_handle_t _leaf_config, char *param_name, char *buf) {
 
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) _leaf_config;
@@ -151,7 +151,7 @@ void _gn_mqtt_build_leaf_parameter_status_topic(
 
 }
 
-void _gn_mqtt_build_leaf_status_topic(gn_leaf_config_handle_t _leaf_config,
+void _gn_mqtt_build_leaf_status_topic(gn_leaf_handle_t _leaf_config,
 		char *buf) {
 
 	gn_leaf_config_handle_intl_t leaf_config =
@@ -257,7 +257,7 @@ void _gn_mqtt_build_command_topic(gn_config_handle_intl_t config, char *buf) {
  *
  * @return status of the operation
  */
-gn_err_t gn_mqtt_publish_leaf(gn_leaf_config_handle_t _leaf_config) {
+gn_err_t gn_mqtt_publish_leaf(gn_leaf_handle_t _leaf_config) {
 
 	if (!_leaf_config)
 		return GN_RET_ERR;
@@ -426,7 +426,7 @@ gn_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t _param) {
  * @return GN_RET_ERR_INVALID_ARG if node config is null
  *
  */
-gn_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
+gn_err_t gn_mqtt_send_node_config(gn_node_handle_t _node_config) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
@@ -439,7 +439,7 @@ gn_err_t gn_mqtt_send_node_config(gn_node_config_handle_t _node_config) {
 	if (!__node_config->config)
 		return GN_RET_ERR_INVALID_ARG;
 
-	if (__node_config->config->status != GN_CONFIG_STATUS_STARTED)
+	if (__node_config->config->status != GN_NODE_STATUS_STARTED)
 		return GN_RET_OK;
 
 	int ret = GN_RET_OK;
@@ -574,7 +574,7 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 	gn_node_config_handle_intl_t _node_config =
 			(gn_node_config_handle_intl_t) _leaf_config->node_config;
 
-	if (_node_config->config->status != GN_CONFIG_STATUS_STARTED)
+	if (_node_config->config->status != GN_NODE_STATUS_STARTED)
 		return GN_RET_OK;
 
 	ESP_LOGD(TAG, "gn_mqtt_send_leaf_param %s", param->name);
@@ -668,7 +668,7 @@ gn_err_t gn_mqtt_send_log_message(gn_config_handle_t _config, char *log_tag,
 
 	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
 
-	if (config->status != GN_CONFIG_STATUS_STARTED)
+	if (config->status != GN_NODE_STATUS_STARTED)
 		return GN_RET_OK;
 
 	gn_err_t ret = GN_RET_OK;
@@ -838,7 +838,7 @@ gn_err_t gn_mqtt_send_reboot_message(gn_config_handle_t _config) {
 
 	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
 
-	if (config->status != GN_CONFIG_STATUS_STARTED)
+	if (config->status != GN_NODE_STATUS_STARTED)
 		return GN_RET_OK;
 
 //build
@@ -909,7 +909,7 @@ gn_err_t gn_mqtt_send_reset_message(gn_config_handle_t _config) {
 
 	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
 
-	if (config->status != GN_CONFIG_STATUS_STARTED)
+	if (config->status != GN_NODE_STATUS_STARTED)
 		return GN_RET_OK;
 
 //build
@@ -977,7 +977,7 @@ gn_err_t gn_mqtt_send_ota_message(gn_config_handle_t _config) {
 
 	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
 
-	if (config->status != GN_CONFIG_STATUS_STARTED)
+	if (config->status != GN_NODE_STATUS_STARTED)
 		return GN_RET_OK;
 
 //build
@@ -1037,7 +1037,7 @@ gn_err_t gn_mqtt_send_ota_message(gn_config_handle_t _config) {
  * @return GN_RET_ERR_INVALID_ARG	if _config is null
  * @return GN_RET_ERR_MQTT_ERROR	if not possible to send message
  */
-gn_err_t gn_mqtt_send_leaf_message(gn_leaf_config_handle_t _leaf,
+gn_err_t gn_mqtt_send_leaf_message(gn_leaf_handle_t _leaf,
 		const char *msg) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
@@ -1052,7 +1052,7 @@ gn_err_t gn_mqtt_send_leaf_message(gn_leaf_config_handle_t _leaf,
 	gn_config_handle_intl_t config =
 			(gn_config_handle_intl_t) node_config->config;
 
-	if (config->status != GN_CONFIG_STATUS_STARTED)
+	if (config->status != GN_NODE_STATUS_STARTED)
 		return GN_RET_OK;
 
 //get the topic

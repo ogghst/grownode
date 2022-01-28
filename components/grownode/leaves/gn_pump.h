@@ -32,7 +32,7 @@ static const char GN_PUMP_PARAM_GPIO_POWER[] = "gpio_power"; /*!< the GPIO to co
 static const char GN_PUMP_PARAM_GPIO_TOGGLE[] = "gpio_toggle"; /*!< the GPIO to connect the pump (must be PWM capable) */
 
 
-gn_leaf_descriptor_handle_t gn_pump_config(gn_leaf_config_handle_t leaf_config);
+gn_leaf_descriptor_handle_t gn_pump_config(gn_leaf_handle_t leaf_config);
 
 
 #ifdef __cplusplus

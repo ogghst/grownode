@@ -72,10 +72,10 @@ static bool cb_ledc_fade_end_event(const ledc_cb_param_t *param, void *user_arg)
 	return (taskAwoken == pdTRUE);
 }
 
-void gn_leaf_pwm_task(gn_leaf_config_handle_t leaf_config);
+void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config);
 
 gn_leaf_descriptor_handle_t gn_pump_hs_config(
-		gn_leaf_config_handle_t leaf_config) {
+		gn_leaf_handle_t leaf_config) {
 
 	gn_leaf_descriptor_handle_t descriptor =
 			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
@@ -123,7 +123,7 @@ gn_leaf_descriptor_handle_t gn_pump_hs_config(
 
 }
 
-void gn_leaf_pwm_task(gn_leaf_config_handle_t leaf_config) {
+void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 
 	bool need_update = true;
 

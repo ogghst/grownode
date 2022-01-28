@@ -90,9 +90,9 @@ typedef struct {
  }
  */
 
-void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config);
+void gn_capacitive_water_level_task(gn_leaf_handle_t leaf_config);
 
-void gn_cwl_sensor_collect(gn_leaf_config_handle_t leaf_config) {
+void gn_cwl_sensor_collect(gn_leaf_handle_t leaf_config) {
 
 	char leaf_name[GN_LEAF_NAME_SIZE];
 	gn_leaf_get_name(leaf_config, leaf_name);
@@ -157,7 +157,7 @@ void gn_cwl_sensor_collect(gn_leaf_config_handle_t leaf_config) {
 }
 
 gn_leaf_descriptor_handle_t gn_capacitive_water_level_config(
-		gn_leaf_config_handle_t leaf_config) {
+		gn_leaf_handle_t leaf_config) {
 
 	char leaf_name[GN_LEAF_NAME_SIZE];
 	gn_leaf_get_name(leaf_config, leaf_name);
@@ -224,7 +224,7 @@ gn_leaf_descriptor_handle_t gn_capacitive_water_level_config(
 
 }
 
-void gn_capacitive_water_level_task(gn_leaf_config_handle_t leaf_config) {
+void gn_capacitive_water_level_task(gn_leaf_handle_t leaf_config) {
 
 	char leaf_name[GN_LEAF_NAME_SIZE];
 	gn_leaf_get_name(leaf_config, leaf_name);

@@ -50,21 +50,21 @@ typedef struct {
 typedef struct gn_config_init_param_t *gn_config_init_param_handle_t;
 
 typedef enum {
-	GN_CONFIG_STATUS_NOT_INITIALIZED = 0,
-	GN_CONFIG_STATUS_INITIALIZING = 1,
-	GN_CONFIG_STATUS_ERROR = 2,
-	GN_CONFIG_STATUS_NETWORK_ERROR = 3,
-	GN_CONFIG_STATUS_SERVER_ERROR = 4,
-	GN_CONFIG_STATUS_READY_TO_START = 5,
-	GN_CONFIG_STATUS_STARTED = 6,
-	GN_CONFIG_STATUS_ERROR_MISSING_FIRMWARE_URL = 7,
-	GN_CONFIG_STATUS_ERROR_MISSING_PROVISIONING_PASSWORD = 8,
-	GN_CONFIG_STATUS_ERROR_MISSING_SERVER_BASE_TOPIC = 9,
-	GN_CONFIG_STATUS_ERROR_MISSING_SERVER_URL = 10,
-	GN_CONFIG_STATUS_ERROR_BAD_SERVER_KEEPALIVE_SEC = 11,
-	GN_CONFIG_STATUS_ERROR_MISSING_SNTP_URL = 12,
-	GN_CONFIG_STATUS_ERROR_MISSING_SERVER_DISCOVERY_PREFIX = 13
-} gn_config_status_t;
+	GN_NODE_STATUS_NOT_INITIALIZED = 0,
+	GN_NODE_STATUS_INITIALIZING = 1,
+	GN_NODE_STATUS_ERROR = 2,
+	GN_NODE_STATUS_NETWORK_ERROR = 3,
+	GN_NODE_STATUS_SERVER_ERROR = 4,
+	GN_NODE_STATUS_READY_TO_START = 5,
+	GN_NODE_STATUS_STARTED = 6,
+	GN_NODE_STATUS_ERROR_MISSING_FIRMWARE_URL = 7,
+	GN_NDOE_STATUS_ERROR_MISSING_PROVISIONING_PASSWORD = 8,
+	GN_NODE_STATUS_ERROR_MISSING_SERVER_BASE_TOPIC = 9,
+	GN_NODE_STATUS_ERROR_MISSING_SERVER_URL = 10,
+	GN_NODE_STATUS_ERROR_BAD_SERVER_KEEPALIVE_SEC = 11,
+	GN_NODE_STATUS_ERROR_MISSING_SNTP_URL = 12,
+	GN_NODE_STATUS_ERROR_MISSING_SERVER_DISCOVERY_PREFIX = 13
+} gn_node_status_t;
 
 const char *gn_config_status_descriptions [14];
 
@@ -106,8 +106,8 @@ typedef enum {
 	GN_LOG_ERROR = ESP_LOG_ERROR,
 } gn_log_level_t;
 
-typedef void *gn_leaf_config_handle_t;
-typedef void *gn_node_config_handle_t;
+typedef void *gn_leaf_handle_t;
+typedef void *gn_node_handle_t;
 typedef void *gn_config_handle_t;
 
 typedef void *gn_display_container_t;
@@ -140,7 +140,7 @@ typedef struct {
 
 typedef gn_node_event_t *gn_node_event_handle_t;
 
-typedef void (*gn_leaf_task_callback)(gn_leaf_config_handle_t leaf_config);
+typedef void (*gn_leaf_task_callback)(gn_leaf_handle_t leaf_config);
 
 /**
  * @brief status of the leaf
@@ -168,7 +168,7 @@ typedef gn_leaf_descriptor_t *gn_leaf_descriptor_handle_t;
  * returns a leaf config
  */
 typedef gn_leaf_descriptor_handle_t (*gn_leaf_config_callback)(
-		gn_leaf_config_handle_t leaf_config);
+		gn_leaf_handle_t leaf_config);
 
 //parameters
 

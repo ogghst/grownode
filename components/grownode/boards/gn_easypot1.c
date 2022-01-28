@@ -25,7 +25,7 @@
 
 #define TAG "gn_easypot1"
 
-gn_leaf_config_handle_t moist, temp, led_moist, led_temp;
+gn_leaf_handle_t moist, temp, led_moist, led_temp;
 
 double moist_last, temp_last;
 
@@ -39,7 +39,7 @@ const double temp_max = 28;
 const double blink_time_high = 300;
 const double blink_time_low = 2000;
 
-void moisture_callback(const gn_leaf_config_handle_t moist) {
+void moisture_callback(const gn_leaf_handle_t moist) {
 
 	double moist_act;
 	gn_leaf_param_get_double(moist, GN_CMS_PARAM_ACT_LEVEL, &moist_act);
@@ -68,7 +68,7 @@ void moisture_callback(const gn_leaf_config_handle_t moist) {
 
 }
 
-void temp_callback(const gn_leaf_config_handle_t temp) {
+void temp_callback(const gn_leaf_handle_t temp) {
 
 	double temp_act;
 	gn_leaf_param_get_double(temp, GN_CMS_PARAM_ACT_LEVEL, &temp_act);
@@ -101,7 +101,7 @@ void temp_callback(const gn_leaf_config_handle_t temp) {
  * @brief
  *
  */
-void gn_configure_easypot1(gn_node_config_handle_t node) {
+void gn_configure_easypot1(gn_node_handle_t node) {
 
 	//leaves
 	//esp_log_level_set("gn_leaf_led", ESP_LOG_INFO);

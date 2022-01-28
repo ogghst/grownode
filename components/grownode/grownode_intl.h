@@ -54,7 +54,7 @@ struct gn_config_t {
 	wifi_prov_mgr_config_t prov_config;
 	char deviceName[17];
 	uint8_t macAddress[6];
-	gn_config_status_t status;
+	gn_node_status_t status;
 	gn_node_config_handle_intl_t node_config;
 	gn_config_init_param_t* config_init_params;
 
@@ -97,7 +97,7 @@ struct gn_leaf_param {
 	gn_leaf_param_visibility_t access;
 	gn_leaf_param_storage_t storage;
 	gn_param_val_handle_t param_val;
-	gn_leaf_config_handle_t leaf_config;
+	gn_leaf_handle_t leaf_config;
 	gn_validator_t validator;
 	struct gn_leaf_param *next;
 };
@@ -136,7 +136,7 @@ typedef gn_leaf_param_t *gn_leaf_param_handle_intl_t;
 gn_err_t _gn_send_event_to_leaf(gn_leaf_config_handle_intl_t leaf_config,
 		gn_leaf_parameter_event_handle_t evt);
 
-gn_err_t _gn_leaf_parameter_update(const gn_leaf_config_handle_t leaf_config,
+gn_err_t _gn_leaf_parameter_update(const gn_leaf_handle_t leaf_config,
 		const char *param, const void *data, const int data_len);
 
 #endif /* COMPONENTS_GROWNODE_SROWNODE_INTL_H_ */

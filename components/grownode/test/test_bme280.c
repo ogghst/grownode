@@ -29,12 +29,12 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 		int32_t event_id, void *event_data);
 
 void _gn_mqtt_build_leaf_parameter_command_topic(
-		const gn_leaf_config_handle_t _leaf_config, const char *param_name, char *buf);
+		const gn_leaf_handle_t _leaf_config, const char *param_name, char *buf);
 
 extern gn_config_handle_t config;
-extern gn_node_config_handle_t node_config;
+extern gn_node_handle_t node_config;
 
-gn_leaf_config_handle_t bme280_config;
+gn_leaf_handle_t bme280_config;
 
 TEST_CASE("gn_init_add_bme280", "[bme280]") {
 	config = gn_init();

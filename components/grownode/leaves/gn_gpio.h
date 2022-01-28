@@ -29,9 +29,9 @@ static const char GN_GPIO_PARAM_TOGGLE[] = "status"; /*!< 0 = off, 1 = on */
 static const char GN_GPIO_PARAM_INVERTED[] = "inverted"; /*!< 0 = off, 1 = on */
 static const char GN_GPIO_PARAM_GPIO[] = "gpio"; /*!< the GPIO to connect the relay */
 
-gn_leaf_descriptor_handle_t gn_gpio_config(gn_leaf_config_handle_t leaf_config);
+gn_leaf_descriptor_handle_t gn_gpio_config(gn_leaf_handle_t leaf_config);
 
-gn_leaf_config_handle_t gn_gpio_fastcreate(gn_node_config_handle_t node, const char* leaf_name, int gpio, bool inverted, bool toggled);
+gn_leaf_handle_t gn_gpio_fastcreate(gn_node_handle_t node, const char* leaf_name, int gpio, bool inverted, bool toggled);
 
 #ifdef __cplusplus
 }

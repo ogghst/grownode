@@ -30,7 +30,7 @@ static const char GN_LED_PARAM_INVERTED[] = "inverted"; /*!< 0 = off, 1 = on */
 static const char GN_LED_PARAM_BLINK_TIME_MS[] = "blinktime"; /*!< 0 = off */
 static const char GN_LED_PARAM_GPIO[] = "gpio"; /*!< the GPIO to connect the relay */
 
-gn_leaf_descriptor_handle_t gn_led_config(gn_leaf_config_handle_t leaf_config);
+gn_leaf_descriptor_handle_t gn_led_config(gn_leaf_handle_t leaf_config);
 
 
 #ifdef __cplusplus

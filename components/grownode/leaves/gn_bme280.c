@@ -58,7 +58,7 @@ typedef struct {
 
 } gn_bme280_data_t;
 
-void bme280_sensor_collect(gn_leaf_config_handle_t leaf_config) {
+void bme280_sensor_collect(gn_leaf_handle_t leaf_config) {
 
 	ESP_LOGD(TAG, "bme280_sensor_collect");
 
@@ -94,10 +94,10 @@ void bme280_sensor_collect(gn_leaf_config_handle_t leaf_config) {
 
 }
 
-void gn_bme280_task(gn_leaf_config_handle_t leaf_config);
+void gn_bme280_task(gn_leaf_handle_t leaf_config);
 
 gn_leaf_descriptor_handle_t gn_bme280_config(
-		gn_leaf_config_handle_t leaf_config) {
+		gn_leaf_handle_t leaf_config) {
 
 	gn_leaf_descriptor_handle_t descriptor =
 			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
@@ -153,7 +153,7 @@ gn_leaf_descriptor_handle_t gn_bme280_config(
 
 }
 
-void gn_bme280_task(gn_leaf_config_handle_t leaf_config) {
+void gn_bme280_task(gn_leaf_handle_t leaf_config) {
 
 	gn_leaf_parameter_event_t evt;
 

@@ -21,7 +21,7 @@ extern "C" {
 
 #include "grownode.h"
 
-void gn_configure_hydroboard2(gn_node_config_handle_t node);
+void gn_configure_hydroboard2(gn_node_handle_t node);
 
 #ifdef __cplusplus
 }

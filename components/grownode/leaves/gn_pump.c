@@ -54,9 +54,9 @@ typedef struct {
 
 } gn_pump_data_t;
 
-void gn_pump_task(gn_leaf_config_handle_t leaf_config);
+void gn_pump_task(gn_leaf_handle_t leaf_config);
 
-gn_leaf_descriptor_handle_t gn_pump_config(gn_leaf_config_handle_t leaf_config) {
+gn_leaf_descriptor_handle_t gn_pump_config(gn_leaf_handle_t leaf_config) {
 
 	gn_leaf_descriptor_handle_t descriptor =
 			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
@@ -103,7 +103,7 @@ gn_leaf_descriptor_handle_t gn_pump_config(gn_leaf_config_handle_t leaf_config) 
 
 }
 
-void gn_pump_task(gn_leaf_config_handle_t leaf_config) {
+void gn_pump_task(gn_leaf_handle_t leaf_config) {
 
 	bool need_update = true;
 

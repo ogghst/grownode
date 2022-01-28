@@ -46,7 +46,7 @@ extern "C" {
 
 size_t pump_status = 0;
 
-void gn_pump_control_task(gn_leaf_config_handle_t leaf_config);
+void gn_pump_control_task(gn_leaf_handle_t leaf_config);
 
 void gn_pump_control_task_event_handler(void *handler_args,
 		esp_event_base_t base, int32_t event_id, void *event_data) {
@@ -119,7 +119,7 @@ void gn_pump_control_task_event_handler(void *handler_args,
 
 
 gn_leaf_descriptor_handle_t gn_pump_control_config(
-		gn_leaf_config_handle_t leaf_config) {
+		gn_leaf_handle_t leaf_config) {
 
 	gn_leaf_descriptor_handle_t descriptor =
 			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
@@ -135,7 +135,7 @@ gn_leaf_descriptor_handle_t gn_pump_control_config(
 
 }
 
-void gn_pump_control_task(gn_leaf_config_handle_t leaf_config) {
+void gn_pump_control_task(gn_leaf_handle_t leaf_config) {
 
 	char leaf_name[GN_LEAF_NAME_SIZE];
 	gn_leaf_get_name(leaf_config, leaf_name);

@@ -53,7 +53,7 @@ extern "C" {
  * @return	an handle to the leaf initialized
  * @return	NULL		in case of errors
  */
-gn_leaf_config_handle_t gn_gpio_fastcreate(gn_node_config_handle_t node,
+gn_leaf_handle_t gn_gpio_fastcreate(gn_node_handle_t node,
 		const char *leaf_name, int gpio, bool inverted, bool toggled) {
 
 	if (node == NULL) {
@@ -72,7 +72,7 @@ gn_leaf_config_handle_t gn_gpio_fastcreate(gn_node_config_handle_t node,
 	}
 
 	//creates the blink leave
-	gn_leaf_config_handle_t leaf = gn_leaf_create(node, leaf_name,
+	gn_leaf_handle_t leaf = gn_leaf_create(node, leaf_name,
 			gn_gpio_config, 4096);
 
 	if (leaf == NULL) {
@@ -88,7 +88,7 @@ gn_leaf_config_handle_t gn_gpio_fastcreate(gn_node_config_handle_t node,
 
 }
 
-void gn_gpio_task(gn_leaf_config_handle_t leaf_config);
+void gn_gpio_task(gn_leaf_handle_t leaf_config);
 
 typedef struct {
 	gn_leaf_param_handle_t gn_gpio_status_param;
@@ -96,7 +96,7 @@ typedef struct {
 	gn_leaf_param_handle_t gn_gpio_gpio_param;
 } gn_gpio_data_t;
 
-gn_leaf_descriptor_handle_t gn_gpio_config(gn_leaf_config_handle_t leaf_config) {
+gn_leaf_descriptor_handle_t gn_gpio_config(gn_leaf_handle_t leaf_config) {
 
 	gn_leaf_descriptor_handle_t descriptor =
 			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
@@ -131,7 +131,7 @@ gn_leaf_descriptor_handle_t gn_gpio_config(gn_leaf_config_handle_t leaf_config) 
 
 }
 
-void gn_gpio_task(gn_leaf_config_handle_t leaf_config) {
+void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 
 	char leaf_name[GN_LEAF_NAME_SIZE];
 	gn_leaf_get_name(leaf_config, leaf_name);

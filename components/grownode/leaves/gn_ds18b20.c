@@ -37,7 +37,7 @@ extern "C" {
 const size_t GN_DS18B20_STATE_STOP = 0;
 const size_t GN_DS18B20_STATE_RUNNING = 1;
 
-void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config);
+void gn_ds18b20_task(gn_leaf_handle_t leaf_config);
 
 void _scan_sensors(int gpio, size_t *sensor_count, ds18x20_addr_t *addrs) {
 
@@ -104,7 +104,7 @@ gn_leaf_param_validator_result_t _gn_upd_time_sec_validator(
 
 }
 
-void gn_ds18b20_temp_sensor_collect(gn_leaf_config_handle_t leaf_config) {
+void gn_ds18b20_temp_sensor_collect(gn_leaf_handle_t leaf_config) {
 
 	char leaf_name[GN_LEAF_NAME_SIZE];
 	gn_leaf_get_name(leaf_config, leaf_name);
@@ -165,7 +165,7 @@ void gn_ds18b20_temp_sensor_collect(gn_leaf_config_handle_t leaf_config) {
 }
 
 gn_leaf_descriptor_handle_t gn_ds18b20_config(
-		gn_leaf_config_handle_t leaf_config) {
+		gn_leaf_handle_t leaf_config) {
 
 	char leaf_name[GN_LEAF_NAME_SIZE];
 	gn_leaf_get_name(leaf_config, leaf_name);
@@ -219,7 +219,7 @@ gn_leaf_descriptor_handle_t gn_ds18b20_config(
 
 }
 
-void gn_ds18b20_task(gn_leaf_config_handle_t leaf_config) {
+void gn_ds18b20_task(gn_leaf_handle_t leaf_config) {
 
 	gn_leaf_parameter_event_t evt;
 

@@ -290,8 +290,8 @@ void _gn_evt_handler(void *handler_args, esp_event_base_t base, int32_t id,
 			break;
 
 		//from unknown status: reboot - to keep consistency
-		if (_gn_default_conf->status != GN_CONFIG_STATUS_READY_TO_START
-				&& _gn_default_conf->status != GN_CONFIG_STATUS_STARTED) {
+		if (_gn_default_conf->status != GN_NODE_STATUS_READY_TO_START
+				&& _gn_default_conf->status != GN_NODE_STATUS_STARTED) {
 			gn_reboot();
 			break;
 		}
@@ -398,7 +398,7 @@ gn_config_handle_intl_t _gn_config_create(gn_config_init_param_t *config_init) {
 
 	gn_config_handle_intl_t _conf = (gn_config_handle_intl_t) malloc(
 			sizeof(struct gn_config_t));
-	_conf->status = GN_CONFIG_STATUS_INITIALIZING;
+	_conf->status = GN_NODE_STATUS_INITIALIZING;
 
 	_conf->config_init_params = config_init;
 
@@ -406,40 +406,40 @@ gn_config_handle_intl_t _gn_config_create(gn_config_init_param_t *config_init) {
 
 	if (config_init->provisioning_security
 			&& !config_init->provisioning_password) {
-		_conf->status = GN_CONFIG_STATUS_ERROR_MISSING_PROVISIONING_PASSWORD;
+		_conf->status = GN_NDOE_STATUS_ERROR_MISSING_PROVISIONING_PASSWORD;
 		return _conf;
 	}
 
 	if (!config_init->server_base_topic) {
-		_conf->status = GN_CONFIG_STATUS_ERROR_MISSING_SERVER_BASE_TOPIC;
+		_conf->status = GN_NODE_STATUS_ERROR_MISSING_SERVER_BASE_TOPIC;
 		return _conf;
 	}
 
 	if (!config_init->server_url) {
-		_conf->status = GN_CONFIG_STATUS_ERROR_MISSING_SERVER_URL;
+		_conf->status = GN_NODE_STATUS_ERROR_MISSING_SERVER_URL;
 		return _conf;
 	}
 
 	if (config_init->server_keepalive_timer_sec <= 0
 			|| config_init->server_keepalive_timer_sec
 					> GN_CONFIG_MAX_SERVER_KEEPALIVE_SEC) {
-		_conf->status = GN_CONFIG_STATUS_ERROR_BAD_SERVER_KEEPALIVE_SEC;
+		_conf->status = GN_NODE_STATUS_ERROR_BAD_SERVER_KEEPALIVE_SEC;
 		return _conf;
 	}
 
 	if (config_init->server_discovery
 			&& !config_init->server_discovery_prefix) {
-		_conf->status = GN_CONFIG_STATUS_ERROR_MISSING_SERVER_DISCOVERY_PREFIX;
+		_conf->status = GN_NODE_STATUS_ERROR_MISSING_SERVER_DISCOVERY_PREFIX;
 		return _conf;
 	}
 
 	if (!config_init->firmware_url) {
-		_conf->status = GN_CONFIG_STATUS_ERROR_MISSING_FIRMWARE_URL;
+		_conf->status = GN_NODE_STATUS_ERROR_MISSING_FIRMWARE_URL;
 		return _conf;
 	}
 
 	if (!config_init->sntp_url) {
-		_conf->status = GN_CONFIG_STATUS_ERROR_MISSING_SNTP_URL;
+		_conf->status = GN_NODE_STATUS_ERROR_MISSING_SNTP_URL;
 		return _conf;
 	}
 
@@ -544,10 +544,10 @@ gn_node_config_handle_intl_t _gn_node_config_create() {
  * 	@return GN_CONFIG_STATUS_ERROR if config is NULL
  * 	@return the configuration status
  */
-inline gn_config_status_t gn_get_status(gn_config_handle_t config) {
+inline gn_node_status_t gn_get_status(gn_config_handle_t config) {
 
 	if (!config)
-		return GN_CONFIG_STATUS_ERROR;
+		return GN_NODE_STATUS_ERROR;
 	return ((gn_config_handle_intl_t) config)->status;
 
 }
@@ -563,7 +563,7 @@ inline gn_config_status_t gn_get_status(gn_config_handle_t config) {
 inline const char* gn_get_status_description(gn_config_handle_t config) {
 
 	if (!config)
-		return gn_config_status_descriptions[GN_CONFIG_STATUS_ERROR];
+		return gn_config_status_descriptions[GN_NODE_STATUS_ERROR];
 	return gn_config_status_descriptions[((gn_config_handle_intl_t) config)->status];
 
 }
@@ -593,7 +593,7 @@ esp_event_loop_handle_t gn_get_event_loop(gn_config_handle_t config) {
  * 	@return NULL if leaf config not valid
  */
 esp_event_loop_handle_t gn_leaf_get_event_loop(
-		gn_leaf_config_handle_t leaf_config) {
+		gn_leaf_handle_t leaf_config) {
 
 	if (!leaf_config)
 		return NULL;
@@ -609,7 +609,7 @@ esp_event_loop_handle_t gn_leaf_get_event_loop(
  *
  * 	@return		the node handle created.
  */
-gn_node_config_handle_t gn_node_create(gn_config_handle_t config,
+gn_node_handle_t gn_node_create(gn_config_handle_t config,
 		const char *name) {
 
 	if (config == NULL
@@ -642,7 +642,7 @@ gn_node_config_handle_t gn_node_create(gn_config_handle_t config,
  *
  * @return		number of leaves into the node, -1 in case node_config is NULL
  */
-size_t gn_node_get_size(gn_node_config_handle_t node_config) {
+size_t gn_node_get_size(gn_node_handle_t node_config) {
 
 	if (node_config == NULL)
 		return -1;
@@ -657,7 +657,7 @@ size_t gn_node_get_size(gn_node_config_handle_t node_config) {
  *
  * @return		GN_RET_OK if operation had succeded
  */
-gn_err_t gn_node_destroy(gn_node_config_handle_t node) {
+gn_err_t gn_node_destroy(gn_node_handle_t node) {
 
 	//free(((gn_node_config_handle_intl_t) node)->leaves->at); //TODO implement free of leaves
 	free((gn_node_config_handle_intl_t) node);
@@ -674,7 +674,7 @@ gn_err_t gn_node_destroy(gn_node_config_handle_t node) {
  *
  * @return		GN_RET_OK if operation had succeded, GN_RET_ERR_NODE_NOT_STARTED in case of issues
  */
-gn_err_t gn_node_start(gn_node_config_handle_t node) {
+gn_err_t gn_node_start(gn_node_handle_t node) {
 
 	gn_node_config_handle_intl_t _node = (gn_node_config_handle_intl_t) node;
 
@@ -694,7 +694,7 @@ gn_err_t gn_node_start(gn_node_config_handle_t node) {
 			return GN_RET_ERR_NODE_NOT_STARTED;
 	}
 
-	_node->config->status = GN_CONFIG_STATUS_STARTED;
+	_node->config->status = GN_NODE_STATUS_STARTED;
 
 	if (ESP_OK
 			!= esp_event_post_to(_node->config->event_loop, GN_BASE_EVENT,
@@ -734,7 +734,7 @@ gn_leaf_config_handle_intl_t _gn_leaf_config_create() {
  *	@return 	GN_RET_OK if everything OK
  *
  */
-gn_err_t gn_node_get_name(gn_node_config_handle_t node_config, char *name) {
+gn_err_t gn_node_get_name(gn_node_handle_t node_config, char *name) {
 
 	if (!node_config)
 		return GN_RET_ERR_INVALID_ARG;
@@ -759,7 +759,7 @@ gn_err_t gn_node_get_name(gn_node_config_handle_t node_config, char *name) {
  *	@return		NULL if the handle cannot be created
  *
  */
-gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
+gn_leaf_handle_t gn_leaf_create(gn_node_handle_t node_config,
 		const char *name, gn_leaf_config_callback leaf_config, size_t task_size) { //, gn_leaf_display_task_t display_task) {
 
 	gn_node_config_handle_intl_t node_cfg =
@@ -811,11 +811,11 @@ gn_leaf_config_handle_t gn_leaf_create(gn_node_config_handle_t node_config,
  * returns the descriptor handle for the corresponding leaf
  */
 gn_leaf_descriptor_handle_t gn_leaf_get_descriptor(
-		gn_leaf_config_handle_t leaf_config) {
+		gn_leaf_handle_t leaf_config) {
 	return ((gn_leaf_config_handle_intl_t) leaf_config)->leaf_descriptor;
 }
 
-gn_err_t _gn_leaf_destroy(gn_leaf_config_handle_t leaf_config) {
+gn_err_t _gn_leaf_destroy(gn_leaf_handle_t leaf_config) {
 
 	gn_leaf_config_handle_intl_t _leaf_config =
 			((gn_leaf_config_handle_intl_t) leaf_config);
@@ -837,7 +837,7 @@ gn_err_t _gn_leaf_destroy(gn_leaf_config_handle_t leaf_config) {
  *	@return 	GN_RET_OK if everything OK
  *
  */
-gn_err_t gn_leaf_get_name(gn_leaf_config_handle_t leaf_config, char *name) {
+gn_err_t gn_leaf_get_name(gn_leaf_handle_t leaf_config, char *name) {
 
 	if (!leaf_config)
 		return GN_RET_ERR_INVALID_ARG;
@@ -857,7 +857,7 @@ gn_err_t gn_leaf_get_name(gn_leaf_config_handle_t leaf_config, char *name) {
  * @return 		the leaf handle
  * @return		NULL if not found
  */
-gn_leaf_config_handle_t gn_leaf_get_config_handle(gn_node_config_handle_t node,
+gn_leaf_handle_t gn_leaf_get_config_handle(gn_node_handle_t node,
 		const char *name) {
 
 	if (!name || !node)
@@ -887,7 +887,7 @@ gn_leaf_config_handle_t gn_leaf_get_config_handle(gn_node_config_handle_t node,
  * @return					the node
  * @return					NULL if not present or leaf config is NULL
  */
-gn_node_config_handle_t gn_leaf_get_node(gn_leaf_config_handle_t leaf_config) {
+gn_node_handle_t gn_leaf_get_node(gn_leaf_handle_t leaf_config) {
 
 	if (!leaf_config)
 		return NULL;
@@ -903,7 +903,7 @@ gn_node_config_handle_t gn_leaf_get_node(gn_leaf_config_handle_t leaf_config) {
  * 	@return	the queue handle
  * 	@return NULL if leaf not found
  */
-QueueHandle_t gn_leaf_get_event_queue(gn_leaf_config_handle_t leaf_config) {
+QueueHandle_t gn_leaf_get_event_queue(gn_leaf_handle_t leaf_config) {
 //TODO find a way to hide the freertos structure
 	if (!leaf_config)
 		return NULL;
@@ -970,7 +970,7 @@ void _gn_leaf_evt_handler(void *handler_args, esp_event_base_t base, int32_t id,
  *
  * @return GN_RET_OK if successful
  */
-gn_err_t gn_leaf_event_subscribe(gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_event_subscribe(gn_leaf_handle_t leaf_config,
 		gn_event_id_t event_id) {
 
 	if (!leaf_config)
@@ -996,7 +996,7 @@ gn_err_t gn_leaf_event_subscribe(gn_leaf_config_handle_t leaf_config,
  *
  * @return GN_RET_OK if successful
  */
-gn_err_t gn_leaf_event_unsubscribe(gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_event_unsubscribe(gn_leaf_handle_t leaf_config,
 		gn_event_id_t event_id) {
 
 	if (!leaf_config)
@@ -1032,7 +1032,7 @@ gn_err_t gn_leaf_event_unsubscribe(gn_leaf_config_handle_t leaf_config,
  * @return 	the new parameter handle
  * @return	NULL in case of errors
  */
-gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
+gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
 		const char *name, const gn_val_type_t type, gn_val_t val,
 		gn_leaf_param_visibility_t access, gn_leaf_param_storage_t storage,
 		gn_validator_t validator) {
@@ -1161,7 +1161,7 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_config_handle_t leaf_config,
  * 	@return GN_RET_OK if the parameter is set
  * 	@return GN_RET_ERR_INVALID_ARG in case of input errors
  */
-gn_err_t gn_leaf_param_init_string(const gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_param_init_string(const gn_leaf_handle_t leaf_config,
 		const char *name, const char *val) {
 
 	if (!leaf_config || !name || !val)
@@ -1258,7 +1258,7 @@ gn_err_t gn_leaf_param_init_string(const gn_leaf_config_handle_t leaf_config,
  * 	@return GN_RET_ERR_INVALID_ARG in case of input errors
  * 	@return GN_RET_ERR in case of messaging error
  */
-gn_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_param_set_string(const gn_leaf_handle_t leaf_config,
 		const char *name, char *val) {
 
 	if (!leaf_config || !name || !val)
@@ -1357,7 +1357,7 @@ gn_err_t gn_leaf_param_set_string(const gn_leaf_config_handle_t leaf_config,
  * 	@return GN_RET_OK if the parameter is set
  * 	@return GN_RET_ERR_INVALID_ARG if the parameter is not found
  */
-gn_err_t gn_leaf_param_get_string(const gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_param_get_string(const gn_leaf_handle_t leaf_config,
 		const char *name, char *val, size_t max_lenght) {
 
 	if (!leaf_config || !name)
@@ -1395,7 +1395,7 @@ gn_err_t gn_leaf_param_get_string(const gn_leaf_config_handle_t leaf_config,
  * 	@return GN_RET_OK if the parameter is set
  * 	@return GN_RET_ERR_INVALID_ARG in case of input errors
  */
-gn_err_t gn_leaf_param_init_bool(const gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_param_init_bool(const gn_leaf_handle_t leaf_config,
 		const char *name, bool val) {
 
 	if (!leaf_config || !name)
@@ -1496,7 +1496,7 @@ gn_err_t gn_leaf_param_init_bool(const gn_leaf_config_handle_t leaf_config,
  * 	@return GN_RET_OK if the parameter is set
  * 	@return GN_RET_ERR_INVALID_ARG in case of input errors
  */
-gn_err_t gn_leaf_param_set_bool(const gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_param_set_bool(const gn_leaf_handle_t leaf_config,
 		const char *name, bool val) {
 
 	if (!leaf_config || !name)
@@ -1629,7 +1629,7 @@ gn_err_t gn_leaf_param_set_value(const gn_leaf_param_handle_t param_handle,
 
 }
 
-gn_err_t gn_leaf_param_get_bool(const gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_param_get_bool(const gn_leaf_handle_t leaf_config,
 		const char *name, bool *val) {
 
 	if (leaf_config == NULL || name == NULL)
@@ -1667,7 +1667,7 @@ gn_err_t gn_leaf_param_get_bool(const gn_leaf_config_handle_t leaf_config,
  * 	@return GN_RET_OK if the parameter is set
  * 	@return GN_RET_ERR_INVALID_ARG in case of input errors
  */
-gn_err_t gn_leaf_param_init_double(const gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_param_init_double(const gn_leaf_handle_t leaf_config,
 		const char *name, double val) {
 
 	if (!leaf_config || !name) {
@@ -1771,7 +1771,7 @@ gn_err_t gn_leaf_param_init_double(const gn_leaf_config_handle_t leaf_config,
  * 	@return GN_RET_OK if the parameter is set
  * 	@return GN_RET_ERR_INVALID_ARG in case of input errors
  */
-gn_err_t gn_leaf_param_set_double(const gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_param_set_double(const gn_leaf_handle_t leaf_config,
 		const char *name, double val) {
 
 	if (!leaf_config || !name)
@@ -1889,7 +1889,7 @@ gn_err_t gn_leaf_param_get_value(const gn_leaf_param_handle_t param, void *val) 
 
 }
 
-gn_err_t gn_leaf_param_get_double(const gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_param_get_double(const gn_leaf_handle_t leaf_config,
 		const char *name, double *val) {
 
 	if (!leaf_config || !name)
@@ -1920,7 +1920,7 @@ gn_err_t gn_leaf_param_get_double(const gn_leaf_config_handle_t leaf_config,
  *
  * @return ESP_OK if parameter is changed,
  */
-gn_err_t _gn_leaf_parameter_update(const gn_leaf_config_handle_t leaf_config,
+gn_err_t _gn_leaf_parameter_update(const gn_leaf_handle_t leaf_config,
 		const char *param, const void *data, const int data_len) {
 
 	if (!leaf_config || !param || !data || data_len == 0)
@@ -1998,7 +1998,7 @@ gn_err_t _gn_leaf_param_destroy(gn_leaf_param_handle_t param) {
  * @return   	GN_RET_ERR_INVALID_ARG	in case of parameter errors
  * @return		GN_RET_OK				upon success
  */
-gn_err_t gn_leaf_param_add_to_leaf(const gn_leaf_config_handle_t leaf,
+gn_err_t gn_leaf_param_add_to_leaf(const gn_leaf_handle_t leaf,
 		const gn_leaf_param_handle_t param) {
 
 	gn_leaf_param_handle_intl_t new_param = (gn_leaf_param_handle_intl_t) param;
@@ -2066,7 +2066,7 @@ gn_err_t gn_leaf_param_add_to_leaf(const gn_leaf_config_handle_t leaf,
  * @return		GN_RET_OK				upon success
  */
 gn_err_t gn_send_node_leaf_param_status(
-		const gn_node_config_handle_t _node_config) {
+		const gn_node_handle_t _node_config) {
 
 	gn_node_config_handle_intl_t node_config =
 			(gn_node_config_handle_intl_t) _node_config;
@@ -2156,7 +2156,7 @@ gn_err_t gn_send_leaf_param_change_message(const char *leaf_name,
  * 	@return GN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION in case the parameter access is not write enable
 
  */
-gn_err_t gn_leaf_param_update_bool(const gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_param_update_bool(const gn_leaf_handle_t leaf_config,
 		const char *name, bool val) {
 	if (leaf_config == NULL || name == NULL) {
 		gn_log(TAG, GN_LOG_ERROR, "gn_leaf_param_send_bool - invalid args");
@@ -2187,7 +2187,7 @@ gn_err_t gn_leaf_param_update_bool(const gn_leaf_config_handle_t leaf_config,
  * 	@return GN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION in case the parameter access is not write enable
 
  */
-gn_err_t gn_leaf_param_update_double(const gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_param_update_double(const gn_leaf_handle_t leaf_config,
 		const char *name, double val) {
 	if (leaf_config == NULL || name == NULL) {
 		gn_log(TAG, GN_LOG_ERROR, "gn_leaf_param_send_bool - invalid args");
@@ -2218,7 +2218,7 @@ gn_err_t gn_leaf_param_update_double(const gn_leaf_config_handle_t leaf_config,
  * 	@return GN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION in case the parameter access is not write enable
 
  */
-gn_err_t gn_leaf_param_update_string(const gn_leaf_config_handle_t leaf_config,
+gn_err_t gn_leaf_param_update_string(const gn_leaf_handle_t leaf_config,
 		const char *name, char *val) {
 	if (leaf_config == NULL || name == NULL) {
 		gn_log(TAG, GN_LOG_ERROR, "gn_leaf_param_send_bool - invalid args");
@@ -2242,7 +2242,7 @@ gn_err_t gn_leaf_param_update_string(const gn_leaf_config_handle_t leaf_config,
  *	@return NULL if leaf_config is not found
  *	@return the first parameter handle
  */
-gn_leaf_param_handle_t gn_leaf_get_params(gn_leaf_config_handle_t leaf_config) {
+gn_leaf_param_handle_t gn_leaf_get_params(gn_leaf_handle_t leaf_config) {
 
 	if (!leaf_config)
 		return NULL;
@@ -2260,7 +2260,7 @@ gn_leaf_param_handle_t gn_leaf_get_params(gn_leaf_config_handle_t leaf_config) {
  *	@return the found parameter handle
  */
 gn_leaf_param_handle_t gn_leaf_param_get_param_handle(
-		const gn_leaf_config_handle_t leaf_config, const char *param_name) {
+		const gn_leaf_handle_t leaf_config, const char *param_name) {
 
 	if (leaf_config == NULL || param_name == NULL) {
 		gn_log(TAG, GN_LOG_ERROR, "gn_leaf_param_get incorrect parameters");
@@ -2289,7 +2289,7 @@ gn_leaf_param_handle_t gn_leaf_param_get_param_handle(
 
 }
 
-void* _gn_leaf_context_add_to_leaf(const gn_leaf_config_handle_t leaf,
+void* _gn_leaf_context_add_to_leaf(const gn_leaf_handle_t leaf,
 		char *key, void *value) {
 
 	if (!leaf || !key || !value) {
@@ -2305,7 +2305,7 @@ void* _gn_leaf_context_add_to_leaf(const gn_leaf_config_handle_t leaf,
 	return gn_leaf_context_set(leaf_config->leaf_context, key, value);
 }
 
-void* _gn_leaf_context_remove_to_leaf(const gn_leaf_config_handle_t leaf,
+void* _gn_leaf_context_remove_to_leaf(const gn_leaf_handle_t leaf,
 		char *key) {
 
 	if (!leaf || !key) {
@@ -2322,7 +2322,7 @@ void* _gn_leaf_context_remove_to_leaf(const gn_leaf_config_handle_t leaf,
 	return gn_leaf_context_delete(leaf_config->leaf_context, key);
 }
 
-void* _gn_leaf_context_get_key_to_leaf(const gn_leaf_config_handle_t leaf,
+void* _gn_leaf_context_get_key_to_leaf(const gn_leaf_handle_t leaf,
 		char *key) {
 
 	if (!leaf || !key) {
@@ -2573,7 +2573,7 @@ gn_config_handle_t gn_init(gn_config_init_param_t *config_init) {
 
 	_gn_default_conf = _gn_config_create(config_init);
 
-	if (_gn_default_conf->status != GN_CONFIG_STATUS_INITIALIZING) {
+	if (_gn_default_conf->status != GN_NODE_STATUS_INITIALIZING) {
 		return _gn_default_conf;
 	}
 
@@ -2619,16 +2619,16 @@ gn_config_handle_t gn_init(gn_config_init_param_t *config_init) {
 #endif
 
 	ESP_LOGI(TAG, "grownode startup sequence completed!");
-	_gn_default_conf->status = GN_CONFIG_STATUS_READY_TO_START;
+	_gn_default_conf->status = GN_NODE_STATUS_READY_TO_START;
 	return _gn_default_conf;
 
-	err: _gn_default_conf->status = GN_CONFIG_STATUS_ERROR;
+	err: _gn_default_conf->status = GN_NODE_STATUS_ERROR;
 	return _gn_default_conf;
 
 #if CONFIG_GROWNODE_WIFI_ENABLED
-	err_net: _gn_default_conf->status = GN_CONFIG_STATUS_NETWORK_ERROR;
+	err_net: _gn_default_conf->status = GN_NODE_STATUS_NETWORK_ERROR;
 	return _gn_default_conf;
-	err_srv: _gn_default_conf->status = GN_CONFIG_STATUS_SERVER_ERROR;
+	err_srv: _gn_default_conf->status = GN_NODE_STATUS_SERVER_ERROR;
 	return _gn_default_conf;
 #endif
 

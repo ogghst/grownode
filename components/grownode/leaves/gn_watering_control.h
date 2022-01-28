@@ -44,7 +44,7 @@ static const char GN_WAT_CTR_PARAM_ACTIVE[] = "active";
 
 static const int32_t GN_WAT_CTR_CYCLE_TIME_MS = 1000L;
 
-gn_leaf_descriptor_handle_t gn_watering_control_config(gn_leaf_config_handle_t leaf_config);
+gn_leaf_descriptor_handle_t gn_watering_control_config(gn_leaf_handle_t leaf_config);
 
 #ifdef __cplusplus
 }

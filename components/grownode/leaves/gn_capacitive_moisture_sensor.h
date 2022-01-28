@@ -34,7 +34,7 @@ static const char GN_CMS_PARAM_TRG_HIGH[] = "trg_hig"; /*!< water level above ma
 static const char GN_CMS_PARAM_TRG_LOW[] = "trg_low"; /*!<  water level below min level = 1. volatile, read only */
 static const char GN_CMS_PARAM_UPDATE_TIME_SEC[] = "upd_time_sec"; /*!< seconds between sensor sampling. stored, read/write */
 
-gn_leaf_descriptor_handle_t gn_capacitive_moisture_sensor_config(gn_leaf_config_handle_t leaf_config);
+gn_leaf_descriptor_handle_t gn_capacitive_moisture_sensor_config(gn_leaf_handle_t leaf_config);
 
 #ifdef __cplusplus
 }

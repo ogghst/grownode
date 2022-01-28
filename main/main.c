@@ -65,14 +65,14 @@ void app_main(void) {
 	gn_config_handle_t config = gn_init(&config_init);
 
 	//waits until the config process ends
-	while (gn_get_status(config) != GN_CONFIG_STATUS_READY_TO_START) {
+	while (gn_get_status(config) != GN_NODE_STATUS_READY_TO_START) {
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 		ESP_LOGI(TAG, "grownode startup status: %s",
 				gn_get_status_description(config));
 	}
 
 	//creates a new node
-	gn_node_config_handle_t node = gn_node_create(config, "node");
+	gn_node_handle_t node = gn_node_create(config, "node");
 
 	//the board to start
 	gn_configure_blink(node);

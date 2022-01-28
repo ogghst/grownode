@@ -34,7 +34,7 @@ static const char GN_BME280_PARAM_TEMP[] = "temp"; /*!< temperature recorded */
 static const char GN_BME280_PARAM_HUM[] = "hum"; /*!< humidity recorded */
 static const char GN_BME280_PARAM_PRESS[] = "press"; /*!< pressure recorded */
 
-gn_leaf_descriptor_handle_t gn_bme280_config(gn_leaf_config_handle_t leaf_config);
+gn_leaf_descriptor_handle_t gn_bme280_config(gn_leaf_handle_t leaf_config);
 
 #ifdef __cplusplus
 }

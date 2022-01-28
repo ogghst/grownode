@@ -22,7 +22,7 @@
 
 #define TAG "gn_blink"
 
-void led_blink_callback(const gn_leaf_config_handle_t blink) {
+void led_blink_callback(const gn_leaf_handle_t blink) {
 
 	bool status;
 	//gets the previous parameter status
@@ -46,10 +46,10 @@ void led_blink_callback(const gn_leaf_config_handle_t blink) {
  * Thanks to Adamo Ferro for the idea
  *
  */
-void gn_configure_blink(gn_node_config_handle_t node) {
+void gn_configure_blink(gn_node_handle_t node) {
 
 	//fastcreate call
-	gn_leaf_config_handle_t blink = gn_gpio_fastcreate(node, "blink", 2, false, false);
+	gn_leaf_handle_t blink = gn_gpio_fastcreate(node, "blink", 2, false, false);
 
 	//creates a timer that fires the led blinking every 5 seconds, using esp_timer API
 
