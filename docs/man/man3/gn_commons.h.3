@@ -1,4 +1,4 @@
-.TH "components/grownode/gn_commons.h" 3 "Thu Dec 30 2021" "GrowNode" \" -*- nroff -*-
+.TH "components/grownode/gn_commons.h" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -9,6 +9,9 @@ components/grownode/gn_commons.h
 .SS "Data Structures"
 
 .in +1c
+.ti -1c
+.RI "struct \fBgn_config_init_param_t\fP"
+.br
 .ti -1c
 .RI "struct \fBgn_leaf_parameter_event_t\fP"
 .br
@@ -49,10 +52,13 @@ components/grownode/gn_commons.h
 
 .in +1c
 .ti -1c
-.RI "typedef void * \fBgn_leaf_config_handle_t\fP"
+.RI "typedef struct \fBgn_config_init_param_t\fP * \fBgn_config_init_param_handle_t\fP"
 .br
 .ti -1c
-.RI "typedef void * \fBgn_node_config_handle_t\fP"
+.RI "typedef void * \fBgn_leaf_handle_t\fP"
+.br
+.ti -1c
+.RI "typedef void * \fBgn_node_handle_t\fP"
 .br
 .ti -1c
 .RI "typedef void * \fBgn_config_handle_t\fP"
@@ -67,13 +73,13 @@ components/grownode/gn_commons.h
 .RI "typedef \fBgn_node_event_t\fP * \fBgn_node_event_handle_t\fP"
 .br
 .ti -1c
-.RI "typedef void(* \fBgn_leaf_task_callback\fP) (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.RI "typedef void(* \fBgn_leaf_task_callback\fP) (\fBgn_leaf_handle_t\fP leaf_config)"
 .br
 .ti -1c
 .RI "typedef \fBgn_leaf_descriptor_t\fP * \fBgn_leaf_descriptor_handle_t\fP"
 .br
 .ti -1c
-.RI "typedef \fBgn_leaf_descriptor_handle_t\fP(* \fBgn_leaf_config_callback\fP) (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.RI "typedef \fBgn_leaf_descriptor_handle_t\fP(* \fBgn_leaf_config_callback\fP) (\fBgn_leaf_handle_t\fP leaf_config)"
 .br
 .ti -1c
 .RI "typedef void * \fBgn_leaf_param_handle_t\fP"
@@ -83,13 +89,13 @@ components/grownode/gn_commons.h
 
 .in +1c
 .ti -1c
-.RI "enum \fBgn_config_status_t\fP { \fBGN_CONFIG_STATUS_NOT_INITIALIZED\fP, \fBGN_CONFIG_STATUS_INITIALIZING\fP, \fBGN_CONFIG_STATUS_ERROR\fP, \fBGN_CONFIG_STATUS_NETWORK_ERROR\fP, \fBGN_CONFIG_STATUS_SERVER_ERROR\fP, \fBGN_CONFIG_STATUS_COMPLETED\fP, \fBGN_CONFIG_STATUS_STARTED\fP }"
+.RI "enum \fBgn_node_status_t\fP { \fBGN_NODE_STATUS_NOT_INITIALIZED\fP = 0, \fBGN_NODE_STATUS_INITIALIZING\fP = 1, \fBGN_NODE_STATUS_ERROR\fP = 2, \fBGN_NODE_STATUS_NETWORK_ERROR\fP = 3, \fBGN_NODE_STATUS_SERVER_ERROR\fP = 4, \fBGN_NODE_STATUS_READY_TO_START\fP = 5, \fBGN_NODE_STATUS_STARTED\fP = 6, \fBGN_NODE_STATUS_ERROR_MISSING_FIRMWARE_URL\fP = 7, \fBGN_NDOE_STATUS_ERROR_MISSING_PROVISIONING_PASSWORD\fP = 8, \fBGN_NODE_STATUS_ERROR_MISSING_SERVER_BASE_TOPIC\fP = 9, \fBGN_NODE_STATUS_ERROR_MISSING_SERVER_URL\fP = 10, \fBGN_NODE_STATUS_ERROR_BAD_SERVER_KEEPALIVE_SEC\fP = 11, \fBGN_NODE_STATUS_ERROR_MISSING_SNTP_URL\fP = 12, \fBGN_NODE_STATUS_ERROR_MISSING_SERVER_DISCOVERY_PREFIX\fP = 13 }"
 .br
 .ti -1c
 .RI "enum \fBgn_server_status_t\fP { \fBGN_SERVER_CONNECTED\fP, \fBGN_SERVER_DISCONNECTED\fP }"
 .br
 .ti -1c
-.RI "enum \fBgn_err_t\fP { \fBGN_RET_OK\fP = 0, \fBGN_RET_ERR\fP = -1, \fBGN_RET_ERR_INVALID_ARG\fP = 0x201, \fBGN_RET_ERR_LEAF_NOT_STARTED\fP = 0x202, \fBGN_RET_ERR_NODE_NOT_STARTED\fP = 0x203, \fBGN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION\fP = 0x204, \fBGN_RET_ERR_EVENT_LOOP_ERROR\fP = 0x205, \fBGN_RET_ERR_LEAF_NOT_FOUND\fP = 0x206, \fBGN_RET_ERR_EVENT_NOT_SENT\fP = 0x207, \fBGN_RET_ERR_MQTT_SUBSCRIBE\fP = 0x208 }"
+.RI "enum \fBgn_err_t\fP { \fBGN_RET_OK\fP = 0, \fBGN_RET_ERR\fP = -1, \fBGN_RET_ERR_INVALID_ARG\fP = 0x201, \fBGN_RET_ERR_LEAF_NOT_STARTED\fP = 0x202, \fBGN_RET_ERR_NODE_NOT_STARTED\fP = 0x203, \fBGN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION\fP = 0x204, \fBGN_RET_ERR_EVENT_LOOP_ERROR\fP = 0x205, \fBGN_RET_ERR_LEAF_NOT_FOUND\fP = 0x206, \fBGN_RET_ERR_EVENT_NOT_SENT\fP = 0x207, \fBGN_RET_ERR_MQTT_SUBSCRIBE\fP = 0x208, \fBGN_RET_ERR_MQTT_ERROR\fP = 0x209 }"
 .br
 .RI "error codes that the grownode functions can return\&. "
 .ti -1c
@@ -106,7 +112,7 @@ components/grownode/gn_commons.h
 .RI "enum \fBgn_val_type_t\fP { \fBGN_VAL_TYPE_STRING\fP, \fBGN_VAL_TYPE_BOOLEAN\fP, \fBGN_VAL_TYPE_DOUBLE\fP }"
 .br
 .ti -1c
-.RI "enum \fBgn_leaf_param_access_t\fP { \fBGN_LEAF_PARAM_ACCESS_WRITE\fP, \fBGN_LEAF_PARAM_ACCESS_READ\fP, \fBGN_LEAF_PARAM_ACCESS_READWRITE\fP }"
+.RI "enum \fBgn_leaf_param_visibility_t\fP { \fBGN_LEAF_PARAM_ACCESS_ALL\fP = 0x01, \fBGN_LEAF_PARAM_ACCESS_NETWORK\fP = 0x02, \fBGN_LEAF_PARAM_ACCESS_NODE\fP = 0x03, \fBGN_LEAF_PARAM_ACCESS_NODE_INTERNAL\fP = 0x04 }"
 .br
 .ti -1c
 .RI "enum \fBgn_leaf_param_storage_t\fP { \fBGN_LEAF_PARAM_STORAGE_PERSISTED\fP, \fBGN_LEAF_PARAM_STORAGE_VOLATILE\fP }"
@@ -116,13 +122,29 @@ components/grownode/gn_commons.h
 
 .in +1c
 .ti -1c
-.RI "size_t \fBgn_common_leaf_event_mask_param\fP (\fBgn_leaf_parameter_event_handle_t\fP evt, \fBgn_leaf_param_handle_t\fP param)"
+.RI "size_t \fBgn_leaf_event_mask_param\fP (\fBgn_leaf_parameter_event_handle_t\fP evt, \fBgn_leaf_param_handle_t\fP param)"
 .br
 .ti -1c
-.RI "uint64_t \fBgn_common_hash\fP (const char *key)"
+.RI "uint64_t \fBgn_hash\fP (const char *key)"
 .br
 .ti -1c
-.RI "void \fBgn_common_hash_str\fP (const char *key, char *buf, size_t len)"
+.RI "void \fBgn_hash_str\fP (const char *key, char *buf, size_t len)"
+.br
+.ti -1c
+.RI "\fBgn_leaf_param_validator_result_t\fP \fBgn_validator_double_positive\fP (\fBgn_leaf_param_handle_t\fP param, void **param_value)"
+.br
+.ti -1c
+.RI "\fBgn_leaf_param_validator_result_t\fP \fBgn_validator_double\fP (\fBgn_leaf_param_handle_t\fP param, void **param_value)"
+.br
+.ti -1c
+.RI "\fBgn_leaf_param_validator_result_t\fP \fBgn_validator_boolean\fP (\fBgn_leaf_param_handle_t\fP param, void **param_value)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "const char * \fBgn_config_status_descriptions\fP [14]"
 .br
 .in -1c
 .SH "Macro Definition Documentation"
@@ -143,45 +165,28 @@ components/grownode/gn_commons.h
 .PP 
 .SS "typedef void* \fBgn_config_handle_t\fP"
 
+.SS "typedef struct \fBgn_config_init_param_t\fP* \fBgn_config_init_param_handle_t\fP"
+
 .SS "typedef void* \fBgn_display_container_t\fP"
 
-.SS "typedef \fBgn_leaf_descriptor_handle_t\fP(* gn_leaf_config_callback) (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.SS "typedef \fBgn_leaf_descriptor_handle_t\fP(* gn_leaf_config_callback) (\fBgn_leaf_handle_t\fP leaf_config)"
 this is the leaf configuration callback\&. every leaf must implement one\&. it configures internal parameters and returns a leaf config 
-.SS "typedef void* \fBgn_leaf_config_handle_t\fP"
-
 .SS "typedef \fBgn_leaf_descriptor_t\fP* \fBgn_leaf_descriptor_handle_t\fP"
+
+.SS "typedef void* \fBgn_leaf_handle_t\fP"
 
 .SS "typedef void* \fBgn_leaf_param_handle_t\fP"
 
 .SS "typedef \fBgn_leaf_parameter_event_t\fP* \fBgn_leaf_parameter_event_handle_t\fP"
 
-.SS "typedef void(* gn_leaf_task_callback) (\fBgn_leaf_config_handle_t\fP leaf_config)"
-
-.SS "typedef void* \fBgn_node_config_handle_t\fP"
+.SS "typedef void(* gn_leaf_task_callback) (\fBgn_leaf_handle_t\fP leaf_config)"
 
 .SS "typedef \fBgn_node_event_t\fP* \fBgn_node_event_handle_t\fP"
 
+.SS "typedef void* \fBgn_node_handle_t\fP"
+
 .SH "Enumeration Type Documentation"
 .PP 
-.SS "enum \fBgn_config_status_t\fP"
-
-.PP
-\fBEnumerator\fP
-.in +1c
-.TP
-\fB\fIGN_CONFIG_STATUS_NOT_INITIALIZED \fP\fP
-.TP
-\fB\fIGN_CONFIG_STATUS_INITIALIZING \fP\fP
-.TP
-\fB\fIGN_CONFIG_STATUS_ERROR \fP\fP
-.TP
-\fB\fIGN_CONFIG_STATUS_NETWORK_ERROR \fP\fP
-.TP
-\fB\fIGN_CONFIG_STATUS_SERVER_ERROR \fP\fP
-.TP
-\fB\fIGN_CONFIG_STATUS_COMPLETED \fP\fP
-.TP
-\fB\fIGN_CONFIG_STATUS_STARTED \fP\fP
 .SS "enum \fBgn_err_t\fP"
 
 .PP
@@ -214,20 +219,8 @@ impossible to send message to event loop
 \fB\fIGN_RET_ERR_EVENT_NOT_SENT \fP\fP
 .TP
 \fB\fIGN_RET_ERR_MQTT_SUBSCRIBE \fP\fP
-.SS "enum \fBgn_leaf_param_access_t\fP"
-
-.PP
-\fBEnumerator\fP
-.in +1c
 .TP
-\fB\fIGN_LEAF_PARAM_ACCESS_WRITE \fP\fP
-param can be modified only by network (eg\&. configuration settings from environment) 
-.TP
-\fB\fIGN_LEAF_PARAM_ACCESS_READ \fP\fP
-param can be modified only by the node (eg\&. sensor data) 
-.TP
-\fB\fIGN_LEAF_PARAM_ACCESS_READWRITE \fP\fP
-param can be modified both by the node and network (eg\&. local configuration settings) 
+\fB\fIGN_RET_ERR_MQTT_ERROR \fP\fP
 .SS "enum \fBgn_leaf_param_storage_t\fP"
 
 .PP
@@ -253,6 +246,23 @@ param is stored in NVS flash every time it changes
 \fB\fIGN_LEAF_PARAM_VALIDATOR_NOT_ALLOWED \fP\fP
 .TP
 \fB\fIGN_LEAF_PARAM_VALIDATOR_ERROR \fP\fP
+.SS "enum \fBgn_leaf_param_visibility_t\fP"
+
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIGN_LEAF_PARAM_ACCESS_ALL \fP\fP
+param can be modified both by the node and network (eg\&. local configuration settings) 
+.TP
+\fB\fIGN_LEAF_PARAM_ACCESS_NETWORK \fP\fP
+param can be modified only by network (eg\&. configuration settings from environment) 
+.TP
+\fB\fIGN_LEAF_PARAM_ACCESS_NODE \fP\fP
+param can be modified only by the node (eg\&. sensor data) 
+.TP
+\fB\fIGN_LEAF_PARAM_ACCESS_NODE_INTERNAL \fP\fP
+param can be modified only by the node (eg\&. sensor data) and it is not shown externally 
 .SS "enum \fBgn_leaf_status_t\fP"
 
 .PP
@@ -279,6 +289,39 @@ status of the leaf
 \fB\fIGN_LOG_WARNING \fP\fP
 .TP
 \fB\fIGN_LOG_ERROR \fP\fP
+.SS "enum \fBgn_node_status_t\fP"
+
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIGN_NODE_STATUS_NOT_INITIALIZED \fP\fP
+.TP
+\fB\fIGN_NODE_STATUS_INITIALIZING \fP\fP
+.TP
+\fB\fIGN_NODE_STATUS_ERROR \fP\fP
+.TP
+\fB\fIGN_NODE_STATUS_NETWORK_ERROR \fP\fP
+.TP
+\fB\fIGN_NODE_STATUS_SERVER_ERROR \fP\fP
+.TP
+\fB\fIGN_NODE_STATUS_READY_TO_START \fP\fP
+.TP
+\fB\fIGN_NODE_STATUS_STARTED \fP\fP
+.TP
+\fB\fIGN_NODE_STATUS_ERROR_MISSING_FIRMWARE_URL \fP\fP
+.TP
+\fB\fIGN_NDOE_STATUS_ERROR_MISSING_PROVISIONING_PASSWORD \fP\fP
+.TP
+\fB\fIGN_NODE_STATUS_ERROR_MISSING_SERVER_BASE_TOPIC \fP\fP
+.TP
+\fB\fIGN_NODE_STATUS_ERROR_MISSING_SERVER_URL \fP\fP
+.TP
+\fB\fIGN_NODE_STATUS_ERROR_BAD_SERVER_KEEPALIVE_SEC \fP\fP
+.TP
+\fB\fIGN_NODE_STATUS_ERROR_MISSING_SNTP_URL \fP\fP
+.TP
+\fB\fIGN_NODE_STATUS_ERROR_MISSING_SERVER_DISCOVERY_PREFIX \fP\fP
 .SS "enum \fBgn_server_status_t\fP"
 
 .PP
@@ -301,11 +344,21 @@ status of the leaf
 \fB\fIGN_VAL_TYPE_DOUBLE \fP\fP
 .SH "Function Documentation"
 .PP 
-.SS "uint64_t gn_common_hash (const char * key)\fC [inline]\fP"
+.SS "uint64_t gn_hash (const char * key)\fC [inline]\fP"
 
-.SS "void gn_common_hash_str (const char * key, char * buf, size_t len)\fC [inline]\fP"
+.SS "void gn_hash_str (const char * key, char * buf, size_t len)\fC [inline]\fP"
 
-.SS "size_t gn_common_leaf_event_mask_param (\fBgn_leaf_parameter_event_handle_t\fP evt, \fBgn_leaf_param_handle_t\fP param)\fC [inline]\fP"
+.SS "size_t gn_leaf_event_mask_param (\fBgn_leaf_parameter_event_handle_t\fP evt, \fBgn_leaf_param_handle_t\fP param)\fC [inline]\fP"
+
+.SS "\fBgn_leaf_param_validator_result_t\fP gn_validator_boolean (\fBgn_leaf_param_handle_t\fP param, void ** param_value)"
+
+.SS "\fBgn_leaf_param_validator_result_t\fP gn_validator_double (\fBgn_leaf_param_handle_t\fP param, void ** param_value)"
+
+.SS "\fBgn_leaf_param_validator_result_t\fP gn_validator_double_positive (\fBgn_leaf_param_handle_t\fP param, void ** param_value)"
+
+.SH "Variable Documentation"
+.PP 
+.SS "const char* gn_config_status_descriptions[14]"
 
 .SH "Author"
 .PP 

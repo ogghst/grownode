@@ -1,7 +1,7 @@
 var structgn__leaf__param =
 [
-    [ "access", "structgn__leaf__param.html#a4eb88d0751712bf1099f68be82e45369", null ],
-    [ "leaf_config", "structgn__leaf__param.html#a0f447e5bcdabebe8f38613113c1914e1", null ],
+    [ "access", "structgn__leaf__param.html#ada900d7952544d1302aa61948c066610", null ],
+    [ "leaf_config", "structgn__leaf__param.html#ace665f6589f255edb303bfc60e9252dc", null ],
     [ "name", "structgn__leaf__param.html#ac06ec28497cc53641d9204ec18bc5252", null ],
     [ "next", "structgn__leaf__param.html#a176f9d6d02398f5a6d5fb7dd39d4c892", null ],
     [ "param_val", "structgn__leaf__param.html#a78575ce5275b554e3a00b7d574b5605f", null ],

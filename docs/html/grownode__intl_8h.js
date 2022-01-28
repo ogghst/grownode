@@ -14,7 +14,7 @@ var grownode__intl_8h =
     [ "gn_node_config_handle_intl_t", "grownode__intl_8h.html#a9788472452fff21e78e80c1bc2b0b068", null ],
     [ "gn_param_val_handle_int_t", "grownode__intl_8h.html#abfd901f465a2120c5a1c51e4ac440dfa", null ],
     [ "gn_param_val_handle_t", "grownode__intl_8h.html#aec7399231465751d5a7b1832f83a86b1", null ],
-    [ "_gn_leaf_parameter_update", "grownode__intl_8h.html#a7ad6844f62dedb3a57315f406d5a70f0", null ],
+    [ "_gn_leaf_parameter_update", "grownode__intl_8h.html#aa451964cffbb7ff9572c32d3abf785a4", null ],
     [ "_gn_send_event_to_leaf", "grownode__intl_8h.html#a3c8f8c0de8c631032ddadda154b8ee1f", null ],
     [ "asm", "grownode__intl_8h.html#a33ee3efe9294010d3a1e4200aeea8925", null ],
     [ "asm", "grownode__intl_8h.html#aba61225d0c895f978f63b0869cc782c3", null ]

@@ -1,4 +1,4 @@
-.TH "components/grownode/gn_display.h" 3 "Thu Dec 30 2021" "GrowNode" \" -*- nroff -*-
+.TH "components/grownode/gn_display.h" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -6,102 +6,6 @@ components/grownode/gn_display.h
 .SH SYNOPSIS
 .br
 .PP
-.SS "Functions"
-
-.in +1c
-.ti -1c
-.RI "esp_err_t \fBgn_init_display\fP (\fBgn_config_handle_t\fP conf)"
-.br
-.ti -1c
-.RI "void \fBgn_display_leaf_start\fP (\fBgn_leaf_config_handle_t\fP leaf_config)"
-.br
-.ti -1c
-.RI "\fBgn_display_container_t\fP \fBgn_display_setup_leaf_display\fP (\fBgn_leaf_config_handle_t\fP leaf_config)"
-.br
-.RI "prepare a container where to draw the display components of the leaf "
-.ti -1c
-.RI "BaseType_t \fBgn_display_leaf_refresh_start\fP ()"
-.br
-.RI "start of code guard to ensure the block will be executed outside display refresh task "
-.ti -1c
-.RI "BaseType_t \fBgn_display_leaf_refresh_end\fP ()"
-.br
-.RI "end of code guard to ensure the block will be executed outside display refresh task "
-.in -1c
-.SS "Variables"
-
-.in +1c
-.ti -1c
-.RI "SemaphoreHandle_t \fB_gn_xGuiSemaphore\fP"
-.br
-.in -1c
-.SH "Function Documentation"
-.PP 
-.SS "BaseType_t gn_display_leaf_refresh_end ()"
-
-.PP
-end of code guard to ensure the block will be executed outside display refresh task this is implemented with xSemaphoreGive
-.PP
-\fBReturns\fP
-.RS 4
-result of the xSemaphoreTake function 
-.RE
-.PP
-
-.SS "BaseType_t gn_display_leaf_refresh_start ()"
-
-.PP
-start of code guard to ensure the block will be executed outside display refresh task this is implemented with xSemaphoreTake
-.PP
-\fBReturns\fP
-.RS 4
-result of the xSemaphoreTake function 
-.RE
-.PP
-
-.SS "void gn_display_leaf_start (\fBgn_leaf_config_handle_t\fP leaf_config)"
-
-.SS "\fBgn_display_container_t\fP gn_display_setup_leaf_display (\fBgn_leaf_config_handle_t\fP leaf_config)"
-
-.PP
-prepare a container where to draw the display components of the leaf this has to be called into the display refresh task 
-.PP
-\fBSee also\fP
-.RS 4
-\fBgn_display_leaf_refresh_start()\fP
-.RE
-.PP
-\fBReturns\fP
-.RS 4
-a pointer to lv_obj_t (to be casted) 
-.RE
-.PP
-
-.SS "esp_err_t gn_init_display (\fBgn_config_handle_t\fP config)"
-starts the display resources:
-.IP "\(bu" 2
-initialize all objects
-.IP "\(bu" 2
-listen to events in order to
-.PP
-.PP
-this should be called only into the node config init\&. a second inizialization request has no effects\&. *
-.PP
-\fBParameters\fP
-.RS 4
-\fIconfig\fP the node configuration
-.RE
-.PP
-\fBReturns\fP
-.RS 4
-the status of the initialization\&. ESP_OK if everything went well\&. 
-.RE
-.PP
-
-.SH "Variable Documentation"
-.PP 
-.SS "SemaphoreHandle_t _gn_xGuiSemaphore"
-
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for GrowNode from the source code\&.

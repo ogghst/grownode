@@ -1,4 +1,4 @@
-.TH "components/grownode/grownode.h" 3 "Thu Dec 30 2021" "GrowNode" \" -*- nroff -*-
+.TH "components/grownode/grownode.h" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -19,28 +19,31 @@ components/grownode/grownode.h
 .ti -1c
 .RI "typedef \fBgn_leaf_param_validator_result_t\fP(* \fBgn_validator_t\fP) (\fBgn_leaf_param_handle_t\fP param, void **value)"
 .br
+.ti -1c
+.RI "typedef struct \fBgn_config_init_param_t\fP * \fBgn_config_init_param_handle_t\fP"
+.br
 .in -1c
 .SS "Functions"
 
 .in +1c
 .ti -1c
-.RI "\fBgn_node_config_handle_t\fP \fBgn_node_create\fP (\fBgn_config_handle_t\fP \fBconfig\fP, const char *name)"
+.RI "\fBgn_node_handle_t\fP \fBgn_node_create\fP (\fBgn_config_handle_t\fP \fBconfig\fP, const char *name)"
 .br
 .RI "create a new node with specified configuration and name "
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_node_destroy\fP (\fBgn_node_config_handle_t\fP node)"
+.RI "\fBgn_err_t\fP \fBgn_node_destroy\fP (\fBgn_node_handle_t\fP node)"
 .br
 .RI "removes the node from the config "
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_node_start\fP (\fBgn_node_config_handle_t\fP node)"
+.RI "\fBgn_err_t\fP \fBgn_node_start\fP (\fBgn_node_handle_t\fP node)"
 .br
 .RI "starts the node by starting the leaves tasks "
 .ti -1c
-.RI "size_t \fBgn_node_get_size\fP (\fBgn_node_config_handle_t\fP \fBconfig\fP)"
+.RI "size_t \fBgn_node_get_size\fP (\fBgn_node_handle_t\fP \fBconfig\fP)"
 .br
 .RI "number of leaves into the node "
 .ti -1c
-.RI "\fBgn_config_handle_t\fP \fBgn_init\fP ()"
+.RI "\fBgn_config_handle_t\fP \fBgn_init\fP (\fBgn_config_init_param_t\fP *\fBconfig_init\fP)"
 .br
 .RI "performs the initialization workflow "
 .ti -1c
@@ -56,33 +59,33 @@ components/grownode/grownode.h
 .br
 .RI "reboot the board "
 .ti -1c
-.RI "\fBgn_leaf_config_handle_t\fP \fBgn_leaf_create\fP (\fBgn_node_config_handle_t\fP \fBnode_config\fP, const char *name, \fBgn_leaf_config_callback\fP leaf_config, size_t task_size)"
+.RI "\fBgn_leaf_handle_t\fP \fBgn_leaf_create\fP (\fBgn_node_handle_t\fP \fBnode_config\fP, const char *name, \fBgn_leaf_config_callback\fP leaf_config, size_t task_size)"
 .br
 .RI "creates the leaf "
 .ti -1c
-.RI "\fBgn_leaf_descriptor_handle_t\fP \fBgn_leaf_get_descriptor\fP (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.RI "\fBgn_leaf_descriptor_handle_t\fP \fBgn_leaf_get_descriptor\fP (\fBgn_leaf_handle_t\fP leaf_config)"
 .br
 .ti -1c
-.RI "QueueHandle_t \fBgn_leaf_get_event_queue\fP (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.RI "QueueHandle_t \fBgn_leaf_get_event_queue\fP (\fBgn_leaf_handle_t\fP leaf_config)"
 .br
 .RI "gets the leaf queue handle "
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_leaf_event_subscribe\fP (\fBgn_leaf_config_handle_t\fP leaf_config, \fBgn_event_id_t\fP event_id)"
+.RI "\fBgn_err_t\fP \fBgn_leaf_event_subscribe\fP (\fBgn_leaf_handle_t\fP leaf_config, \fBgn_event_id_t\fP event_id)"
 .br
 .RI "subscribe the leaf to the event id\&. "
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_leaf_event_unsubscribe\fP (\fBgn_leaf_config_handle_t\fP leaf_config, \fBgn_event_id_t\fP event_id)"
+.RI "\fBgn_err_t\fP \fBgn_leaf_event_unsubscribe\fP (\fBgn_leaf_handle_t\fP leaf_config, \fBgn_event_id_t\fP event_id)"
 .br
 .RI "unsubscribe the leaf to the event id\&. "
 .ti -1c
-.RI "\fBgn_leaf_param_handle_t\fP \fBgn_leaf_param_create\fP (\fBgn_leaf_config_handle_t\fP leaf_config, const char *name, const \fBgn_val_type_t\fP type, const \fBgn_val_t\fP val, \fBgn_leaf_param_access_t\fP access, \fBgn_leaf_param_storage_t\fP storage, \fBgn_validator_t\fP validator)"
+.RI "\fBgn_leaf_param_handle_t\fP \fBgn_leaf_param_create\fP (\fBgn_leaf_handle_t\fP leaf_config, const char *name, const \fBgn_val_type_t\fP type, const \fBgn_val_t\fP val, \fBgn_leaf_param_visibility_t\fP access, \fBgn_leaf_param_storage_t\fP storage, \fBgn_validator_t\fP validator)"
 .br
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_leaf_param_add\fP (const \fBgn_leaf_config_handle_t\fP leaf, const \fBgn_leaf_param_handle_t\fP new_param)"
+.RI "\fBgn_err_t\fP \fBgn_leaf_param_add_to_leaf\fP (const \fBgn_leaf_handle_t\fP leaf, const \fBgn_leaf_param_handle_t\fP new_param)"
 .br
 .RI "add a parameter to the leaf\&. "
 .ti -1c
-.RI "\fBgn_leaf_param_handle_t\fP \fBgn_leaf_param_get_param_handle\fP (const \fBgn_leaf_config_handle_t\fP leaf, const char *param_name)"
+.RI "\fBgn_leaf_param_handle_t\fP \fBgn_leaf_param_get_param_handle\fP (const \fBgn_leaf_handle_t\fP leaf, const char *param_name)"
 .br
 .RI "returns the specific parameter associated to the leaf "
 .ti -1c
@@ -90,104 +93,108 @@ components/grownode/grownode.h
 .br
 .RI "gets the value pointed by the parameter "
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_leaf_param_get_string\fP (const \fBgn_leaf_config_handle_t\fP leaf_config, const char *name, char *val, size_t *lenght)"
+.RI "\fBgn_err_t\fP \fBgn_leaf_param_get_string\fP (const \fBgn_leaf_handle_t\fP leaf_config, const char *name, char *val, size_t max_lenght)"
 .br
+.RI "gets the parameter value "
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_leaf_param_set_string\fP (const \fBgn_leaf_config_handle_t\fP leaf, const char *name, char *val)"
-.br
-.RI "updates the parameter with new value "
-.ti -1c
-.RI "\fBgn_err_t\fP \fBgn_leaf_param_init_string\fP (const \fBgn_leaf_config_handle_t\fP leaf, const char *name, char *val)"
-.br
-.RI "init the parameter with new value and stores in NVS flash, overwriting previous values "
-.ti -1c
-.RI "\fBgn_err_t\fP \fBgn_leaf_param_get_bool\fP (const \fBgn_leaf_config_handle_t\fP leaf_config, const char *name, bool *val)"
-.br
-.ti -1c
-.RI "\fBgn_err_t\fP \fBgn_leaf_param_set_bool\fP (const \fBgn_leaf_config_handle_t\fP leaf, const char *name, bool val)"
+.RI "\fBgn_err_t\fP \fBgn_leaf_param_set_string\fP (const \fBgn_leaf_handle_t\fP leaf, const char *name, char *val)"
 .br
 .RI "updates the parameter with new value "
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_leaf_param_init_bool\fP (const \fBgn_leaf_config_handle_t\fP leaf, const char *name, bool val)"
+.RI "\fBgn_err_t\fP \fBgn_leaf_param_init_string\fP (const \fBgn_leaf_handle_t\fP leaf, const char *name, const char *val)"
 .br
 .RI "init the parameter with new value and stores in NVS flash, overwriting previous values "
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_leaf_param_get_double\fP (const \fBgn_leaf_config_handle_t\fP leaf_config, const char *name, double *val)"
+.RI "\fBgn_err_t\fP \fBgn_leaf_param_get_bool\fP (const \fBgn_leaf_handle_t\fP leaf_config, const char *name, bool *val)"
 .br
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_leaf_param_set_double\fP (const \fBgn_leaf_config_handle_t\fP leaf, const char *name, double val)"
+.RI "\fBgn_err_t\fP \fBgn_leaf_param_set_bool\fP (const \fBgn_leaf_handle_t\fP leaf, const char *name, bool val)"
 .br
 .RI "updates the parameter with new value "
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_leaf_param_init_double\fP (const \fBgn_leaf_config_handle_t\fP leaf, const char *name, double val)"
+.RI "\fBgn_err_t\fP \fBgn_leaf_param_init_bool\fP (const \fBgn_leaf_handle_t\fP leaf, const char *name, bool val)"
 .br
 .RI "init the parameter with new value and stores in NVS flash, overwriting previous values "
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_leaf_param_set_value\fP (const \fBgn_leaf_config_handle_t\fP leaf, const void *val)"
+.RI "\fBgn_err_t\fP \fBgn_leaf_param_get_double\fP (const \fBgn_leaf_handle_t\fP leaf_config, const char *name, double *val)"
+.br
+.ti -1c
+.RI "\fBgn_err_t\fP \fBgn_leaf_param_set_double\fP (const \fBgn_leaf_handle_t\fP leaf, const char *name, double val)"
+.br
+.RI "updates the parameter with new value "
+.ti -1c
+.RI "\fBgn_err_t\fP \fBgn_leaf_param_init_double\fP (const \fBgn_leaf_handle_t\fP leaf, const char *name, double val)"
+.br
+.RI "init the parameter with new value and stores in NVS flash, overwriting previous values "
+.ti -1c
+.RI "\fBgn_err_t\fP \fBgn_leaf_param_set_value\fP (const \fBgn_leaf_handle_t\fP leaf, const void *val)"
 .br
 .ti -1c
 .RI "\fBgn_err_t\fP \fBgn_log\fP (char *log_tag, \fBgn_log_level_t\fP level, const char *message,\&.\&.\&.)"
 .br
 .RI "write ESP log, send log in the event queue and publish in network "
 .ti -1c
-.RI "\fBgn_config_status_t\fP \fBgn_get_config_status\fP (\fBgn_config_handle_t\fP \fBconfig\fP)"
+.RI "\fBgn_node_status_t\fP \fBgn_get_status\fP (\fBgn_config_handle_t\fP \fBconfig\fP)"
 .br
 .RI "retrieves the configuration status "
 .ti -1c
-.RI "esp_event_loop_handle_t \fBgn_get_config_event_loop\fP (\fBgn_config_handle_t\fP \fBconfig\fP)"
+.RI "const char * \fBgn_get_status_description\fP (\fBgn_config_handle_t\fP \fBconfig\fP)"
+.br
+.RI "retrieves the configuration status description "
+.ti -1c
+.RI "esp_event_loop_handle_t \fBgn_get_event_loop\fP (\fBgn_config_handle_t\fP \fBconfig\fP)"
 .br
 .RI "retrieves the event loop starting from the config handle "
 .ti -1c
-.RI "esp_event_loop_handle_t \fBgn_leaf_get_config_event_loop\fP (\fBgn_config_handle_t\fP \fBconfig\fP)"
+.RI "esp_event_loop_handle_t \fBgn_leaf_get_event_loop\fP (\fBgn_config_handle_t\fP \fBconfig\fP)"
 .br
 .RI "retrieves the event loop starting from the leaf config handle "
 .ti -1c
-.RI "char * \fBgn_get_node_config_name\fP (\fBgn_node_config_handle_t\fP \fBnode_config\fP)"
+.RI "\fBgn_err_t\fP \fBgn_node_get_name\fP (\fBgn_node_handle_t\fP \fBnode_config\fP, char *name)"
 .br
-.RI "gets the name from the node config "
+.RI "gets the name of the node referenced by the handle "
 .ti -1c
-.RI "char * \fBgn_leaf_get_config_name\fP (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.RI "\fBgn_err_t\fP \fBgn_leaf_get_name\fP (\fBgn_leaf_handle_t\fP leaf_config, char *name)"
 .br
 .RI "gets the name of the leaf referenced by the handle "
 .ti -1c
-.RI "\fBgn_leaf_config_handle_t\fP \fBgn_leaf_get_config_handle\fP (\fBgn_node_config_handle_t\fP node, const char *name)"
+.RI "\fBgn_leaf_handle_t\fP \fBgn_leaf_get_config_handle\fP (\fBgn_node_handle_t\fP node, const char *name)"
 .br
 .ti -1c
-.RI "\fBgn_node_config_handle_t\fP \fBgn_leaf_get_node_config\fP (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.RI "\fBgn_node_handle_t\fP \fBgn_leaf_get_node\fP (\fBgn_leaf_handle_t\fP leaf_config)"
 .br
 .ti -1c
 .RI "\fBgn_err_t\fP \fBgn_send_leaf_param_change_message\fP (const char *leaf_name, const char *param_name, const void *message, size_t message_len)"
 .br
 .RI "send a request to change a parameter name "
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_send_node_leaf_param_status\fP (const \fBgn_node_config_handle_t\fP _node_config)"
+.RI "\fBgn_err_t\fP \fBgn_send_node_leaf_param_status\fP (const \fBgn_node_handle_t\fP _node_config)"
 .br
 .RI "send parameter status per each parameter "
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_leaf_param_send_bool\fP (const \fBgn_leaf_config_handle_t\fP leaf_config, const char *name, bool val)"
+.RI "\fBgn_err_t\fP \fBgn_leaf_param_update_bool\fP (const \fBgn_leaf_handle_t\fP leaf_config, const char *name, bool val)"
 .br
+.RI "generate a request to update the parameter to the leaf\&. "
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_leaf_param_send_double\fP (const \fBgn_leaf_config_handle_t\fP leaf_config, const char *name, double val)"
+.RI "\fBgn_err_t\fP \fBgn_leaf_param_update_double\fP (const \fBgn_leaf_handle_t\fP leaf_config, const char *name, double val)"
 .br
+.RI "generate a request to update the parameter to the leaf\&. "
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_leaf_param_send_string\fP (const \fBgn_leaf_config_handle_t\fP leaf_config, const char *name, char *val)"
+.RI "\fBgn_err_t\fP \fBgn_leaf_param_update_string\fP (const \fBgn_leaf_handle_t\fP leaf_config, const char *name, char *val)"
 .br
+.RI "generate a request to update the parameter to the leaf\&. "
 .ti -1c
-.RI "\fBgn_display_container_t\fP \fBgn_display_setup_leaf_display\fP (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.RI "\fBgn_display_container_t\fP \fBgn_display_setup_leaf\fP (\fBgn_leaf_handle_t\fP leaf_config)"
 .br
-.RI "prepare a container where to draw the display components of the leaf "
 .ti -1c
 .RI "BaseType_t \fBgn_display_leaf_refresh_start\fP ()"
 .br
-.RI "start of code guard to ensure the block will be executed outside display refresh task "
 .ti -1c
 .RI "BaseType_t \fBgn_display_leaf_refresh_end\fP ()"
 .br
-.RI "end of code guard to ensure the block will be executed outside display refresh task "
 .ti -1c
 .RI "\fBgn_server_status_t\fP \fBgn_mqtt_get_status\fP ()"
 .br
-.RI "returns the status of the server "
 .ti -1c
 .RI "\fBgn_err_t\fP \fBgn_storage_set\fP (const char *key, const void *value, size_t required_size)"
 .br
@@ -203,47 +210,17 @@ components/grownode/grownode.h
 
 .SH "Typedef Documentation"
 .PP 
+.SS "typedef struct \fBgn_config_init_param_t\fP* \fBgn_config_init_param_handle_t\fP"
+
 .SS "typedef \fBgn_leaf_param_validator_result_t\fP(* gn_validator_t) (\fBgn_leaf_param_handle_t\fP param, void **value)"
 
 .SH "Function Documentation"
 .PP 
 .SS "BaseType_t gn_display_leaf_refresh_end ()"
 
-.PP
-end of code guard to ensure the block will be executed outside display refresh task this is implemented with xSemaphoreGive
-.PP
-\fBReturns\fP
-.RS 4
-result of the xSemaphoreTake function 
-.RE
-.PP
-
 .SS "BaseType_t gn_display_leaf_refresh_start ()"
 
-.PP
-start of code guard to ensure the block will be executed outside display refresh task this is implemented with xSemaphoreTake
-.PP
-\fBReturns\fP
-.RS 4
-result of the xSemaphoreTake function 
-.RE
-.PP
-
-.SS "\fBgn_display_container_t\fP gn_display_setup_leaf_display (\fBgn_leaf_config_handle_t\fP leaf_config)"
-
-.PP
-prepare a container where to draw the display components of the leaf this has to be called into the display refresh task 
-.PP
-\fBSee also\fP
-.RS 4
-\fBgn_display_leaf_refresh_start()\fP
-.RE
-.PP
-\fBReturns\fP
-.RS 4
-a pointer to lv_obj_t (to be casted) 
-.RE
-.PP
+.SS "\fBgn_display_container_t\fP gn_display_setup_leaf (\fBgn_leaf_handle_t\fP leaf_config)"
 
 .SS "\fBgn_err_t\fP gn_firmware_update ()"
 
@@ -274,7 +251,7 @@ GN_RET_OK
 .RE
 .PP
 
-.SS "esp_event_loop_handle_t gn_get_config_event_loop (\fBgn_config_handle_t\fP config)"
+.SS "esp_event_loop_handle_t gn_get_event_loop (\fBgn_config_handle_t\fP config)"
 
 .PP
 retrieves the event loop starting from the config handle 
@@ -292,7 +269,7 @@ NULL if config not valid
 .RE
 .PP
 
-.SS "\fBgn_config_status_t\fP gn_get_config_status (\fBgn_config_handle_t\fP config)"
+.SS "\fBgn_node_status_t\fP gn_get_status (\fBgn_config_handle_t\fP config)\fC [inline]\fP"
 
 .PP
 retrieves the configuration status 
@@ -310,25 +287,25 @@ the configuration status
 .RE
 .PP
 
-.SS "char* gn_get_node_config_name (\fBgn_node_config_handle_t\fP node_config)"
+.SS "const char* gn_get_status_description (\fBgn_config_handle_t\fP config)\fC [inline]\fP"
 
 .PP
-gets the name from the node config 
+retrieves the configuration status description 
 .PP
 \fBParameters\fP
 .RS 4
-\fInode_config\fP the node config to search for
+\fIconfig\fP the configuration handle to check
 .RE
 .PP
 \fBReturns\fP
 .RS 4
-the node config name (null terminated) 
+GN_CONFIG_STATUS_ERROR if config is NULL 
 .PP
-NULL if node config not found 
+the configuration status 
 .RE
 .PP
 
-.SS "\fBgn_config_handle_t\fP gn_init ()"
+.SS "\fBgn_config_handle_t\fP gn_init (\fBgn_config_init_param_t\fP * config_init)"
 
 .PP
 performs the initialization workflow 
@@ -358,7 +335,7 @@ an handle to the config data structure
 .RE
 .PP
 
-.SS "\fBgn_leaf_config_handle_t\fP gn_leaf_create (\fBgn_node_config_handle_t\fP node_config, const char * name, \fBgn_leaf_config_callback\fP leaf_config, size_t task_size)"
+.SS "\fBgn_leaf_handle_t\fP gn_leaf_create (\fBgn_node_handle_t\fP node_config, const char * name, \fBgn_leaf_config_callback\fP leaf_config, size_t task_size)"
 
 .PP
 creates the leaf initializes the leaf structure\&. the returned handle is not active and need to be started by the \fBgn_node_start()\fP function 
@@ -387,7 +364,7 @@ NULL if the handle cannot be created
 .RE
 .PP
 
-.SS "\fBgn_err_t\fP gn_leaf_event_subscribe (\fBgn_leaf_config_handle_t\fP leaf_config, \fBgn_event_id_t\fP event_id)"
+.SS "\fBgn_err_t\fP gn_leaf_event_subscribe (\fBgn_leaf_handle_t\fP leaf_config, \fBgn_event_id_t\fP event_id)"
 
 .PP
 subscribe the leaf to the event id\&. 
@@ -398,7 +375,7 @@ GN_RET_OK if successful
 .RE
 .PP
 
-.SS "\fBgn_err_t\fP gn_leaf_event_unsubscribe (\fBgn_leaf_config_handle_t\fP leaf_config, \fBgn_event_id_t\fP event_id)"
+.SS "\fBgn_err_t\fP gn_leaf_event_unsubscribe (\fBgn_leaf_handle_t\fP leaf_config, \fBgn_event_id_t\fP event_id)"
 
 .PP
 unsubscribe the leaf to the event id\&. 
@@ -409,7 +386,11 @@ GN_RET_OK if successful
 .RE
 .PP
 
-.SS "esp_event_loop_handle_t gn_leaf_get_config_event_loop (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.SS "\fBgn_leaf_handle_t\fP gn_leaf_get_config_handle (\fBgn_node_handle_t\fP node, const char * name)"
+
+.SS "\fBgn_leaf_descriptor_handle_t\fP gn_leaf_get_descriptor (\fBgn_leaf_handle_t\fP leaf_config)"
+returns the descriptor handle for the corresponding leaf 
+.SS "esp_event_loop_handle_t gn_leaf_get_event_loop (\fBgn_leaf_handle_t\fP leaf_config)"
 
 .PP
 retrieves the event loop starting from the leaf config handle 
@@ -427,29 +408,7 @@ NULL if leaf config not valid
 .RE
 .PP
 
-.SS "\fBgn_leaf_config_handle_t\fP gn_leaf_get_config_handle (\fBgn_node_config_handle_t\fP node, const char * name)"
-
-.SS "char* gn_leaf_get_config_name (\fBgn_leaf_config_handle_t\fP leaf_config)"
-
-.PP
-gets the name of the leaf referenced by the handle 
-.PP
-\fBParameters\fP
-.RS 4
-\fIleaf_config\fP the handle to be queried
-.RE
-.PP
-\fBReturns\fP
-.RS 4
-a pointer to the leaf name\&. 
-.PP
-NULL if the handle is not valid 
-.RE
-.PP
-
-.SS "\fBgn_leaf_descriptor_handle_t\fP gn_leaf_get_descriptor (\fBgn_leaf_config_handle_t\fP leaf_config)"
-returns the descriptor handle for the corresponding leaf 
-.SS "QueueHandle_t gn_leaf_get_event_queue (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.SS "QueueHandle_t gn_leaf_get_event_queue (\fBgn_leaf_handle_t\fP leaf_config)"
 
 .PP
 gets the leaf queue handle 
@@ -467,9 +426,29 @@ NULL if leaf not found
 .RE
 .PP
 
-.SS "\fBgn_node_config_handle_t\fP gn_leaf_get_node_config (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.SS "\fBgn_err_t\fP gn_leaf_get_name (\fBgn_leaf_handle_t\fP leaf_config, char * name)"
 
-.SS "\fBgn_err_t\fP gn_leaf_param_add (const \fBgn_leaf_config_handle_t\fP leaf, const \fBgn_leaf_param_handle_t\fP param)"
+.PP
+gets the name of the leaf referenced by the handle 
+.PP
+\fBParameters\fP
+.RS 4
+\fIleaf_config\fP the handle to be queried 
+.br
+\fIname\fP the pointer where the name will be set\&. set lenght to GN_LEAF_NAME_SIZE
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+GN_RET_ERR_INVALID_ARG if the handle is not valid 
+.PP
+GN_RET_OK if everything OK 
+.RE
+.PP
+
+.SS "\fBgn_node_handle_t\fP gn_leaf_get_node (\fBgn_leaf_handle_t\fP leaf_config)"
+
+.SS "\fBgn_err_t\fP gn_leaf_param_add_to_leaf (const \fBgn_leaf_handle_t\fP leaf, const \fBgn_leaf_param_handle_t\fP param)"
 
 .PP
 add a parameter to the leaf\&. the parameter will then listen to server changes
@@ -489,7 +468,7 @@ GN_RET_OK upon success
 .RE
 .PP
 
-.SS "\fBgn_leaf_param_handle_t\fP gn_leaf_param_create (\fBgn_leaf_config_handle_t\fP leaf_config, const char * name, const \fBgn_val_type_t\fP type, \fBgn_val_t\fP val, \fBgn_leaf_param_access_t\fP access, \fBgn_leaf_param_storage_t\fP storage, \fBgn_validator_t\fP validator)"
+.SS "\fBgn_leaf_param_handle_t\fP gn_leaf_param_create (\fBgn_leaf_handle_t\fP leaf_config, const char * name, const \fBgn_val_type_t\fP type, \fBgn_val_t\fP val, \fBgn_leaf_param_visibility_t\fP access, \fBgn_leaf_param_storage_t\fP storage, \fBgn_validator_t\fP validator)"
 
 .PP
 .nf
@@ -499,6 +478,7 @@ NOTE: if parameter is stored, the value is overridden
 
 .fi
 .PP
+ 
 .PP
 \fBParameters\fP
 .RS 4
@@ -523,11 +503,11 @@ NULL in case of errors
 .RE
 .PP
 
-.SS "\fBgn_err_t\fP gn_leaf_param_get_bool (const \fBgn_leaf_config_handle_t\fP leaf_config, const char * name, bool * val)"
+.SS "\fBgn_err_t\fP gn_leaf_param_get_bool (const \fBgn_leaf_handle_t\fP leaf_config, const char * name, bool * val)"
 
-.SS "\fBgn_err_t\fP gn_leaf_param_get_double (const \fBgn_leaf_config_handle_t\fP leaf_config, const char * name, double * val)"
+.SS "\fBgn_err_t\fP gn_leaf_param_get_double (const \fBgn_leaf_handle_t\fP leaf_config, const char * name, double * val)"
 
-.SS "\fBgn_leaf_param_handle_t\fP gn_leaf_param_get_param_handle (const \fBgn_leaf_config_handle_t\fP leaf_config, const char * param_name)"
+.SS "\fBgn_leaf_param_handle_t\fP gn_leaf_param_get_param_handle (const \fBgn_leaf_handle_t\fP leaf_config, const char * param_name)"
 
 .PP
 returns the specific parameter associated to the leaf 
@@ -547,7 +527,30 @@ the found parameter handle
 .RE
 .PP
 
-.SS "\fBgn_err_t\fP gn_leaf_param_get_string (const \fBgn_leaf_config_handle_t\fP leaf_config, const char * name, char * val, size_t * lenght)"
+.SS "\fBgn_err_t\fP gn_leaf_param_get_string (const \fBgn_leaf_handle_t\fP leaf_config, const char * name, char * val, size_t max_lenght)"
+
+.PP
+gets the parameter value 
+.PP
+\fBParameters\fP
+.RS 4
+\fIleaf_config\fP the leaf to get the parameter from 
+.br
+\fIname\fP the name of the parameter, null terminated 
+.br
+\fIval\fP pointer where the parameter is put 
+.br
+\fImax_lenght\fP the maximum lenght of the parameter value to be copied 
+.PP
+.nf
+@return GN_RET_OK if the parameter is set
+@return GN_RET_ERR_INVALID_ARG if the parameter is not found
+
+.fi
+.PP
+ 
+.RE
+.PP
 
 .SS "\fBgn_err_t\fP gn_leaf_param_get_value (const \fBgn_leaf_param_handle_t\fP param, void * val)"
 
@@ -560,7 +563,7 @@ gets the value pointed by the parameter
 .RE
 .PP
 
-.SS "\fBgn_err_t\fP gn_leaf_param_init_bool (const \fBgn_leaf_config_handle_t\fP leaf_config, const char * name, bool val)"
+.SS "\fBgn_err_t\fP gn_leaf_param_init_bool (const \fBgn_leaf_handle_t\fP leaf_config, const char * name, bool val)"
 
 .PP
 init the parameter with new value and stores in NVS flash, overwriting previous values the leaf must be not initialized to have an effect\&. the parameter value will be copied to the corresponding handle\&.
@@ -582,7 +585,7 @@ GN_RET_ERR_INVALID_ARG in case of input errors
 .RE
 .PP
 
-.SS "\fBgn_err_t\fP gn_leaf_param_init_double (const \fBgn_leaf_config_handle_t\fP leaf_config, const char * name, double val)"
+.SS "\fBgn_err_t\fP gn_leaf_param_init_double (const \fBgn_leaf_handle_t\fP leaf_config, const char * name, double val)"
 
 .PP
 init the parameter with new value and stores in NVS flash, overwriting previous values the leaf must be not initialized to have an effect\&. the parameter value will be copied to the corresponding handle\&.
@@ -604,7 +607,7 @@ GN_RET_ERR_INVALID_ARG in case of input errors
 .RE
 .PP
 
-.SS "\fBgn_err_t\fP gn_leaf_param_init_string (const \fBgn_leaf_config_handle_t\fP leaf_config, const char * name, char * val)"
+.SS "\fBgn_err_t\fP gn_leaf_param_init_string (const \fBgn_leaf_handle_t\fP leaf_config, const char * name, const char * val)"
 
 .PP
 init the parameter with new value and stores in NVS flash, overwriting previous values the leaf must be not initialized to have an effect\&. the parameter value will be copied to the corresponding handle\&.
@@ -626,13 +629,7 @@ GN_RET_ERR_INVALID_ARG in case of input errors
 .RE
 .PP
 
-.SS "\fBgn_err_t\fP gn_leaf_param_send_bool (const \fBgn_leaf_config_handle_t\fP leaf_config, const char * name, bool val)"
-
-.SS "\fBgn_err_t\fP gn_leaf_param_send_double (const \fBgn_leaf_config_handle_t\fP leaf_config, const char * name, double val)"
-
-.SS "\fBgn_err_t\fP gn_leaf_param_send_string (const \fBgn_leaf_config_handle_t\fP leaf_config, const char * name, char * val)"
-
-.SS "\fBgn_err_t\fP gn_leaf_param_set_bool (const \fBgn_leaf_config_handle_t\fP leaf_config, const char * name, bool val)"
+.SS "\fBgn_err_t\fP gn_leaf_param_set_bool (const \fBgn_leaf_handle_t\fP leaf_config, const char * name, bool val)"
 
 .PP
 updates the parameter with new value the parameter value will be copied to the corresponding handle\&. after the change the parameter change will be propagated to the event system through a GN_LEAF_PARAM_CHANGED_EVENT and to the server\&.
@@ -654,7 +651,7 @@ GN_RET_ERR_INVALID_ARG in case of input errors
 .RE
 .PP
 
-.SS "\fBgn_err_t\fP gn_leaf_param_set_double (const \fBgn_leaf_config_handle_t\fP leaf_config, const char * name, double val)"
+.SS "\fBgn_err_t\fP gn_leaf_param_set_double (const \fBgn_leaf_handle_t\fP leaf_config, const char * name, double val)"
 
 .PP
 updates the parameter with new value the leaf must be already initialized to have an effect\&. the parameter value will be copied to the corresponding handle\&. after the change the parameter change will be propagated to the event system through a GN_LEAF_PARAM_CHANGED_EVENT and to the server\&.
@@ -676,7 +673,7 @@ GN_RET_ERR_INVALID_ARG in case of input errors
 .RE
 .PP
 
-.SS "\fBgn_err_t\fP gn_leaf_param_set_string (const \fBgn_leaf_config_handle_t\fP leaf_config, const char * name, char * val)"
+.SS "\fBgn_err_t\fP gn_leaf_param_set_string (const \fBgn_leaf_handle_t\fP leaf_config, const char * name, char * val)"
 
 .PP
 updates the parameter with new value the parameter value will be copied to the corresponding handle\&. after the change the parameter change will be propagated to the event system through a GN_LEAF_PARAM_CHANGED_EVENT and to the server\&.
@@ -695,6 +692,8 @@ updates the parameter with new value the parameter value will be copied to the c
 GN_RET_OK if the parameter is set 
 .PP
 GN_RET_ERR_INVALID_ARG in case of input errors 
+.PP
+GN_RET_ERR in case of messaging error 
 .RE
 .PP
 
@@ -706,8 +705,7 @@ GN_RET_ERR_INVALID_ARG in case of input errors
 
 .fi
 .PP
-.PP
-this is calling the gn_leaf_parameter_set_XXX depending on the param handle type, so be careful in order to avoid memory leaks 
+ this is calling the gn_leaf_parameter_set_XXX depending on the param handle type, so be careful in order to avoid memory leaks 
 .PP
 .nf
 @param leaf_config  the leaf handle to be queried
@@ -719,6 +717,78 @@ this is calling the gn_leaf_parameter_set_XXX depending on the param handle type
 .fi
 .PP
  
+.SS "\fBgn_err_t\fP gn_leaf_param_update_bool (const \fBgn_leaf_handle_t\fP leaf_config, const char * name, bool val)"
+
+.PP
+generate a request to update the parameter to the leaf\&. This is different from the corresponding 'set' method as it inform the leaf that a parameter should be changed\&. Think of it as it would be requested by the network\&. It is the basis of inter-leaves messaging\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIleaf_config\fP the leaf to ask 
+.br
+\fIname\fP the parameter name to change 
+.br
+\fIval\fP the value to change 
+.PP
+.nf
+@return GN_RET_ERR_LEAF_NOT_FOUND if the leaf is not found
+@return GN_RET_ERR_INVALID_ARG in case of input parameter error
+@return GN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION in case the parameter access is not write enable
+
+.fi
+.PP
+ 
+.RE
+.PP
+
+.SS "\fBgn_err_t\fP gn_leaf_param_update_double (const \fBgn_leaf_handle_t\fP leaf_config, const char * name, double val)"
+
+.PP
+generate a request to update the parameter to the leaf\&. This is different from the corresponding 'set' method as it inform the leaf that a parameter should be changed\&. Think of it as it would be requested by the network\&. It is the basis of inter-leaves messaging\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIleaf_config\fP the leaf to ask 
+.br
+\fIname\fP the parameter name to change 
+.br
+\fIval\fP the value to change 
+.PP
+.nf
+@return GN_RET_ERR_LEAF_NOT_FOUND if the leaf is not found
+@return GN_RET_ERR_INVALID_ARG in case of input parameter error
+@return GN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION in case the parameter access is not write enable
+
+.fi
+.PP
+ 
+.RE
+.PP
+
+.SS "\fBgn_err_t\fP gn_leaf_param_update_string (const \fBgn_leaf_handle_t\fP leaf_config, const char * name, char * val)"
+
+.PP
+generate a request to update the parameter to the leaf\&. This is different from the corresponding 'set' method as it inform the leaf that a parameter should be changed\&. Think of it as it would be requested by the network\&. It is the basis of inter-leaves messaging\&.
+.PP
+\fBParameters\fP
+.RS 4
+\fIleaf_config\fP the leaf to ask 
+.br
+\fIname\fP the parameter name to change 
+.br
+\fIval\fP the value to change 
+.PP
+.nf
+@return GN_RET_ERR_LEAF_NOT_FOUND if the leaf is not found
+@return GN_RET_ERR_INVALID_ARG in case of input parameter error
+@return GN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION in case the parameter access is not write enable
+
+.fi
+.PP
+ 
+.RE
+.PP
+
 .SS "\fBgn_err_t\fP gn_log (char * log_tag, \fBgn_log_level_t\fP level, const char * message,  \&.\&.\&.)"
 
 .PP
@@ -745,16 +815,7 @@ write ESP log, send log in the event queue and publish in network
 
 .SS "\fBgn_server_status_t\fP gn_mqtt_get_status ()"
 
-.PP
-returns the status of the server 
-.PP
-\fBReturns\fP
-.RS 4
-the current status 
-.RE
-.PP
-
-.SS "\fBgn_node_config_handle_t\fP gn_node_create (\fBgn_config_handle_t\fP config, const char * name)"
+.SS "\fBgn_node_handle_t\fP gn_node_create (\fBgn_config_handle_t\fP config, const char * name)"
 
 .PP
 create a new node with specified configuration and name 
@@ -772,7 +833,7 @@ the node handle created\&.
 .RE
 .PP
 
-.SS "\fBgn_err_t\fP gn_node_destroy (\fBgn_node_config_handle_t\fP node)"
+.SS "\fBgn_err_t\fP gn_node_destroy (\fBgn_node_handle_t\fP node)"
 
 .PP
 removes the node from the config 
@@ -788,7 +849,27 @@ GN_RET_OK if operation had succeded
 .RE
 .PP
 
-.SS "size_t gn_node_get_size (\fBgn_node_config_handle_t\fP node_config)"
+.SS "\fBgn_err_t\fP gn_node_get_name (\fBgn_node_handle_t\fP node_config, char * name)"
+
+.PP
+gets the name of the node referenced by the handle 
+.PP
+\fBParameters\fP
+.RS 4
+\fInode_config\fP the handle to be queried 
+.br
+\fIname\fP the pointer where the name will be set\&. set lenght to GN_LEAF_NAME_SIZE
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+GN_RET_ERR_INVALID_ARG if the handle is not valid 
+.PP
+GN_RET_OK if everything OK 
+.RE
+.PP
+
+.SS "size_t gn_node_get_size (\fBgn_node_handle_t\fP node_config)"
 
 .PP
 number of leaves into the node 
@@ -804,7 +885,7 @@ number of leaves into the node, -1 in case node_config is NULL
 .RE
 .PP
 
-.SS "\fBgn_err_t\fP gn_node_start (\fBgn_node_config_handle_t\fP node)"
+.SS "\fBgn_err_t\fP gn_node_start (\fBgn_node_handle_t\fP node)"
 
 .PP
 starts the node by starting the leaves tasks At the end of the process, it sets the node status to GN_CONFIG_STATUS_STARTED and sends a GN_NODE_STARTED_EVENT event
@@ -868,7 +949,7 @@ GN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION in case the parameter access is not write
 .RE
 .PP
 
-.SS "\fBgn_err_t\fP gn_send_node_leaf_param_status (const \fBgn_node_config_handle_t\fP _node_config)"
+.SS "\fBgn_err_t\fP gn_send_node_leaf_param_status (const \fBgn_node_handle_t\fP _node_config)"
 
 .PP
 send parameter status per each parameter 

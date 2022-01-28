@@ -1,0 +1,163 @@
+.TH "gn_hb2_watering_control_data_t" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gn_hb2_watering_control_data_t
+.SH SYNOPSIS
+.br
+.PP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBgn_leaf_param_handle_t\fP \fBparam_watering_interval\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_param_handle_t\fP \fBparam_watering_time\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_param_handle_t\fP \fBparam_active\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_param_handle_t\fP \fBparam_watering_t_temp\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBparam_leaf_plt_fan_name\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBparam_leaf_plt_pump_name\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBparam_leaf_wat_pump_name\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBparam_leaf_plt_cool_name\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBparam_leaf_plt_hot_name\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBparam_leaf_env_fan_name\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBparam_leaf_bme280_name\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBparam_leaf_ds18b20_name\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBparam_leaf_wat_lev_name\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBparam_leaf_light_1_name\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBparam_leaf_light_2_name\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBleaf_cwl\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBleaf_ds18b20\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBleaf_bme280\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBleaf_plt_hot\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBleaf_plt_cool\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBleaf_plt_pump\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBleaf_plt_fan\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBleaf_wat_pump\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBleaf_light_1_name\fP"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBleaf_light_2_name\fP"
+.br
+.ti -1c
+.RI "\fBgn_hcc_status\fP \fBhcc_cycle\fP"
+.br
+.ti -1c
+.RI "int64_t \fBhcc_cycle_start\fP"
+.br
+.ti -1c
+.RI "\fBgn_wat_status\fP \fBwat_cycle\fP"
+.br
+.ti -1c
+.RI "int64_t \fBwat_cycle_cumulative_time_ms\fP"
+.br
+.in -1c
+.SH "Field Documentation"
+.PP 
+.SS "\fBgn_hcc_status\fP gn_hb2_watering_control_data_t::hcc_cycle"
+
+.SS "int64_t gn_hb2_watering_control_data_t::hcc_cycle_start"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::leaf_bme280"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::leaf_cwl"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::leaf_ds18b20"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::leaf_light_1_name"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::leaf_light_2_name"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::leaf_plt_cool"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::leaf_plt_fan"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::leaf_plt_hot"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::leaf_plt_pump"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::leaf_wat_pump"
+
+.SS "\fBgn_leaf_param_handle_t\fP gn_hb2_watering_control_data_t::param_active"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::param_leaf_bme280_name"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::param_leaf_ds18b20_name"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::param_leaf_env_fan_name"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::param_leaf_light_1_name"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::param_leaf_light_2_name"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::param_leaf_plt_cool_name"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::param_leaf_plt_fan_name"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::param_leaf_plt_hot_name"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::param_leaf_plt_pump_name"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::param_leaf_wat_lev_name"
+
+.SS "\fBgn_leaf_handle_t\fP gn_hb2_watering_control_data_t::param_leaf_wat_pump_name"
+
+.SS "\fBgn_leaf_param_handle_t\fP gn_hb2_watering_control_data_t::param_watering_interval"
+
+.SS "\fBgn_leaf_param_handle_t\fP gn_hb2_watering_control_data_t::param_watering_t_temp"
+
+.SS "\fBgn_leaf_param_handle_t\fP gn_hb2_watering_control_data_t::param_watering_time"
+
+.SS "\fBgn_wat_status\fP gn_hb2_watering_control_data_t::wat_cycle"
+
+.SS "int64_t gn_hb2_watering_control_data_t::wat_cycle_cumulative_time_ms"
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GrowNode from the source code\&.

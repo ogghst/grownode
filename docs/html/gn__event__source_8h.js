@@ -19,7 +19,7 @@ var gn__event__source_8h =
       [ "GN_NET_RBT_START", "gn__event__source_8h.html#ab405715a16a715e1805398598736933fa3e9620481ea2368b65636e43a46a89d0", null ],
       [ "GN_SRV_CONNECTED_EVENT", "gn__event__source_8h.html#ab405715a16a715e1805398598736933fa632820cacc43430e02f6d69fec49b586", null ],
       [ "GN_SRV_DISCONNECTED_EVENT", "gn__event__source_8h.html#ab405715a16a715e1805398598736933fa28f93ff7dc54d5a47e8134fd70c74710", null ],
-      [ "GN_SRV_KEEPALIVE_START_EVENT", "gn__event__source_8h.html#ab405715a16a715e1805398598736933fa23b3c5fc6443c9fedee34345bd12062d", null ],
+      [ "GN_SRV_KEEPALIVE_TRIGGERED_EVENT", "gn__event__source_8h.html#ab405715a16a715e1805398598736933fa23c8385ab5532a597c433f5afb59e514", null ],
       [ "GN_NODE_STARTED_EVENT", "gn__event__source_8h.html#ab405715a16a715e1805398598736933fafacecd29e5fa7a79a48b1a0e6b83f7be", null ]
     ] ],
     [ "GN_BASE_EVENT", "gn__event__source_8h.html#ac35fe93bba9e2b1919de40fb646c2eaf", null ],

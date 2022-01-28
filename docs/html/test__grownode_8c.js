@@ -15,5 +15,6 @@ var test__grownode_8c =
     [ "TEST_CASE", "test__grownode_8c.html#a900d815140df0d8d5961874bf9570c2b", null ],
     [ "TEST_CASE", "test__grownode_8c.html#a844b76d0644120c0b423bacafae64c21", null ],
     [ "config", "test__grownode_8c.html#ada142030586768226042c9c76934876c", null ],
-    [ "node_config", "test__grownode_8c.html#a786dbf11418f5a3c00ff06390e54866e", null ]
+    [ "config_init", "test__grownode_8c.html#a2e2e38a720d68fda38f80d45bede5f2d", null ],
+    [ "node_config", "test__grownode_8c.html#a48c82629054afe9dc7aa26aacddb825c", null ]
 ];

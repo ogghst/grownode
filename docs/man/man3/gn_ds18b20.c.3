@@ -1,4 +1,4 @@
-.TH "components/grownode/leaves/gn_ds18b20.c" 3 "Thu Dec 30 2021" "GrowNode" \" -*- nroff -*-
+.TH "components/grownode/leaves/gn_ds18b20.c" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -24,7 +24,7 @@ components/grownode/leaves/gn_ds18b20.c
 
 .in +1c
 .ti -1c
-.RI "void \fBgn_ds18b20_task\fP (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.RI "void \fBgn_ds18b20_task\fP (\fBgn_leaf_handle_t\fP leaf_config)"
 .br
 .ti -1c
 .RI "void \fB_scan_sensors\fP (int gpio, size_t *sensor_count, ds18x20_addr_t *addrs)"
@@ -33,10 +33,10 @@ components/grownode/leaves/gn_ds18b20.c
 .RI "\fBgn_leaf_param_validator_result_t\fP \fB_gn_upd_time_sec_validator\fP (\fBgn_leaf_param_handle_t\fP param, void **param_value)"
 .br
 .ti -1c
-.RI "void \fBgn_ds18b20_temp_sensor_collect\fP (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.RI "void \fBgn_ds18b20_temp_sensor_collect\fP (\fBgn_leaf_handle_t\fP leaf_config)"
 .br
 .ti -1c
-.RI "\fBgn_leaf_descriptor_handle_t\fP \fBgn_ds18b20_config\fP (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.RI "\fBgn_leaf_descriptor_handle_t\fP \fBgn_ds18b20_config\fP (\fBgn_leaf_handle_t\fP leaf_config)"
 .br
 .in -1c
 .SS "Variables"
@@ -59,11 +59,11 @@ components/grownode/leaves/gn_ds18b20.c
 
 .SS "void _scan_sensors (int gpio, size_t * sensor_count, ds18x20_addr_t * addrs)"
 
-.SS "\fBgn_leaf_descriptor_handle_t\fP gn_ds18b20_config (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.SS "\fBgn_leaf_descriptor_handle_t\fP gn_ds18b20_config (\fBgn_leaf_handle_t\fP leaf_config)"
 
-.SS "void gn_ds18b20_task (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.SS "void gn_ds18b20_task (\fBgn_leaf_handle_t\fP leaf_config)"
 
-.SS "void gn_ds18b20_temp_sensor_collect (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.SS "void gn_ds18b20_temp_sensor_collect (\fBgn_leaf_handle_t\fP leaf_config)"
 
 .SH "Variable Documentation"
 .PP 

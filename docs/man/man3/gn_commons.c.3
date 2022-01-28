@@ -1,4 +1,4 @@
-.TH "components/grownode/gn_commons.c" 3 "Thu Dec 30 2021" "GrowNode" \" -*- nroff -*-
+.TH "components/grownode/gn_commons.c" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -17,19 +17,44 @@ components/grownode/gn_commons.c
 
 .in +1c
 .ti -1c
-.RI "size_t \fBgn_common_leaf_event_mask_param\fP (\fBgn_leaf_parameter_event_handle_t\fP evt, \fBgn_leaf_param_handle_t\fP param)"
+.RI "size_t \fBgn_leaf_event_mask_param\fP (\fBgn_leaf_parameter_event_handle_t\fP evt, \fBgn_leaf_param_handle_t\fP param)"
 .br
 .ti -1c
-.RI "uint64_t \fBgn_common_hash\fP (const char *key)"
+.RI "uint64_t \fBgn_hash\fP (const char *key)"
 .br
 .ti -1c
-.RI "void \fBgn_common_hash_str\fP (const char *key, char *buf, size_t len)"
+.RI "void \fBgn_hash_str\fP (const char *key, char *buf, size_t len)"
 .br
 .ti -1c
-.RI "\fBgn_leaf_param_validator_result_t\fP \fB_gn_commons_double_positive_validator\fP (\fBgn_leaf_param_handle_t\fP param, void **param_value)"
+.RI "\fBgn_leaf_param_validator_result_t\fP \fBgn_validator_double_positive\fP (\fBgn_leaf_param_handle_t\fP param, void **param_value)"
 .br
 .ti -1c
-.RI "\fBgn_leaf_param_validator_result_t\fP \fB_gn_commons_double_validator\fP (\fBgn_leaf_param_handle_t\fP param, void **param_value)"
+.RI "\fBgn_leaf_param_validator_result_t\fP \fBgn_validator_double\fP (\fBgn_leaf_param_handle_t\fP param, void **param_value)"
+.br
+.ti -1c
+.RI "\fBgn_leaf_param_validator_result_t\fP \fBgn_validator_boolean\fP (\fBgn_leaf_param_handle_t\fP param, void **param_value)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "const char * \fBgn_config_status_descriptions\fP [14]"
+.br
+.ti -1c
+.RI "const double \fBmin\fP = DBL_MIN"
+.br
+.ti -1c
+.RI "const double \fBzero\fP = 0"
+.br
+.ti -1c
+.RI "const double \fBmax\fP = DBL_MAX"
+.br
+.ti -1c
+.RI "const bool \fBbool_false\fP = false"
+.br
+.ti -1c
+.RI "const bool \fBbool_true\fP = !\fBbool_false\fP"
 .br
 .in -1c
 .SH "Macro Definition Documentation"
@@ -38,15 +63,50 @@ components/grownode/gn_commons.c
 
 .SH "Function Documentation"
 .PP 
-.SS "\fBgn_leaf_param_validator_result_t\fP _gn_commons_double_positive_validator (\fBgn_leaf_param_handle_t\fP param, void ** param_value)"
+.SS "uint64_t gn_hash (const char * key)\fC [inline]\fP"
 
-.SS "\fBgn_leaf_param_validator_result_t\fP _gn_commons_double_validator (\fBgn_leaf_param_handle_t\fP param, void ** param_value)"
+.SS "void gn_hash_str (const char * key, char * buf, size_t len)\fC [inline]\fP"
 
-.SS "uint64_t gn_common_hash (const char * key)\fC [inline]\fP"
+.SS "size_t gn_leaf_event_mask_param (\fBgn_leaf_parameter_event_handle_t\fP evt, \fBgn_leaf_param_handle_t\fP param)\fC [inline]\fP"
 
-.SS "void gn_common_hash_str (const char * key, char * buf, size_t len)\fC [inline]\fP"
+.SS "\fBgn_leaf_param_validator_result_t\fP gn_validator_boolean (\fBgn_leaf_param_handle_t\fP param, void ** param_value)"
 
-.SS "size_t gn_common_leaf_event_mask_param (\fBgn_leaf_parameter_event_handle_t\fP evt, \fBgn_leaf_param_handle_t\fP param)\fC [inline]\fP"
+.SS "\fBgn_leaf_param_validator_result_t\fP gn_validator_double (\fBgn_leaf_param_handle_t\fP param, void ** param_value)"
+
+.SS "\fBgn_leaf_param_validator_result_t\fP gn_validator_double_positive (\fBgn_leaf_param_handle_t\fP param, void ** param_value)"
+
+.SH "Variable Documentation"
+.PP 
+.SS "const bool bool_false = false"
+
+.SS "const bool bool_true = !\fBbool_false\fP"
+
+.SS "const char* gn_config_status_descriptions[14]"
+\fBInitial value:\fP
+.PP
+.nf
+= {
+    "Not Initialized",
+    "Initializing",
+    "Generic Error",
+    "Network Error",
+     "Server Error",
+     "Completed",
+    "Started",
+     "Bad Firmware URL",
+     "Bad Provisioning Password",
+     "Bad Server Base Topic",
+     "Bad Server URL",
+     "Bad Server Keepalive",
+     "Bad SNTP URL",
+     "Bad Server Discovery Prefix"
+}
+.fi
+.SS "const double max = DBL_MAX"
+
+.SS "const double min = DBL_MIN"
+
+.SS "const double zero = 0"
 
 .SH "Author"
 .PP 

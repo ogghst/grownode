@@ -1,4 +1,4 @@
-.TH "components/grownode/grownode_intl.h" 3 "Thu Dec 30 2021" "GrowNode" \" -*- nroff -*-
+.TH "components/grownode/grownode_intl.h" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -70,7 +70,7 @@ components/grownode/grownode_intl.h
 .br
 .RI "send event to leaf using xQueueSend\&. the data will be null terminated\&. "
 .ti -1c
-.RI "\fBgn_err_t\fP \fB_gn_leaf_parameter_update\fP (const \fBgn_leaf_config_handle_t\fP leaf_config, const char *param, const void *data, const int data_len)"
+.RI "\fBgn_err_t\fP \fB_gn_leaf_parameter_update\fP (const \fBgn_leaf_handle_t\fP leaf_config, const char *param, const void *data, const int data_len)"
 .br
 .in -1c
 .SH "Typedef Documentation"
@@ -91,7 +91,7 @@ components/grownode/grownode_intl.h
 
 .SH "Function Documentation"
 .PP 
-.SS "\fBgn_err_t\fP _gn_leaf_parameter_update (const \fBgn_leaf_config_handle_t\fP leaf_config, const char * param, const void * data, const int data_len)"
+.SS "\fBgn_err_t\fP _gn_leaf_parameter_update (const \fBgn_leaf_handle_t\fP leaf_config, const char * param, const void * data, const int data_len)"
 update the parameter value from the event supplied\&. this is called from event handling system\&. hence, the parameter value can be changed here only if it has WRITE access
 .PP
 \fBReturns\fP

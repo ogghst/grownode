@@ -1,4 +1,4 @@
-.TH "components/grownode/leaves/gn_watering_control.c" 3 "Thu Dec 30 2021" "GrowNode" \" -*- nroff -*-
+.TH "components/grownode/leaves/gn_watering_control.c" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -24,17 +24,17 @@ components/grownode/leaves/gn_watering_control.c
 
 .in +1c
 .ti -1c
-.RI "enum \fBgn_hcc_status\fP { \fBHCC_HEATING\fP, \fBHCC_COOLING\fP, \fBHCC_OFF\fP }"
+.RI "enum \fBgn_hcc_status\fP { \fBHCC_HEATING\fP, \fBHCC_COOLING\fP, \fBHCC_OFF\fP, \fBHCC_HEATING\fP, \fBHCC_COOLING\fP, \fBHCC_OFF\fP }"
 .br
 .ti -1c
-.RI "enum \fBgn_wat_status\fP { \fBWAT_WAIT\fP, \fBWAT_ON\fP, \fBWAT_OFF\fP }"
+.RI "enum \fBgn_wat_status\fP { \fBWAT_WAIT\fP, \fBWAT_ON\fP, \fBWAT_OFF\fP, \fBWAT_WAIT\fP, \fBWAT_ON\fP, \fBWAT_OFF\fP }"
 .br
 .in -1c
 .SS "Functions"
 
 .in +1c
 .ti -1c
-.RI "void \fBgn_watering_control_task\fP (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.RI "void \fBgn_watering_control_task\fP (\fBgn_leaf_handle_t\fP leaf_config)"
 .br
 .ti -1c
 .RI "\fBgn_leaf_param_validator_result_t\fP \fB_gn_watering_interval_validator\fP (\fBgn_leaf_param_handle_t\fP param, void **param_value)"
@@ -46,10 +46,10 @@ components/grownode/leaves/gn_watering_control.c
 .RI "\fBgn_leaf_param_validator_result_t\fP \fB_gn_watering_target_temp_validator\fP (\fBgn_leaf_param_handle_t\fP param, void **param_value)"
 .br
 .ti -1c
-.RI "void \fB_gn_watering_callback_intl\fP (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.RI "void \fB_gn_watering_callback_intl\fP (\fBgn_leaf_handle_t\fP leaf_config)"
 .br
 .ti -1c
-.RI "\fBgn_leaf_descriptor_handle_t\fP \fBgn_watering_control_config\fP (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.RI "\fBgn_leaf_descriptor_handle_t\fP \fBgn_watering_control_config\fP (\fBgn_leaf_handle_t\fP leaf_config)"
 .br
 .in -1c
 .SH "Macro Definition Documentation"
@@ -69,6 +69,12 @@ components/grownode/leaves/gn_watering_control.c
 \fB\fIHCC_COOLING \fP\fP
 .TP
 \fB\fIHCC_OFF \fP\fP
+.TP
+\fB\fIHCC_HEATING \fP\fP
+.TP
+\fB\fIHCC_COOLING \fP\fP
+.TP
+\fB\fIHCC_OFF \fP\fP
 .SS "enum \fBgn_wat_status\fP"
 
 .PP
@@ -80,9 +86,15 @@ components/grownode/leaves/gn_watering_control.c
 \fB\fIWAT_ON \fP\fP
 .TP
 \fB\fIWAT_OFF \fP\fP
+.TP
+\fB\fIWAT_WAIT \fP\fP
+.TP
+\fB\fIWAT_ON \fP\fP
+.TP
+\fB\fIWAT_OFF \fP\fP
 .SH "Function Documentation"
 .PP 
-.SS "void _gn_watering_callback_intl (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.SS "void _gn_watering_callback_intl (\fBgn_leaf_handle_t\fP leaf_config)"
 
 .SS "\fBgn_leaf_param_validator_result_t\fP _gn_watering_interval_validator (\fBgn_leaf_param_handle_t\fP param, void ** param_value)"
 
@@ -90,9 +102,9 @@ components/grownode/leaves/gn_watering_control.c
 
 .SS "\fBgn_leaf_param_validator_result_t\fP _gn_watering_time_validator (\fBgn_leaf_param_handle_t\fP param, void ** param_value)"
 
-.SS "\fBgn_leaf_descriptor_handle_t\fP gn_watering_control_config (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.SS "\fBgn_leaf_descriptor_handle_t\fP gn_watering_control_config (\fBgn_leaf_handle_t\fP leaf_config)"
 
-.SS "void gn_watering_control_task (\fBgn_leaf_config_handle_t\fP leaf_config)"
+.SS "void gn_watering_control_task (\fBgn_leaf_handle_t\fP leaf_config)"
 
 .SH "Author"
 .PP 

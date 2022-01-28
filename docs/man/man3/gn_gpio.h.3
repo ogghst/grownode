@@ -1,0 +1,49 @@
+.TH "components/grownode/leaves/gn_gpio.h" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+components/grownode/leaves/gn_gpio.h
+.SH SYNOPSIS
+.br
+.PP
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBgn_leaf_descriptor_handle_t\fP \fBgn_gpio_config\fP (\fBgn_leaf_handle_t\fP leaf_config)"
+.br
+.ti -1c
+.RI "\fBgn_leaf_handle_t\fP \fBgn_gpio_fastcreate\fP (\fBgn_node_handle_t\fP node, const char *leaf_name, int gpio, bool inverted, bool toggled)"
+.br
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "\fBgn_leaf_descriptor_handle_t\fP gn_gpio_config (\fBgn_leaf_handle_t\fP leaf_config)"
+
+.SS "\fBgn_leaf_handle_t\fP gn_gpio_fastcreate (\fBgn_node_handle_t\fP node, const char * leaf_name, int gpio, bool inverted, bool toggled)"
+creates a GPIO leaf defining all parameters
+.PP
+\fBParameters\fP
+.RS 4
+\fInode\fP the parent node 
+.br
+\fIleaf_name\fP the name of the leaf to be created 
+.br
+\fIgpio\fP the GPIO number to attach this leaf 
+.br
+\fIinverted\fP if the GPIO need to work in inverted mode (toggle = true -> gpio = false) 
+.br
+\fItoggled\fP the initial status
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+an handle to the leaf initialized 
+.PP
+NULL in case of errors 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GrowNode from the source code\&.

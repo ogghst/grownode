@@ -1,4 +1,4 @@
-.TH "components/grownode/test/test_grownode.c" 3 "Thu Dec 30 2021" "GrowNode" \" -*- nroff -*-
+.TH "components/grownode/test/test_grownode.c" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -59,7 +59,10 @@ components/grownode/test/test_grownode.c
 .RI "\fBgn_config_handle_t\fP \fBconfig\fP"
 .br
 .ti -1c
-.RI "\fBgn_node_config_handle_t\fP \fBnode_config\fP"
+.RI "\fBgn_node_handle_t\fP \fBnode_config\fP"
+.br
+.ti -1c
+.RI "\fBgn_config_init_param_t\fP \fBconfig_init\fP"
 .br
 .in -1c
 .SH "Function Documentation"
@@ -96,7 +99,17 @@ components/grownode/test/test_grownode.c
 .PP 
 .SS "\fBgn_config_handle_t\fP config"
 
-.SS "\fBgn_node_config_handle_t\fP node_config"
+.SS "\fBgn_config_init_param_t\fP config_init"
+\fBInitial value:\fP
+.PP
+.nf
+= { \&.provisioning_security = true,
+        \&.provisioning_password = "grownode", \&.server_board_id_topic = false,
+        \&.server_base_topic = "server_base_topic", \&.server_url = "server_url",
+        \&.server_keepalive_timer_sec = 60, \&.server_discovery = false,
+        \&.firmware_url = "firmware_url", \&.sntp_url = "sntp_url" }
+.fi
+.SS "\fBgn_node_handle_t\fP node_config"
 
 .SH "Author"
 .PP 

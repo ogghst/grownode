@@ -1,4 +1,4 @@
-.TH "components/grownode/test/test_pump.c" 3 "Thu Dec 30 2021" "GrowNode" \" -*- nroff -*-
+.TH "components/grownode/test/test_pump.c" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -13,7 +13,7 @@ components/grownode/test/test_pump.c
 .RI "void \fB_gn_mqtt_event_handler\fP (void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)"
 .br
 .ti -1c
-.RI "void \fB_gn_mqtt_build_leaf_parameter_command_topic\fP (const \fBgn_leaf_config_handle_t\fP _leaf_config, const char *param_name, char *buf)"
+.RI "void \fB_gn_mqtt_build_leaf_parameter_command_topic\fP (const \fBgn_leaf_handle_t\fP _leaf_config, const char *param_name, char *buf)"
 .br
 .ti -1c
 .RI "\fBTEST_CASE\fP ('gn_init_add_pump', '[pump]')"
@@ -44,18 +44,21 @@ components/grownode/test/test_pump.c
 
 .in +1c
 .ti -1c
+.RI "\fBgn_config_init_param_t\fP \fBconfig_init\fP"
+.br
+.ti -1c
 .RI "\fBgn_config_handle_t\fP \fBconfig\fP"
 .br
 .ti -1c
-.RI "\fBgn_node_config_handle_t\fP \fBnode_config\fP"
+.RI "\fBgn_node_handle_t\fP \fBnode_config\fP"
 .br
 .ti -1c
-.RI "\fBgn_leaf_config_handle_t\fP \fBpump_config\fP"
+.RI "\fBgn_leaf_handle_t\fP \fBpump_config\fP"
 .br
 .in -1c
 .SH "Function Documentation"
 .PP 
-.SS "void _gn_mqtt_build_leaf_parameter_command_topic (const \fBgn_leaf_config_handle_t\fP _leaf_config, const char * param_name, char * buf)"
+.SS "void _gn_mqtt_build_leaf_parameter_command_topic (const \fBgn_leaf_handle_t\fP _leaf_config, const char * param_name, char * buf)"
 
 .SS "void _gn_mqtt_event_handler (void * handler_args, esp_event_base_t base, int32_t event_id, void * event_data)"
 
@@ -77,11 +80,21 @@ components/grownode/test/test_pump.c
 
 .SH "Variable Documentation"
 .PP 
-.SS "\fBgn_config_handle_t\fP config"
+.SS "\fBgn_config_handle_t\fP config\fC [extern]\fP"
 
-.SS "\fBgn_node_config_handle_t\fP node_config"
+.SS "\fBgn_config_init_param_t\fP config_init"
+\fBInitial value:\fP
+.PP
+.nf
+= { \&.provisioning_security = true,
+        \&.provisioning_password = "grownode", \&.server_board_id_topic = false,
+        \&.server_base_topic = "server_base_topic", \&.server_url = "server_url",
+        \&.server_keepalive_timer_sec = 60, \&.server_discovery = false,
+        \&.firmware_url = "firmware_url", \&.sntp_url = "sntp_url" }
+.fi
+.SS "\fBgn_node_handle_t\fP node_config\fC [extern]\fP"
 
-.SS "\fBgn_leaf_config_handle_t\fP pump_config"
+.SS "\fBgn_leaf_handle_t\fP pump_config"
 
 .SH "Author"
 .PP 

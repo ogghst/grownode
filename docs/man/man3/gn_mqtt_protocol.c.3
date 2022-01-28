@@ -1,4 +1,4 @@
-.TH "components/grownode/gn_mqtt_protocol.c" 3 "Thu Dec 30 2021" "GrowNode" \" -*- nroff -*-
+.TH "components/grownode/gn_mqtt_protocol.c" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -40,20 +40,16 @@ components/grownode/gn_mqtt_protocol.c
 .RI "char * \fB_gn_mqtt_build_node_name\fP (\fBgn_config_handle_intl_t\fP \fBconfig\fP)"
 .br
 .ti -1c
-.RI "\fBgn_server_status_t\fP \fBgn_mqtt_get_status\fP ()"
-.br
-.RI "returns the status of the server "
-.ti -1c
-.RI "void \fB_gn_mqtt_build_leaf_command_topic\fP (\fBgn_leaf_config_handle_t\fP _leaf_config, char *buf)"
+.RI "void \fB_gn_mqtt_build_leaf_command_topic\fP (\fBgn_leaf_handle_t\fP _leaf_config, char *buf)"
 .br
 .ti -1c
-.RI "void \fB_gn_mqtt_build_leaf_parameter_command_topic\fP (const \fBgn_leaf_config_handle_t\fP _leaf_config, const char *param_name, char *buf)"
+.RI "void \fB_gn_mqtt_build_leaf_parameter_command_topic\fP (const \fBgn_leaf_handle_t\fP _leaf_config, const char *param_name, char *buf)"
 .br
 .ti -1c
-.RI "void \fB_gn_mqtt_build_leaf_parameter_status_topic\fP (\fBgn_leaf_config_handle_t\fP _leaf_config, char *param_name, char *buf)"
+.RI "void \fB_gn_mqtt_build_leaf_parameter_status_topic\fP (\fBgn_leaf_handle_t\fP _leaf_config, char *param_name, char *buf)"
 .br
 .ti -1c
-.RI "void \fB_gn_mqtt_build_leaf_status_topic\fP (\fBgn_leaf_config_handle_t\fP _leaf_config, char *buf)"
+.RI "void \fB_gn_mqtt_build_leaf_status_topic\fP (\fBgn_leaf_handle_t\fP _leaf_config, char *buf)"
 .br
 .ti -1c
 .RI "void \fB_gn_mqtt_build_status_topic\fP (\fBgn_config_handle_intl_t\fP \fBconfig\fP, char *buf)"
@@ -65,41 +61,43 @@ components/grownode/gn_mqtt_protocol.c
 .RI "void \fB_gn_mqtt_build_command_topic\fP (\fBgn_config_handle_intl_t\fP \fBconfig\fP, char *buf)"
 .br
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_mqtt_publish_leaf\fP (\fBgn_leaf_config_handle_t\fP _leaf_config)"
+.RI "\fBgn_err_t\fP \fBgn_mqtt_publish_leaf\fP (\fBgn_leaf_handle_t\fP _leaf_config)"
 .br
 .RI "subscribe leaf to the MQTT server in order to receive messages "
 .ti -1c
 .RI "\fBgn_err_t\fP \fBgn_mqtt_subscribe_leaf_param\fP (\fBgn_leaf_param_handle_t\fP _param)"
 .br
 .ti -1c
-.RI "esp_err_t \fBgn_mqtt_send_node_config\fP (\fBgn_node_config_handle_t\fP _node_config)"
+.RI "\fBgn_err_t\fP \fBgn_mqtt_send_node_config\fP (\fBgn_node_handle_t\fP _node_config)"
 .br
+.RI "send node parameters via JSON message to the server "
 .ti -1c
 .RI "\fBgn_err_t\fP \fBgn_mqtt_send_leaf_param\fP (\fBgn_leaf_param_handle_t\fP _param)"
 .br
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_mqtt_send_log_message\fP (\fBgn_config_handle_t\fP \fB_config\fP, char *log_tag, \fBgn_log_level_t\fP level, char *message)"
+.RI "\fBgn_err_t\fP \fBgn_mqtt_send_log_message\fP (\fBgn_config_handle_t\fP _config, char *log_tag, \fBgn_log_level_t\fP level, char *message)"
+.br
+.RI "sends log message via MQTT "
+.ti -1c
+.RI "\fBgn_err_t\fP \fBgn_mqtt_send_startup_message\fP (\fBgn_config_handle_t\fP _config)"
 .br
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_mqtt_send_startup_message\fP (\fBgn_config_handle_t\fP \fB_config\fP)"
+.RI "\fBgn_err_t\fP \fBgn_mqtt_send_reboot_message\fP (\fBgn_config_handle_t\fP _config)"
 .br
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_mqtt_send_reboot_message\fP (\fBgn_config_handle_t\fP \fB_config\fP)"
+.RI "\fBgn_err_t\fP \fBgn_mqtt_send_reset_message\fP (\fBgn_config_handle_t\fP _config)"
 .br
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_mqtt_send_reset_message\fP (\fBgn_config_handle_t\fP \fB_config\fP)"
+.RI "\fBgn_err_t\fP \fBgn_mqtt_send_ota_message\fP (\fBgn_config_handle_t\fP _config)"
 .br
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_mqtt_send_ota_message\fP (\fBgn_config_handle_t\fP \fB_config\fP)"
+.RI "\fBgn_err_t\fP \fBgn_mqtt_send_leaf_message\fP (\fBgn_leaf_handle_t\fP _leaf, const char *msg)"
 .br
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_mqtt_send_leaf_message\fP (\fBgn_leaf_config_handle_t\fP _leaf, const char *msg)"
+.RI "esp_err_t \fB_gn_mqtt_on_connected\fP (\fBgn_config_handle_t\fP \fBconfig\fP)"
 .br
 .ti -1c
-.RI "esp_err_t \fB_gn_mqtt_on_connected\fP (esp_mqtt_client_handle_t client)"
-.br
-.ti -1c
-.RI "esp_err_t \fB_gn_mqtt_on_disconnected\fP (esp_mqtt_client_handle_t client)"
+.RI "esp_err_t \fB_gn_mqtt_on_disconnected\fP (\fBgn_config_handle_t\fP \fBconfig\fP)"
 .br
 .ti -1c
 .RI "void \fBlog_error_if_nonzero\fP (const char *message, int error_code)"
@@ -108,8 +106,9 @@ components/grownode/gn_mqtt_protocol.c
 .RI "void \fB_gn_mqtt_event_handler\fP (void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)"
 .br
 .ti -1c
-.RI "esp_err_t \fBgn_mqtt_init\fP (\fBgn_config_handle_t\fP \fB_conf\fP)"
+.RI "\fBgn_err_t\fP \fBgn_mqtt_init\fP (\fBgn_config_handle_t\fP \fBconfig\fP)"
 .br
+.RI "inits the MQTT subsystem "
 .in -1c
 .SS "Variables"
 
@@ -122,9 +121,6 @@ components/grownode/gn_mqtt_protocol.c
 .br
 .ti -1c
 .RI "const int \fB_GN_MQTT_CONNECTED_KO_EVENT_BIT\fP = BIT1"
-.br
-.ti -1c
-.RI "\fBgn_config_handle_intl_t\fP \fB_config\fP"
 .br
 .ti -1c
 .RI "char \fB_gn_cmd_topic\fP [\fB_GN_MQTT_MAX_TOPIC_LENGTH\fP]"
@@ -153,13 +149,13 @@ components/grownode/gn_mqtt_protocol.c
 .PP 
 .SS "void _gn_mqtt_build_command_topic (\fBgn_config_handle_intl_t\fP config, char * buf)"
 
-.SS "void _gn_mqtt_build_leaf_command_topic (\fBgn_leaf_config_handle_t\fP _leaf_config, char * buf)"
+.SS "void _gn_mqtt_build_leaf_command_topic (\fBgn_leaf_handle_t\fP _leaf_config, char * buf)"
 
-.SS "void _gn_mqtt_build_leaf_parameter_command_topic (const \fBgn_leaf_config_handle_t\fP _leaf_config, const char * param_name, char * buf)"
+.SS "void _gn_mqtt_build_leaf_parameter_command_topic (const \fBgn_leaf_handle_t\fP _leaf_config, const char * param_name, char * buf)"
 
-.SS "void _gn_mqtt_build_leaf_parameter_status_topic (\fBgn_leaf_config_handle_t\fP _leaf_config, char * param_name, char * buf)"
+.SS "void _gn_mqtt_build_leaf_parameter_status_topic (\fBgn_leaf_handle_t\fP _leaf_config, char * param_name, char * buf)"
 
-.SS "void _gn_mqtt_build_leaf_status_topic (\fBgn_leaf_config_handle_t\fP _leaf_config, char * buf)"
+.SS "void _gn_mqtt_build_leaf_status_topic (\fBgn_leaf_handle_t\fP _leaf_config, char * buf)"
 
 .SS "void _gn_mqtt_build_log_topic (\fBgn_config_handle_intl_t\fP config, char * buf)"
 
@@ -169,24 +165,31 @@ components/grownode/gn_mqtt_protocol.c
 
 .SS "void _gn_mqtt_event_handler (void * handler_args, esp_event_base_t base, int32_t event_id, void * event_data)"
 
-.SS "esp_err_t _gn_mqtt_on_connected (esp_mqtt_client_handle_t client)"
+.SS "esp_err_t _gn_mqtt_on_connected (\fBgn_config_handle_t\fP config)"
 
-.SS "esp_err_t _gn_mqtt_on_disconnected (esp_mqtt_client_handle_t client)"
+.SS "esp_err_t _gn_mqtt_on_disconnected (\fBgn_config_handle_t\fP config)"
 
-.SS "\fBgn_server_status_t\fP gn_mqtt_get_status ()"
+.SS "\fBgn_err_t\fP gn_mqtt_init (\fBgn_config_handle_t\fP config)"
 
 .PP
-returns the status of the server 
+inits the MQTT subsystem 
+.PP
+\fBParameters\fP
+.RS 4
+\fIconfig\fP the configuration to use
+.RE
 .PP
 \fBReturns\fP
 .RS 4
-the current status 
+GN_RET_ERR_INVALID_ARG in case of null _conf 
+.PP
+GN_RET_ERR_MQTT_ERROR in case of MQTT errors 
+.PP
+GN_RET_ERR in case of general errors 
 .RE
 .PP
 
-.SS "esp_err_t gn_mqtt_init (\fBgn_config_handle_t\fP _conf)"
-
-.SS "\fBgn_err_t\fP gn_mqtt_publish_leaf (\fBgn_leaf_config_handle_t\fP _leaf_config)"
+.SS "\fBgn_err_t\fP gn_mqtt_publish_leaf (\fBgn_leaf_handle_t\fP _leaf_config)"
 
 .PP
 subscribe leaf to the MQTT server in order to receive messages 
@@ -202,21 +205,151 @@ status of the operation
 .RE
 .PP
 
-.SS "\fBgn_err_t\fP gn_mqtt_send_leaf_message (\fBgn_leaf_config_handle_t\fP _leaf, const char * msg)"
+.SS "\fBgn_err_t\fP gn_mqtt_send_leaf_message (\fBgn_leaf_handle_t\fP _leaf, const char * msg)"
+@sends a command message to the specific leaf
+.PP
+\fBParameters\fP
+.RS 4
+\fI_leaf\fP the recipient leaf 
+.br
+\fImsg\fP payload
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+GN_RET_OK if successful 
+.PP
+GN_RET_ERR_INVALID_ARG if _config is null 
+.PP
+GN_RET_ERR_MQTT_ERROR if not possible to send message 
+.RE
+.PP
 
 .SS "\fBgn_err_t\fP gn_mqtt_send_leaf_param (\fBgn_leaf_param_handle_t\fP _param)"
 
 .SS "\fBgn_err_t\fP gn_mqtt_send_log_message (\fBgn_config_handle_t\fP _config, char * log_tag, \fBgn_log_level_t\fP level, char * message)"
 
-.SS "esp_err_t gn_mqtt_send_node_config (\fBgn_node_config_handle_t\fP _node_config)"
+.PP
+sends log message via MQTT this uses the log level of the tag in understanding if the message has to be sent, in a similar way to ESP_LOGX
+.PP
+\fBParameters\fP
+.RS 4
+\fI_config\fP the configuration to use 
+.br
+\fIlog_tag\fP the tag to be checked against 
+.br
+\fIlevel\fP the log level to be checked 
+.br
+\fImessage\fP the payload
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+GN_RET_OK in case of successful sent 
+.PP
+GN_RET_ERR general error 
+.PP
+GN_RET_MQTT_ERROR on server error 
+.PP
+GN_RET_ERR_INVALID_ARG in case of arguments null 
+.RE
+.PP
+
+.SS "\fBgn_err_t\fP gn_mqtt_send_node_config (\fBgn_node_handle_t\fP _node_config)"
+
+.PP
+send node parameters via JSON message to the server this sends only if the node has already been started (status = GN_CONFIG_STATUS_STARTED)
+.PP
+\fBParameters\fP
+.RS 4
+\fI_node_config\fP the node to publish
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+GN_RET_ERR_INVALID_ARG if node config is null 
+.RE
+.PP
 
 .SS "\fBgn_err_t\fP gn_mqtt_send_ota_message (\fBgn_config_handle_t\fP _config)"
+@sends a JSON message saying the board is going to download the firmware
+.PP
+payload is {'msgtype':'OTA'}
+.PP
+\fBParameters\fP
+.RS 4
+\fI_config\fP the configuration to use
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+GN_RET_OK if successful 
+.PP
+GN_RET_ERR_INVALID_ARG if _config is null 
+.PP
+GN_RET_ERR_MQTT_ERROR if not possible to send message 
+.RE
+.PP
 
 .SS "\fBgn_err_t\fP gn_mqtt_send_reboot_message (\fBgn_config_handle_t\fP _config)"
+@sends a JSON message saying the board is rebooted
+.PP
+payload is {'msgtype':'RBT'}
+.PP
+\fBParameters\fP
+.RS 4
+\fI_config\fP the configuration to use
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+GN_RET_OK if successful 
+.PP
+GN_RET_ERR_INVALID_ARG if _config is null 
+.PP
+GN_RET_ERR_MQTT_ERROR if not possible to send message 
+.RE
+.PP
 
 .SS "\fBgn_err_t\fP gn_mqtt_send_reset_message (\fBgn_config_handle_t\fP _config)"
+@sends a JSON message saying the board is going to reset
+.PP
+payload is {'msgtype':'RST'}
+.PP
+\fBParameters\fP
+.RS 4
+\fI_config\fP the configuration to use
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+GN_RET_OK if successful 
+.PP
+GN_RET_ERR_INVALID_ARG if _config is null 
+.PP
+GN_RET_ERR_MQTT_ERROR if not possible to send message 
+.RE
+.PP
 
 .SS "\fBgn_err_t\fP gn_mqtt_send_startup_message (\fBgn_config_handle_t\fP _config)"
+@sends a JSON message saying the board is online
+.PP
+payload is {'msgtype':'online'}
+.PP
+\fBParameters\fP
+.RS 4
+\fI_config\fP the configuration to use
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+GN_RET_OK if successful 
+.PP
+GN_RET_ERR_INVALID_ARG if _config is null 
+.PP
+GN_RET_ERR_MQTT_ERROR if not possible to send message 
+.RE
+.PP
 
 .SS "\fBgn_err_t\fP gn_mqtt_subscribe_leaf_param (\fBgn_leaf_param_handle_t\fP _param)"
 
@@ -225,8 +358,6 @@ status of the operation
 .SH "Variable Documentation"
 .PP 
 .SS "char __nodename[13] = ''"
-
-.SS "\fBgn_config_handle_intl_t\fP _config"
 
 .SS "char _gn_cmd_topic[\fB_GN_MQTT_MAX_TOPIC_LENGTH\fP]"
 
