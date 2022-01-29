@@ -6,7 +6,7 @@ This page aims to describe the GrowNode API and how to use it to develop your ow
 
 GrowNode is developed on top of the [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/) Development Framework, in order to directly access to the ESP32 microprocessor functionalities and the RTOS operating system.
 
-##Basic Concepts
+## Basic Concepts
 
 THe highest level structure on a GrowNode system is the board itself. Every solution you want to build is basically a combination of 
 
@@ -20,15 +20,15 @@ THe highest level structure on a GrowNode system is the board itself. Every solu
 
 - one entry point of the application, where the Node and Leaves are declared and configured [Board](#boards). *Example: a Water Tower Board, a simple Temperature and Humidity pot controller*
 
-##Architecture
+## Architecture
 
 In ESP-IDF vacabulary, the Board and it corresponding Node works in the main application RTOS task, and each Leaf works in a separate task. This allows the parallel execution of task logic and, more than this, will avoid that a leaf waiting for things to happen (eg. sensor measure) to have side effects on the whole Node. All messaging across leaves is implemented through RTOS events and messages queues.
 
-###Code reference
+### Code reference
 
 Code Documentation is described in [API](../html/index.html) section. The entry point of all GrowNode functionalities resides in `grownode.h` header file. Users just have to reference it in their code. 
 
-##Node
+## Node
 
 The core element of a GrowNode implementation is the Node. It represents the container and the entry point for the board capabilities.
 
@@ -38,7 +38,7 @@ To start the Node execution loop, the `gn_node_start()` function has to be calle
 
 Although a Node is intended to survive for the entire duration of the application, a `gn_node_destroy()` function is provided, to release Node resources. 
 
-###Node statuses
+### Node statuses
 
 The Node initialization process implies, depending on the configuration, the start of several services like WiFi provisioning, MQTT server connection, that requires time. In order to give the user the possibility to perform operations while the init process continues (like showing a message on the display or handle issues) it is possible to retrieve the Node status and wait until it is in the correct one to proceed. 
 
@@ -78,7 +78,7 @@ After a successful call of `gn_node_start()` the node goes into `GN_NODE_STATUS_
 ```
 
 
-##Leaves
+## Leaves
 
 Every sensor or actuator is represented by a Leaf. The Leaf is the 'engine' of underlying logic, it is designed to be reusable multiple times in a Node and be configured in a consistent way. Due to the fact it is the bridge between the User and the hardware layer, the Leaf is handled by the Grownode engine as a separated RTOS task, and is therefore accessed in a asyncronous way.
 
@@ -121,14 +121,14 @@ In this callback it is contained the business logic of the leaf, like
 	moisture_leaf = gn_leaf_create(node, "moisture", gn_capacitive_moisture_sensor_config, 4096);
 ```
 
-##Parameters
+## Parameters
 
 GrowNode allow users to access Leaves input and outputs through Parameters. A parameters defines its behavior and hold its value.
 Depending on their configuration, parameters can be exposed and accessed from inside the code (e.g. from an onboard temperature controller) or from the network (e.g. to monitor the water level). They can be also updated in both ways. 
 
 Parameters can be stored in the NVS flash (the ESP32 'hard drive') in order to be persisted over board restart, in a transparent way (no code needed). 
 
-###Initialization
+### Initialization
 
 Each Leaf has a predetermined set of parameters. Those are initialized in the configuration phase described in [Leaves](#leaves) section. The initial value can be overridden by the user however. For instance, a parameter defining a GPIO pin should be customized depending on the board circuit. To do this, the `gn_leaf_param_init_XXX()` functions are defined. Example: 
 
@@ -139,11 +139,11 @@ Each Leaf has a predetermined set of parameters. Those are initialized in the co
 
 Here, a `lights` leaf is created using the `gn_gpio_config` callback. This leaf (see `gn_gpio` leaf code) has a parameter called `GN_GPIO_PARAM_GPIO` that represents the GPIO to control. This code assigns the value 25 to that parameter at startup.
 
-###Fast creation
+### Fast creation
 
 Some leaves has convenient functions created to perform creation and initialization in a compact form. Those functions have the suffix `_fastcreate` (see for instance `gn_gpio_fastcreate()` on `gn_gpio.c` leaf)
 
-###Update
+### Update
 
 A leaf parameter can be updated:
 
@@ -165,13 +165,13 @@ This is the complete code to create and configure a BME280 Leaf sensor, a temper
 ```
 
 
-##Build Your own Leaf
+## Build Your own Leaf
 
 This section is intended for users that wants to build new leaves. It's a rather simple task and many working examples are present in `leaves` folder.
 
 In order to approach to this topic, you must know the parameter API features.
 
-###Parameter declaration
+### Parameter declaration
 
 The declaration of a parameter inside a Leaf is done by calling `gn_leaf_param_create()`. Signature:
 
@@ -184,7 +184,7 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
 
 The return type of this function is a reference to the parameter, that will be stored into the leaf for future use.
 
-###Parameter Types
+### Parameter Types
 
 Parameters are strong typed. That means that internally into Grownode engine they are represented using C types. Types are enumerated in `gn_val_type_t`.
 
@@ -208,7 +208,7 @@ typedef union {
 
 As you can see from this definition, it is user responsibility to allocate memory in case of char array parameter. This has to be done inside the Leaf code.
 
-###Access Type
+### Access Type
 
 Parameters can have multiple uses, and therefore its access type can be different:
 
@@ -223,7 +223,7 @@ typedef enum {
 
 The access type is evaluated upon parameter change. If the request is not compatible with the access type (eg a network request against a GN_LEAF_PARAM_ACCESS_NODE access type) the request won't have any effect. 
 
-###Storage
+### Storage
 
 Some parameters holds the board hardware configuration, like the GPIO pin a sensor is attached to, or board status information that neeed to survive over board restarts or power failures (like the standard power a pump shall be activated). Those parameters can be stored on each update in the ESP32 Non Volatile Storage (NVS). The current implementation stores in key-value pairs, before hashing the key using leaf name and parameter name.
 
@@ -236,7 +236,7 @@ typedef enum {
 
 > Pay attention to not persist parameters that have continuous updates, like temperature. it can cause a fast degradation of the board memory!
 
-###Validators
+### Validators
 
 Making sure the parameter update arriving from the network makes sense can be a boring task for a leaf developer. And risk of forgetting a check and allow unsafe values can break the code or even make the system dangerous (think of turning on a pump at exceeding speed or without a time limit).
 
@@ -308,10 +308,10 @@ gn_leaf_param_validator_result_t _gn_hb2_watering_time_validator(
 }
 ```
 
-##Boards
+## Boards
 todo
 
-##MQTT
+## MQTT
 
 todo 
 
