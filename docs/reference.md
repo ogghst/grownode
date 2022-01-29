@@ -14,7 +14,7 @@ THe highest level structure on a GrowNode system is the board itself. Every solu
 
 - Several logics to access to those devices and present to the GrowNode framwork [Leaves](#leaves) - several are prebuilt and more can be user defined. *Example: a temperature sensor, a relay, a LED, a motor*
 
-- Several [Parameters](#Parameters) exposed to the Leaf, able to retrieve or command specific functionalities. *Example: the temperature retrieved, a motor switch, a light power*
+- Several [Parameters](#parameters) exposed to the Leaf, able to retrieve or command specific functionalities. *Example: the temperature retrieved, a motor switch, a light power*
 
 - One centralized controller that orchestrates and exposes to the Leaves the services needed to work: [Node](#node). This is common on all the GrowNode implementation
 
@@ -143,7 +143,7 @@ Some leaves has convenient functions created to perform creation and initializat
 
 A leaf parameter can be updated:
 
-- from the network: see see [MQTT Protocol](#MQTT)
+- from the network: see see [MQTT Protocol](#mqtt)
 - from the code
 
 When updating from user code, the `gn_leaf_param_set_XXX()` functions are used. They inform the leaf that the parameter shall be changed to a new value. This is done via event passing as the leaf resides to another task, so it's an asynchronous call.
