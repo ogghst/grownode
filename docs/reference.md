@@ -42,7 +42,11 @@ Although a Node is intended to survive for the entire duration of the applicatio
 
 The Node initialization process implies, depending on the configuration, the start of several services like WiFi provisioning, MQTT server connection, that requires time. In order to give the user the possibility to perform operations while the init process continues (like showing a message on the display or handle issues) it is possible to retrieve the Node status and wait until it is in the correct one to proceed. 
 
-A node has a status represented by the `gn_node_status_t` enum. Default, initial status is `GN_NODE_STATUS_NOT_INITIALIZED`. During initialization process, it goes into `GN_NODE_STATUS_INITIALIZING`. If some errors occurs, a specific status is representing it (see [API](../html/index.html)). If everything goes well, the status is moved to `GN_NODE_STATUS_READY_TO_START`. This gives the user the OK to exit from the wait loop and proceed with starting the node operations.
+A node has a status represented by the `gn_node_status_t` enum. 
+
+Default, initial status is `GN_NODE_STATUS_NOT_INITIALIZED`. During initialization process, it goes into `GN_NODE_STATUS_INITIALIZING`. If some errors occurs, a specific status is representing it (see [API](../html/index.html)). If everything goes well, the status is moved to `GN_NODE_STATUS_READY_TO_START`. This gives the user the OK to exit from the wait loop and proceed with starting the node operations.
+
+After a successful call of `gn_node_start()` the node goes into `GN_NODE_STATUS_STARTED`. A good `main()` infinite loop could check if the status of the node changes and react accordingly. Note: you won't find in the code as per today :)
 
 ### Code Sample: Node creation and startup
 
