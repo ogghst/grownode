@@ -1,6 +1,8 @@
 # Reference Guide
 
-This page aims to describe the GrowNode API and how to use it to develop your own firmware.
+This page aims to describe the GrowNode API and how to use it to develop your own firmware. 
+
+> Disclaimer: This is NOT intended for ready made solutions users. Don't tell me I've not warned you! :)
 
 GrowNode is developed on top of the [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/) Development Framework, in order to directly access to the ESP32 microprocessor functionalities and the RTOS operating system.
 
@@ -120,6 +122,8 @@ In this callback it is contained the business logic of the leaf, like
 GrowNode allow users to access Leaves input and outputs through Parameters. A parameters defines its behavior and hold its value.
 Depending on their configuration, parameters can be exposed and accessed from inside the code (e.g. from an onboard temperature controller) or from the network (e.g. to monitor the water level). They can be also updated in both ways. 
 
+Parameters can be stored in the NVS flash (the ESP32 'hard drive') in order to be persisted over board restart, in a transparent way (no code needed). 
+
 ###Initialization
 
 Each Leaf has a predetermined set of parameters. Those are initialized in the configuration phase described in [Leaves](#leaves) section. The initial value can be overridden by the user however. For instance, a parameter defining a GPIO pin should be customized depending on the board circuit. To do this, the `gn_leaf_param_init_XXX()` functions are defined. Example: 
@@ -213,17 +217,92 @@ typedef enum {
 } gn_leaf_param_access_type_t;
 ```
 
+The access type is evaluated upon parameter change. If the request is not compatible with the access type (eg a network request against a GN_LEAF_PARAM_ACCESS_NODE access type) the request won't have any effect. 
+
+###Storage
+
+Some parameters holds the board hardware configuration, like the GPIO pin a sensor is attached to, or board status information that neeed to survive over board restarts or power failures (like the standard power a pump shall be activated). Those parameters can be stored on each update in the ESP32 Non Volatile Storage (NVS). The current implementation stores in key-value pairs, before hashing the key using leaf name and parameter name.
+
+```
+typedef enum {
+	GN_LEAF_PARAM_STORAGE_PERSISTED, 	/*!< param is stored in NVS flash every time it changes*/
+	GN_LEAF_PARAM_STORAGE_VOLATILE 		/*< param is never stored in NVS flash*/
+} gn_leaf_param_storage_t;
+```
+
+> Pay attention to not persist parameters that have continuous updates, like temperature. it can cause a fast degradation of the board memory!
+
+###Validators
+
+Making sure the parameter update arriving from the network makes sense can be a boring task for a leaf developer. And risk of forgetting a check and allow unsafe values can break the code or even make the system dangerous (think of turning on a pump at exceeding speed or without a time limit).
+
+For this reason, Grownode platform exposes a reusable mechanism to make the code safer: parameter validators.
+
+Validator are functions compliant to the `gn_validator_callback_t` callback:
+
+```
+typedef gn_leaf_param_validator_result_t (*gn_validator_callback_t)(
+		gn_leaf_param_handle_t param, void **value);
+```
+
+The intended behavior is: check the value agains predetermined values, and return the result code on its `gn_leaf_param_validator_result_t` variable:
+
+```
+typedef enum {
+	GN_LEAF_PARAM_VALIDATOR_PASSED = 0x000,					/*!< value is compliant */
+	GN_LEAF_PARAM_VALIDATOR_ERROR_ABOVE_MAX = 0x001,		/*!< value is over the maximum limit */
+	GN_LEAF_PARAM_VALIDATOR_ERROR_BELOW_MIN = 0x002,		/*!< value is below the minimum limit */
+	GN_LEAF_PARAM_VALIDATOR_ERROR_NOT_ALLOWED = 0x100,		/*!< value is not allowed for other reasons */
+	GN_LEAF_PARAM_VALIDATOR_ERROR_GENERIC = 0x101,			/*!< algorithm has returned an error */
+	GN_LEAF_PARAM_VALIDATOR_PASSED_CHANGED = 0x200			/*!< value was not allowed but has been modified by the validator to be compliant*/
+} gn_leaf_param_validator_result_t;
+```
+
+As you can see, there is a possibility that the validator changes the value of the parameter, like if the value to be checked is below zero then set the value to zero. 
+
+Standard validators are present for standard value types:
+
+```
+gn_leaf_param_validator_result_t gn_validator_double_positive(
+		gn_leaf_param_handle_t param, void **param_value);
+
+gn_leaf_param_validator_result_t gn_validator_double(
+		gn_leaf_param_handle_t param, void **param_value);
+
+gn_leaf_param_validator_result_t gn_validator_boolean(
+		gn_leaf_param_handle_t param, void **param_value);
+```
+
+But it's easy to add new ones. Examples can be found in `gn_hydroboard2_watering_control.c` code:
 
 
+```
+gn_leaf_param_validator_result_t _gn_hb2_watering_time_validator(
+		gn_leaf_param_handle_t param, void **param_value) {
 
-### Responsibilites
-todo
+	double val;
+	if (gn_leaf_param_get_value(param, &val) != GN_RET_OK)
+		return GN_LEAF_PARAM_VALIDATOR_ERROR;
 
-### Configuration
-todo
+	double _p1 = **(double**) param_value;
+	ESP_LOGD(TAG, "_watering_time_validator - param: %d", (int )_p1);
 
-### Examples
-todo
+	if (GN_HYDROBOARD2_MIN_WATERING_TIME > **(double**) param_value) {
+		memcpy(param_value, &GN_HYDROBOARD2_MIN_WATERING_TIME,
+				sizeof(GN_HYDROBOARD2_MIN_WATERING_TIME));
+		return GN_LEAF_PARAM_VALIDATOR_PASSED_CHANGED;
+	} else if (GN_HYDROBOARD2_MAX_WATERING_TIME < **(double**) param_value) {
+		memcpy(param_value, &GN_HYDROBOARD2_MAX_WATERING_TIME,
+				sizeof(GN_HYDROBOARD2_MAX_WATERING_TIME));
+		return GN_LEAF_PARAM_VALIDATOR_PASSED_CHANGED;
+	}
+
+	_p1 = **(double**) param_value;
+	ESP_LOGD(TAG, "_watering_time_validator - param: %d", (int )_p1);
+
+	return GN_LEAF_PARAM_VALIDATOR_PASSED;
+}
+```
 
 ##Boards
 todo
