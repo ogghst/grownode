@@ -180,10 +180,18 @@ typedef gn_leaf_descriptor_handle_t (*gn_leaf_config_callback)(
 
 //parameters
 
+/**
+ * @brief type of parameters available
+ */
 typedef enum {
-	GN_VAL_TYPE_STRING, GN_VAL_TYPE_BOOLEAN, GN_VAL_TYPE_DOUBLE,
+	GN_VAL_TYPE_STRING, 	/*!< character array, user defined dimension */
+	GN_VAL_TYPE_BOOLEAN, 	/*!< true/false */
+	GN_VAL_TYPE_DOUBLE,		/*!< floating point with sign */
 } gn_val_type_t;
 
+/**
+ * @brief	holds the parameter value
+ */
 typedef union {
 	char *s;
 	bool b;
@@ -194,10 +202,10 @@ typedef union {
  * type of parameter visibility
  */
 typedef enum {
-	GN_LEAF_PARAM_ACCESS_ALL = 0x01, /*!< param can be modified both by the node and network (eg. local configuration settings)*/
-	GN_LEAF_PARAM_ACCESS_NETWORK = 0x02, /*!< param can be modified only by network (eg. configuration settings from environment)*/
-	GN_LEAF_PARAM_ACCESS_NODE = 0x03, /*!< param can be modified only by the node (eg. sensor data)*/
-	GN_LEAF_PARAM_ACCESS_NODE_INTERNAL = 0x04 /*!< param can be modified only by the node (eg. sensor data) and it is not shown externally*/
+	GN_LEAF_PARAM_ACCESS_ALL = 0x01, 			/*!< param can be modified both by the node and network (eg. local configuration settings)*/
+	GN_LEAF_PARAM_ACCESS_NETWORK = 0x02,		/*!< param can be modified only by network (eg. configuration settings from environment)*/
+	GN_LEAF_PARAM_ACCESS_NODE = 0x03, 			/*!< param can be modified only by the node (eg. sensor data)*/
+	GN_LEAF_PARAM_ACCESS_NODE_INTERNAL = 0x04 	/*!< param can be modified only by the node (eg. sensor data) and it is not shown externally*/
 } gn_leaf_param_access_type_t;
 
 /*

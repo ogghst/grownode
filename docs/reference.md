@@ -131,34 +131,62 @@ Each Leaf has a predetermined set of parameters. Those are initialized in the co
 
 Here, a `lights` leaf is created using the `gn_gpio_config` callback. This leaf (see `gn_gpio` leaf code) has a parameter called `GN_GPIO_PARAM_GPIO` that represents the GPIO to control. This code assigns the value 25 to that parameter at startup.
 
+###Fast creation
+
+Some leaves has convenient functions created to perform creation and initialization in a compact form. Those functions have the suffix `_fastcreate` (see for instance `gn_gpio_fastcreate()` on `gn_gpio.c` leaf)
+
 ###Update
 
-A leaf parameter can be updated
+A leaf parameter can be updated:
 
 - from the network: see see [MQTT Protocol](#MQTT)
 - from the code
 
 When updating from user code, the `gn_leaf_param_set_XXX()` functions are used. They inform the leaf that the parameter shall be changed to a new value. This is done via event passing as the leaf resides to another task, so it's an asynchronous call.
 
-###Parameter configuration
+###Code Sample: Leaf declaration and parameters initialization
+
+This is the complete code to create and configure a BME280 Leaf sensor, a temperature + humidity + pressure sensor (for complete description of this sensor, see [leaves](leaves.md)
+
+```
+	gn_leaf_handle_t env_thp = gn_leaf_create(node, "bme280", gn_bme280_config, 8192);
+	gn_leaf_param_init_double(env_thp, GN_BME280_PARAM_SDA, 21);
+	gn_leaf_param_init_double(env_thp, GN_BME280_PARAM_SCL, 22);
+	gn_leaf_param_init_bool(env_thp, GN_BME280_PARAM_ACTIVE, true);
+	gn_leaf_param_init_double(env_thp, GN_BME280_PARAM_UPDATE_TIME_SEC, 10);
+```
 
 
-####Types
+##Build Your own Leaf
 
-Parameters are strong typed. That means that internally into Grownode engine they are represented using C types. Types are enumerated in `gn_val_type_t`
+This section is intended for users that wants to build new leaves. It's a rather simple task and many working examples are present in `leaves` folder.
+
+In order to approach to this topic, you must know the parameter API features.
+
+###Parameter declaration
+
+The declaration of a parameter inside a Leaf is done by calling `gn_leaf_param_create()`. Signature:
+
+```
+gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
+		const char *name, const gn_val_type_t type, const gn_val_t val,
+		gn_leaf_param_access_type_t access, gn_leaf_param_storage_t storage,
+		gn_validator_callback_t validator);
+```
+
+The return type of this function is a reference to the parameter, that will be stored into the leaf for future use.
+
+###Parameter Types
+
+Parameters are strong typed. That means that internally into Grownode engine they are represented using C types. Types are enumerated in `gn_val_type_t`.
 
 ```
 typedef enum {
-	GN_VAL_TYPE_STRING, 
-	GN_VAL_TYPE_BOOLEAN, 
-	GN_VAL_TYPE_DOUBLE,
+	GN_VAL_TYPE_STRING,			/*!< character array, user defined dimension */
+	GN_VAL_TYPE_BOOLEAN,		/*!< true/false */
+	GN_VAL_TYPE_DOUBLE,			/*!< floating point with sign */
 } gn_val_type_t;
 ```
-
-- **GN_VAL_TYPE_BOOLEAN** (true/false)
-- **GN_VAL_TYPE_DOUBLE** (floating point with signature)
-- **GN_VAL_TYPE_STRING** (character array, user defined dimension)
-
 
 Storage of the value is made by an union called `gn_val_t`:
 
@@ -170,24 +198,22 @@ typedef union {
 } gn_val_t;
 ```
 
-####Access Type
+As you can see from this definition, it is user responsibility to allocate memory in case of char array parameter. This has to be done inside the Leaf code.
+
+###Access Type
 
 Parameters can have multiple uses, and therefore its access type can be different:
 
-- 	**GN_LEAF_PARAM_ACCESS_ALL** - can be modified both by the node and network (eg. local configuration settings)
-- 	**GN_LEAF_PARAM_ACCESS_NETWORK** - can be modified only by network (eg. configuration settings from environment)
-- 	**GN_LEAF_PARAM_ACCESS_NODE** - can be modified only by the node (eg. sensor data)
-- 	**GN_LEAF_PARAM_ACCESS_NODE_INTERNAL** - can be modified only by the node (eg. sensor data) and it is not shown externally
-
-`gn_leaf_param_access_type_t`
-
-
 ```
-gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
-		const char *name, const gn_val_type_t type, const gn_val_t val,
-		gn_leaf_param_access_type_t access, gn_leaf_param_storage_t storage,
-		gn_validator_callback_t validator);
+typedef enum {
+	GN_LEAF_PARAM_ACCESS_ALL = 0x01, 			/*!< param can be modified both by the node and network (eg. local configuration settings)*/
+	GN_LEAF_PARAM_ACCESS_NETWORK = 0x02,		/*!< param can be modified only by network (eg. configuration settings from environment)*/
+	GN_LEAF_PARAM_ACCESS_NODE = 0x03, 			/*!< param can be modified only by the node (eg. sensor data)*/
+	GN_LEAF_PARAM_ACCESS_NODE_INTERNAL = 0x04 	/*!< param can be modified only by the node (eg. sensor data) and it is not shown externally*/
+} gn_leaf_param_access_type_t;
 ```
+
+
 
 
 ### Responsibilites
