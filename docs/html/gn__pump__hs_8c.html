@@ -61,7 +61,8 @@ $(document).ready(function(){initNavTree('gn__pump__hs_8c.html',''); initResizab
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
 <a href="#define-members">Macros</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">gn_pump_hs.c File Reference</div>  </div>
 </div><!--header-->
@@ -81,10 +82,17 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ae0994be97101137791ee0938fe4fe0f5"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__pump__hs_8c.html#ae0994be97101137791ee0938fe4fe0f5">cb_ledc_fade_end_event</a> (const ledc_cb_param_t *param, void *user_arg)</td></tr>
+<tr class="separator:ae0994be97101137791ee0938fe4fe0f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa76d9961f7ccff0870da9549f90324ca"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__pump__hs_8c.html#aa76d9961f7ccff0870da9549f90324ca">gn_leaf_pwm_task</a> (<a class="el" href="gn__commons_8h.html#a462040cef00081775908b68cd8b5f89b">gn_leaf_handle_t</a> leaf_config)</td></tr>
 <tr class="separator:aa76d9961f7ccff0870da9549f90324ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a813af5141ba517755b2af182a28a405e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#abec8ea226bf73658e6de4d9c75f5cc1a">gn_leaf_descriptor_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__pump__hs_8c.html#a813af5141ba517755b2af182a28a405e">gn_pump_hs_config</a> (<a class="el" href="gn__commons_8h.html#a462040cef00081775908b68cd8b5f89b">gn_leaf_handle_t</a> leaf_config)</td></tr>
 <tr class="separator:a813af5141ba517755b2af182a28a405e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a70694acea6744ff5df04b7f1d6ee2560"><td class="memItemLeft" align="right" valign="top">static const ledc_mode_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__pump__hs_8c.html#a70694acea6744ff5df04b7f1d6ee2560">GN_PUMP_HS_PARAM_LEDC_MODE</a> = LEDC_LOW_SPEED_MODE</td></tr>
+<tr class="separator:a70694acea6744ff5df04b7f1d6ee2560"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="a1e1e495db7428c4acc043b200377d932"></a>
@@ -117,6 +125,42 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="ae0994be97101137791ee0938fe4fe0f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae0994be97101137791ee0938fe4fe0f5">&#9670;&nbsp;</a></span>cb_ledc_fade_end_event()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool cb_ledc_fade_end_event </td>
+          <td>(</td>
+          <td class="paramtype">const ledc_cb_param_t *&#160;</td>
+          <td class="paramname"><em>param</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>user_arg</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="aa76d9961f7ccff0870da9549f90324ca"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa76d9961f7ccff0870da9549f90324ca">&#9670;&nbsp;</a></span>gn_leaf_pwm_task()</h2>
 
@@ -149,6 +193,29 @@ Functions</h2></td></tr>
           <td></td>
         </tr>
       </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="a70694acea6744ff5df04b7f1d6ee2560"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a70694acea6744ff5df04b7f1d6ee2560">&#9670;&nbsp;</a></span>GN_PUMP_HS_PARAM_LEDC_MODE</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const ledc_mode_t GN_PUMP_HS_PARAM_LEDC_MODE = LEDC_LOW_SPEED_MODE</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 </div>

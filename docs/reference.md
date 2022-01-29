@@ -8,23 +8,15 @@ GrowNode is developed on top of the [ESP-IDF](https://docs.espressif.com/project
 
 THe highest level structure on a GrowNode system is the board itself. Every solution you want to build is basically a combination of 
 
-- Devices attached to the IO pins (tipycally handled by specific HAL - Hardware Abstraction Layers - like ESP-IDF core libraries or third party devices. 
+- Devices attached to the IO pins (tipycally handled by specific HAL - Hardware Abstraction Layers - like ESP-IDF core libraries or third party devices. *Example: I2C driver, a GPIO pin*
 
-> Example: I2C driver, a GPIO pin
+- Several logics to access to those devices and present to the GrowNode framwork [Leaves](#leaves) - several are prebuilt and more can be user defined. *Example: a temperature sensor, a relay, a LED, a motor*
 
-- several logics to access to those devices and present to the GrowNode framwork [Leaves](#leaves) - several are prebuilt and more can be user defined. 
+- Several [Parameters](#Parameters) exposed to the Leaf, able to retrieve or command specific functionalities. *Example: the temperature retrieved, a motor switch, a light power*
 
-> Example: a temperature sensor, a relay, a LED, a motor
+- One centralized controller that orchestrates and exposes to the Leaves the services needed to work: [Node](#node). This is common on all the GrowNode implementation
 
-- each leaf exposes several [Parameters](#Parameters) able to retrieve or command specific functionalities of the leaf. 
-
-> Example: the temperature retrieved, a motor switch, a light power
-
-- one centralized controller that orchestrates and exposes to the Leaves the services needed to work: [Node](#node). This is common on all the GrowNode implementation
-
-- one entry point of the application, where the Node and Leaves are declared and configured [Board](#boards). 
-
-> Example: a Water Tower Board, a simple Temperature and Humidity pot controller
+- one entry point of the application, where the Node and Leaves are declared and configured [Board](#boards). *Example: a Water Tower Board, a simple Temperature and Humidity pot controller*
 
 ##Architecture
 
@@ -82,7 +74,7 @@ A node has a status represented by the `gn_node_status_t` enum. Default, initial
 
 ##Leaves
 
-Every sensor or actuator is represented by a Leaf. The Leaf is the 'engine' of underlying logic, it is designed to be reusable multiple times in a Node and be configured in a consistent way. Due to the fact it is the bridge between the User and the hardware layer, the Leaf is handled by the Grownode engine as a separated RTOS task, and is therefore accessed in a asyncronous way from the User.
+Every sensor or actuator is represented by a Leaf. The Leaf is the 'engine' of underlying logic, it is designed to be reusable multiple times in a Node and be configured in a consistent way. Due to the fact it is the bridge between the User and the hardware layer, the Leaf is handled by the Grownode engine as a separated RTOS task, and is therefore accessed in a asyncronous way.
 
 Every leaf shall expose a `gn_leaf_config_callback` callback function that initializes its resources. 
 
@@ -93,19 +85,110 @@ gn_leaf_handle_t gn_leaf_create(gn_node_handle_t node,
 		const char *name, gn_leaf_config_callback leaf_config, size_t task_size)
 ```
 
-This binds the Leaf to the parent Node, and tells the Node to use the `gn_leaf_config_callback` callback to initialize the resources at the appropriate moment.
+This binds the Leaf to the parent Node, and tells the Node to use the `gn_leaf_config_callback` callback to initialize the resources at the appropriate moment. Typical job of a config callback function is to load and initialize its parameters and allocate memory for the side structures. Callback definition is:
 
+```
+typedef gn_leaf_descriptor_handle_t (*gn_leaf_config_callback)(
+		gn_leaf_handle_t leaf_config);
+```
 
-### Responsibilites
-todo
+The `gn_leaf_descriptor_handle_t` is a reference to the informations configured.
 
-### Configuration
-todo
+Grownode engine will use later those info to start the leaf. Another callback must be implemented in the leaf:
+
+```
+typedef void (*gn_leaf_task_callback)(gn_leaf_handle_t leaf_config);
+```
+
+In this callback it is contained the business logic of the leaf, like
+ 
+- reading the Leaf parameter status
+- listening for parameter updates from external sources (network or internal)
+- updating the user UI
+- working with underline hardware resources 
+- updating its parameters
 
 ### Examples
-todo
+
+```
+	//creates the moisture sensor
+	moisture_leaf = gn_leaf_create(node, "moisture", gn_capacitive_moisture_sensor_config, 4096);
+```
 
 ##Parameters
+
+GrowNode allow users to access Leaves input and outputs through Parameters. A parameters defines its behavior and hold its value.
+Depending on their configuration, parameters can be exposed and accessed from inside the code (e.g. from an onboard temperature controller) or from the network (e.g. to monitor the water level). They can be also updated in both ways. 
+
+###Initialization
+
+Each Leaf has a predetermined set of parameters. Those are initialized in the configuration phase described in [Leaves](#leaves) section. The initial value can be overridden by the user however. For instance, a parameter defining a GPIO pin should be customized depending on the board circuit. To do this, the `gn_leaf_param_init_XXX()` functions are defined. Example: 
+
+```
+	gn_leaf_handle_t lights = gn_leaf_create(node, "light switch", gn_gpio_config, 4096);
+	gn_leaf_param_init_double(lights, GN_GPIO_PARAM_GPIO, 25);
+```
+
+Here, a `lights` leaf is created using the `gn_gpio_config` callback. This leaf (see `gn_gpio` leaf code) has a parameter called `GN_GPIO_PARAM_GPIO` that represents the GPIO to control. This code assigns the value 25 to that parameter at startup.
+
+###Update
+
+A leaf parameter can be updated
+
+- from the network: see see [MQTT Protocol](#MQTT)
+- from the code
+
+When updating from user code, the `gn_leaf_param_set_XXX()` functions are used. They inform the leaf that the parameter shall be changed to a new value. This is done via event passing as the leaf resides to another task, so it's an asynchronous call.
+
+###Parameter configuration
+
+
+####Types
+
+Parameters are strong typed. That means that internally into Grownode engine they are represented using C types. Types are enumerated in `gn_val_type_t`
+
+```
+typedef enum {
+	GN_VAL_TYPE_STRING, 
+	GN_VAL_TYPE_BOOLEAN, 
+	GN_VAL_TYPE_DOUBLE,
+} gn_val_type_t;
+```
+
+- **GN_VAL_TYPE_BOOLEAN** (true/false)
+- **GN_VAL_TYPE_DOUBLE** (floating point with signature)
+- **GN_VAL_TYPE_STRING** (character array, user defined dimension)
+
+
+Storage of the value is made by an union called `gn_val_t`:
+
+```
+typedef union {
+	char *s;
+	bool b;
+	double d;
+} gn_val_t;
+```
+
+####Access Type
+
+Parameters can have multiple uses, and therefore its access type can be different:
+
+- 	**GN_LEAF_PARAM_ACCESS_ALL** - can be modified both by the node and network (eg. local configuration settings)
+- 	**GN_LEAF_PARAM_ACCESS_NETWORK** - can be modified only by network (eg. configuration settings from environment)
+- 	**GN_LEAF_PARAM_ACCESS_NODE** - can be modified only by the node (eg. sensor data)
+- 	**GN_LEAF_PARAM_ACCESS_NODE_INTERNAL** - can be modified only by the node (eg. sensor data) and it is not shown externally
+
+`gn_leaf_param_access_type_t`
+
+
+```
+gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
+		const char *name, const gn_val_type_t type, const gn_val_t val,
+		gn_leaf_param_access_type_t access, gn_leaf_param_storage_t storage,
+		gn_validator_callback_t validator);
+```
+
 
 ### Responsibilites
 todo
@@ -119,7 +202,7 @@ todo
 ##Boards
 todo
 
-##MQTT Protocol
+##MQTT
 
 todo 
 

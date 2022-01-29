@@ -62,7 +62,8 @@ $(document).ready(function(){initNavTree('gn__hydroboard2__watering__control_8c.
 <a href="#nested-classes">Data Structures</a> &#124;
 <a href="#define-members">Macros</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">gn_hydroboard2_watering_control.c File Reference</div>  </div>
 </div><!--header-->
@@ -113,10 +114,51 @@ Functions</h2></td></tr>
 <tr class="separator:a4a2bca073a04a14c1fa0910278297b24"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abe825b3c470fcd9ff3df268b01c9b202"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458">gn_leaf_param_validator_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#abe825b3c470fcd9ff3df268b01c9b202">_gn_hb2_watering_target_temp_validator</a> (<a class="el" href="gn__commons_8h.html#a9149e2a43f5b7741a9c505ada717a1b6">gn_leaf_param_handle_t</a> param, void **param_value)</td></tr>
 <tr class="separator:abe825b3c470fcd9ff3df268b01c9b202"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe599933a6e3c759341519f96b2f96fa"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#abe599933a6e3c759341519f96b2f96fa">_gn_hb2_watering_control_stop_watering</a> (<a class="el" href="structgn__hb2__watering__control__data__t.html">gn_hb2_watering_control_data_t</a> *data)</td></tr>
+<tr class="separator:abe599933a6e3c759341519f96b2f96fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2dd9c513e5a954d1b93942311cc80ab5"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#a2dd9c513e5a954d1b93942311cc80ab5">_gn_hb2_watering_control_start_watering</a> (<a class="el" href="structgn__hb2__watering__control__data__t.html">gn_hb2_watering_control_data_t</a> *data)</td></tr>
+<tr class="separator:a2dd9c513e5a954d1b93942311cc80ab5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28642e9d47bd0f645afe56e5f3059990"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#a28642e9d47bd0f645afe56e5f3059990">_gn_hb2_watering_control_stop_hcc</a> (<a class="el" href="structgn__hb2__watering__control__data__t.html">gn_hb2_watering_control_data_t</a> *data)</td></tr>
+<tr class="separator:a28642e9d47bd0f645afe56e5f3059990"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abee406c9e7f4a7c1faff832d8449a445"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#abee406c9e7f4a7c1faff832d8449a445">_gn_hb2_watering_control_start_hcc_heating</a> (<a class="el" href="structgn__hb2__watering__control__data__t.html">gn_hb2_watering_control_data_t</a> *data)</td></tr>
+<tr class="separator:abee406c9e7f4a7c1faff832d8449a445"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5829c1d675d797f04b4cf852cf9a9fbb"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#a5829c1d675d797f04b4cf852cf9a9fbb">_gn_hb2_watering_control_start_hcc_cooling</a> (<a class="el" href="structgn__hb2__watering__control__data__t.html">gn_hb2_watering_control_data_t</a> *data)</td></tr>
+<tr class="separator:a5829c1d675d797f04b4cf852cf9a9fbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14bccdbbd6889fcb512234a656f4d10d"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#a14bccdbbd6889fcb512234a656f4d10d">_gn_hb2_watering_control_hcc_temp_low</a> (double p_wat_temp, double p_wat_t_temp)</td></tr>
+<tr class="separator:a14bccdbbd6889fcb512234a656f4d10d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5fa15eeb101dd34e4d85368037be069b"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#a5fa15eeb101dd34e4d85368037be069b">_gn_hb2_watering_control_hcc_temp_high</a> (double p_wat_temp, double p_wat_t_temp)</td></tr>
+<tr class="separator:a5fa15eeb101dd34e4d85368037be069b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a643ef38eb779105a2eb42c0ad30d32d6"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#a643ef38eb779105a2eb42c0ad30d32d6">_gn_hb2_watering_control_hcc_temp_ok</a> (double p_wat_temp, double p_wat_t_temp)</td></tr>
+<tr class="separator:a643ef38eb779105a2eb42c0ad30d32d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6119fb74ec4d7e907fd042a1eb399505"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#a6119fb74ec4d7e907fd042a1eb399505">_gn_hb2_watering_callback_intl</a> (<a class="el" href="gn__commons_8h.html#a462040cef00081775908b68cd8b5f89b">gn_leaf_handle_t</a> leaf_config)</td></tr>
 <tr class="separator:a6119fb74ec4d7e907fd042a1eb399505"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aabc329fc860a5f70ae7db6da853caa2b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#abec8ea226bf73658e6de4d9c75f5cc1a">gn_leaf_descriptor_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#aabc329fc860a5f70ae7db6da853caa2b">gn_hb2_watering_control_config</a> (<a class="el" href="gn__commons_8h.html#a462040cef00081775908b68cd8b5f89b">gn_leaf_handle_t</a> leaf_config)</td></tr>
 <tr class="separator:aabc329fc860a5f70ae7db6da853caa2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a8ac71b6c7e1b583b0e0285b11f32b574"><td class="memItemLeft" align="right" valign="top">static char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#a8ac71b6c7e1b583b0e0285b11f32b574">PLT_FAN</a> = &quot;plt_fan&quot;</td></tr>
+<tr class="separator:a8ac71b6c7e1b583b0e0285b11f32b574"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf6530f600824f9d7d9768b4338b43ab"><td class="memItemLeft" align="right" valign="top">static char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#abf6530f600824f9d7d9768b4338b43ab">PLT_PUMP</a> = &quot;plt_pump&quot;</td></tr>
+<tr class="separator:abf6530f600824f9d7d9768b4338b43ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6eae92d07bcd5fcebe14e7032ba7fb18"><td class="memItemLeft" align="right" valign="top">static char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#a6eae92d07bcd5fcebe14e7032ba7fb18">WAT_PUMP</a> = &quot;wat_pump&quot;</td></tr>
+<tr class="separator:a6eae92d07bcd5fcebe14e7032ba7fb18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c1e546cabfcbdad0ad0ba50929de3f4"><td class="memItemLeft" align="right" valign="top">static char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#a4c1e546cabfcbdad0ad0ba50929de3f4">PLT_COOL</a> = &quot;plt_b&quot;</td></tr>
+<tr class="separator:a4c1e546cabfcbdad0ad0ba50929de3f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a191d79899c1f40b858c97717d93a63b5"><td class="memItemLeft" align="right" valign="top">static char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#a191d79899c1f40b858c97717d93a63b5">PLT_HOT</a> = &quot;plt_a&quot;</td></tr>
+<tr class="separator:a191d79899c1f40b858c97717d93a63b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac7168a1e0e119ab548ca9240b62224a4"><td class="memItemLeft" align="right" valign="top">static char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#ac7168a1e0e119ab548ca9240b62224a4">ENV_FAN</a> = &quot;env_fan&quot;</td></tr>
+<tr class="separator:ac7168a1e0e119ab548ca9240b62224a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a88f028dbebc773309d53c84db1429ae9"><td class="memItemLeft" align="right" valign="top">static char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#a88f028dbebc773309d53c84db1429ae9">BME280</a> = &quot;env_thp&quot;</td></tr>
+<tr class="separator:a88f028dbebc773309d53c84db1429ae9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33427e2661f237d5c33bfb41af583b9b"><td class="memItemLeft" align="right" valign="top">static char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#a33427e2661f237d5c33bfb41af583b9b">DS18B20</a> = &quot;temps&quot;</td></tr>
+<tr class="separator:a33427e2661f237d5c33bfb41af583b9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06bae702bf17a2279b4f34289a3c02be"><td class="memItemLeft" align="right" valign="top">static char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#a06bae702bf17a2279b4f34289a3c02be">WAT_LEV</a> = &quot;wat_lev&quot;</td></tr>
+<tr class="separator:a06bae702bf17a2279b4f34289a3c02be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a74b855f8ea74a41cae2f0c0cad70825b"><td class="memItemLeft" align="right" valign="top">static char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#a74b855f8ea74a41cae2f0c0cad70825b">LIGHT_1</a> = &quot;lig_1&quot;</td></tr>
+<tr class="separator:a74b855f8ea74a41cae2f0c0cad70825b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8a1da78143bfa23af2662f7f2385728"><td class="memItemLeft" align="right" valign="top">static char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__hydroboard2__watering__control_8c.html#ac8a1da78143bfa23af2662f7f2385728">LIGHT_2</a> = &quot;lig_2&quot;</td></tr>
+<tr class="separator:ac8a1da78143bfa23af2662f7f2385728"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="afc3d101f633a076cc1ca84b85b6224b2"></a>
@@ -193,6 +235,244 @@ Functions</h2></td></tr>
           <td></td>
         </tr>
       </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a5fa15eeb101dd34e4d85368037be069b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5fa15eeb101dd34e4d85368037be069b">&#9670;&nbsp;</a></span>_gn_hb2_watering_control_hcc_temp_high()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool _gn_hb2_watering_control_hcc_temp_high </td>
+          <td>(</td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>p_wat_temp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>p_wat_t_temp</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a14bccdbbd6889fcb512234a656f4d10d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a14bccdbbd6889fcb512234a656f4d10d">&#9670;&nbsp;</a></span>_gn_hb2_watering_control_hcc_temp_low()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool _gn_hb2_watering_control_hcc_temp_low </td>
+          <td>(</td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>p_wat_temp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>p_wat_t_temp</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a643ef38eb779105a2eb42c0ad30d32d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a643ef38eb779105a2eb42c0ad30d32d6">&#9670;&nbsp;</a></span>_gn_hb2_watering_control_hcc_temp_ok()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool _gn_hb2_watering_control_hcc_temp_ok </td>
+          <td>(</td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>p_wat_temp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>p_wat_t_temp</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a5829c1d675d797f04b4cf852cf9a9fbb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5829c1d675d797f04b4cf852cf9a9fbb">&#9670;&nbsp;</a></span>_gn_hb2_watering_control_start_hcc_cooling()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void _gn_hb2_watering_control_start_hcc_cooling </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structgn__hb2__watering__control__data__t.html">gn_hb2_watering_control_data_t</a> *&#160;</td>
+          <td class="paramname"><em>data</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="abee406c9e7f4a7c1faff832d8449a445"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abee406c9e7f4a7c1faff832d8449a445">&#9670;&nbsp;</a></span>_gn_hb2_watering_control_start_hcc_heating()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void _gn_hb2_watering_control_start_hcc_heating </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structgn__hb2__watering__control__data__t.html">gn_hb2_watering_control_data_t</a> *&#160;</td>
+          <td class="paramname"><em>data</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a2dd9c513e5a954d1b93942311cc80ab5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2dd9c513e5a954d1b93942311cc80ab5">&#9670;&nbsp;</a></span>_gn_hb2_watering_control_start_watering()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void _gn_hb2_watering_control_start_watering </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structgn__hb2__watering__control__data__t.html">gn_hb2_watering_control_data_t</a> *&#160;</td>
+          <td class="paramname"><em>data</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a28642e9d47bd0f645afe56e5f3059990"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a28642e9d47bd0f645afe56e5f3059990">&#9670;&nbsp;</a></span>_gn_hb2_watering_control_stop_hcc()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void _gn_hb2_watering_control_stop_hcc </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structgn__hb2__watering__control__data__t.html">gn_hb2_watering_control_data_t</a> *&#160;</td>
+          <td class="paramname"><em>data</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="abe599933a6e3c759341519f96b2f96fa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe599933a6e3c759341519f96b2f96fa">&#9670;&nbsp;</a></span>_gn_hb2_watering_control_stop_watering()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void _gn_hb2_watering_control_stop_watering </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structgn__hb2__watering__control__data__t.html">gn_hb2_watering_control_data_t</a> *&#160;</td>
+          <td class="paramname"><em>data</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 </div>
@@ -313,6 +593,249 @@ Functions</h2></td></tr>
           <td></td>
         </tr>
       </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="a88f028dbebc773309d53c84db1429ae9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a88f028dbebc773309d53c84db1429ae9">&#9670;&nbsp;</a></span>BME280</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* BME280 = &quot;env_thp&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a33427e2661f237d5c33bfb41af583b9b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a33427e2661f237d5c33bfb41af583b9b">&#9670;&nbsp;</a></span>DS18B20</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* DS18B20 = &quot;temps&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac7168a1e0e119ab548ca9240b62224a4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac7168a1e0e119ab548ca9240b62224a4">&#9670;&nbsp;</a></span>ENV_FAN</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* ENV_FAN = &quot;env_fan&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a74b855f8ea74a41cae2f0c0cad70825b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a74b855f8ea74a41cae2f0c0cad70825b">&#9670;&nbsp;</a></span>LIGHT_1</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* LIGHT_1 = &quot;lig_1&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac8a1da78143bfa23af2662f7f2385728"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac8a1da78143bfa23af2662f7f2385728">&#9670;&nbsp;</a></span>LIGHT_2</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* LIGHT_2 = &quot;lig_2&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4c1e546cabfcbdad0ad0ba50929de3f4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c1e546cabfcbdad0ad0ba50929de3f4">&#9670;&nbsp;</a></span>PLT_COOL</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* PLT_COOL = &quot;plt_b&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a8ac71b6c7e1b583b0e0285b11f32b574"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8ac71b6c7e1b583b0e0285b11f32b574">&#9670;&nbsp;</a></span>PLT_FAN</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* PLT_FAN = &quot;plt_fan&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a191d79899c1f40b858c97717d93a63b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a191d79899c1f40b858c97717d93a63b5">&#9670;&nbsp;</a></span>PLT_HOT</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* PLT_HOT = &quot;plt_a&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="abf6530f600824f9d7d9768b4338b43ab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf6530f600824f9d7d9768b4338b43ab">&#9670;&nbsp;</a></span>PLT_PUMP</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* PLT_PUMP = &quot;plt_pump&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a06bae702bf17a2279b4f34289a3c02be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a06bae702bf17a2279b4f34289a3c02be">&#9670;&nbsp;</a></span>WAT_LEV</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* WAT_LEV = &quot;wat_lev&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a6eae92d07bcd5fcebe14e7032ba7fb18"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6eae92d07bcd5fcebe14e7032ba7fb18">&#9670;&nbsp;</a></span>WAT_PUMP</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* WAT_PUMP = &quot;wat_pump&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 </div>

@@ -1,4 +1,4 @@
-.TH "components/grownode/leaves/gn_pwm.c" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
+.TH "components/grownode/leaves/gn_pwm.c" 3 "Sat Jan 29 2022" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -39,10 +39,20 @@ components/grownode/leaves/gn_pwm.c
 
 .in +1c
 .ti -1c
+.RI "static bool \fBcb_ledc_fade_end_event\fP (const ledc_cb_param_t *param, void *user_arg)"
+.br
+.ti -1c
 .RI "void \fBgn_leaf_pwm_task\fP (\fBgn_leaf_handle_t\fP leaf_config)"
 .br
 .ti -1c
 .RI "\fBgn_leaf_descriptor_handle_t\fP \fBgn_leaf_pwm_config\fP (\fBgn_leaf_handle_t\fP leaf_config)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "static const ledc_mode_t \fBGN_LEAF_PWM_PARAM_LEDC_MODE\fP = LEDC_HIGH_SPEED_MODE"
 .br
 .in -1c
 .SH "Macro Definition Documentation"
@@ -61,9 +71,15 @@ define if duty has to be faded
 
 .SH "Function Documentation"
 .PP 
+.SS "static bool cb_ledc_fade_end_event (const ledc_cb_param_t * param, void * user_arg)\fC [static]\fP"
+
 .SS "\fBgn_leaf_descriptor_handle_t\fP gn_leaf_pwm_config (\fBgn_leaf_handle_t\fP leaf_config)"
 
 .SS "void gn_leaf_pwm_task (\fBgn_leaf_handle_t\fP leaf_config)"
+
+.SH "Variable Documentation"
+.PP 
+.SS "const ledc_mode_t GN_LEAF_PWM_PARAM_LEDC_MODE = LEDC_HIGH_SPEED_MODE\fC [static]\fP"
 
 .SH "Author"
 .PP 

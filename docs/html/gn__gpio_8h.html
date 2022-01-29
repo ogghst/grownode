@@ -59,7 +59,8 @@ $(document).ready(function(){initNavTree('gn__gpio_8h.html',''); initResizable()
 <div id="doc-content">
 <div class="header">
   <div class="summary">
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">gn_gpio.h File Reference</div>  </div>
 </div><!--header-->
@@ -73,6 +74,17 @@ Functions</h2></td></tr>
 <tr class="separator:a70eb765aeb2726a462be32ac70d92db8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad14c15beddc3a3aabc05f6656862b711"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#a462040cef00081775908b68cd8b5f89b">gn_leaf_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__gpio_8h.html#ad14c15beddc3a3aabc05f6656862b711">gn_gpio_fastcreate</a> (<a class="el" href="gn__commons_8h.html#a36c1afad4298f9c2268a153738092868">gn_node_handle_t</a> node, const char *leaf_name, int gpio, bool inverted, bool toggled)</td></tr>
 <tr class="separator:ad14c15beddc3a3aabc05f6656862b711"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a224ab7a2b76f146f3cd6448e023d0da5"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__gpio_8h.html#a224ab7a2b76f146f3cd6448e023d0da5">GN_LEAF_GPIO_TYPE</a> [] = &quot;gpio&quot;</td></tr>
+<tr class="separator:a224ab7a2b76f146f3cd6448e023d0da5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a0f5285c84108170b3d7e99430136c5"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__gpio_8h.html#a2a0f5285c84108170b3d7e99430136c5">GN_GPIO_PARAM_TOGGLE</a> [] = &quot;status&quot;</td></tr>
+<tr class="separator:a2a0f5285c84108170b3d7e99430136c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd16ea6d42034be9d7f7e08f94927f40"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__gpio_8h.html#afd16ea6d42034be9d7f7e08f94927f40">GN_GPIO_PARAM_INVERTED</a> [] = &quot;inverted&quot;</td></tr>
+<tr class="separator:afd16ea6d42034be9d7f7e08f94927f40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42b0511ba444fc66e353977a30c1b75a"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__gpio_8h.html#a42b0511ba444fc66e353977a30c1b75a">GN_GPIO_PARAM_GPIO</a> [] = &quot;gpio&quot;</td></tr>
+<tr class="separator:a42b0511ba444fc66e353977a30c1b75a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a70eb765aeb2726a462be32ac70d92db8"></a>
@@ -150,6 +162,98 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>an handle to the leaf initialized </dd>
 <dd>
 NULL in case of errors </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="a42b0511ba444fc66e353977a30c1b75a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42b0511ba444fc66e353977a30c1b75a">&#9670;&nbsp;</a></span>GN_GPIO_PARAM_GPIO</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char GN_GPIO_PARAM_GPIO[] = &quot;gpio&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>the GPIO to connect the relay </p>
+
+</div>
+</div>
+<a id="afd16ea6d42034be9d7f7e08f94927f40"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd16ea6d42034be9d7f7e08f94927f40">&#9670;&nbsp;</a></span>GN_GPIO_PARAM_INVERTED</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char GN_GPIO_PARAM_INVERTED[] = &quot;inverted&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>0 = off, 1 = on </p>
+
+</div>
+</div>
+<a id="a2a0f5285c84108170b3d7e99430136c5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a0f5285c84108170b3d7e99430136c5">&#9670;&nbsp;</a></span>GN_GPIO_PARAM_TOGGLE</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char GN_GPIO_PARAM_TOGGLE[] = &quot;status&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>0 = off, 1 = on </p>
+
+</div>
+</div>
+<a id="a224ab7a2b76f146f3cd6448e023d0da5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a224ab7a2b76f146f3cd6448e023d0da5">&#9670;&nbsp;</a></span>GN_LEAF_GPIO_TYPE</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char GN_LEAF_GPIO_TYPE[] = &quot;gpio&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>

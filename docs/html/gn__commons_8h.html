@@ -70,6 +70,9 @@ $(document).ready(function(){initNavTree('gn__commons_8h.html',''); initResizabl
 </div><!--header-->
 <div class="contents">
 
+<p>General structures and functions.  
+<a href="#details">More...</a></p>
+
 <p><a href="gn__commons_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
@@ -198,12 +201,12 @@ Enumerations</h2></td></tr>
 , <a class="el" href="gn__commons_8h.html#ad1014e416cafe9369c2d9f677465cf40a6bf40bdc47870b47f7d3ef5bf40db497">GN_VAL_TYPE_DOUBLE</a>
  }</td></tr>
 <tr class="separator:ad1014e416cafe9369c2d9f677465cf40"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa8bd69aae77cbb1b05c28b5e0efe0f12"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__commons_8h.html#aa8bd69aae77cbb1b05c28b5e0efe0f12">gn_leaf_param_visibility_t</a> { <a class="el" href="gn__commons_8h.html#aa8bd69aae77cbb1b05c28b5e0efe0f12a5b724c6ca10c507caead43298e610177">GN_LEAF_PARAM_ACCESS_ALL</a> = 0x01
-, <a class="el" href="gn__commons_8h.html#aa8bd69aae77cbb1b05c28b5e0efe0f12ac6ee97f23ca699baa8409784f2733627">GN_LEAF_PARAM_ACCESS_NETWORK</a> = 0x02
-, <a class="el" href="gn__commons_8h.html#aa8bd69aae77cbb1b05c28b5e0efe0f12af9fce31bf67a58c35c81b672d8f77297">GN_LEAF_PARAM_ACCESS_NODE</a> = 0x03
-, <a class="el" href="gn__commons_8h.html#aa8bd69aae77cbb1b05c28b5e0efe0f12a1c76c94262102d372353b6dcea3d7822">GN_LEAF_PARAM_ACCESS_NODE_INTERNAL</a> = 0x04
+<tr class="memitem:a7b3f9ab6d947b1ceea57d6f26a877920"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__commons_8h.html#a7b3f9ab6d947b1ceea57d6f26a877920">gn_leaf_param_access_type_t</a> { <a class="el" href="gn__commons_8h.html#a7b3f9ab6d947b1ceea57d6f26a877920a5b724c6ca10c507caead43298e610177">GN_LEAF_PARAM_ACCESS_ALL</a> = 0x01
+, <a class="el" href="gn__commons_8h.html#a7b3f9ab6d947b1ceea57d6f26a877920ac6ee97f23ca699baa8409784f2733627">GN_LEAF_PARAM_ACCESS_NETWORK</a> = 0x02
+, <a class="el" href="gn__commons_8h.html#a7b3f9ab6d947b1ceea57d6f26a877920af9fce31bf67a58c35c81b672d8f77297">GN_LEAF_PARAM_ACCESS_NODE</a> = 0x03
+, <a class="el" href="gn__commons_8h.html#a7b3f9ab6d947b1ceea57d6f26a877920a1c76c94262102d372353b6dcea3d7822">GN_LEAF_PARAM_ACCESS_NODE_INTERNAL</a> = 0x04
  }</td></tr>
-<tr class="separator:aa8bd69aae77cbb1b05c28b5e0efe0f12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a7b3f9ab6d947b1ceea57d6f26a877920"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa13fd6921158900e01cd337e3e03ae5f"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__commons_8h.html#aa13fd6921158900e01cd337e3e03ae5f">gn_leaf_param_storage_t</a> { <a class="el" href="gn__commons_8h.html#aa13fd6921158900e01cd337e3e03ae5faf298a5be940504e78322b7743a380ec8">GN_LEAF_PARAM_STORAGE_PERSISTED</a>
 , <a class="el" href="gn__commons_8h.html#aa13fd6921158900e01cd337e3e03ae5faf898f16353b9e5c77214eee6fdf75cab">GN_LEAF_PARAM_STORAGE_VOLATILE</a>
  }</td></tr>
@@ -226,10 +229,15 @@ Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
+<tr class="memitem:a843e9ba0c05c71eb23938fb37f63f63c"><td class="memItemLeft" align="right" valign="top">static const int16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__commons_8h.html#a843e9ba0c05c71eb23938fb37f63f63c">GN_CONFIG_MAX_SERVER_KEEPALIVE_SEC</a> = 3600</td></tr>
+<tr class="memdesc:a843e9ba0c05c71eb23938fb37f63f63c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Contains the last error code.  <a href="gn__commons_8h.html#a843e9ba0c05c71eb23938fb37f63f63c">More...</a><br /></td></tr>
+<tr class="separator:a843e9ba0c05c71eb23938fb37f63f63c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a470297ae9dd28310fbc1b4ff9c3017c3"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__commons_8h.html#a470297ae9dd28310fbc1b4ff9c3017c3">gn_config_status_descriptions</a> [14]</td></tr>
 <tr class="separator:a470297ae9dd28310fbc1b4ff9c3017c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Macro Definition Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>General structures and functions. </p>
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="ad0d1b62a98d007235779dad6a4535f76"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad0d1b62a98d007235779dad6a4535f76">&#9670;&nbsp;</a></span>GN_LEAF_DATA_SIZE</h2>
 
@@ -506,6 +514,30 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="a7b3f9ab6d947b1ceea57d6f26a877920"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7b3f9ab6d947b1ceea57d6f26a877920">&#9670;&nbsp;</a></span>gn_leaf_param_access_type_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="gn__commons_8h.html#a7b3f9ab6d947b1ceea57d6f26a877920">gn_leaf_param_access_type_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a7b3f9ab6d947b1ceea57d6f26a877920a5b724c6ca10c507caead43298e610177"></a>GN_LEAF_PARAM_ACCESS_ALL&#160;</td><td class="fielddoc"><p>param can be modified both by the node and network (eg. local configuration settings) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a7b3f9ab6d947b1ceea57d6f26a877920ac6ee97f23ca699baa8409784f2733627"></a>GN_LEAF_PARAM_ACCESS_NETWORK&#160;</td><td class="fielddoc"><p>param can be modified only by network (eg. configuration settings from environment) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a7b3f9ab6d947b1ceea57d6f26a877920af9fce31bf67a58c35c81b672d8f77297"></a>GN_LEAF_PARAM_ACCESS_NODE&#160;</td><td class="fielddoc"><p>param can be modified only by the node (eg. sensor data) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a7b3f9ab6d947b1ceea57d6f26a877920a1c76c94262102d372353b6dcea3d7822"></a>GN_LEAF_PARAM_ACCESS_NODE_INTERNAL&#160;</td><td class="fielddoc"><p>param can be modified only by the node (eg. sensor data) and it is not shown externally </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <a id="aa13fd6921158900e01cd337e3e03ae5f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa13fd6921158900e01cd337e3e03ae5f">&#9670;&nbsp;</a></span>gn_leaf_param_storage_t</h2>
 
@@ -542,30 +574,6 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="a3f7ee1da85fdb3e756b682d447ff9458ac07f20a25708de521446ba50bf82dc07"></a>GN_LEAF_PARAM_VALIDATOR_BELOW_MIN&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a3f7ee1da85fdb3e756b682d447ff9458ae37d2c802342c6dc247506bf2da8a41d"></a>GN_LEAF_PARAM_VALIDATOR_NOT_ALLOWED&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a3f7ee1da85fdb3e756b682d447ff9458ab83fa53d67768469f89ce1dfd824f05b"></a>GN_LEAF_PARAM_VALIDATOR_ERROR&#160;</td><td class="fielddoc"></td></tr>
-</table>
-
-</div>
-</div>
-<a id="aa8bd69aae77cbb1b05c28b5e0efe0f12"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa8bd69aae77cbb1b05c28b5e0efe0f12">&#9670;&nbsp;</a></span>gn_leaf_param_visibility_t</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="gn__commons_8h.html#aa8bd69aae77cbb1b05c28b5e0efe0f12">gn_leaf_param_visibility_t</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="aa8bd69aae77cbb1b05c28b5e0efe0f12a5b724c6ca10c507caead43298e610177"></a>GN_LEAF_PARAM_ACCESS_ALL&#160;</td><td class="fielddoc"><p>param can be modified both by the node and network (eg. local configuration settings) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="aa8bd69aae77cbb1b05c28b5e0efe0f12ac6ee97f23ca699baa8409784f2733627"></a>GN_LEAF_PARAM_ACCESS_NETWORK&#160;</td><td class="fielddoc"><p>param can be modified only by network (eg. configuration settings from environment) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="aa8bd69aae77cbb1b05c28b5e0efe0f12af9fce31bf67a58c35c81b672d8f77297"></a>GN_LEAF_PARAM_ACCESS_NODE&#160;</td><td class="fielddoc"><p>param can be modified only by the node (eg. sensor data) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="aa8bd69aae77cbb1b05c28b5e0efe0f12a1c76c94262102d372353b6dcea3d7822"></a>GN_LEAF_PARAM_ACCESS_NODE_INTERNAL&#160;</td><td class="fielddoc"><p>param can be modified only by the node (eg. sensor data) and it is not shown externally </p>
-</td></tr>
 </table>
 
 </div>
@@ -868,6 +876,31 @@ Variables</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
+<a id="a843e9ba0c05c71eb23938fb37f63f63c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a843e9ba0c05c71eb23938fb37f63f63c">&#9670;&nbsp;</a></span>GN_CONFIG_MAX_SERVER_KEEPALIVE_SEC</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const int16_t GN_CONFIG_MAX_SERVER_KEEPALIVE_SEC = 3600</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Contains the last error code. </p>
+<dl class="section warning"><dt>Warning</dt><dd>Not thread safe! </dd></dl>
+
+</div>
+</div>
 <a id="a470297ae9dd28310fbc1b4ff9c3017c3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a470297ae9dd28310fbc1b4ff9c3017c3">&#9670;&nbsp;</a></span>gn_config_status_descriptions</h2>
 

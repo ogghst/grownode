@@ -1,4 +1,4 @@
-.TH "components/grownode/leaves/gn_watering_control.c" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
+.TH "components/grownode/leaves/gn_watering_control.c" 3 "Sat Jan 29 2022" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -46,10 +46,59 @@ components/grownode/leaves/gn_watering_control.c
 .RI "\fBgn_leaf_param_validator_result_t\fP \fB_gn_watering_target_temp_validator\fP (\fBgn_leaf_param_handle_t\fP param, void **param_value)"
 .br
 .ti -1c
+.RI "static void \fB_gn_watering_control_stop_watering\fP (\fBgn_watering_control_data_t\fP *data)"
+.br
+.ti -1c
+.RI "static void \fB_gn_watering_control_start_watering\fP (\fBgn_watering_control_data_t\fP *data)"
+.br
+.ti -1c
+.RI "static void \fB_gn_watering_control_stop_hcc\fP (\fBgn_watering_control_data_t\fP *data)"
+.br
+.ti -1c
+.RI "static void \fB_gn_watering_control_start_hcc_heating\fP (\fBgn_watering_control_data_t\fP *data)"
+.br
+.ti -1c
+.RI "static void \fB_gn_watering_control_start_hcc_cooling\fP (\fBgn_watering_control_data_t\fP *data)"
+.br
+.ti -1c
+.RI "static bool \fB_gn_watering_control_hcc_temp_low\fP (double p_wat_temp, double p_wat_t_temp)"
+.br
+.ti -1c
+.RI "static bool \fB_gn_watering_control_hcc_temp_high\fP (double p_wat_temp, double p_wat_t_temp)"
+.br
+.ti -1c
+.RI "static bool \fB_gn_watering_control_hcc_temp_ok\fP (double p_wat_temp, double p_wat_t_temp)"
+.br
+.ti -1c
 .RI "void \fB_gn_watering_callback_intl\fP (\fBgn_leaf_handle_t\fP leaf_config)"
 .br
 .ti -1c
 .RI "\fBgn_leaf_descriptor_handle_t\fP \fBgn_watering_control_config\fP (\fBgn_leaf_handle_t\fP leaf_config)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "static const char * \fBHCC\fP = 'hcc'"
+.br
+.ti -1c
+.RI "static const char * \fBWATERPUMPIN\fP = 'waterpumpin'"
+.br
+.ti -1c
+.RI "static const char * \fBPLT_B\fP = 'plt_b'"
+.br
+.ti -1c
+.RI "static const char * \fBPLT_A\fP = 'plt_a'"
+.br
+.ti -1c
+.RI "static const char * \fBBME280\fP = 'bme280'"
+.br
+.ti -1c
+.RI "static const char * \fBDS18B20\fP = 'ds18b20'"
+.br
+.ti -1c
+.RI "static const char * \fBWATERLEVELIN\fP = 'waterlevelin'"
 .br
 .in -1c
 .SH "Macro Definition Documentation"
@@ -96,6 +145,22 @@ components/grownode/leaves/gn_watering_control.c
 .PP 
 .SS "void _gn_watering_callback_intl (\fBgn_leaf_handle_t\fP leaf_config)"
 
+.SS "static bool _gn_watering_control_hcc_temp_high (double p_wat_temp, double p_wat_t_temp)\fC [inline]\fP, \fC [static]\fP"
+
+.SS "static bool _gn_watering_control_hcc_temp_low (double p_wat_temp, double p_wat_t_temp)\fC [inline]\fP, \fC [static]\fP"
+
+.SS "static bool _gn_watering_control_hcc_temp_ok (double p_wat_temp, double p_wat_t_temp)\fC [inline]\fP, \fC [static]\fP"
+
+.SS "static void _gn_watering_control_start_hcc_cooling (\fBgn_watering_control_data_t\fP * data)\fC [inline]\fP, \fC [static]\fP"
+
+.SS "static void _gn_watering_control_start_hcc_heating (\fBgn_watering_control_data_t\fP * data)\fC [inline]\fP, \fC [static]\fP"
+
+.SS "static void _gn_watering_control_start_watering (\fBgn_watering_control_data_t\fP * data)\fC [inline]\fP, \fC [static]\fP"
+
+.SS "static void _gn_watering_control_stop_hcc (\fBgn_watering_control_data_t\fP * data)\fC [inline]\fP, \fC [static]\fP"
+
+.SS "static void _gn_watering_control_stop_watering (\fBgn_watering_control_data_t\fP * data)\fC [inline]\fP, \fC [static]\fP"
+
 .SS "\fBgn_leaf_param_validator_result_t\fP _gn_watering_interval_validator (\fBgn_leaf_param_handle_t\fP param, void ** param_value)"
 
 .SS "\fBgn_leaf_param_validator_result_t\fP _gn_watering_target_temp_validator (\fBgn_leaf_param_handle_t\fP param, void ** param_value)"
@@ -105,6 +170,22 @@ components/grownode/leaves/gn_watering_control.c
 .SS "\fBgn_leaf_descriptor_handle_t\fP gn_watering_control_config (\fBgn_leaf_handle_t\fP leaf_config)"
 
 .SS "void gn_watering_control_task (\fBgn_leaf_handle_t\fP leaf_config)"
+
+.SH "Variable Documentation"
+.PP 
+.SS "const char* BME280 = 'bme280'\fC [static]\fP"
+
+.SS "const char* DS18B20 = 'ds18b20'\fC [static]\fP"
+
+.SS "const char* HCC = 'hcc'\fC [static]\fP"
+
+.SS "const char* PLT_A = 'plt_a'\fC [static]\fP"
+
+.SS "const char* PLT_B = 'plt_b'\fC [static]\fP"
+
+.SS "const char* WATERLEVELIN = 'waterlevelin'\fC [static]\fP"
+
+.SS "const char* WATERPUMPIN = 'waterpumpin'\fC [static]\fP"
 
 .SH "Author"
 .PP 

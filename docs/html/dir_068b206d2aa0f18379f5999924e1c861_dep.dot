@@ -1,0 +1,9 @@
+digraph "components/grownode/leaves" {
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_cc1da1c9b9a4bf5e42f24d42f645fee7 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="grownode" fontname="Helvetica", fontsize="10", URL="dir_cc1da1c9b9a4bf5e42f24d42f645fee7.html"]
+  dir_068b206d2aa0f18379f5999924e1c861 [shape=box, label="leaves", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_068b206d2aa0f18379f5999924e1c861.html"];
+  }
+}

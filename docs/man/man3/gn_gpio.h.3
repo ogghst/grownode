@@ -1,4 +1,4 @@
-.TH "components/grownode/leaves/gn_gpio.h" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
+.TH "components/grownode/leaves/gn_gpio.h" 3 "Sat Jan 29 2022" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -14,6 +14,22 @@ components/grownode/leaves/gn_gpio.h
 .br
 .ti -1c
 .RI "\fBgn_leaf_handle_t\fP \fBgn_gpio_fastcreate\fP (\fBgn_node_handle_t\fP node, const char *leaf_name, int gpio, bool inverted, bool toggled)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "static const char \fBGN_LEAF_GPIO_TYPE\fP [] = 'gpio'"
+.br
+.ti -1c
+.RI "static const char \fBGN_GPIO_PARAM_TOGGLE\fP [] = 'status'"
+.br
+.ti -1c
+.RI "static const char \fBGN_GPIO_PARAM_INVERTED\fP [] = 'inverted'"
+.br
+.ti -1c
+.RI "static const char \fBGN_GPIO_PARAM_GPIO\fP [] = 'gpio'"
 .br
 .in -1c
 .SH "Function Documentation"
@@ -43,6 +59,16 @@ an handle to the leaf initialized
 NULL in case of errors 
 .RE
 .PP
+
+.SH "Variable Documentation"
+.PP 
+.SS "const char GN_GPIO_PARAM_GPIO[] = 'gpio'\fC [static]\fP"
+the GPIO to connect the relay 
+.SS "const char GN_GPIO_PARAM_INVERTED[] = 'inverted'\fC [static]\fP"
+0 = off, 1 = on 
+.SS "const char GN_GPIO_PARAM_TOGGLE[] = 'status'\fC [static]\fP"
+0 = off, 1 = on 
+.SS "const char GN_LEAF_GPIO_TYPE[] = 'gpio'\fC [static]\fP"
 
 .SH "Author"
 .PP 

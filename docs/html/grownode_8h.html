@@ -76,14 +76,14 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:ae71a3e5c6eb3e6d36fb61ebee9fdb9d9"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458">gn_leaf_param_validator_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#ae71a3e5c6eb3e6d36fb61ebee9fdb9d9">gn_validator_t</a>) (<a class="el" href="gn__commons_8h.html#a9149e2a43f5b7741a9c505ada717a1b6">gn_leaf_param_handle_t</a> param, void **value)</td></tr>
-<tr class="separator:ae71a3e5c6eb3e6d36fb61ebee9fdb9d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe02a622dabb5e93b9a12771ee755a87"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458">gn_leaf_param_validator_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#afe02a622dabb5e93b9a12771ee755a87">gn_validator_callback_t</a>) (<a class="el" href="gn__commons_8h.html#a9149e2a43f5b7741a9c505ada717a1b6">gn_leaf_param_handle_t</a> param, void **value)</td></tr>
+<tr class="separator:afe02a622dabb5e93b9a12771ee755a87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af556aa922f0241c4051decd250f85be4"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structgn__config__init__param__t.html">gn_config_init_param_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#af556aa922f0241c4051decd250f85be4">gn_config_init_param_handle_t</a></td></tr>
 <tr class="separator:af556aa922f0241c4051decd250f85be4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ad2f0b2115650d8ee1137715e3e3323d0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#a36c1afad4298f9c2268a153738092868">gn_node_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#ad2f0b2115650d8ee1137715e3e3323d0">gn_node_create</a> (<a class="el" href="gn__commons_8h.html#a18c5fddc25f0fb3b7b54941d5fd5a7cd">gn_config_handle_t</a> <a class="el" href="test__relay_8c.html#ada142030586768226042c9c76934876c">config</a>, const char *name)</td></tr>
+<tr class="memitem:ad2f0b2115650d8ee1137715e3e3323d0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#a36c1afad4298f9c2268a153738092868">gn_node_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#ad2f0b2115650d8ee1137715e3e3323d0">gn_node_create</a> (<a class="el" href="gn__commons_8h.html#a18c5fddc25f0fb3b7b54941d5fd5a7cd">gn_config_handle_t</a> config, const char *name)</td></tr>
 <tr class="memdesc:ad2f0b2115650d8ee1137715e3e3323d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">create a new node with specified configuration and name  <a href="grownode_8h.html#ad2f0b2115650d8ee1137715e3e3323d0">More...</a><br /></td></tr>
 <tr class="separator:ad2f0b2115650d8ee1137715e3e3323d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a92ef4e6bd418e451c93c7f565e5aed57"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#ac04e0e32194e4ebe5b315c2b6f2a2c91">gn_err_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a92ef4e6bd418e451c93c7f565e5aed57">gn_node_destroy</a> (<a class="el" href="gn__commons_8h.html#a36c1afad4298f9c2268a153738092868">gn_node_handle_t</a> node)</td></tr>
@@ -92,10 +92,10 @@ Functions</h2></td></tr>
 <tr class="memitem:a71fd9f6745665c53480097f4b993e091"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#ac04e0e32194e4ebe5b315c2b6f2a2c91">gn_err_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a71fd9f6745665c53480097f4b993e091">gn_node_start</a> (<a class="el" href="gn__commons_8h.html#a36c1afad4298f9c2268a153738092868">gn_node_handle_t</a> node)</td></tr>
 <tr class="memdesc:a71fd9f6745665c53480097f4b993e091"><td class="mdescLeft">&#160;</td><td class="mdescRight">starts the node by starting the leaves tasks  <a href="grownode_8h.html#a71fd9f6745665c53480097f4b993e091">More...</a><br /></td></tr>
 <tr class="separator:a71fd9f6745665c53480097f4b993e091"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a55d3a8097032328aee1ee79a8073c852"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a55d3a8097032328aee1ee79a8073c852">gn_node_get_size</a> (<a class="el" href="gn__commons_8h.html#a36c1afad4298f9c2268a153738092868">gn_node_handle_t</a> <a class="el" href="test__relay_8c.html#ada142030586768226042c9c76934876c">config</a>)</td></tr>
+<tr class="memitem:a55d3a8097032328aee1ee79a8073c852"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a55d3a8097032328aee1ee79a8073c852">gn_node_get_size</a> (<a class="el" href="gn__commons_8h.html#a36c1afad4298f9c2268a153738092868">gn_node_handle_t</a> config)</td></tr>
 <tr class="memdesc:a55d3a8097032328aee1ee79a8073c852"><td class="mdescLeft">&#160;</td><td class="mdescRight">number of leaves into the node  <a href="grownode_8h.html#a55d3a8097032328aee1ee79a8073c852">More...</a><br /></td></tr>
 <tr class="separator:a55d3a8097032328aee1ee79a8073c852"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2cc8b50267e6f548fed39aedf6aa8941"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#a18c5fddc25f0fb3b7b54941d5fd5a7cd">gn_config_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a2cc8b50267e6f548fed39aedf6aa8941">gn_init</a> (<a class="el" href="structgn__config__init__param__t.html">gn_config_init_param_t</a> *<a class="el" href="test__relay_8c.html#a2e2e38a720d68fda38f80d45bede5f2d">config_init</a>)</td></tr>
+<tr class="memitem:a2cc8b50267e6f548fed39aedf6aa8941"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#a18c5fddc25f0fb3b7b54941d5fd5a7cd">gn_config_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a2cc8b50267e6f548fed39aedf6aa8941">gn_init</a> (<a class="el" href="structgn__config__init__param__t.html">gn_config_init_param_t</a> *config_init)</td></tr>
 <tr class="memdesc:a2cc8b50267e6f548fed39aedf6aa8941"><td class="mdescLeft">&#160;</td><td class="mdescRight">performs the initialization workflow  <a href="grownode_8h.html#a2cc8b50267e6f548fed39aedf6aa8941">More...</a><br /></td></tr>
 <tr class="separator:a2cc8b50267e6f548fed39aedf6aa8941"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a12e359d3cbb03229e9fa448ba4ddf82d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#ac04e0e32194e4ebe5b315c2b6f2a2c91">gn_err_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a12e359d3cbb03229e9fa448ba4ddf82d">gn_firmware_update</a> ()</td></tr>
@@ -107,9 +107,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a092b6f9c9e0ce61471084f90fac51864"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#ac04e0e32194e4ebe5b315c2b6f2a2c91">gn_err_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a092b6f9c9e0ce61471084f90fac51864">gn_reboot</a> ()</td></tr>
 <tr class="memdesc:a092b6f9c9e0ce61471084f90fac51864"><td class="mdescLeft">&#160;</td><td class="mdescRight">reboot the board  <a href="grownode_8h.html#a092b6f9c9e0ce61471084f90fac51864">More...</a><br /></td></tr>
 <tr class="separator:a092b6f9c9e0ce61471084f90fac51864"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a497f6b40296969f8c730b6cc81ff484e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#a462040cef00081775908b68cd8b5f89b">gn_leaf_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a497f6b40296969f8c730b6cc81ff484e">gn_leaf_create</a> (<a class="el" href="gn__commons_8h.html#a36c1afad4298f9c2268a153738092868">gn_node_handle_t</a> <a class="el" href="test__relay_8c.html#a48c82629054afe9dc7aa26aacddb825c">node_config</a>, const char *name, <a class="el" href="gn__commons_8h.html#a58a313a2e3569e7167577be3a8c995e3">gn_leaf_config_callback</a> leaf_config, size_t task_size)</td></tr>
-<tr class="memdesc:a497f6b40296969f8c730b6cc81ff484e"><td class="mdescLeft">&#160;</td><td class="mdescRight">creates the leaf  <a href="grownode_8h.html#a497f6b40296969f8c730b6cc81ff484e">More...</a><br /></td></tr>
-<tr class="separator:a497f6b40296969f8c730b6cc81ff484e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a71e478991486a5728838ada7504d7045"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#a462040cef00081775908b68cd8b5f89b">gn_leaf_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a71e478991486a5728838ada7504d7045">gn_leaf_create</a> (<a class="el" href="gn__commons_8h.html#a36c1afad4298f9c2268a153738092868">gn_node_handle_t</a> node_config, const char *name, <a class="el" href="gn__commons_8h.html#a58a313a2e3569e7167577be3a8c995e3">gn_leaf_config_callback</a> callback, size_t task_size)</td></tr>
+<tr class="memdesc:a71e478991486a5728838ada7504d7045"><td class="mdescLeft">&#160;</td><td class="mdescRight">creates the leaf  <a href="grownode_8h.html#a71e478991486a5728838ada7504d7045">More...</a><br /></td></tr>
+<tr class="separator:a71e478991486a5728838ada7504d7045"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac07762e76df3aa47136aa89e069dc72f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#abec8ea226bf73658e6de4d9c75f5cc1a">gn_leaf_descriptor_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#ac07762e76df3aa47136aa89e069dc72f">gn_leaf_get_descriptor</a> (<a class="el" href="gn__commons_8h.html#a462040cef00081775908b68cd8b5f89b">gn_leaf_handle_t</a> leaf_config)</td></tr>
 <tr class="separator:ac07762e76df3aa47136aa89e069dc72f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a787b40ada9c55e31c0d62dc1b7ef4899"><td class="memItemLeft" align="right" valign="top">QueueHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a787b40ada9c55e31c0d62dc1b7ef4899">gn_leaf_get_event_queue</a> (<a class="el" href="gn__commons_8h.html#a462040cef00081775908b68cd8b5f89b">gn_leaf_handle_t</a> leaf_config)</td></tr>
@@ -121,8 +121,8 @@ Functions</h2></td></tr>
 <tr class="memitem:a8bf794d73cd6428c83c738d5cbf09420"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#ac04e0e32194e4ebe5b315c2b6f2a2c91">gn_err_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a8bf794d73cd6428c83c738d5cbf09420">gn_leaf_event_unsubscribe</a> (<a class="el" href="gn__commons_8h.html#a462040cef00081775908b68cd8b5f89b">gn_leaf_handle_t</a> leaf_config, <a class="el" href="gn__event__source_8h.html#ab405715a16a715e1805398598736933f">gn_event_id_t</a> event_id)</td></tr>
 <tr class="memdesc:a8bf794d73cd6428c83c738d5cbf09420"><td class="mdescLeft">&#160;</td><td class="mdescRight">unsubscribe the leaf to the event id.  <a href="grownode_8h.html#a8bf794d73cd6428c83c738d5cbf09420">More...</a><br /></td></tr>
 <tr class="separator:a8bf794d73cd6428c83c738d5cbf09420"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6fa33219da0a88aaf27d1c11615ad518"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#a9149e2a43f5b7741a9c505ada717a1b6">gn_leaf_param_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a6fa33219da0a88aaf27d1c11615ad518">gn_leaf_param_create</a> (<a class="el" href="gn__commons_8h.html#a462040cef00081775908b68cd8b5f89b">gn_leaf_handle_t</a> leaf_config, const char *name, const <a class="el" href="gn__commons_8h.html#ad1014e416cafe9369c2d9f677465cf40">gn_val_type_t</a> type, const <a class="el" href="uniongn__val__t.html">gn_val_t</a> val, <a class="el" href="gn__commons_8h.html#aa8bd69aae77cbb1b05c28b5e0efe0f12">gn_leaf_param_visibility_t</a> access, <a class="el" href="gn__commons_8h.html#aa13fd6921158900e01cd337e3e03ae5f">gn_leaf_param_storage_t</a> storage, <a class="el" href="grownode_8h.html#ae71a3e5c6eb3e6d36fb61ebee9fdb9d9">gn_validator_t</a> validator)</td></tr>
-<tr class="separator:a6fa33219da0a88aaf27d1c11615ad518"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7aa01c3c632299db934ab79cc49d1c0d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#a9149e2a43f5b7741a9c505ada717a1b6">gn_leaf_param_handle_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a7aa01c3c632299db934ab79cc49d1c0d">gn_leaf_param_create</a> (<a class="el" href="gn__commons_8h.html#a462040cef00081775908b68cd8b5f89b">gn_leaf_handle_t</a> leaf_config, const char *name, const <a class="el" href="gn__commons_8h.html#ad1014e416cafe9369c2d9f677465cf40">gn_val_type_t</a> type, const <a class="el" href="uniongn__val__t.html">gn_val_t</a> val, <a class="el" href="gn__commons_8h.html#a7b3f9ab6d947b1ceea57d6f26a877920">gn_leaf_param_access_type_t</a> access, <a class="el" href="gn__commons_8h.html#aa13fd6921158900e01cd337e3e03ae5f">gn_leaf_param_storage_t</a> storage, <a class="el" href="grownode_8h.html#afe02a622dabb5e93b9a12771ee755a87">gn_validator_callback_t</a> validator)</td></tr>
+<tr class="separator:a7aa01c3c632299db934ab79cc49d1c0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a79466b2d53b23bb7abe614767d91b98d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#ac04e0e32194e4ebe5b315c2b6f2a2c91">gn_err_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a79466b2d53b23bb7abe614767d91b98d">gn_leaf_param_add_to_leaf</a> (const <a class="el" href="gn__commons_8h.html#a462040cef00081775908b68cd8b5f89b">gn_leaf_handle_t</a> leaf, const <a class="el" href="gn__commons_8h.html#a9149e2a43f5b7741a9c505ada717a1b6">gn_leaf_param_handle_t</a> new_param)</td></tr>
 <tr class="memdesc:a79466b2d53b23bb7abe614767d91b98d"><td class="mdescLeft">&#160;</td><td class="mdescRight">add a parameter to the leaf.  <a href="grownode_8h.html#a79466b2d53b23bb7abe614767d91b98d">More...</a><br /></td></tr>
 <tr class="separator:a79466b2d53b23bb7abe614767d91b98d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -162,19 +162,19 @@ Functions</h2></td></tr>
 <tr class="memitem:a205e2f6cb829a2481a53391fe7a38e4d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#ac04e0e32194e4ebe5b315c2b6f2a2c91">gn_err_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a205e2f6cb829a2481a53391fe7a38e4d">gn_log</a> (char *log_tag, <a class="el" href="gn__commons_8h.html#a3486d4e9b104a1d3ed1e6e6ac04d8da4">gn_log_level_t</a> level, const char *message,...)</td></tr>
 <tr class="memdesc:a205e2f6cb829a2481a53391fe7a38e4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">write ESP log, send log in the event queue and publish in network  <a href="grownode_8h.html#a205e2f6cb829a2481a53391fe7a38e4d">More...</a><br /></td></tr>
 <tr class="separator:a205e2f6cb829a2481a53391fe7a38e4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a989fb14f667f28751d76b4268130ff9f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#ab863a6b008e4e4ca4358b3045adb2c25">gn_node_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a989fb14f667f28751d76b4268130ff9f">gn_get_status</a> (<a class="el" href="gn__commons_8h.html#a18c5fddc25f0fb3b7b54941d5fd5a7cd">gn_config_handle_t</a> <a class="el" href="test__relay_8c.html#ada142030586768226042c9c76934876c">config</a>)</td></tr>
+<tr class="memitem:a989fb14f667f28751d76b4268130ff9f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#ab863a6b008e4e4ca4358b3045adb2c25">gn_node_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a989fb14f667f28751d76b4268130ff9f">gn_get_status</a> (<a class="el" href="gn__commons_8h.html#a18c5fddc25f0fb3b7b54941d5fd5a7cd">gn_config_handle_t</a> config)</td></tr>
 <tr class="memdesc:a989fb14f667f28751d76b4268130ff9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">retrieves the configuration status  <a href="grownode_8h.html#a989fb14f667f28751d76b4268130ff9f">More...</a><br /></td></tr>
 <tr class="separator:a989fb14f667f28751d76b4268130ff9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a695abba51663bcd8f153563971fb4885"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a695abba51663bcd8f153563971fb4885">gn_get_status_description</a> (<a class="el" href="gn__commons_8h.html#a18c5fddc25f0fb3b7b54941d5fd5a7cd">gn_config_handle_t</a> <a class="el" href="test__relay_8c.html#ada142030586768226042c9c76934876c">config</a>)</td></tr>
+<tr class="memitem:a695abba51663bcd8f153563971fb4885"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a695abba51663bcd8f153563971fb4885">gn_get_status_description</a> (<a class="el" href="gn__commons_8h.html#a18c5fddc25f0fb3b7b54941d5fd5a7cd">gn_config_handle_t</a> config)</td></tr>
 <tr class="memdesc:a695abba51663bcd8f153563971fb4885"><td class="mdescLeft">&#160;</td><td class="mdescRight">retrieves the configuration status description  <a href="grownode_8h.html#a695abba51663bcd8f153563971fb4885">More...</a><br /></td></tr>
 <tr class="separator:a695abba51663bcd8f153563971fb4885"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acaddb0faa7a696f5c924c57ea335f51b"><td class="memItemLeft" align="right" valign="top">esp_event_loop_handle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#acaddb0faa7a696f5c924c57ea335f51b">gn_get_event_loop</a> (<a class="el" href="gn__commons_8h.html#a18c5fddc25f0fb3b7b54941d5fd5a7cd">gn_config_handle_t</a> <a class="el" href="test__relay_8c.html#ada142030586768226042c9c76934876c">config</a>)</td></tr>
+<tr class="memitem:acaddb0faa7a696f5c924c57ea335f51b"><td class="memItemLeft" align="right" valign="top">esp_event_loop_handle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#acaddb0faa7a696f5c924c57ea335f51b">gn_get_event_loop</a> (<a class="el" href="gn__commons_8h.html#a18c5fddc25f0fb3b7b54941d5fd5a7cd">gn_config_handle_t</a> config)</td></tr>
 <tr class="memdesc:acaddb0faa7a696f5c924c57ea335f51b"><td class="mdescLeft">&#160;</td><td class="mdescRight">retrieves the event loop starting from the config handle  <a href="grownode_8h.html#acaddb0faa7a696f5c924c57ea335f51b">More...</a><br /></td></tr>
 <tr class="separator:acaddb0faa7a696f5c924c57ea335f51b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a165d3f745f84146688cd38f4f38c182d"><td class="memItemLeft" align="right" valign="top">esp_event_loop_handle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a165d3f745f84146688cd38f4f38c182d">gn_leaf_get_event_loop</a> (<a class="el" href="gn__commons_8h.html#a18c5fddc25f0fb3b7b54941d5fd5a7cd">gn_config_handle_t</a> <a class="el" href="test__relay_8c.html#ada142030586768226042c9c76934876c">config</a>)</td></tr>
+<tr class="memitem:a165d3f745f84146688cd38f4f38c182d"><td class="memItemLeft" align="right" valign="top">esp_event_loop_handle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a165d3f745f84146688cd38f4f38c182d">gn_leaf_get_event_loop</a> (<a class="el" href="gn__commons_8h.html#a18c5fddc25f0fb3b7b54941d5fd5a7cd">gn_config_handle_t</a> config)</td></tr>
 <tr class="memdesc:a165d3f745f84146688cd38f4f38c182d"><td class="mdescLeft">&#160;</td><td class="mdescRight">retrieves the event loop starting from the leaf config handle  <a href="grownode_8h.html#a165d3f745f84146688cd38f4f38c182d">More...</a><br /></td></tr>
 <tr class="separator:a165d3f745f84146688cd38f4f38c182d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a923e18ad9059a669129a3b0d1821e6d4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#ac04e0e32194e4ebe5b315c2b6f2a2c91">gn_err_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a923e18ad9059a669129a3b0d1821e6d4">gn_node_get_name</a> (<a class="el" href="gn__commons_8h.html#a36c1afad4298f9c2268a153738092868">gn_node_handle_t</a> <a class="el" href="test__relay_8c.html#a48c82629054afe9dc7aa26aacddb825c">node_config</a>, char *name)</td></tr>
+<tr class="memitem:a923e18ad9059a669129a3b0d1821e6d4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#ac04e0e32194e4ebe5b315c2b6f2a2c91">gn_err_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a923e18ad9059a669129a3b0d1821e6d4">gn_node_get_name</a> (<a class="el" href="gn__commons_8h.html#a36c1afad4298f9c2268a153738092868">gn_node_handle_t</a> node_config, char *name)</td></tr>
 <tr class="memdesc:a923e18ad9059a669129a3b0d1821e6d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">gets the name of the node referenced by the handle  <a href="grownode_8h.html#a923e18ad9059a669129a3b0d1821e6d4">More...</a><br /></td></tr>
 <tr class="separator:a923e18ad9059a669129a3b0d1821e6d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9d3ada39c4c7e0f6acffe019df2e7ebf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="gn__commons_8h.html#ac04e0e32194e4ebe5b315c2b6f2a2c91">gn_err_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grownode_8h.html#a9d3ada39c4c7e0f6acffe019df2e7ebf">gn_leaf_get_name</a> (<a class="el" href="gn__commons_8h.html#a462040cef00081775908b68cd8b5f89b">gn_leaf_handle_t</a> leaf_config, char *name)</td></tr>
@@ -244,14 +244,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ae71a3e5c6eb3e6d36fb61ebee9fdb9d9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae71a3e5c6eb3e6d36fb61ebee9fdb9d9">&#9670;&nbsp;</a></span>gn_validator_t</h2>
+<a id="afe02a622dabb5e93b9a12771ee755a87"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afe02a622dabb5e93b9a12771ee755a87">&#9670;&nbsp;</a></span>gn_validator_callback_t</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef <a class="el" href="gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458">gn_leaf_param_validator_result_t</a>(* gn_validator_t) (<a class="el" href="gn__commons_8h.html#a9149e2a43f5b7741a9c505ada717a1b6">gn_leaf_param_handle_t</a> param, void **value)</td>
+          <td class="memname">typedef <a class="el" href="gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458">gn_leaf_param_validator_result_t</a>(* gn_validator_callback_t) (<a class="el" href="gn__commons_8h.html#a9149e2a43f5b7741a9c505ada717a1b6">gn_leaf_param_handle_t</a> param, void **value)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -480,8 +480,8 @@ the configuration status </dd></dl>
 
 </div>
 </div>
-<a id="a497f6b40296969f8c730b6cc81ff484e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a497f6b40296969f8c730b6cc81ff484e">&#9670;&nbsp;</a></span>gn_leaf_create()</h2>
+<a id="a71e478991486a5728838ada7504d7045"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a71e478991486a5728838ada7504d7045">&#9670;&nbsp;</a></span>gn_leaf_create()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -502,7 +502,7 @@ the configuration status </dd></dl>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="gn__commons_8h.html#a58a313a2e3569e7167577be3a8c995e3">gn_leaf_config_callback</a>&#160;</td>
-          <td class="paramname"><em>leaf_config</em>, </td>
+          <td class="paramname"><em>callback</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -524,6 +524,7 @@ the configuration status </dd></dl>
   <table class="params">
     <tr><td class="paramname">node_config</td><td>the configuration handle to create the leaf to </td></tr>
     <tr><td class="paramname">name</td><td>the name of the leaf to be created </td></tr>
+    <tr><td class="paramname">callback</td><td>the callback to be called to configure the leaf </td></tr>
     <tr><td class="paramname">task</td><td>callback function of the leaf task </td></tr>
     <tr><td class="paramname">task_size</td><td>the size of the task to be memory allocated</td></tr>
   </table>
@@ -791,7 +792,7 @@ GN_RET_OK if everything OK </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">leaf</td><td>the leaf handle </td></tr>
-    <tr><td class="paramname">new_param</td><td>the param to add to the leaf. the leaf will point at it upon method return</td></tr>
+    <tr><td class="paramname">param</td><td>the param to add to the leaf. the leaf will point at it upon method return</td></tr>
   </table>
   </dd>
 </dl>
@@ -801,8 +802,8 @@ GN_RET_OK upon success </dd></dl>
 
 </div>
 </div>
-<a id="a6fa33219da0a88aaf27d1c11615ad518"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6fa33219da0a88aaf27d1c11615ad518">&#9670;&nbsp;</a></span>gn_leaf_param_create()</h2>
+<a id="a7aa01c3c632299db934ab79cc49d1c0d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7aa01c3c632299db934ab79cc49d1c0d">&#9670;&nbsp;</a></span>gn_leaf_param_create()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -834,7 +835,7 @@ GN_RET_OK upon success </dd></dl>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="gn__commons_8h.html#aa8bd69aae77cbb1b05c28b5e0efe0f12">gn_leaf_param_visibility_t</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="gn__commons_8h.html#a7b3f9ab6d947b1ceea57d6f26a877920">gn_leaf_param_access_type_t</a>&#160;</td>
           <td class="paramname"><em>access</em>, </td>
         </tr>
         <tr>
@@ -846,7 +847,7 @@ GN_RET_OK upon success </dd></dl>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="grownode_8h.html#ae71a3e5c6eb3e6d36fb61ebee9fdb9d9">gn_validator_t</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="grownode_8h.html#afe02a622dabb5e93b9a12771ee755a87">gn_validator_callback_t</a>&#160;</td>
           <td class="paramname"><em>validator</em>&#160;</td>
         </tr>
         <tr>
@@ -866,7 +867,8 @@ NOTE: if parameter is stored, the value is overridden
     <tr><td class="paramname">type</td><td>the type of parameter </td></tr>
     <tr><td class="paramname">val</td><td>the value of parameter </td></tr>
     <tr><td class="paramname">access</td><td>access type of parameter </td></tr>
-    <tr><td class="paramname">storage</td><td>storage type of parameter</td></tr>
+    <tr><td class="paramname">storage</td><td>storage type of parameter </td></tr>
+    <tr><td class="paramname">validator</td><td>callback to validate</td></tr>
   </table>
   </dd>
 </dl>
@@ -1066,7 +1068,10 @@ the found parameter handle </dd></dl>
 <p>gets the value pointed by the parameter </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">param</td><td>the parameter handle to look at @val the value returned </td></tr>
+    <tr><td class="paramname">param</td><td>the parameter handle to look at </td></tr>
+    <tr><td class="paramname">val</td><td>the value returned <pre class="fragment">@return GN_RET_OK if the parameter is set
+@return GN_RET_ERR_INVALID_ARG in case of input errors
+</pre> </td></tr>
   </table>
   </dd>
 </dl>

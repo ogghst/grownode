@@ -1,4 +1,4 @@
-.TH "components/grownode/leaves/gn_capacitive_water_level.h" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
+.TH "components/grownode/leaves/gn_capacitive_water_level.h" 3 "Sat Jan 29 2022" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -13,9 +13,60 @@ components/grownode/leaves/gn_capacitive_water_level.h
 .RI "\fBgn_leaf_descriptor_handle_t\fP \fBgn_capacitive_water_level_config\fP (\fBgn_leaf_handle_t\fP leaf_config)"
 .br
 .in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "static const char \fBGN_LEAF_CWL_TYPE\fP [] = 'cwl'"
+.br
+.ti -1c
+.RI "static const char \fBGN_CWL_PARAM_ACTIVE\fP [] = 'active'"
+.br
+.ti -1c
+.RI "static const char \fBGN_CWL_PARAM_TOUCH_CHANNEL\fP [] = 'touch_ch'"
+.br
+.ti -1c
+.RI "static const char \fBGN_CWL_PARAM_MAX_LEVEL\fP [] = 'max_level'"
+.br
+.ti -1c
+.RI "static const char \fBGN_CWL_PARAM_MIN_LEVEL\fP [] = 'min_level'"
+.br
+.ti -1c
+.RI "static const char \fBGN_CWL_PARAM_ACT_LEVEL\fP [] = 'act_level'"
+.br
+.ti -1c
+.RI "static const char \fBGN_CWL_PARAM_TRG_HIGH\fP [] = 'trg_hig'"
+.br
+.ti -1c
+.RI "static const char \fBGN_CWL_PARAM_TRG_LOW\fP [] = 'trg_low'"
+.br
+.ti -1c
+.RI "static const char \fBGN_CWL_PARAM_UPDATE_TIME_SEC\fP [] = 'upd_time_sec'"
+.br
+.in -1c
 .SH "Function Documentation"
 .PP 
 .SS "\fBgn_leaf_descriptor_handle_t\fP gn_capacitive_water_level_config (\fBgn_leaf_handle_t\fP leaf_config)"
+
+.SH "Variable Documentation"
+.PP 
+.SS "const char GN_CWL_PARAM_ACT_LEVEL[] = 'act_level'\fC [static]\fP"
+actual water level\&. volatile, read only 
+.SS "const char GN_CWL_PARAM_ACTIVE[] = 'active'\fC [static]\fP"
+whether the sensor is running 
+.SS "const char GN_CWL_PARAM_MAX_LEVEL[] = 'max_level'\fC [static]\fP"
+minimum water level\&. stored, read/write 
+.SS "const char GN_CWL_PARAM_MIN_LEVEL[] = 'min_level'\fC [static]\fP"
+maximum water level\&. stored, read/write 
+.SS "const char GN_CWL_PARAM_TOUCH_CHANNEL[] = 'touch_ch'\fC [static]\fP"
+touch channel for sensing\&. stored, read/write 
+.SS "const char GN_CWL_PARAM_TRG_HIGH[] = 'trg_hig'\fC [static]\fP"
+water level above max level = 1\&. volatile, read only 
+.SS "const char GN_CWL_PARAM_TRG_LOW[] = 'trg_low'\fC [static]\fP"
+water level below min level = 1\&. volatile, read only 
+.SS "const char GN_CWL_PARAM_UPDATE_TIME_SEC[] = 'upd_time_sec'\fC [static]\fP"
+seconds between sensor sampling\&. stored, read/write 
+.SS "const char GN_LEAF_CWL_TYPE[] = 'cwl'\fC [static]\fP"
 
 .SH "Author"
 .PP 

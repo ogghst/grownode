@@ -1,4 +1,4 @@
-.TH "components/grownode/leaves/gn_capacitive_moisture_sensor.c" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
+.TH "components/grownode/leaves/gn_capacitive_moisture_sensor.c" 3 "Sat Jan 29 2022" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -39,6 +39,19 @@ components/grownode/leaves/gn_capacitive_moisture_sensor.c
 .RI "\fBgn_leaf_descriptor_handle_t\fP \fBgn_capacitive_moisture_sensor_config\fP (\fBgn_leaf_handle_t\fP leaf_config)"
 .br
 .in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "static const adc_atten_t \fBatten\fP = ADC_ATTEN_DB_11"
+.br
+.ti -1c
+.RI "static const adc_unit_t \fBunit\fP = ADC_UNIT_1"
+.br
+.ti -1c
+.RI "static const adc_bits_width_t \fBwidth\fP = ADC_WIDTH_BIT_12"
+.br
+.in -1c
 .SH "Macro Definition Documentation"
 .PP 
 .SS "#define DEFAULT_VREF   1100"
@@ -54,6 +67,14 @@ components/grownode/leaves/gn_capacitive_moisture_sensor.c
 .SS "void gn_cms_sensor_collect (\fBgn_leaf_handle_t\fP leaf_config)"
 
 .SS "void gn_cms_task (\fBgn_leaf_handle_t\fP leaf_config)"
+
+.SH "Variable Documentation"
+.PP 
+.SS "const adc_atten_t atten = ADC_ATTEN_DB_11\fC [static]\fP"
+
+.SS "const adc_unit_t unit = ADC_UNIT_1\fC [static]\fP"
+
+.SS "const adc_bits_width_t width = ADC_WIDTH_BIT_12\fC [static]\fP"
 
 .SH "Author"
 .PP 

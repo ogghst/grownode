@@ -1,8 +1,9 @@
-.TH "components/grownode/gn_commons.h" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
+.TH "components/grownode/gn_commons.h" 3 "Sat Jan 29 2022" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-components/grownode/gn_commons.h
+components/grownode/gn_commons.h \- General structures and functions\&.  
+
 .SH SYNOPSIS
 .br
 .PP
@@ -112,7 +113,7 @@ components/grownode/gn_commons.h
 .RI "enum \fBgn_val_type_t\fP { \fBGN_VAL_TYPE_STRING\fP, \fBGN_VAL_TYPE_BOOLEAN\fP, \fBGN_VAL_TYPE_DOUBLE\fP }"
 .br
 .ti -1c
-.RI "enum \fBgn_leaf_param_visibility_t\fP { \fBGN_LEAF_PARAM_ACCESS_ALL\fP = 0x01, \fBGN_LEAF_PARAM_ACCESS_NETWORK\fP = 0x02, \fBGN_LEAF_PARAM_ACCESS_NODE\fP = 0x03, \fBGN_LEAF_PARAM_ACCESS_NODE_INTERNAL\fP = 0x04 }"
+.RI "enum \fBgn_leaf_param_access_type_t\fP { \fBGN_LEAF_PARAM_ACCESS_ALL\fP = 0x01, \fBGN_LEAF_PARAM_ACCESS_NETWORK\fP = 0x02, \fBGN_LEAF_PARAM_ACCESS_NODE\fP = 0x03, \fBGN_LEAF_PARAM_ACCESS_NODE_INTERNAL\fP = 0x04 }"
 .br
 .ti -1c
 .RI "enum \fBgn_leaf_param_storage_t\fP { \fBGN_LEAF_PARAM_STORAGE_PERSISTED\fP, \fBGN_LEAF_PARAM_STORAGE_VOLATILE\fP }"
@@ -144,9 +145,18 @@ components/grownode/gn_commons.h
 
 .in +1c
 .ti -1c
+.RI "static const int16_t \fBGN_CONFIG_MAX_SERVER_KEEPALIVE_SEC\fP = 3600"
+.br
+.RI "Contains the last error code\&. "
+.ti -1c
 .RI "const char * \fBgn_config_status_descriptions\fP [14]"
 .br
 .in -1c
+.SH "Detailed Description"
+.PP 
+General structures and functions\&. 
+
+
 .SH "Macro Definition Documentation"
 .PP 
 .SS "#define GN_LEAF_DATA_SIZE   512"
@@ -221,6 +231,23 @@ impossible to send message to event loop
 \fB\fIGN_RET_ERR_MQTT_SUBSCRIBE \fP\fP
 .TP
 \fB\fIGN_RET_ERR_MQTT_ERROR \fP\fP
+.SS "enum \fBgn_leaf_param_access_type_t\fP"
+
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIGN_LEAF_PARAM_ACCESS_ALL \fP\fP
+param can be modified both by the node and network (eg\&. local configuration settings) 
+.TP
+\fB\fIGN_LEAF_PARAM_ACCESS_NETWORK \fP\fP
+param can be modified only by network (eg\&. configuration settings from environment) 
+.TP
+\fB\fIGN_LEAF_PARAM_ACCESS_NODE \fP\fP
+param can be modified only by the node (eg\&. sensor data) 
+.TP
+\fB\fIGN_LEAF_PARAM_ACCESS_NODE_INTERNAL \fP\fP
+param can be modified only by the node (eg\&. sensor data) and it is not shown externally 
 .SS "enum \fBgn_leaf_param_storage_t\fP"
 
 .PP
@@ -246,23 +273,6 @@ param is stored in NVS flash every time it changes
 \fB\fIGN_LEAF_PARAM_VALIDATOR_NOT_ALLOWED \fP\fP
 .TP
 \fB\fIGN_LEAF_PARAM_VALIDATOR_ERROR \fP\fP
-.SS "enum \fBgn_leaf_param_visibility_t\fP"
-
-.PP
-\fBEnumerator\fP
-.in +1c
-.TP
-\fB\fIGN_LEAF_PARAM_ACCESS_ALL \fP\fP
-param can be modified both by the node and network (eg\&. local configuration settings) 
-.TP
-\fB\fIGN_LEAF_PARAM_ACCESS_NETWORK \fP\fP
-param can be modified only by network (eg\&. configuration settings from environment) 
-.TP
-\fB\fIGN_LEAF_PARAM_ACCESS_NODE \fP\fP
-param can be modified only by the node (eg\&. sensor data) 
-.TP
-\fB\fIGN_LEAF_PARAM_ACCESS_NODE_INTERNAL \fP\fP
-param can be modified only by the node (eg\&. sensor data) and it is not shown externally 
 .SS "enum \fBgn_leaf_status_t\fP"
 
 .PP
@@ -358,6 +368,17 @@ status of the leaf
 
 .SH "Variable Documentation"
 .PP 
+.SS "const int16_t GN_CONFIG_MAX_SERVER_KEEPALIVE_SEC = 3600\fC [static]\fP"
+
+.PP
+Contains the last error code\&. 
+.PP
+\fBWarning\fP
+.RS 4
+Not thread safe! 
+.RE
+.PP
+
 .SS "const char* gn_config_status_descriptions[14]"
 
 .SH "Author"

@@ -35,6 +35,12 @@ var gn__commons_8h =
       [ "GN_RET_ERR_MQTT_SUBSCRIBE", "gn__commons_8h.html#ac04e0e32194e4ebe5b315c2b6f2a2c91a801b0f353a89b6aac88a652cf06a6c7c", null ],
       [ "GN_RET_ERR_MQTT_ERROR", "gn__commons_8h.html#ac04e0e32194e4ebe5b315c2b6f2a2c91a487f7da10d3dd07a3dd6859705dfadbb", null ]
     ] ],
+    [ "gn_leaf_param_access_type_t", "gn__commons_8h.html#a7b3f9ab6d947b1ceea57d6f26a877920", [
+      [ "GN_LEAF_PARAM_ACCESS_ALL", "gn__commons_8h.html#a7b3f9ab6d947b1ceea57d6f26a877920a5b724c6ca10c507caead43298e610177", null ],
+      [ "GN_LEAF_PARAM_ACCESS_NETWORK", "gn__commons_8h.html#a7b3f9ab6d947b1ceea57d6f26a877920ac6ee97f23ca699baa8409784f2733627", null ],
+      [ "GN_LEAF_PARAM_ACCESS_NODE", "gn__commons_8h.html#a7b3f9ab6d947b1ceea57d6f26a877920af9fce31bf67a58c35c81b672d8f77297", null ],
+      [ "GN_LEAF_PARAM_ACCESS_NODE_INTERNAL", "gn__commons_8h.html#a7b3f9ab6d947b1ceea57d6f26a877920a1c76c94262102d372353b6dcea3d7822", null ]
+    ] ],
     [ "gn_leaf_param_storage_t", "gn__commons_8h.html#aa13fd6921158900e01cd337e3e03ae5f", [
       [ "GN_LEAF_PARAM_STORAGE_PERSISTED", "gn__commons_8h.html#aa13fd6921158900e01cd337e3e03ae5faf298a5be940504e78322b7743a380ec8", null ],
       [ "GN_LEAF_PARAM_STORAGE_VOLATILE", "gn__commons_8h.html#aa13fd6921158900e01cd337e3e03ae5faf898f16353b9e5c77214eee6fdf75cab", null ]
@@ -45,12 +51,6 @@ var gn__commons_8h =
       [ "GN_LEAF_PARAM_VALIDATOR_BELOW_MIN", "gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458ac07f20a25708de521446ba50bf82dc07", null ],
       [ "GN_LEAF_PARAM_VALIDATOR_NOT_ALLOWED", "gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458ae37d2c802342c6dc247506bf2da8a41d", null ],
       [ "GN_LEAF_PARAM_VALIDATOR_ERROR", "gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458ab83fa53d67768469f89ce1dfd824f05b", null ]
-    ] ],
-    [ "gn_leaf_param_visibility_t", "gn__commons_8h.html#aa8bd69aae77cbb1b05c28b5e0efe0f12", [
-      [ "GN_LEAF_PARAM_ACCESS_ALL", "gn__commons_8h.html#aa8bd69aae77cbb1b05c28b5e0efe0f12a5b724c6ca10c507caead43298e610177", null ],
-      [ "GN_LEAF_PARAM_ACCESS_NETWORK", "gn__commons_8h.html#aa8bd69aae77cbb1b05c28b5e0efe0f12ac6ee97f23ca699baa8409784f2733627", null ],
-      [ "GN_LEAF_PARAM_ACCESS_NODE", "gn__commons_8h.html#aa8bd69aae77cbb1b05c28b5e0efe0f12af9fce31bf67a58c35c81b672d8f77297", null ],
-      [ "GN_LEAF_PARAM_ACCESS_NODE_INTERNAL", "gn__commons_8h.html#aa8bd69aae77cbb1b05c28b5e0efe0f12a1c76c94262102d372353b6dcea3d7822", null ]
     ] ],
     [ "gn_leaf_status_t", "gn__commons_8h.html#a6d51f2d997d81965c8c23d1a06c0af67", [
       [ "GN_LEAF_STATUS_NOT_INITIALIZED", "gn__commons_8h.html#a6d51f2d997d81965c8c23d1a06c0af67a119c29854bba8cdcc4675cf082be9051", null ],
@@ -94,5 +94,6 @@ var gn__commons_8h =
     [ "gn_validator_boolean", "gn__commons_8h.html#af9aa266a5632bf85ea77aa5201f58226", null ],
     [ "gn_validator_double", "gn__commons_8h.html#a8f7f60439d95c947b7b469c4bc834414", null ],
     [ "gn_validator_double_positive", "gn__commons_8h.html#a606bbd0a803b73be481ae5a565ba95fe", null ],
+    [ "GN_CONFIG_MAX_SERVER_KEEPALIVE_SEC", "gn__commons_8h.html#a843e9ba0c05c71eb23938fb37f63f63c", null ],
     [ "gn_config_status_descriptions", "gn__commons_8h.html#a470297ae9dd28310fbc1b4ff9c3017c3", null ]
 ];

@@ -1,4 +1,4 @@
-.TH "components/grownode/grownode.h" 3 "Fri Jan 28 2022" "GrowNode" \" -*- nroff -*-
+.TH "components/grownode/grownode.h" 3 "Sat Jan 29 2022" "GrowNode" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -17,7 +17,7 @@ components/grownode/grownode.h
 
 .in +1c
 .ti -1c
-.RI "typedef \fBgn_leaf_param_validator_result_t\fP(* \fBgn_validator_t\fP) (\fBgn_leaf_param_handle_t\fP param, void **value)"
+.RI "typedef \fBgn_leaf_param_validator_result_t\fP(* \fBgn_validator_callback_t\fP) (\fBgn_leaf_param_handle_t\fP param, void **value)"
 .br
 .ti -1c
 .RI "typedef struct \fBgn_config_init_param_t\fP * \fBgn_config_init_param_handle_t\fP"
@@ -27,7 +27,7 @@ components/grownode/grownode.h
 
 .in +1c
 .ti -1c
-.RI "\fBgn_node_handle_t\fP \fBgn_node_create\fP (\fBgn_config_handle_t\fP \fBconfig\fP, const char *name)"
+.RI "\fBgn_node_handle_t\fP \fBgn_node_create\fP (\fBgn_config_handle_t\fP config, const char *name)"
 .br
 .RI "create a new node with specified configuration and name "
 .ti -1c
@@ -39,11 +39,11 @@ components/grownode/grownode.h
 .br
 .RI "starts the node by starting the leaves tasks "
 .ti -1c
-.RI "size_t \fBgn_node_get_size\fP (\fBgn_node_handle_t\fP \fBconfig\fP)"
+.RI "size_t \fBgn_node_get_size\fP (\fBgn_node_handle_t\fP config)"
 .br
 .RI "number of leaves into the node "
 .ti -1c
-.RI "\fBgn_config_handle_t\fP \fBgn_init\fP (\fBgn_config_init_param_t\fP *\fBconfig_init\fP)"
+.RI "\fBgn_config_handle_t\fP \fBgn_init\fP (\fBgn_config_init_param_t\fP *config_init)"
 .br
 .RI "performs the initialization workflow "
 .ti -1c
@@ -59,7 +59,7 @@ components/grownode/grownode.h
 .br
 .RI "reboot the board "
 .ti -1c
-.RI "\fBgn_leaf_handle_t\fP \fBgn_leaf_create\fP (\fBgn_node_handle_t\fP \fBnode_config\fP, const char *name, \fBgn_leaf_config_callback\fP leaf_config, size_t task_size)"
+.RI "\fBgn_leaf_handle_t\fP \fBgn_leaf_create\fP (\fBgn_node_handle_t\fP node_config, const char *name, \fBgn_leaf_config_callback\fP callback, size_t task_size)"
 .br
 .RI "creates the leaf "
 .ti -1c
@@ -78,7 +78,7 @@ components/grownode/grownode.h
 .br
 .RI "unsubscribe the leaf to the event id\&. "
 .ti -1c
-.RI "\fBgn_leaf_param_handle_t\fP \fBgn_leaf_param_create\fP (\fBgn_leaf_handle_t\fP leaf_config, const char *name, const \fBgn_val_type_t\fP type, const \fBgn_val_t\fP val, \fBgn_leaf_param_visibility_t\fP access, \fBgn_leaf_param_storage_t\fP storage, \fBgn_validator_t\fP validator)"
+.RI "\fBgn_leaf_param_handle_t\fP \fBgn_leaf_param_create\fP (\fBgn_leaf_handle_t\fP leaf_config, const char *name, const \fBgn_val_type_t\fP type, const \fBgn_val_t\fP val, \fBgn_leaf_param_access_type_t\fP access, \fBgn_leaf_param_storage_t\fP storage, \fBgn_validator_callback_t\fP validator)"
 .br
 .ti -1c
 .RI "\fBgn_err_t\fP \fBgn_leaf_param_add_to_leaf\fP (const \fBgn_leaf_handle_t\fP leaf, const \fBgn_leaf_param_handle_t\fP new_param)"
@@ -134,23 +134,23 @@ components/grownode/grownode.h
 .br
 .RI "write ESP log, send log in the event queue and publish in network "
 .ti -1c
-.RI "\fBgn_node_status_t\fP \fBgn_get_status\fP (\fBgn_config_handle_t\fP \fBconfig\fP)"
+.RI "\fBgn_node_status_t\fP \fBgn_get_status\fP (\fBgn_config_handle_t\fP config)"
 .br
 .RI "retrieves the configuration status "
 .ti -1c
-.RI "const char * \fBgn_get_status_description\fP (\fBgn_config_handle_t\fP \fBconfig\fP)"
+.RI "const char * \fBgn_get_status_description\fP (\fBgn_config_handle_t\fP config)"
 .br
 .RI "retrieves the configuration status description "
 .ti -1c
-.RI "esp_event_loop_handle_t \fBgn_get_event_loop\fP (\fBgn_config_handle_t\fP \fBconfig\fP)"
+.RI "esp_event_loop_handle_t \fBgn_get_event_loop\fP (\fBgn_config_handle_t\fP config)"
 .br
 .RI "retrieves the event loop starting from the config handle "
 .ti -1c
-.RI "esp_event_loop_handle_t \fBgn_leaf_get_event_loop\fP (\fBgn_config_handle_t\fP \fBconfig\fP)"
+.RI "esp_event_loop_handle_t \fBgn_leaf_get_event_loop\fP (\fBgn_config_handle_t\fP config)"
 .br
 .RI "retrieves the event loop starting from the leaf config handle "
 .ti -1c
-.RI "\fBgn_err_t\fP \fBgn_node_get_name\fP (\fBgn_node_handle_t\fP \fBnode_config\fP, char *name)"
+.RI "\fBgn_err_t\fP \fBgn_node_get_name\fP (\fBgn_node_handle_t\fP node_config, char *name)"
 .br
 .RI "gets the name of the node referenced by the handle "
 .ti -1c
@@ -212,7 +212,7 @@ components/grownode/grownode.h
 .PP 
 .SS "typedef struct \fBgn_config_init_param_t\fP* \fBgn_config_init_param_handle_t\fP"
 
-.SS "typedef \fBgn_leaf_param_validator_result_t\fP(* gn_validator_t) (\fBgn_leaf_param_handle_t\fP param, void **value)"
+.SS "typedef \fBgn_leaf_param_validator_result_t\fP(* gn_validator_callback_t) (\fBgn_leaf_param_handle_t\fP param, void **value)"
 
 .SH "Function Documentation"
 .PP 
@@ -335,7 +335,7 @@ an handle to the config data structure
 .RE
 .PP
 
-.SS "\fBgn_leaf_handle_t\fP gn_leaf_create (\fBgn_node_handle_t\fP node_config, const char * name, \fBgn_leaf_config_callback\fP leaf_config, size_t task_size)"
+.SS "\fBgn_leaf_handle_t\fP gn_leaf_create (\fBgn_node_handle_t\fP node_config, const char * name, \fBgn_leaf_config_callback\fP callback, size_t task_size)"
 
 .PP
 creates the leaf initializes the leaf structure\&. the returned handle is not active and need to be started by the \fBgn_node_start()\fP function 
@@ -350,6 +350,8 @@ creates the leaf initializes the leaf structure\&. the returned handle is not ac
 \fInode_config\fP the configuration handle to create the leaf to 
 .br
 \fIname\fP the name of the leaf to be created 
+.br
+\fIcallback\fP the callback to be called to configure the leaf 
 .br
 \fItask\fP callback function of the leaf task 
 .br
@@ -457,7 +459,7 @@ add a parameter to the leaf\&. the parameter will then listen to server changes
 .RS 4
 \fIleaf\fP the leaf handle 
 .br
-\fInew_param\fP the param to add to the leaf\&. the leaf will point at it upon method return
+\fIparam\fP the param to add to the leaf\&. the leaf will point at it upon method return
 .RE
 .PP
 \fBReturns\fP
@@ -468,7 +470,7 @@ GN_RET_OK upon success
 .RE
 .PP
 
-.SS "\fBgn_leaf_param_handle_t\fP gn_leaf_param_create (\fBgn_leaf_handle_t\fP leaf_config, const char * name, const \fBgn_val_type_t\fP type, \fBgn_val_t\fP val, \fBgn_leaf_param_visibility_t\fP access, \fBgn_leaf_param_storage_t\fP storage, \fBgn_validator_t\fP validator)"
+.SS "\fBgn_leaf_param_handle_t\fP gn_leaf_param_create (\fBgn_leaf_handle_t\fP leaf_config, const char * name, const \fBgn_val_type_t\fP type, \fBgn_val_t\fP val, \fBgn_leaf_param_access_type_t\fP access, \fBgn_leaf_param_storage_t\fP storage, \fBgn_validator_callback_t\fP validator)"
 
 .PP
 .nf
@@ -492,7 +494,9 @@ NOTE: if parameter is stored, the value is overridden
 .br
 \fIaccess\fP access type of parameter 
 .br
-\fIstorage\fP storage type of parameter
+\fIstorage\fP storage type of parameter 
+.br
+\fIvalidator\fP callback to validate
 .RE
 .PP
 \fBReturns\fP
@@ -559,7 +563,17 @@ gets the value pointed by the parameter
 .PP
 \fBParameters\fP
 .RS 4
-\fIparam\fP the parameter handle to look at @val the value returned 
+\fIparam\fP the parameter handle to look at 
+.br
+\fIval\fP the value returned 
+.PP
+.nf
+@return GN_RET_OK if the parameter is set
+@return GN_RET_ERR_INVALID_ARG in case of input errors
+
+.fi
+.PP
+ 
 .RE
 .PP
 
