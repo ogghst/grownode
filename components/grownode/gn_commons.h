@@ -99,12 +99,16 @@ typedef enum {
 	GN_RET_ERR_MQTT_ERROR = 0x209
 } gn_err_t;
 
+/**
+ * @brief 	result of a validation function run
+ */
 typedef enum {
-	GN_LEAF_PARAM_VALIDATOR_PASSED = 0x000,
-	GN_LEAF_PARAM_VALIDATOR_ABOVE_MAX = 0x001,
-	GN_LEAF_PARAM_VALIDATOR_BELOW_MIN = 0x002,
-	GN_LEAF_PARAM_VALIDATOR_NOT_ALLOWED = 0x100,
-	GN_LEAF_PARAM_VALIDATOR_ERROR = 0x101
+	GN_LEAF_PARAM_VALIDATOR_PASSED = 0x000,					/*!< value is compliant */
+	GN_LEAF_PARAM_VALIDATOR_ERROR_ABOVE_MAX = 0x001,		/*!< value is over the maximum limit */
+	GN_LEAF_PARAM_VALIDATOR_ERROR_BELOW_MIN = 0x002,		/*!< value is below the minimum limit */
+	GN_LEAF_PARAM_VALIDATOR_ERROR_NOT_ALLOWED = 0x100,		/*!< value is not allowed for other reasons */
+	GN_LEAF_PARAM_VALIDATOR_ERROR_GENERIC = 0x101,			/*!< algorithm has returned an error */
+	GN_LEAF_PARAM_VALIDATOR_PASSED_CHANGED = 0x200			/*!< value was not allowed but has been modified by the validator to be compliant*/
 } gn_leaf_param_validator_result_t;
 
 typedef enum {
@@ -212,8 +216,8 @@ typedef enum {
  * storage policy
  */
 typedef enum {
-	GN_LEAF_PARAM_STORAGE_PERSISTED, /*!< param is stored in NVS flash every time it changes*/
-	GN_LEAF_PARAM_STORAGE_VOLATILE /*< param is never stored in NVS flash*/
+	GN_LEAF_PARAM_STORAGE_PERSISTED, 	/*!< param is stored in NVS flash every time it changes*/
+	GN_LEAF_PARAM_STORAGE_VOLATILE 		/*< param is never stored in NVS flash*/
 } gn_leaf_param_storage_t;
 
 typedef void *gn_leaf_param_handle_t;
