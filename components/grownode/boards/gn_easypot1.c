@@ -47,21 +47,21 @@ void moisture_callback(const gn_leaf_handle_t moist) {
 
 	//turn on the LED if low with a specific frequency
 	if (moist_act < moist_min && moist_last >= moist_min) {
-		gn_leaf_param_update_bool(led_moist, GN_LED_PARAM_TOGGLE, true);
-		gn_leaf_param_update_double(led_moist, GN_LED_PARAM_BLINK_TIME_MS,
+		gn_leaf_param_set_bool(led_moist, GN_LED_PARAM_TOGGLE, true);
+		gn_leaf_param_set_double(led_moist, GN_LED_PARAM_BLINK_TIME_MS,
 				blink_time_low);
 	}
 
 	//turn on the LED if high with a specific frequency
 	else if (moist_act > moist_max && moist_last <= moist_max) {
-		gn_leaf_param_update_bool(led_moist, GN_LED_PARAM_TOGGLE, true);
-		gn_leaf_param_update_double(led_moist, GN_LED_PARAM_BLINK_TIME_MS,
+		gn_leaf_param_set_bool(led_moist, GN_LED_PARAM_TOGGLE, true);
+		gn_leaf_param_set_double(led_moist, GN_LED_PARAM_BLINK_TIME_MS,
 				blink_time_high);
 	}
 
 	//turn off the LED if under normal threshold
 	else if (moist_act <= moist_max && moist_act >= moist_min) {
-		gn_leaf_param_update_bool(led_moist, GN_LED_PARAM_TOGGLE, false);
+		gn_leaf_param_set_bool(led_moist, GN_LED_PARAM_TOGGLE, false);
 	}
 
 	moist_last = moist_act;
@@ -76,21 +76,21 @@ void temp_callback(const gn_leaf_handle_t temp) {
 
 	//turn on the LED if low with a specific frequency
 	if (temp_act < temp_min && temp_last >= temp_min) {
-		gn_leaf_param_update_bool(led_temp, GN_LED_PARAM_TOGGLE, true);
-		gn_leaf_param_update_double(led_temp, GN_LED_PARAM_BLINK_TIME_MS,
+		gn_leaf_param_set_bool(led_temp, GN_LED_PARAM_TOGGLE, true);
+		gn_leaf_param_set_double(led_temp, GN_LED_PARAM_BLINK_TIME_MS,
 				blink_time_low);
 	}
 
 	//turn on the LED if high with a specific frequency
 	else if (temp_act > temp_max && temp_last <= temp_max) {
-		gn_leaf_param_update_bool(led_temp, GN_LED_PARAM_TOGGLE, true);
-		gn_leaf_param_update_double(led_temp, GN_LED_PARAM_BLINK_TIME_MS,
+		gn_leaf_param_set_bool(led_temp, GN_LED_PARAM_TOGGLE, true);
+		gn_leaf_param_set_double(led_temp, GN_LED_PARAM_BLINK_TIME_MS,
 				blink_time_high);
 	}
 
 	//turn off the LED if under normal threshold
 	else if (temp_act <= temp_max && temp_act >= temp_min) {
-		gn_leaf_param_update_bool(led_temp, GN_LED_PARAM_TOGGLE, false);
+		gn_leaf_param_set_bool(led_temp, GN_LED_PARAM_TOGGLE, false);
 	}
 
 	temp_last = temp_act;

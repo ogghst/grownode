@@ -752,6 +752,7 @@ gn_err_t gn_node_get_name(gn_node_handle_t node_config, char *name) {
  *  @see gn_node_start()
  *	@param		node_config	the configuration handle to create the leaf to
  *	@param		name		the name of the leaf to be created
+ *	@param		callback	the callback to be called to configure the leaf
  *	@param		task		callback function of the leaf task
  *	@param		task_size	the size of the task to be memory allocated
  *
@@ -760,7 +761,7 @@ gn_err_t gn_node_get_name(gn_node_handle_t node_config, char *name) {
  *
  */
 gn_leaf_handle_t gn_leaf_create(gn_node_handle_t node_config,
-		const char *name, gn_leaf_config_callback leaf_config, size_t task_size) { //, gn_leaf_display_task_t display_task) {
+		const char *name, gn_leaf_config_callback callback, size_t task_size) { //, gn_leaf_display_task_t display_task) {
 
 	gn_node_config_handle_intl_t node_cfg =
 			(gn_node_config_handle_intl_t) node_config;
@@ -1028,14 +1029,15 @@ gn_err_t gn_leaf_event_unsubscribe(gn_leaf_handle_t leaf_config,
  *	@param	val				the value of parameter
  *	@param	access			access type of parameter
  *	@param	storage			storage type of parameter
-
+ *	@param	validator		callback to validate
+ *
  * @return 	the new parameter handle
  * @return	NULL in case of errors
  */
 gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
 		const char *name, const gn_val_type_t type, gn_val_t val,
-		gn_leaf_param_visibility_t access, gn_leaf_param_storage_t storage,
-		gn_validator_t validator) {
+		gn_leaf_param_access_type_t access, gn_leaf_param_storage_t storage,
+		gn_validator_callback_t validator) {
 
 	if (!name) {
 		gn_log(TAG, GN_LOG_ERROR, "gn_leaf_param_create incorrect parameters");
@@ -1258,7 +1260,7 @@ gn_err_t gn_leaf_param_init_string(const gn_leaf_handle_t leaf_config,
  * 	@return GN_RET_ERR_INVALID_ARG in case of input errors
  * 	@return GN_RET_ERR in case of messaging error
  */
-gn_err_t gn_leaf_param_set_string(const gn_leaf_handle_t leaf_config,
+gn_err_t gn_leaf_param_write_string(const gn_leaf_handle_t leaf_config,
 		const char *name, char *val) {
 
 	if (!leaf_config || !name || !val)
@@ -1496,7 +1498,7 @@ gn_err_t gn_leaf_param_init_bool(const gn_leaf_handle_t leaf_config,
  * 	@return GN_RET_OK if the parameter is set
  * 	@return GN_RET_ERR_INVALID_ARG in case of input errors
  */
-gn_err_t gn_leaf_param_set_bool(const gn_leaf_handle_t leaf_config,
+gn_err_t gn_leaf_param_write_bool(const gn_leaf_handle_t leaf_config,
 		const char *name, bool val) {
 
 	if (!leaf_config || !name)
@@ -1584,7 +1586,7 @@ gn_err_t gn_leaf_param_set_bool(const gn_leaf_handle_t leaf_config,
 /**
  * 	@brief	updates the parameter with new value
  *
- * this is calling the gn_leaf_parameter_set_XXX depending on the param handle type, so be careful in order to avoid memory leaks
+ * this is calling the gn_leaf_parameter_write_XXX depending on the param handle type, so be careful in order to avoid memory leaks
  *
  * 	@param leaf_config	the leaf handle to be queried
  * 	@param value		the pointer to value to set ( in case of string, null terminated)
@@ -1592,7 +1594,7 @@ gn_err_t gn_leaf_param_set_bool(const gn_leaf_handle_t leaf_config,
  * 	@return GN_RET_OK if the parameter is set
  * 	@return GN_RET_ERR_INVALID_ARG in case of input errors
  */
-gn_err_t gn_leaf_param_set_value(const gn_leaf_param_handle_t param_handle,
+gn_err_t gn_leaf_param_write(const gn_leaf_param_handle_t param_handle,
 		const void *value) {
 
 	if (!param_handle || !value)
@@ -1609,15 +1611,15 @@ gn_err_t gn_leaf_param_set_value(const gn_leaf_param_handle_t param_handle,
 	switch (_param->param_val->t) {
 
 	case GN_VAL_TYPE_STRING:
-		return gn_leaf_param_set_string(_leaf_config, _param->name,
+		return gn_leaf_param_write_string(_leaf_config, _param->name,
 				(char*) value);
 		break;
 	case GN_VAL_TYPE_BOOLEAN:
-		return gn_leaf_param_set_bool(_leaf_config, _param->name,
+		return gn_leaf_param_write_bool(_leaf_config, _param->name,
 				*(bool*) value);
 		break;
 	case GN_VAL_TYPE_DOUBLE:
-		return gn_leaf_param_set_double(_leaf_config, _param->name,
+		return gn_leaf_param_write_double(_leaf_config, _param->name,
 				*(double*) value);
 		break;
 	default:
@@ -1771,7 +1773,7 @@ gn_err_t gn_leaf_param_init_double(const gn_leaf_handle_t leaf_config,
  * 	@return GN_RET_OK if the parameter is set
  * 	@return GN_RET_ERR_INVALID_ARG in case of input errors
  */
-gn_err_t gn_leaf_param_set_double(const gn_leaf_handle_t leaf_config,
+gn_err_t gn_leaf_param_write_double(const gn_leaf_handle_t leaf_config,
 		const char *name, double val) {
 
 	if (!leaf_config || !name)
@@ -1855,8 +1857,12 @@ gn_err_t gn_leaf_param_set_double(const gn_leaf_handle_t leaf_config,
 
 /**
  * @brief gets the value pointed by the parameter
- * @param param the parameter handle to look at
- * @val the value returned
+ *
+ * @param 	param 	the parameter handle to look at
+ * @param 	val 	the value returned
+ *
+ * 	@return GN_RET_OK if the parameter is set
+ * 	@return GN_RET_ERR_INVALID_ARG in case of input errors
  */
 gn_err_t gn_leaf_param_get_value(const gn_leaf_param_handle_t param, void *val) {
 
@@ -1993,7 +1999,7 @@ gn_err_t _gn_leaf_param_destroy(gn_leaf_param_handle_t param) {
  * the parameter will then listen to server changes
  *
  * @param leaf 			the leaf handle
- * @param new_param		the param to add to the leaf. the leaf will point at it upon method return
+ * @param param		the param to add to the leaf. the leaf will point at it upon method return
  *
  * @return   	GN_RET_ERR_INVALID_ARG	in case of parameter errors
  * @return		GN_RET_OK				upon success
@@ -2143,8 +2149,7 @@ gn_err_t gn_send_leaf_param_change_message(const char *leaf_name,
 /**
  * @brief generate a request to update the parameter to the leaf.
  *
- * This is different from the corresponding 'set' method as it inform the leaf
- * that a parameter should be changed. Think of it as it would be requested
+ * It inform the leaf that a parameter should be changed. Think of it as it would be requested
  * by the network. It is the basis of inter-leaves messaging.
  *
  * @param	leaf_config	the leaf to ask
@@ -2156,7 +2161,7 @@ gn_err_t gn_send_leaf_param_change_message(const char *leaf_name,
  * 	@return GN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION in case the parameter access is not write enable
 
  */
-gn_err_t gn_leaf_param_update_bool(const gn_leaf_handle_t leaf_config,
+gn_err_t gn_leaf_param_set_bool(const gn_leaf_handle_t leaf_config,
 		const char *name, bool val) {
 	if (leaf_config == NULL || name == NULL) {
 		gn_log(TAG, GN_LOG_ERROR, "gn_leaf_param_send_bool - invalid args");
@@ -2174,8 +2179,7 @@ gn_err_t gn_leaf_param_update_bool(const gn_leaf_handle_t leaf_config,
 /**
  * @brief generate a request to update the parameter to the leaf.
  *
- * This is different from the corresponding 'set' method as it inform the leaf
- * that a parameter should be changed. Think of it as it would be requested
+ * It inform the leaf that a parameter should be changed. Think of it as it would be requested
  * by the network. It is the basis of inter-leaves messaging.
  *
  * @param	leaf_config	the leaf to ask
@@ -2187,7 +2191,7 @@ gn_err_t gn_leaf_param_update_bool(const gn_leaf_handle_t leaf_config,
  * 	@return GN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION in case the parameter access is not write enable
 
  */
-gn_err_t gn_leaf_param_update_double(const gn_leaf_handle_t leaf_config,
+gn_err_t gn_leaf_param_set_double(const gn_leaf_handle_t leaf_config,
 		const char *name, double val) {
 	if (leaf_config == NULL || name == NULL) {
 		gn_log(TAG, GN_LOG_ERROR, "gn_leaf_param_send_bool - invalid args");
@@ -2205,8 +2209,7 @@ gn_err_t gn_leaf_param_update_double(const gn_leaf_handle_t leaf_config,
 /**
  * @brief generate a request to update the parameter to the leaf.
  *
- * This is different from the corresponding 'set' method as it inform the leaf
- * that a parameter should be changed. Think of it as it would be requested
+ * It inform the leaf that a parameter should be changed. Think of it as it would be requested
  * by the network. It is the basis of inter-leaves messaging.
  *
  * @param	leaf_config	the leaf to ask
@@ -2218,7 +2221,7 @@ gn_err_t gn_leaf_param_update_double(const gn_leaf_handle_t leaf_config,
  * 	@return GN_RET_ERR_LEAF_PARAM_ACCESS_VIOLATION in case the parameter access is not write enable
 
  */
-gn_err_t gn_leaf_param_update_string(const gn_leaf_handle_t leaf_config,
+gn_err_t gn_leaf_param_set_string(const gn_leaf_handle_t leaf_config,
 		const char *name, char *val) {
 	if (leaf_config == NULL || name == NULL) {
 		gn_log(TAG, GN_LOG_ERROR, "gn_leaf_param_send_bool - invalid args");

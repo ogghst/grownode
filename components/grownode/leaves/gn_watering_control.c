@@ -173,7 +173,7 @@ gn_leaf_param_validator_result_t _gn_watering_target_temp_validator(
 inline static void _gn_watering_control_stop_watering(
 		gn_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Stop Watering Cycle");
-	gn_leaf_param_update_bool(data->leaf_wat_pump, GN_GPIO_PARAM_TOGGLE, false);
+	gn_leaf_param_set_bool(data->leaf_wat_pump, GN_GPIO_PARAM_TOGGLE, false);
 	data->wat_cycle = WAT_OFF;
 	data->wat_cycle_cumulative_time_ms = 0;
 }
@@ -181,7 +181,7 @@ inline static void _gn_watering_control_stop_watering(
 inline static void _gn_watering_control_start_watering(
 		gn_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Start Watering Cycle");
-	gn_leaf_param_update_bool(data->leaf_wat_pump, GN_GPIO_PARAM_TOGGLE, true);
+	gn_leaf_param_set_bool(data->leaf_wat_pump, GN_GPIO_PARAM_TOGGLE, true);
 	data->wat_cycle = WAT_ON;
 	data->wat_cycle_cumulative_time_ms = 0;
 }
@@ -189,9 +189,9 @@ inline static void _gn_watering_control_start_watering(
 inline static void _gn_watering_control_stop_hcc(
 		gn_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Stop Water Temp Setup Cycle");
-	gn_leaf_param_update_bool(data->leaf_plt_a, GN_GPIO_PARAM_TOGGLE, false);
-	gn_leaf_param_update_bool(data->leaf_plt_b, GN_GPIO_PARAM_TOGGLE, false);
-	gn_leaf_param_update_bool(data->leaf_hcc_pump, GN_PUMP_HS_PARAM_TOGGLE,
+	gn_leaf_param_set_bool(data->leaf_plt_a, GN_GPIO_PARAM_TOGGLE, false);
+	gn_leaf_param_set_bool(data->leaf_plt_b, GN_GPIO_PARAM_TOGGLE, false);
+	gn_leaf_param_set_bool(data->leaf_hcc_pump, GN_PUMP_HS_PARAM_TOGGLE,
 	false);
 	data->hcc_cycle = HCC_OFF;
 }
@@ -199,9 +199,9 @@ inline static void _gn_watering_control_stop_hcc(
 inline static void _gn_watering_control_start_hcc_heating(
 		gn_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Start Heating Cycle");
-	gn_leaf_param_update_bool(data->leaf_plt_a, GN_GPIO_PARAM_TOGGLE, false);
-	gn_leaf_param_update_bool(data->leaf_plt_b, GN_GPIO_PARAM_TOGGLE, true);
-	gn_leaf_param_update_bool(data->leaf_hcc_pump, GN_PUMP_HS_PARAM_TOGGLE, true);
+	gn_leaf_param_set_bool(data->leaf_plt_a, GN_GPIO_PARAM_TOGGLE, false);
+	gn_leaf_param_set_bool(data->leaf_plt_b, GN_GPIO_PARAM_TOGGLE, true);
+	gn_leaf_param_set_bool(data->leaf_hcc_pump, GN_PUMP_HS_PARAM_TOGGLE, true);
 	data->hcc_cycle = HCC_HEATING;
 	//store time of start water temp control cycle
 	struct timeval tv_now;
@@ -214,10 +214,10 @@ inline static void _gn_watering_control_start_hcc_heating(
 inline static void _gn_watering_control_start_hcc_cooling(
 		gn_watering_control_data_t *data) {
 	gn_log(TAG, GN_LOG_INFO, "Start Cooling Cycle");
-	gn_leaf_param_update_bool(data->leaf_plt_a, GN_GPIO_PARAM_TOGGLE, true);
-	gn_leaf_param_update_bool(data->leaf_plt_b, GN_GPIO_PARAM_TOGGLE, false);
+	gn_leaf_param_set_bool(data->leaf_plt_a, GN_GPIO_PARAM_TOGGLE, true);
+	gn_leaf_param_set_bool(data->leaf_plt_b, GN_GPIO_PARAM_TOGGLE, false);
 
-	gn_leaf_param_update_bool(data->leaf_hcc_pump, GN_PUMP_HS_PARAM_TOGGLE, true);
+	gn_leaf_param_set_bool(data->leaf_hcc_pump, GN_PUMP_HS_PARAM_TOGGLE, true);
 	data->hcc_cycle = HCC_COOLING;
 	//store time of start water temp control cycle
 	struct timeval tv_now;
@@ -762,7 +762,7 @@ void gn_watering_control_task(gn_leaf_handle_t leaf_config) {
 				//parameter is watering interval
 				if (gn_leaf_event_mask_param(&evt,
 						data->param_watering_interval) == 0) {
-					gn_leaf_param_set_double(leaf_config,
+					gn_leaf_param_write_double(leaf_config,
 							GN_WAT_CTR_PARAM_WATERING_INTERVAL_SEC,
 							(double) atof(evt.data));
 					gn_leaf_param_get_double(leaf_config,
@@ -775,7 +775,7 @@ void gn_watering_control_task(gn_leaf_handle_t leaf_config) {
 				//parameter is watering time
 				if (gn_leaf_event_mask_param(&evt,
 						data->param_watering_t_temp) == 0) {
-					gn_leaf_param_set_double(leaf_config,
+					gn_leaf_param_write_double(leaf_config,
 							GN_WAT_CTR_PARAM_WATERING_TARGET_TEMP,
 							(double) atof(evt.data));
 				} else
@@ -787,7 +787,7 @@ void gn_watering_control_task(gn_leaf_handle_t leaf_config) {
 					int _active = atoi(evt.data);
 
 					//execute change
-					gn_leaf_param_set_bool(leaf_config, GN_WAT_CTR_PARAM_ACTIVE,
+					gn_leaf_param_write_bool(leaf_config, GN_WAT_CTR_PARAM_ACTIVE,
 							_active == 0 ? false : true);
 
 					p_active = _active;

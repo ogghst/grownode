@@ -34,7 +34,7 @@ void led_blink_callback(const gn_leaf_handle_t blink) {
 	ESP_LOGI(TAG, "blinking - %d", status);
 
 	//set the new parameter
-	gn_leaf_param_update_bool(blink, GN_GPIO_PARAM_TOGGLE, status);
+	gn_leaf_param_set_bool(blink, GN_GPIO_PARAM_TOGGLE, status);
 
 }
 

@@ -138,7 +138,7 @@ void gn_ds18b20_temp_sensor_collect(gn_leaf_handle_t leaf_config) {
 					res,
 					esp_err_to_name(res));
 			gn_leaf_get_descriptor(leaf_config)->status = GN_LEAF_STATUS_ERROR;
-			gn_leaf_param_set_bool(leaf_config, GN_DS18B20_PARAM_ACTIVE,
+			gn_leaf_param_write_bool(leaf_config, GN_DS18B20_PARAM_ACTIVE,
 			false);
 			esp_timer_stop(data->sensor_timer);
 			goto fail;
@@ -155,7 +155,7 @@ void gn_ds18b20_temp_sensor_collect(gn_leaf_handle_t leaf_config) {
 					temp_c, temp_f);
 
 			//store parameter and notify network
-			gn_leaf_param_set_double(leaf_config,
+			gn_leaf_param_write_double(leaf_config,
 					GN_DS18B20_PARAM_SENSOR_NAMES[j], temp_c);
 		}
 
@@ -269,7 +269,7 @@ void gn_ds18b20_task(gn_leaf_handle_t leaf_config) {
 		if (ret != ESP_OK) {
 			gn_log(TAG, GN_LOG_ERROR, "[%s] failed to start ds18b20 leaf timer", leaf_name);
 			gn_leaf_get_descriptor(leaf_config)->status = GN_LEAF_STATUS_ERROR;
-			gn_leaf_param_set_bool(data->active_param, GN_DS18B20_PARAM_ACTIVE,
+			gn_leaf_param_write_bool(data->active_param, GN_DS18B20_PARAM_ACTIVE,
 			false);
 			descriptor->status = GN_LEAF_STATUS_ERROR;
 		}
@@ -426,7 +426,7 @@ void gn_ds18b20_task(gn_leaf_handle_t leaf_config) {
 				//parameter is update time
 				if (gn_leaf_event_mask_param(&evt,
 						data->update_time_param) == 0) {
-					gn_leaf_param_set_double(leaf_config,
+					gn_leaf_param_write_double(leaf_config,
 							GN_DS18B20_PARAM_UPDATE_TIME_SEC,
 							(double) atof(evt.data));
 					esp_timer_stop(data->sensor_timer);
@@ -440,7 +440,7 @@ void gn_ds18b20_task(gn_leaf_handle_t leaf_config) {
 					int _active = atoi(evt.data);
 
 					//execute change
-					gn_leaf_param_set_bool(leaf_config, GN_DS18B20_PARAM_ACTIVE,
+					gn_leaf_param_write_bool(leaf_config, GN_DS18B20_PARAM_ACTIVE,
 							_active == 0 ? false : true);
 					active = _active;
 
@@ -459,7 +459,7 @@ void gn_ds18b20_task(gn_leaf_handle_t leaf_config) {
 					int _gpio = atoi(evt.data);
 					if (_gpio >= 0 && gpio < GPIO_NUM_MAX) {
 						//execute change. this will have no effects until restart
-						gn_leaf_param_set_double(leaf_config,
+						gn_leaf_param_write_double(leaf_config,
 								GN_DS18B20_PARAM_GPIO, _gpio);
 						gpio = _gpio;
 					}

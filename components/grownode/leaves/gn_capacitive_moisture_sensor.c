@@ -105,26 +105,26 @@ void gn_cms_sensor_collect(gn_leaf_handle_t leaf_config) {
 	ESP_LOGD(TAG, "[%s] output data: %f", leaf_name, result);
 
 	//store parameter and notify network
-	gn_leaf_param_set_double(leaf_config, GN_CMS_PARAM_ACT_LEVEL, result);
+	gn_leaf_param_write_double(leaf_config, GN_CMS_PARAM_ACT_LEVEL, result);
 
 	//if level is above maximum, trigger max
 	if (result >= max_level && trg_high == false) {
-		gn_leaf_param_set_bool(leaf_config, GN_CMS_PARAM_TRG_HIGH, true);
+		gn_leaf_param_write_bool(leaf_config, GN_CMS_PARAM_TRG_HIGH, true);
 	} else
 
 	//reset the trigger status if returning below max
 	if (result < max_level && trg_high == true) {
-		gn_leaf_param_set_bool(leaf_config, GN_CMS_PARAM_TRG_HIGH, false);
+		gn_leaf_param_write_bool(leaf_config, GN_CMS_PARAM_TRG_HIGH, false);
 	} else
 
 	//if level is below maximum, trigger min
 	if (result <= min_level && trg_low == false) {
-		gn_leaf_param_set_bool(leaf_config, GN_CMS_PARAM_TRG_LOW, true);
+		gn_leaf_param_write_bool(leaf_config, GN_CMS_PARAM_TRG_LOW, true);
 	} else
 
 	//reset the trigger status if returning above min
 	if (result > min_level && trg_low == true) {
-		gn_leaf_param_set_bool(leaf_config, GN_CMS_PARAM_TRG_LOW, false);
+		gn_leaf_param_write_bool(leaf_config, GN_CMS_PARAM_TRG_LOW, false);
 	}
 
 }
@@ -379,7 +379,7 @@ void gn_cms_task(gn_leaf_handle_t leaf_config) {
 			gn_log(TAG, GN_LOG_ERROR,
 					"[%s] failed to start capacitive moisture sensor timer", leaf_name);
 			gn_leaf_get_descriptor(leaf_config)->status = GN_LEAF_STATUS_ERROR;
-			gn_leaf_param_set_bool(leaf_config, GN_CMS_PARAM_ACTIVE, false);
+			gn_leaf_param_write_bool(leaf_config, GN_CMS_PARAM_ACTIVE, false);
 			descriptor->status = GN_LEAF_STATUS_ERROR;
 		}
 
@@ -421,7 +421,7 @@ void gn_cms_task(gn_leaf_handle_t leaf_config) {
 							update_time_sec * 1000000);
 
 					//execute change
-					gn_leaf_param_set_double(leaf_config,
+					gn_leaf_param_write_double(leaf_config,
 							GN_CMS_PARAM_UPDATE_TIME_SEC, updtime);
 
 				} else if (gn_leaf_event_mask_param(&evt, data->active_param)
@@ -431,7 +431,7 @@ void gn_cms_task(gn_leaf_handle_t leaf_config) {
 					int _active = atoi(evt.data);
 
 					//execute change
-					gn_leaf_param_set_bool(leaf_config, GN_CMS_PARAM_ACTIVE,
+					gn_leaf_param_write_bool(leaf_config, GN_CMS_PARAM_ACTIVE,
 							_active == 0 ? false : true);
 
 					active = _active;

@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/*! \file gn_commons.h
+    \brief General structures and functions
+
+*/
+
 #ifndef MAIN_GN_COMMONS_H_
 #define MAIN_GN_COMMONS_H_
 
@@ -31,6 +36,9 @@ extern "C" {
 #include "esp_event.h"
 #include "gn_event_source.h"
 
+/**
+    @brief maximum time between two keepalive messages
+*/
 static const int16_t GN_CONFIG_MAX_SERVER_KEEPALIVE_SEC = 3600;
 
 typedef struct {
@@ -190,7 +198,7 @@ typedef enum {
 	GN_LEAF_PARAM_ACCESS_NETWORK = 0x02, /*!< param can be modified only by network (eg. configuration settings from environment)*/
 	GN_LEAF_PARAM_ACCESS_NODE = 0x03, /*!< param can be modified only by the node (eg. sensor data)*/
 	GN_LEAF_PARAM_ACCESS_NODE_INTERNAL = 0x04 /*!< param can be modified only by the node (eg. sensor data) and it is not shown externally*/
-} gn_leaf_param_visibility_t;
+} gn_leaf_param_access_type_t;
 
 /*
  * storage policy

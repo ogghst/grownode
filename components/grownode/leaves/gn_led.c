@@ -211,21 +211,21 @@ void gn_led_task(gn_leaf_handle_t leaf_config) {
 				//status change
 				if (gn_leaf_event_mask_param(&evt, data->gn_led_status_param)
 						== 0) {
-					gn_leaf_param_set_bool(leaf_config, GN_LED_PARAM_TOGGLE,
+					gn_leaf_param_write_bool(leaf_config, GN_LED_PARAM_TOGGLE,
 							(bool) atoi(evt.data));
 					gn_leaf_param_get_bool(leaf_config, GN_LED_PARAM_TOGGLE,
 							&status);
 					_changed = true;
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_led_inverted_param) == 0) {
-					gn_leaf_param_set_bool(leaf_config, GN_LED_PARAM_INVERTED,
+					gn_leaf_param_write_bool(leaf_config, GN_LED_PARAM_INVERTED,
 							(bool) atoi(evt.data));
 					gn_leaf_param_get_bool(leaf_config, GN_LED_PARAM_INVERTED,
 							&inverted);
 					_changed = true;
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_led_blinktime_param) == 0) {
-					gn_leaf_param_set_double(leaf_config,
+					gn_leaf_param_write_double(leaf_config,
 							GN_LED_PARAM_BLINK_TIME_MS,
 							(double) atof(evt.data));
 					gn_leaf_param_get_double(leaf_config,

@@ -94,11 +94,11 @@ typedef gn_param_val_t *gn_param_val_handle_int_t;
 
 struct gn_leaf_param {
 	char *name;
-	gn_leaf_param_visibility_t access;
+	gn_leaf_param_access_type_t access;
 	gn_leaf_param_storage_t storage;
 	gn_param_val_handle_t param_val;
 	gn_leaf_handle_t leaf_config;
-	gn_validator_t validator;
+	gn_validator_callback_t validator;
 	struct gn_leaf_param *next;
 };
 
