@@ -2,37 +2,37 @@
 
 This page aims to describe the GrowNode API and how to use it to develop your own firmware. 
 
-> Disclaimer: This is NOT intended for ready made solutions users. Don't tell me I've not warned you! :)
+> Disclaimer: This is NOT intended for ready-made solution users. Don't tell me I've not warned you! :)
 
-GrowNode is developed on top of the [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/) Development Framework, in order to directly access to the ESP32 microprocessor functionalities and the RTOS operating system.
+GrowNode is based on the ESP32 microprocessor, and is developed on top of the [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/) Development Framework. This allows one to directly access to the ESP32 functionalities and the real-time operating system (RTOS).
 
 ## Basic Concepts
 
-THe highest level structure on a GrowNode system is the board itself. Every solution you want to build is basically a combination of 
+The highest level structure on a GrowNode system is the board itself. Every solution you want to build is basically a combination of:
 
-- Devices attached to the IO pins (tipycally handled by specific HAL - Hardware Abstraction Layers - like ESP-IDF core libraries or third party devices. *Example: I2C driver, a GPIO pin*
+- Devices attached to the IO pins (typically handled by specific HAL - Hardware Abstraction Layers - like ESP-IDF core libraries or third party devices). *Examples: I2C driver, a GPIO pin*
 
-- Several logics to access to those devices and present to the GrowNode framwork [Leaves](#leaves) - several are prebuilt and more can be user defined. *Example: a temperature sensor, a relay, a LED, a motor*
+- Several logics to access to those devices, which are called [Leaves](#leaves) in the GrowNode framework - several are prebuilt and more can be user defined. *Examples: a temperature sensor, a relay, a LED, a motor*
 
-- Several [Parameters](#parameters) exposed to the Leaf, able to retrieve or command specific functionalities. *Example: the temperature retrieved, a motor switch, a light power*
+- Several [Parameters](#parameters) exposed by/to the Leaf, able to retrieve/command specific functionalities. *Examples: the temperature retrieved, a motor switch, a light power*
 
-- One centralized controller that orchestrates and exposes to the Leaves the services needed to work: [Node](#node). This is common on all the GrowNode implementation
+- One centralized controller that orchestrates and exposes to the Leaves the services needed to work, called [Node](#node). This is common on all the GrowNode implementations
 
-- one entry point of the application, where the Node and Leaves are declared and configured [Board](#boards). *Example: a Water Tower Board, a simple Temperature and Humidity pot controller*
+- one entry point of the application, where the Node and Leaves are declared and configured, called [Board](#boards). *Examples: a Water Tower Board, a simple Temperature and Humidity pot controller*
 
 ## Architecture
 
-In ESP-IDF vacabulary, the Board and it corresponding Node works in the main application RTOS task, and each Leaf works in a separate task. This allows the parallel execution of task logic and, more than this, will avoid that a leaf waiting for things to happen (eg. sensor measure) to have side effects on the whole Node. All messaging across leaves is implemented through RTOS events and messages queues.
+In ESP-IDF vacabulary, the Board and its corresponding Node works in the main application RTOS task, and each Leaf works in a separate task. This allows the parallel execution of task logic and, moreover, avoids that a leaf in waiting state (eg. waiting for a sensor measure) affects the running of the whole Node. All messaging across leaves is implemented through RTOS events and message queues.
 
 ### Code reference
 
-Code Documentation is described in [API](../html/index.html) section. The entry point of all GrowNode functionalities resides in `grownode.h` header file. Users just have to reference it in their code. 
+Code Documentation is described in [API](../html/index.html) section. The entry point of all GrowNode functionalities resides in the `grownode.h` header file. Users just have to reference it in their code. 
 
 ## Node
 
 The core element of a GrowNode implementation is the Node. It represents the container and the entry point for the board capabilities.
 
-In order to proper create a Node, a configuration shall be supplied. This is done by creating a `gn_config_handle_t` data structure and then injecting it using the `gn_node_create()` function. A `gn_node_handle_t` pointer will be returned, that is the reference to be passed in the next board configuration step to create the necessary Leaves.
+In order to properly create a Node, a configuration shall be supplied. This is done by creating a `gn_config_handle_t` data structure and then injecting it using the `gn_node_create()` function. A `gn_node_handle_t` pointer will be returned, that is the reference to be passed in the next board configuration steps to create the necessary Leaves.
 
 To start the Node execution loop, the `gn_node_start()` function has to be called. This will trigger the `xTaskCreate()` RTOS function per each configured leaf. 
 
@@ -40,13 +40,13 @@ Although a Node is intended to survive for the entire duration of the applicatio
 
 ### Node statuses
 
-The Node initialization process implies, depending on the configuration, the start of several services like WiFi provisioning, MQTT server connection, that requires time. In order to give the user the possibility to perform operations while the init process continues (like showing a message on the display or handle issues) it is possible to retrieve the Node status and wait until it is in the correct one to proceed. 
+The Node initialization process implies, depending on the configuration, the start of several services like WiFi provisioning, MQTT server connection, that requires time. In order to give the user the possibility to perform operations while the init process continues (like showing a message on the display or handle issues) it is possible to use a loop to retrieve the Node status and wait until init ends, and then proceed. 
 
 A node has a status represented by the `gn_node_status_t` enum. 
 
-Default, initial status is `GN_NODE_STATUS_NOT_INITIALIZED`. During initialization process, it goes into `GN_NODE_STATUS_INITIALIZING`. If some errors occurs, a specific status is representing it (see [API](../html/index.html)). If everything goes well, the status is moved to `GN_NODE_STATUS_READY_TO_START`. This gives the user the OK to exit from the wait loop and proceed with starting the node operations.
+The default initial status is `GN_NODE_STATUS_NOT_INITIALIZED`. During initialization process, it goes into `GN_NODE_STATUS_INITIALIZING`. If some errors occur, a specific status is associated (see [API](../html/index.html)). If everything goes well, the status is moved to `GN_NODE_STATUS_READY_TO_START`. This gives the user the OK to exit from the wait loop and proceed with starting the node operations.
 
-After a successful call of `gn_node_start()` the node goes into `GN_NODE_STATUS_STARTED`. A good `main()` infinite loop could check if the status of the node changes and react accordingly. Note: you won't find in the code as per today :)
+After a successful call of `gn_node_start()` the node goes into `GN_NODE_STATUS_STARTED`. A good `main()` infinite loop could check if the status of the node changes and react accordingly. Note: you won't find it in the code as per today :)
 
 ### Code Sample: Node creation and startup
 
@@ -80,7 +80,7 @@ After a successful call of `gn_node_start()` the node goes into `GN_NODE_STATUS_
 
 ## Leaves
 
-Every sensor or actuator is represented by a Leaf. The Leaf is the 'engine' of underlying logic, it is designed to be reusable multiple times in a Node and be configured in a consistent way. Due to the fact it is the bridge between the User and the hardware layer, the Leaf is handled by the Grownode engine as a separated RTOS task, and is therefore accessed in a asyncronous way.
+Every sensor or actuator is represented by a Leaf. The Leaf is the 'engine' of the underlying logic, it is designed to be reusable multiple times in a Node and to be configured in a consistent way. A Leaf represents the bridge between the User and the hardware layer, therefore it is handled by the Grownode engine as a separated RTOS task, and is accessed in an asyncronous way.
 
 Every leaf shall expose a `gn_leaf_config_callback` callback function that initializes its resources. 
 
@@ -98,7 +98,7 @@ typedef gn_leaf_descriptor_handle_t (*gn_leaf_config_callback)(
 		gn_leaf_handle_t leaf_config);
 ```
 
-The `gn_leaf_descriptor_handle_t` is a reference to the informations configured.
+The `gn_leaf_descriptor_handle_t` is a reference to the information configured.
 
 Grownode engine will use later those info to start the leaf. Another callback must be implemented in the leaf:
 
@@ -106,12 +106,12 @@ Grownode engine will use later those info to start the leaf. Another callback mu
 typedef void (*gn_leaf_task_callback)(gn_leaf_handle_t leaf_config);
 ```
 
-In this callback it is contained the business logic of the leaf, like
+In this callback it is contained the business logic of the leaf, like:
  
 - reading the Leaf parameter status
 - listening for parameter updates from external sources (network or internal)
 - updating the user UI
-- working with underline hardware resources 
+- working with underlying hardware resources 
 - updating its parameters
 
 ### Examples
@@ -123,14 +123,14 @@ In this callback it is contained the business logic of the leaf, like
 
 ## Parameters
 
-GrowNode allow users to access Leaves input and outputs through Parameters. A parameters defines its behavior and hold its value.
-Depending on their configuration, parameters can be exposed and accessed from inside the code (e.g. from an onboard temperature controller) or from the network (e.g. to monitor the water level). They can be also updated in both ways. 
+GrowNode allows users to access Leaves input and outputs through Parameters. A parameter defines its behavior and holds its value.
+Depending on their configuration, parameters can be exposed and accessed from inside the code (eg. from an onboard temperature controller) or from the network (eg. to monitor the water level). They can be also updated in both ways. 
 
 Parameters can be stored in the NVS flash (the ESP32 'hard drive') in order to be persisted over board restart, in a transparent way (no code needed). 
 
 ### Initialization
 
-Each Leaf has a predetermined set of parameters. Those are initialized in the configuration phase described in [Leaves](#leaves) section. The initial value can be overridden by the user however. For instance, a parameter defining a GPIO pin should be customized depending on the board circuit. To do this, the `gn_leaf_param_init_XXX()` functions are defined. Example: 
+Each Leaf has a predetermined set of parameters. Those are initialized in the configuration phase described in the [Leaves](#leaves) section. However, the initial values can be overridden by the user. For instance, a parameter defining a GPIO pin should be customized depending on the board circuit. To do this, the `gn_leaf_param_init_XXX()` functions are defined. Example: 
 
 ```
 	gn_leaf_handle_t lights = gn_leaf_create(node, "light switch", gn_gpio_config, 4096);
@@ -147,12 +147,12 @@ Some leaves has convenient functions created to perform creation and initializat
 
 A leaf parameter can be updated:
 
-- from the network: see see [MQTT Protocol](#mqtt)
+- from the network: see [MQTT Protocol](#mqtt)
 - from the code
 
 When updating from user code, the `gn_leaf_param_set_XXX()` functions are used. They inform the leaf that the parameter shall be changed to a new value. This is done via event passing as the leaf resides to another task, so it's an asynchronous call.
 
-###Code Sample: Leaf declaration and parameters initialization
+### Code Sample: Leaf declaration and parameters initialization
 
 This is the complete code to create and configure a BME280 Leaf sensor, a temperature + humidity + pressure sensor (for complete description of this sensor, see [leaves](leaves.md)
 
@@ -165,9 +165,9 @@ This is the complete code to create and configure a BME280 Leaf sensor, a temper
 ```
 
 
-## Build Your own Leaf
+## Build your own Leaf
 
-This section is intended for users that wants to build new leaves. It's a rather simple task and many working examples are present in `leaves` folder.
+This section is intended for users that want to build new leaves. It's a rather simple task and many working examples are present in the `leaves` folder.
 
 In order to approach to this topic, you must know the parameter API features.
 
@@ -206,7 +206,7 @@ typedef union {
 } gn_val_t;
 ```
 
-As you can see from this definition, it is user responsibility to allocate memory in case of char array parameter. This has to be done inside the Leaf code.
+As you can see from this definition, it is user responsibility to allocate memory in case of a char array parameter. This has to be done inside the Leaf code.
 
 ### Access Type
 
@@ -221,7 +221,7 @@ typedef enum {
 } gn_leaf_param_access_type_t;
 ```
 
-The access type is evaluated upon parameter change. If the request is not compatible with the access type (eg a network request against a GN_LEAF_PARAM_ACCESS_NODE access type) the request won't have any effect. 
+The access type is evaluated upon parameter change. If the request is not compatible with the access type (eg. a network request against a GN_LEAF_PARAM_ACCESS_NODE access type) the request won't have any effect. 
 
 ### Storage
 
@@ -234,22 +234,22 @@ typedef enum {
 } gn_leaf_param_storage_t;
 ```
 
-> Pay attention to not persist parameters that have continuous updates, like temperature. it can cause a fast degradation of the board memory!
+> Pay attention to not persist parameters that have continuous updates, like temperature. It can cause a fast degradation of the board memory!
 
 ### Validators
 
 Making sure the parameter update arriving from the network makes sense can be a boring task for a leaf developer. And risk of forgetting a check and allow unsafe values can break the code or even make the system dangerous (think of turning on a pump at exceeding speed or without a time limit).
 
-For this reason, Grownode platform exposes a reusable mechanism to make the code safer: parameter validators.
+For this reason, the Grownode platform exposes a reusable mechanism to make the code safer: parameter validators.
 
-Validator are functions compliant to the `gn_validator_callback_t` callback:
+Validators are functions compliant to the `gn_validator_callback_t` callback:
 
 ```
 typedef gn_leaf_param_validator_result_t (*gn_validator_callback_t)(
 		gn_leaf_param_handle_t param, void **value);
 ```
 
-The intended behavior is: check the value agains predetermined values, and return the result code on its `gn_leaf_param_validator_result_t` variable:
+The intended behavior is to check the value agains predetermined values, and return the result code on its `gn_leaf_param_validator_result_t` variable:
 
 ```
 typedef enum {
