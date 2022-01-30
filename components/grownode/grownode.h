@@ -151,6 +151,8 @@ gn_err_t gn_node_get_name(gn_node_handle_t node_config, char* name);
 
 gn_err_t gn_leaf_get_name(gn_leaf_handle_t leaf_config, char* name);
 
+esp_event_loop_handle_t gn_node_get_event_loop(gn_node_handle_t node);
+
 gn_leaf_handle_t gn_leaf_get_config_handle(gn_node_handle_t node,
 		const char *name);
 

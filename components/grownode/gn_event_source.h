@@ -31,7 +31,7 @@ extern "C" {
 
 // Declare an event base
 extern esp_event_base_t GN_BASE_EVENT; // @suppress("Type cannot be resolved")
-extern esp_event_base_t GN_LEAF_EVENT; // @suppress("Type cannot be resolved")
+//extern esp_event_base_t GN_LEAF_EVENT; // @suppress("Type cannot be resolved")
 
 #define GN_EVENT_ANY_ID       ESP_EVENT_ANY_ID
 

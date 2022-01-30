@@ -79,8 +79,8 @@ void _gn_mqtt_build_leaf_command_topic(gn_leaf_handle_t _leaf_config,
 
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) _leaf_config;
-	gn_node_config_handle_intl_t node_config =
-			(gn_node_config_handle_intl_t) leaf_config->node_config;
+	gn_node_handle_intl_t node_config =
+			(gn_node_handle_intl_t) leaf_config->node_config;
 	gn_config_handle_intl_t config =
 			(gn_config_handle_intl_t) node_config->config;
 
@@ -104,8 +104,8 @@ void _gn_mqtt_build_leaf_parameter_command_topic(
 
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) _leaf_config;
-	gn_node_config_handle_intl_t node_config =
-			(gn_node_config_handle_intl_t) leaf_config->node_config;
+	gn_node_handle_intl_t node_config =
+			(gn_node_handle_intl_t) leaf_config->node_config;
 	gn_config_handle_intl_t config =
 			(gn_config_handle_intl_t) node_config->config;
 
@@ -130,8 +130,8 @@ void _gn_mqtt_build_leaf_parameter_status_topic(
 
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) _leaf_config;
-	gn_node_config_handle_intl_t node_config =
-			(gn_node_config_handle_intl_t) leaf_config->node_config;
+	gn_node_handle_intl_t node_config =
+			(gn_node_handle_intl_t) leaf_config->node_config;
 	gn_config_handle_intl_t config =
 			(gn_config_handle_intl_t) node_config->config;
 
@@ -156,8 +156,8 @@ void _gn_mqtt_build_leaf_status_topic(gn_leaf_handle_t _leaf_config,
 
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) _leaf_config;
-	gn_node_config_handle_intl_t node_config =
-			(gn_node_config_handle_intl_t) leaf_config->node_config;
+	gn_node_handle_intl_t node_config =
+			(gn_node_handle_intl_t) leaf_config->node_config;
 	gn_config_handle_intl_t config =
 			(gn_config_handle_intl_t) node_config->config;
 
@@ -270,8 +270,8 @@ gn_err_t gn_mqtt_publish_leaf(gn_leaf_handle_t _leaf_config) {
 	if (!leaf_config)
 		return GN_RET_ERR;
 
-	gn_node_config_handle_intl_t _node_config =
-			(gn_node_config_handle_intl_t) leaf_config->node_config;
+	gn_node_handle_intl_t _node_config =
+			(gn_node_handle_intl_t) leaf_config->node_config;
 
 	if (!_node_config)
 		return GN_RET_ERR;
@@ -390,8 +390,8 @@ gn_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t _param) {
 	gn_leaf_param_handle_intl_t param = (gn_leaf_param_handle_intl_t) _param;
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) param->leaf_config;
-	gn_node_config_handle_intl_t node_config =
-			(gn_node_config_handle_intl_t) leaf_config->node_config;
+	gn_node_handle_intl_t node_config =
+			(gn_node_handle_intl_t) leaf_config->node_config;
 	gn_config_handle_intl_t config =
 			(gn_config_handle_intl_t) node_config->config;
 
@@ -433,8 +433,8 @@ gn_err_t gn_mqtt_send_node_config(gn_node_handle_t _node_config) {
 	if (!_node_config)
 		return GN_RET_ERR_INVALID_ARG;
 
-	gn_node_config_handle_intl_t __node_config =
-			(gn_node_config_handle_intl_t) _node_config;
+	gn_node_handle_intl_t __node_config =
+			(gn_node_handle_intl_t) _node_config;
 
 	if (!__node_config->config)
 		return GN_RET_ERR_INVALID_ARG;
@@ -452,8 +452,8 @@ gn_err_t gn_mqtt_send_node_config(gn_node_handle_t _node_config) {
 	msg->config = _node_config;
 	strncpy(msg->topic, _gn_sts_topic, _GN_MQTT_MAX_TOPIC_LENGTH);
 
-	gn_node_config_handle_intl_t node_config =
-			(gn_node_config_handle_intl_t) _node_config;
+	gn_node_handle_intl_t node_config =
+			(gn_node_handle_intl_t) _node_config;
 	gn_config_handle_intl_t config =
 			(gn_config_handle_intl_t) node_config->config;
 
@@ -571,8 +571,8 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 	gn_leaf_param_handle_intl_t param = (gn_leaf_param_handle_intl_t) _param;
 	gn_leaf_config_handle_intl_t _leaf_config =
 			(gn_leaf_config_handle_intl_t) param->leaf_config;
-	gn_node_config_handle_intl_t _node_config =
-			(gn_node_config_handle_intl_t) _leaf_config->node_config;
+	gn_node_handle_intl_t _node_config =
+			(gn_node_handle_intl_t) _leaf_config->node_config;
 
 	if (_node_config->config->status != GN_NODE_STATUS_STARTED)
 		return GN_RET_OK;
@@ -615,8 +615,8 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) param->leaf_config;
-	gn_node_config_handle_intl_t node_config =
-			(gn_node_config_handle_intl_t) leaf_config->node_config;
+	gn_node_handle_intl_t node_config =
+			(gn_node_handle_intl_t) leaf_config->node_config;
 	gn_config_handle_intl_t config =
 			(gn_config_handle_intl_t) node_config->config;
 
@@ -1047,8 +1047,8 @@ gn_err_t gn_mqtt_send_leaf_message(gn_leaf_handle_t _leaf,
 
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) _leaf;
-	gn_node_config_handle_intl_t node_config =
-			(gn_node_config_handle_intl_t) leaf_config->node_config;
+	gn_node_handle_intl_t node_config =
+			(gn_node_handle_intl_t) leaf_config->node_config;
 	gn_config_handle_intl_t config =
 			(gn_config_handle_intl_t) node_config->config;
 

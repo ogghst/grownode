@@ -602,6 +602,23 @@ esp_event_loop_handle_t gn_leaf_get_event_loop(
 }
 
 /**
+ * 	@brief retrieves the event loop from the node
+ *
+ * 	@param node	the node handle
+ *
+ * 	@return the event loop
+ * 	@return NULL if leaf config not valid
+ */
+esp_event_loop_handle_t gn_node_get_event_loop(
+		gn_node_handle_t node) {
+
+	if (!node)
+		return NULL;
+	return ((gn_leaf_config_handle_intl_t) leaf_config)->node_config->config->event_loop;
+
+}
+
+/**
  * 	@brief		create a new node with specified configuration and name
  *
  * 	@param		config	the config handle to use

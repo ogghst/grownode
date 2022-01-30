@@ -28,7 +28,7 @@
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
-typedef struct gn_node_config_t *gn_node_config_handle_intl_t;
+typedef struct gn_node_t *gn_node_handle_intl_t;
 
 typedef struct gn_leaf_config_t *gn_leaf_config_handle_intl_t;
 
@@ -43,7 +43,7 @@ typedef struct {
 typedef struct {
 	size_t size;
 	size_t last;
-	gn_node_config_handle_intl_t *at;
+	gn_node_handle_intl_t *at;
 } gn_nodes_list;
 
 struct gn_config_t {
@@ -55,12 +55,11 @@ struct gn_config_t {
 	char deviceName[17];
 	uint8_t macAddress[6];
 	gn_node_status_t status;
-	gn_node_config_handle_intl_t node_config;
-	gn_config_init_param_t* config_init_params;
-
+	gn_node_handle_intl_t node_config;
+	gn_config_init_param_t *config_init_params;
 };
 
-struct gn_node_config_t {
+struct gn_node_t {
 	char name[GN_NODE_NAME_SIZE];
 	//esp_event_loop_handle_t event_loop;
 	gn_config_handle_intl_t config;
@@ -71,7 +70,7 @@ struct gn_leaf_config_t {
 	gn_leaf_descriptor_handle_t leaf_descriptor;
 	char name[GN_LEAF_NAME_SIZE];
 	size_t task_size;
-	gn_node_config_handle_intl_t node_config;
+	gn_node_handle_intl_t node_config;
 	//gn_leaf_display_task_t display_task;
 	//gn_leaf_config_handle_t next;
 	//gn_leaf_task_callback task_cb;
@@ -105,7 +104,6 @@ struct gn_leaf_param {
 typedef struct gn_leaf_param gn_leaf_param_t;
 
 typedef gn_leaf_param_t *gn_leaf_param_handle_intl_t;
-
 
 //typedef struct gn_leaf_param gn_leaf_param_t;
 
