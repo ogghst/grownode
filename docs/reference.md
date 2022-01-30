@@ -6,6 +6,8 @@ This page aims to describe the GrowNode API and how to use it to develop your ow
 
 GrowNode is based on the ESP32 microprocessor, and is developed on top of the [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/) Development Framework. This allows one to directly access to the ESP32 functionalities and the real-time operating system (RTOS).
 
+In order to mantain a coherent code style and ease the access of all ESP-IDF functionalities, GrowNode is written in pure C, although a C++ version could be done in next future. 
+
 ## Basic Concepts
 
 The highest level structure on a GrowNode system is the board itself. Every solution you want to build is basically a combination of:
@@ -170,9 +172,9 @@ This is the complete code to create and configure a BME280 Leaf sensor, a temper
 	gn_leaf_param_init_double(env_thp, GN_BME280_PARAM_UPDATE_TIME_SEC, 10);
 ```
 
-###Next steps: Build your own leaves
+##User defined Leaves
 
-Once mastered basic concepts of leaves creation and parametrization, you can start going into Parameters concepts and develop your own: see [Leaves](leaves.md) page
+Once mastered basic concepts of leaves creation and parametrization, you can start going into Parameters concepts and develop your own: see [Leaves](leaves.md) page.
 
 ## Boards
 
@@ -196,17 +198,87 @@ In order to include a board in your code, you just need to modify your `main.c` 
 
 ```
 
-## Build System
+## Event subsystem
 
-Grownode relies on ESP-IDF build system. It is designed to be a component, and you can configure the build options via standard ESP-IDF command line or from your IDE. See [Configuration](workflow.md/#configure-your-project) section.
+Main application works in a RTOS task. Leaves works in dedicated tasks. Networking and other ESP-IDF services has their own tasks as well. This means that all communication through those components must be done using the RTOS task messaging features and higher ESP-IDF abstractions.
+
+GrowNode uses [Event Loop library](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/esp_event.html) from ESP-IDF to list, subscribe and publish events. It declares one base event `GN_BASE_EVENT` and a `gn_event_id_t` enumeration where all event types are listed.
+
+### Subscribing events
+
+In order to grab a specific event you can rely on ESP-IDF event loop functions. In order to recall the proper event loop from a Leaf or Node, `gn_leaf_get_event_loop()` and `gn_node_get_event_loop()` are provided. See example:
+
+```
+//register for events
+esp_event_handler_instance_register_with(gn_leaf_get_event_loop(leaf_config), GN_BASE_EVENT,  
+	GN_EVENT_ANY_ID, gn_leaf_led_status_event_handler, leaf_config, NULL);
+
+```
+
+This code creates a subscription for all events (`GN_EVENT_ANY_ID`), calling `gn_leaf_led_status_event_handler` callback once an event is triggered, and pass the `leaf_config` pointer in the context.
+
+Those functions returns currently the same event loop, different implementations are made for future needs.
+
+### Publishing events
+
+Event are published using straight esp event loop functionalities: 
+
+```
+esp_event_post_to(event_loop, GN_BASE_EVENT,
+		GN_NET_CONNECTED_EVENT, NULL, 0,
+		portMAX_DELAY);
+```
+
+### Listening for event
+
+Event callbacks shall implement `esp_event_handler_t` syntax. Payload is dependent on the event type triggered: 
+
+```
+void gn_pump_control_task_event_handler(void *handler_args,
+		esp_event_base_t base, int32_t event_id, void *event_data) {
+
+	gn_leaf_parameter_event_t *evt = (gn_leaf_parameter_event_t*) event_data;
+	switch (event_id) {
+	case GN_LEAF_PARAM_CHANGED_EVENT:
+...
+```
+
+### Acquiring events in leaf code
+
+Events addressed to leaves from other leaves and from network has a special, direct way to be processed, that improves GrowNode engine performances, using RTOS queues. Leaves that has just to wait for an event can implement an infinite loop where an `xQueueReceive()` function waits for events for a specific time window. If no events are presents in the queue, the queue releases the control to the leaf: 
+
+```
+gn_leaf_parameter_event_t evt;
+	
+if (xQueueReceive(gn_leaf_get_event_queue(leaf_config), &evt, 
+	pdMS_TO_TICKS(100)) == pdPASS) {
+	
+	//event arrived for this node
+	switch (evt.id) {
+
+		//parameter change
+		case GN_LEAF_PARAM_CHANGE_REQUEST_EVENT:
+
+		ESP_LOGD(TAG, "request to update param %s, data = '%s'",
+			evt.param_name, evt.data);
+	...
+```
 
 ## Networking
 
-GrowNode uses standard ESP32 provisioning framework to connect your 
+GrowNode uses standard ESP32 provisioning framework to connect your wifi network. It can use SoftAP or BLE provisioning, to be specified from the [build system](#build-system).
+
+Once provisioned, GrowNode engine will try to estabilish a connection to the specified WiFi network during the `gn_init()` initialization process. If the network connection cannot be estabilished, the board can be configured to wait forever or to reset its provisioning status (cancelling the wifi credentials and restarting) in order to be ready to join another network.
+
+Upon connection, a `GN_NET_CONNECTED_EVENT` is triggered, and a `GN_NET_DISCONNECTED_EVENT` is triggered upon disconnection.
 
 ## MQTT
 
-todo 
+GrowNode uses MQTT as messaging protocol. It has been choosen due to wide use across IoT community, becoming a de facto standard for those applications. Users can deploy their own MQTT server or use a public server in the network. 
+
+### Configuration
+
+See [Network Configuration](start.md#network-startup)
 
 ### Leaf - Server messaging
 
@@ -232,3 +304,8 @@ todo
 ##Utilities
 
 todo
+
+
+## Build System
+
+Grownode relies on ESP-IDF build system. It is designed to be a component, and you can configure the build options via standard ESP-IDF command line or from your IDE. See [Configuration](../workflow/#configure-your-project) section.

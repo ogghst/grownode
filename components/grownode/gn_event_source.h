@@ -38,8 +38,8 @@ extern esp_event_base_t GN_BASE_EVENT; // @suppress("Type cannot be resolved")
 typedef enum {
 
 	//leaf management events
-	GN_LEAF_INIT_REQUEST_EVENT = 0x001, //used internally to leaf event queue
-	GN_LEAF_MESSAGE_RECEIVED_EVENT = 0x002,
+	GN_LEAF_INIT_REQUEST_EVENT = 0x001, /**< used internally to leaf event queue */
+	GN_LEAF_MESSAGE_RECEIVED_EVENT = 0x002, /**< a message has been received */
 	GN_LEAF_ADDED_EVENT = 0x003,
 
 	//leaf parameter events

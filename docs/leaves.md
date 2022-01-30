@@ -1,12 +1,14 @@
 # Leaves
 
-This page aims to give you necessary knowledge over the Leaves management framework.
+This page aims to give you necessary knowledge over the Leaves management framework. Is intended for users that want to use preconfigured leaves or to build new leaves. It's a rather simple task and many working examples are present in the `leaves` folder.
 
-## Build your own Leaf
+## Leaves concepts
 
-This section is intended for users that want to build new leaves. It's a rather simple task and many working examples are present in the `leaves` folder.
+A Leaf is tipycally used to bridge the hardware layer, supported by a collection of Parameters that represents the inputs and outputs of its operations.
 
-In order to approach to this topic, you must know the parameter API features.
+A Leaf can also be used to coordinate other leaves by sending messages and modifying their parameters.
+
+In order to approach to this topic, you must understand the parameter API features.
 
 ### Parameter declaration
 
@@ -144,3 +146,5 @@ gn_leaf_param_validator_result_t _gn_hb2_watering_time_validator(
 	return GN_LEAF_PARAM_VALIDATOR_PASSED;
 }
 ```
+
+##Standard Leaves
