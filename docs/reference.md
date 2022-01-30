@@ -24,10 +24,10 @@ The highest level structure on a GrowNode system is the board itself. Every solu
 
 In ESP-IDF vocabulary, the Board and its corresponding Node works in the main application RTOS task, and each Leaf works in a separate task. This allows the parallel execution of task logic and, moreover, avoids that a leaf in waiting state (eg. waiting for a sensor measure) affects the running of the whole Node. All messaging across leaves is implemented through RTOS events and message queues.
 
-Putting all together, here's an overview of GrowNode platform.
+Putting all together, here's an overview of GrowNode platform:
 
 <p align="center">
-<img src="img/platform.png" width="80%">
+<img src="../img/platform.png" width="80%">
 </p>
 
 ### Code reference
@@ -172,11 +172,37 @@ This is the complete code to create and configure a BME280 Leaf sensor, a temper
 
 ###Next steps: Build your own leaves
 
-Once mastered basic concepts of leaves creation and parametrization, you can start developing your own: see [Leaves](leaves.md) page
-
+Once mastered basic concepts of leaves creation and parametrization, you can start going into Parameters concepts and develop your own: see [Leaves](leaves.md) page
 
 ## Boards
-todo
+
+Boards are a collection of preconfigured Leaves to have a ready made solution, described in [Boards](boards.md) section. Goal is to give you a working solution without the need of develop your own code.
+
+In order to include a board in your code, you just need to modify your `main.c` file including the appropriate header file in `components/grownode/boards library` folder and call the appropriate board configuration function:
+
+```
+	...
+	//header include the board you want to start here
+	#include "gn_blink.h"
+	...
+	//creates a new node
+	gn_node_handle_t node = gn_node_create(config, "node");
+
+	//the board to start
+	gn_configure_blink(node);
+
+	//finally, start node
+	gn_node_start(node);
+
+```
+
+## Build System
+
+Grownode relies on ESP-IDF build system. It is designed to be a component, and you can configure the build options via standard ESP-IDF command line or from your IDE. See [Configuration](workflow.md/#configure-your-project) section.
+
+## Networking
+
+GrowNode uses standard ESP32 provisioning framework to connect your 
 
 ## MQTT
 
