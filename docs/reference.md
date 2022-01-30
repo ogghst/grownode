@@ -174,7 +174,155 @@ This is the complete code to create and configure a BME280 Leaf sensor, a temper
 
 ##User defined Leaves
 
-Once mastered basic concepts of leaves creation and parametrization, you can start going into Parameters concepts and develop your own: see [Leaves](leaves.md) page.
+This section aims to give you necessary knowledge over the Leaves management framework. Is intended for users that want to use preconfigured leaves or to build new leaves. It's a rather simple task and many working examples are present in the `leaves` folder.
+
+A Leaf is tipycally used to bridge the hardware layer, supported by a collection of Parameters that represents the inputs and outputs of its operations.
+
+A Leaf can also be used to coordinate other leaves by sending messages and modifying their parameters.
+
+In order to approach to this topic, you must understand the parameter API features.
+
+### Parameter declaration
+
+The declaration of a parameter inside a Leaf is done by calling `gn_leaf_param_create()`. Signature:
+
+```
+gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
+		const char *name, const gn_val_type_t type, const gn_val_t val,
+		gn_leaf_param_access_type_t access, gn_leaf_param_storage_t storage,
+		gn_validator_callback_t validator);
+```
+
+The return type of this function is a reference to the parameter, that will be stored into the leaf for future use.
+
+### Parameter Types
+
+Parameters are strong typed. That means that internally into Grownode engine they are represented using C types. Types are enumerated in `gn_val_type_t`.
+
+```
+typedef enum {
+	GN_VAL_TYPE_STRING,			/*!< character array, user defined dimension */
+	GN_VAL_TYPE_BOOLEAN,		/*!< true/false */
+	GN_VAL_TYPE_DOUBLE,			/*!< floating point with sign */
+} gn_val_type_t;
+```
+
+Storage of the value is made by an union called `gn_val_t`:
+
+```
+typedef union {
+	char *s;
+	bool b;
+	double d;
+} gn_val_t;
+```
+
+As you can see from this definition, it is user responsibility to allocate memory in case of a char array parameter. This has to be done inside the Leaf code.
+
+### Access Type
+
+Parameters can have multiple uses, and therefore its access type can be different:
+
+```
+typedef enum {
+	GN_LEAF_PARAM_ACCESS_ALL = 0x01, 			/*!< param can be modified both by the node and network (eg. local configuration settings)*/
+	GN_LEAF_PARAM_ACCESS_NETWORK = 0x02,		/*!< param can be modified only by network (eg. configuration settings from environment)*/
+	GN_LEAF_PARAM_ACCESS_NODE = 0x03, 			/*!< param can be modified only by the node (eg. sensor data)*/
+	GN_LEAF_PARAM_ACCESS_NODE_INTERNAL = 0x04 	/*!< param can be modified only by the node (eg. sensor data) and it is not shown externally*/
+} gn_leaf_param_access_type_t;
+```
+
+The access type is evaluated upon parameter change. If the request is not compatible with the access type (eg. a network request against a GN_LEAF_PARAM_ACCESS_NODE access type) the request won't have any effect. 
+
+### Storage
+
+Some parameters holds the board hardware configuration, like the GPIO pin a sensor is attached to, or board status information that neeed to survive over board restarts or power failures (like the standard power a pump shall be activated). Those parameters can be stored on each update in the ESP32 Non Volatile Storage (NVS). The current implementation stores in key-value pairs, before hashing the key using leaf name and parameter name.
+
+```
+typedef enum {
+	GN_LEAF_PARAM_STORAGE_PERSISTED, 	/*!< param is stored in NVS flash every time it changes*/
+	GN_LEAF_PARAM_STORAGE_VOLATILE 		/*< param is never stored in NVS flash*/
+} gn_leaf_param_storage_t;
+```
+
+> Pay attention to not persist parameters that have continuous updates, like temperature. It can cause a fast degradation of the board memory!
+
+### Validators
+
+Making sure the parameter update arriving from the network makes sense can be a boring task for a leaf developer. And risk of forgetting a check and allow unsafe values can break the code or even make the system dangerous (think of turning on a pump at exceeding speed or without a time limit).
+
+For this reason, the Grownode platform exposes a reusable mechanism to make the code safer: parameter validators.
+
+Validators are functions compliant to the `gn_validator_callback_t` callback:
+
+```
+typedef gn_leaf_param_validator_result_t (*gn_validator_callback_t)(
+		gn_leaf_param_handle_t param, void **value);
+```
+
+The intended behavior is to check the value agains predetermined values, and return the result code on its `gn_leaf_param_validator_result_t` variable:
+
+```
+typedef enum {
+	GN_LEAF_PARAM_VALIDATOR_PASSED = 0x000,					/*!< value is compliant */
+	GN_LEAF_PARAM_VALIDATOR_ERROR_ABOVE_MAX = 0x001,		/*!< value is over the maximum limit */
+	GN_LEAF_PARAM_VALIDATOR_ERROR_BELOW_MIN = 0x002,		/*!< value is below the minimum limit */
+	GN_LEAF_PARAM_VALIDATOR_ERROR_NOT_ALLOWED = 0x100,		/*!< value is not allowed for other reasons */
+	GN_LEAF_PARAM_VALIDATOR_ERROR_GENERIC = 0x101,			/*!< algorithm has returned an error */
+	GN_LEAF_PARAM_VALIDATOR_PASSED_CHANGED = 0x200			/*!< value was not allowed but has been modified by the validator to be compliant*/
+} gn_leaf_param_validator_result_t;
+```
+
+As you can see, there is a possibility that the validator changes the value of the parameter, like if the value to be checked is below zero then set the value to zero. 
+
+Standard validators are present for standard value types:
+
+```
+gn_leaf_param_validator_result_t gn_validator_double_positive(
+		gn_leaf_param_handle_t param, void **param_value);
+
+gn_leaf_param_validator_result_t gn_validator_double(
+		gn_leaf_param_handle_t param, void **param_value);
+
+gn_leaf_param_validator_result_t gn_validator_boolean(
+		gn_leaf_param_handle_t param, void **param_value);
+```
+
+But it's easy to add new ones. Examples can be found in `gn_hydroboard2_watering_control.c` code:
+
+
+```
+gn_leaf_param_validator_result_t _gn_hb2_watering_time_validator(
+		gn_leaf_param_handle_t param, void **param_value) {
+
+	double val;
+	if (gn_leaf_param_get_value(param, &val) != GN_RET_OK)
+		return GN_LEAF_PARAM_VALIDATOR_ERROR;
+
+	double _p1 = **(double**) param_value;
+	ESP_LOGD(TAG, "_watering_time_validator - param: %d", (int )_p1);
+
+	if (GN_HYDROBOARD2_MIN_WATERING_TIME > **(double**) param_value) {
+		memcpy(param_value, &GN_HYDROBOARD2_MIN_WATERING_TIME,
+				sizeof(GN_HYDROBOARD2_MIN_WATERING_TIME));
+		return GN_LEAF_PARAM_VALIDATOR_PASSED_CHANGED;
+	} else if (GN_HYDROBOARD2_MAX_WATERING_TIME < **(double**) param_value) {
+		memcpy(param_value, &GN_HYDROBOARD2_MAX_WATERING_TIME,
+				sizeof(GN_HYDROBOARD2_MAX_WATERING_TIME));
+		return GN_LEAF_PARAM_VALIDATOR_PASSED_CHANGED;
+	}
+
+	_p1 = **(double**) param_value;
+	ESP_LOGD(TAG, "_watering_time_validator - param: %d", (int )_p1);
+
+	return GN_LEAF_PARAM_VALIDATOR_PASSED;
+}
+```
+
+##Standard Leaves
+
+
+
 
 ## Boards
 
@@ -270,23 +418,169 @@ GrowNode uses standard ESP32 provisioning framework to connect your wifi network
 
 Once provisioned, GrowNode engine will try to estabilish a connection to the specified WiFi network during the `gn_init()` initialization process. If the network connection cannot be estabilished, the board can be configured to wait forever or to reset its provisioning status (cancelling the wifi credentials and restarting) in order to be ready to join another network.
 
+### Configuration
+
+See [Network Configuration](start.md#network-startup) for a basic startup.
+
+Parameters involved in the WiFi configuration are described in `gn_config_init_param_t` struct to be passed to node creation:
+
+- `bool provisioning_security`: defines if the provisioning protocol should use encrypted communication and proof of possession - default true;
+- `char provisioning_password[9]`: define the password an user shall enter to prove being a grownode administrator;
+- `int16_t wifi_retries_before_reset_provisioning`: how many times the wifi driver tries to connect to the network before resetting provisioning info - -1 to never lose provisioning (warning: in case of SSID change, no way to reset!
+	
 Upon connection, a `GN_NET_CONNECTED_EVENT` is triggered, and a `GN_NET_DISCONNECTED_EVENT` is triggered upon disconnection.
 
 ## MQTT
 
 GrowNode uses MQTT as messaging protocol. It has been choosen due to wide use across IoT community, becoming a de facto standard for those applications. Users can deploy their own MQTT server or use a public server in the network. 
 
+GrowNode will connect to the MQTT server just after receiving wifi credentials.
+
 ### Configuration
 
-See [Network Configuration](start.md#network-startup)
+See [Network Configuration](start.md#network-startup) for a basic startup.
 
-### Leaf - Server messaging
+Parameters involved in the MQTT server configuration are described in `gn_config_init_param_t` struct to be passed to node creation:
+
+- `bool server_board_id_topic`: whether grownode engine shall add the MAC address of the board in the topic prefix - default false;
+- `char server_base_topic[80]`: the base topic where to publish messages, format shall include all slashes - example: `/grownode/test`;
+- `char server_url[255]`: URL of the server, specified with protocol and port - example: `mqtt://192.168.1.170:1883`;
+- `uint32_t server_keepalive_timer_sec`: GrowNode engine will send a keepalive message to MQTT server. This indicates the seconds between two messages. if not found or 0, keepalive messages will not be triggered;
+
+### MQTT Protocol
+
+> All messages are sent using QoS 0, retain = false. This to improve efficiency and performances on the node side. But this also means that if no listeners are subscribed when the message is lost. 
+
+GrowNode uses JSON formatting to produce complex payloads. 
+
+#### Startup messages
+
+Upon Server connection, the Node will send a startup message.
+
+| Parameter   | Description |
+| ----------- | ----------- |
+| Topic       | <base>/STS  |
+| QoS         | 0 			|
+| Payload     | { "msgtype": "online" }       |
+
+#### LWT messages
+
+LWT message (last will testament) is a particular message the MQTT server will publish if no messages are received from a certain time. 
+
+| Parameter   | Description |
+| ----------- | ----------- |
+| Topic       | <base>/STS  |
+| QoS         | 1 			|
+| **retain**  | 1 			|
+| Payload     | { "msgtype": "offline" }  |
+
+#### Node Config message
+
+This is a message showing the node configuration to the network. Currently, it is sent as keepalive.
+
+| Parameter   | Description |
+| ----------- | ----------- |
+| Topic       | <base>/STS  |
+| QoS         | 0 			|
+| Payload     | { "msgtype": "config" }       | 
 
 todo
 
-### Leaf - leaf messaging
+### Leaf parameter change notify
 
-todo
+| Parameter   | Description |
+| ----------- | ----------- |
+| Topic       | <base>/<leaf>/<parameter>/STS  |
+| QoS         | 0 			|
+| Payload     | parameter-dependent    | 
+
+### Leaf parameter change request
+
+| Parameter   | Description |
+| ----------- | ----------- |
+| Topic       | <base>/<leaf>/<parameter>/CMD  |
+| QoS         | 0 			|
+| Payload     | parameter-dependent    | 
+
+#### Discovery messages
+
+> This feature is not yet completed. Please consider it experimental.
+
+Discovery messages are particular messages that allows servers like openHAB or HomeAssistant to automatically detect the node capabilities and expose them in their system. With this functionality users does not have to manually add sensors to their home automation servers.
+
+Parameters involved in the configuration are described in `gn_config_init_param_t` struct to be passed to node creation:
+
+- `bool server_discovery`: whether the functionality shall be enabled - default false
+- `char server_discovery_prefix[80]`: topic prefix
+
+| Parameter   | Description |
+| ----------- | ----------- |
+| Topic       | <server_discovery_prefix>  |
+| QoS         | 0 			|
+| Payload     | todo    | 
+
+
+### OTA message
+
+This message informs the node to upload the firmware from the config specified URL.
+
+| Parameter   | Description |
+| ----------- | ----------- |
+| Topic       | <base>/CMD  |
+| QoS         | 0 			|
+| Payload     | OTA    | 
+
+This gives the confirmation the OTA message has been processed and the OTA is in progress
+
+| Parameter   | Description |
+| ----------- | ----------- |
+| Topic       | <base>/STS  |
+| QoS         | 0 			|
+| Payload     | OTA    | 
+
+### Reboot message
+
+This message informs the node to reboot 
+
+| Parameter   | Description |
+| ----------- | ----------- |
+| Topic       | <base>/CMD  |
+| QoS         | 0 			|
+| Payload     | RBT    | 
+
+This gives the confirmation the reboot message has been processed and the board is rebooting
+
+| Parameter   | Description |
+| ----------- | ----------- |
+| Topic       | <base>/STS  |
+| QoS         | 0 			|
+| Payload     | RBT    | 
+
+### Reset  message
+
+This message informs the node to reset the NVS. This will bring to the initial configuration, including provisioning.
+
+| Parameter   | Description |
+| ----------- | ----------- |
+| Topic       | <base>/CMD  |
+| QoS         | 0 			|
+| Payload     | RST    | 
+
+This gives the confirmation the reset message has been processed and the reset is in progress
+
+| Parameter   | Description |
+| ----------- | ----------- |
+| Topic       | <base>/STS  |
+| QoS         | 0 			|
+| Payload     | RST    | 
+
+### Leaf parameter change request
+
+| Parameter   | Description |
+| ----------- | ----------- |
+| Topic       | <base>/<leaf>/<parameter>/CMD  |
+| QoS         | 0 			|
+| Payload     | parameter-dependent    | 
 
 
 ##Display
@@ -304,7 +598,6 @@ todo
 ##Utilities
 
 todo
-
 
 ## Build System
 
