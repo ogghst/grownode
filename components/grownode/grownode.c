@@ -373,6 +373,9 @@ esp_err_t _gn_init_keepalive_timer(gn_config_handle_intl_t conf) {
 
 	ESP_LOGD(TAG, "_gn_init_keepalive_timer");
 
+	if (conf->config_init_params->server_keepalive_timer_sec)
+		return ESP_OK;
+
 	timer_config_t config = { .divider = TIMER_DIVIDER, .counter_dir =
 			TIMER_COUNT_UP, .counter_en = TIMER_PAUSE, .alarm_en =
 			TIMER_ALARM_EN, .auto_reload = 1, }; // default clock source is APB
@@ -525,10 +528,10 @@ esp_err_t _gn_init_event_loop(gn_config_handle_intl_t config) {
 
 }
 
-gn_node_config_handle_intl_t _gn_node_config_create() {
+gn_node_handle_intl_t _gn_node_config_create() {
 
-	gn_node_config_handle_intl_t _conf = (gn_node_config_handle_intl_t) malloc(
-			sizeof(struct gn_node_config_t));
+	gn_node_handle_intl_t _conf = (gn_node_handle_intl_t) malloc(
+			sizeof(struct gn_node_t));
 	_conf->config = NULL;
 	//_conf->event_loop = NULL;
 	strcpy(_conf->name, "");
@@ -614,7 +617,7 @@ esp_event_loop_handle_t gn_node_get_event_loop(
 
 	if (!node)
 		return NULL;
-	return ((gn_leaf_config_handle_intl_t) leaf_config)->node_config->config->event_loop;
+	return ((gn_node_handle_intl_t) node)->config->event_loop;
 
 }
 
@@ -637,7 +640,7 @@ gn_node_handle_t gn_node_create(gn_config_handle_t config,
 		return NULL;
 	}
 
-	gn_node_config_handle_intl_t n_c = _gn_node_config_create();
+	gn_node_handle_intl_t n_c = _gn_node_config_create();
 
 	strncpy(n_c->name, name, GN_NODE_NAME_SIZE);
 	//n_c->event_loop = config->event_loop;
@@ -664,7 +667,7 @@ size_t gn_node_get_size(gn_node_handle_t node_config) {
 	if (node_config == NULL)
 		return -1;
 
-	return ((gn_node_config_handle_intl_t) node_config)->leaves.last;
+	return ((gn_node_handle_intl_t) node_config)->leaves.last;
 }
 
 /**
@@ -676,8 +679,8 @@ size_t gn_node_get_size(gn_node_handle_t node_config) {
  */
 gn_err_t gn_node_destroy(gn_node_handle_t node) {
 
-	//free(((gn_node_config_handle_intl_t) node)->leaves->at); //TODO implement free of leaves
-	free((gn_node_config_handle_intl_t) node);
+	//free(((gn_node_handle_intl_t) node)->leaves->at); //TODO implement free of leaves
+	free((gn_node_handle_intl_t) node);
 
 	return GN_RET_OK;
 }
@@ -693,7 +696,7 @@ gn_err_t gn_node_destroy(gn_node_handle_t node) {
  */
 gn_err_t gn_node_start(gn_node_handle_t node) {
 
-	gn_node_config_handle_intl_t _node = (gn_node_config_handle_intl_t) node;
+	gn_node_handle_intl_t _node = (gn_node_handle_intl_t) node;
 
 	gn_err_t ret = GN_RET_OK;
 
@@ -755,8 +758,8 @@ gn_err_t gn_node_get_name(gn_node_handle_t node_config, char *name) {
 
 	if (!node_config)
 		return GN_RET_ERR_INVALID_ARG;
-	strncpy(name, ((gn_node_config_handle_intl_t) node_config)->name,
-			strlen(((gn_node_config_handle_intl_t) node_config)->name) + 1);
+	strncpy(name, ((gn_node_handle_intl_t) node_config)->name,
+			strlen(((gn_node_handle_intl_t) node_config)->name) + 1);
 
 	return GN_RET_OK;
 
@@ -780,8 +783,8 @@ gn_err_t gn_node_get_name(gn_node_handle_t node_config, char *name) {
 gn_leaf_handle_t gn_leaf_create(gn_node_handle_t node_config,
 		const char *name, gn_leaf_config_callback callback, size_t task_size) { //, gn_leaf_display_task_t display_task) {
 
-	gn_node_config_handle_intl_t node_cfg =
-			(gn_node_config_handle_intl_t) node_config;
+	gn_node_handle_intl_t node_cfg =
+			(gn_node_handle_intl_t) node_config;
 
 	if (node_cfg == NULL || node_cfg->config == NULL || name == NULL
 			|| leaf_config == NULL || node_cfg->config->mqtt_client == NULL) {
@@ -791,7 +794,7 @@ gn_leaf_handle_t gn_leaf_create(gn_node_handle_t node_config,
 	}
 
 	gn_leaf_config_handle_intl_t l_c = _gn_leaf_config_create();
-	gn_node_config_handle_intl_t n_c = node_cfg;
+	gn_node_handle_intl_t n_c = node_cfg;
 
 	strncpy(l_c->name, name, GN_LEAF_NAME_SIZE);
 	l_c->node_config = node_cfg;
@@ -881,7 +884,7 @@ gn_leaf_handle_t gn_leaf_get_config_handle(gn_node_handle_t node,
 	if (!name || !node)
 		return NULL;
 
-	gn_node_config_handle_intl_t _node = (gn_node_config_handle_intl_t) node;
+	gn_node_handle_intl_t _node = (gn_node_handle_intl_t) node;
 
 	for (size_t i = 0; i < _node->leaves.last; i++) {
 
@@ -2091,8 +2094,8 @@ gn_err_t gn_leaf_param_add_to_leaf(const gn_leaf_handle_t leaf,
 gn_err_t gn_send_node_leaf_param_status(
 		const gn_node_handle_t _node_config) {
 
-	gn_node_config_handle_intl_t node_config =
-			(gn_node_config_handle_intl_t) _node_config;
+	gn_node_handle_intl_t node_config =
+			(gn_node_handle_intl_t) _node_config;
 
 	//run leaves
 	for (int i = 0; i < node_config->leaves.last; i++) {
