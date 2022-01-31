@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---
+
 # Getting Started
 
 This page describes the steps needed to have a working development environment on your PC. 

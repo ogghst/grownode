@@ -19,7 +19,11 @@ nav:
   - Platform: 'platform.md'
   - Install: 'start.md'
   - Play: 'workflow.md'
-  - Ready Made Boards: 'boards.md'
+  - Ready Made Boards: 
+     - 'boards/index.md'
+     - EasyPot1: 'boards/boards_easypot1.md'
+     - HydroBoard1: 'boards/boards_hb1.md'
+     - HydroBoard2: 'boards/boards_hb2.mp'
   - Reference Guide: 
      - 'reference/index.md'
      - Leaves: 'reference/leaves.md'

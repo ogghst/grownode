@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---
+
 # How Everything Started
 
 It all started with an idea. 

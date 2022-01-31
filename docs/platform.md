@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---
+
 # A quick look into GrowNode systems
 
 This page describes how the GrowNode platform is structured and the technology behind it. 

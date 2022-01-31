@@ -1,3 +1,7 @@
+---
+hide:
+  - navigation
+---
 
 # From Ideas to Project
 

@@ -1,4 +1,8 @@
-
+---
+hide:
+  - navigation
+---  
+  
 <p align="center">
 <img src="img/grownode_logo_full.png">
 </p>
