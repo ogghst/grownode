@@ -10,6 +10,7 @@ theme:
     - navigation.instant  
     - navigation.tabs    
     - navigation.sections
+    - navigation.expand
     - toc.integrate
   logo: img/grownode_logo_24.png
   favicon: img/grownode_logo_24.png
@@ -19,7 +20,9 @@ nav:
   - Install: 'start.md'
   - Play: 'workflow.md'
   - Ready Made Boards: 'boards.md'
-  - Reference Guide: 'reference.md'
+  - Reference Guide: 
+     - 'reference/index.md'
+     - Leaves: 'reference/leaves.md'
   - Tutorials: 'tutorials/index.md'
   - Story: 'story.md'
   - API: 'html/index.html'
