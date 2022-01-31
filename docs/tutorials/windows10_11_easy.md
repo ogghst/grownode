@@ -102,7 +102,7 @@ Before flashing you must complete some configuration steps:
 
 - click on the setting gear beside "esp32" in the top icon bar (see point 1 in figure)
 
-<p align="center"><img alt="ESP32 serial commands in Eclipse" src="../img/eclipse_flashing_settings.png"></p>
+<p align="center"><img alt="ESP32 serial commands in Eclipse" src="../img/eclipse_flashing_settings_win.png"></p>
 
 - select the right "Serial Port" from the list (most probably `COM1`) and click on "Finish"
 
@@ -134,7 +134,7 @@ The board will restart you you will see the "blinking" messages.
 
 To stop the monitor, just close the "Terminal" window or click on the red "Disconnect Terminal Connection" at the top right of the terminal itself (point 2 in figure below).
 
-<p align="center"><img alt="Monitor ESP-IDF from Eclipse" src="../img/eclipse_monitor.png"></p>
+<p align="center"><img alt="Monitor ESP-IDF from Eclipse" src="../img/eclipse_monitor_win.png"></p>
 
 Great job! You are ready to play more with Grownode ;)
 
