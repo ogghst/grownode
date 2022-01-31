@@ -5,7 +5,7 @@
 
 # Abstract
 
-> GrowNode is a vertical framework to build IoT devices targeted to growing plants in a controlled environment. It is currently based on the work of [Nicola Muratori](https://github.com/ogghst). 
+> GrowNode is a vertical framework to build IoT devices targeted to growing plants in a controlled environment. It is currently based on the work of [Nicola Muratori](https://github.com/ogghst) and [Adamo Ferro](https://github.com/adamoferro). 
 
 ## Target
 
