@@ -9,9 +9,9 @@ theme:
   features:
     - navigation.instant  
     - navigation.tabs    
-    - navigation.sections
+    - navigation.tabs.sticky
     - navigation.expand
-    - toc.integrate
+    - navigation.indexes
   logo: img/grownode_logo_24.png
   favicon: img/grownode_logo_24.png
 nav:
