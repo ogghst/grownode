@@ -27,7 +27,7 @@ nav:
   - Reference Guide: 
      - 'reference/index.md'
      - 'reference/node.md'
-     - Leaves:
+     - Leaves: 'leaves.md'
         - 'reference/leaves/index.md'
         - 'reference/leaves/bme280.md'
      - 'reference/boards.md'
