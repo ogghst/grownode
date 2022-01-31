@@ -1,8 +1,52 @@
 # Leaves
 
-This page aims to give you necessary knowledge over the Leaves management framework. Is intended for users that want to use preconfigured leaves or to build new leaves. It's a rather simple task and many working examples are present in the `leaves` folder.
+Every sensor or actuator is represented by a Leaf. The Leaf is the 'engine' of the underlying logic, it is designed to be reusable multiple times in a Node and to be configured in a consistent way. A Leaf represents the bridge between the User and the hardware layer, therefore it is handled by the GrowNode engine as a separated RTOS task, and is accessed in an asyncronous way.
 
-## Leaves concepts
+## Using Leaves
+
+Every leaf shall expose a `gn_leaf_config_callback` callback function that initializes its resources. 
+
+In order to add a leaf to a node, the `gn_leaf_create` function is called first:
+
+```
+gn_leaf_handle_t gn_leaf_create(gn_node_handle_t node,
+		const char *name, gn_leaf_config_callback leaf_config, size_t task_size)
+```
+
+This binds the Leaf to the parent Node, and tells the Node to use the `gn_leaf_config_callback` callback to initialize the resources at the appropriate moment. Typical job of a config callback function is to load and initialize its parameters and allocate memory for the side structures. Callback definition is:
+
+```
+typedef gn_leaf_descriptor_handle_t (*gn_leaf_config_callback)(
+		gn_leaf_handle_t leaf_config);
+```
+
+The `gn_leaf_descriptor_handle_t` is a reference to the information configured.
+
+GrowNode engine will use later those info to start the leaf. Another callback must be implemented in the leaf:
+
+```
+typedef void (*gn_leaf_task_callback)(gn_leaf_handle_t leaf_config);
+```
+
+In this callback it is contained the business logic of the leaf, like:
+ 
+- reading the Leaf parameter status
+- listening for parameter updates from external sources (network or internal)
+- updating the user UI
+- working with underlying hardware resources 
+- updating its parameters
+
+### Examples
+
+```
+	//creates the moisture sensor
+	moisture_leaf = gn_leaf_create(node, "moisture", gn_capacitive_moisture_sensor_config, 4096);
+```
+
+
+##User defined Leaves
+
+This section aims to give you necessary knowledge over the Leaves management framework. Is intended for users that want to use preconfigured leaves or to build new leaves. It's a rather simple task and many working examples are present in the `leaves` folder.
 
 A Leaf is tipycally used to bridge the hardware layer, supported by a collection of Parameters that represents the inputs and outputs of its operations.
 
@@ -147,4 +191,5 @@ gn_leaf_param_validator_result_t _gn_hb2_watering_time_validator(
 }
 ```
 
-##Standard Leaves
+
+
