@@ -27,7 +27,11 @@ nav:
   - Reference Guide: 
      - 'reference/index.md'
      - Leaves: 'reference/leaves.md'
-  - Tutorials: 'tutorials/index.md'
+  - Tutorials: 
+     - 'tutorials/index.md'
+     - 'tutorials/windows10_11_easy.md'
+     - 'tutorials/ubuntu1804_2004_easy.md'
+     - 'tutorials/ubuntu1804_2005_advanced.md'
   - Story: 'story.md'
   - API: 'html/index.html'
 plugins:
