@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---  
+
 # Node
 
 The core element of a GrowNode implementation is the Node. It represents the container and the entry point for the board capabilities.

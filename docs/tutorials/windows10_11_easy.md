@@ -1,17 +1,6 @@
-# How to get started with Grownode on Windows 10 and Windows 11 - Easy version
+# How to get started with GrowNode on Windows 10 and Windows 11 - Easy version
 
 > Updated on January 21, 2022
-
-## Index
-
-- [Introduction](#introduction)
-	* [Prerequisites](#prerequisites)
-- [Step 1: Download and run the ESP-IDF online installer](#step-1-download-and-run-the-esp-idf-online-installer)
-- [Step 2: Download Grownode and build it](#step-2-download-grownode-and-build-it)
-- [Step 3: Flash your board from Eclipse](#step-3-flash-your-board-from-eclipse)
-- [Step 4: Monitor the serial output of your board from Eclipse](#step-4-monitor-the-serial-output-of-your-board-from-eclipse)
-- [Appendix: Installing Grownode into a Windows virtual machine using VirtualBox](#appendix-installing-grownode-into-a-windows-virtual-machine-using-virtualbox)
-	* [Properly link the host and guest serial ports](#properly-link-the-host-and-guest-serial-ports)
 
 ## Introduction
 

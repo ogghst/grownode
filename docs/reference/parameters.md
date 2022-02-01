@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---  
+
 # Parameters
 
 GrowNode allows users to access Leaves input and outputs through Parameters. A parameter defines its behavior and holds its value.

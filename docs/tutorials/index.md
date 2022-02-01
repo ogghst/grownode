@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---  
+
 # Grownode Tutorials
 
 In this section of Grownode's documentation you will find some tutorials that will make your experience with Grownode simpler, with step-by-step instructions about different topics.

@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---  
+
 # Boards
 
 Here you can find resources to make your own board starting from existing works. Code is in 'components\grownode\boards' folder 

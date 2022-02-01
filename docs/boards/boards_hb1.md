@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---  
+
 #Hydroboard1
 
 ![the prototype](../resources/solutions/hydroboard1/prototype2.jpeg)

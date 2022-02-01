@@ -2,24 +2,6 @@
 
 > Updated on January 18, 2022
 
-## Index
-
-- [Introduction](#introduction)
-	* [Prerequisites](#prerequisites)
-- [Step 1: Prepare your system](#step-1-prepare-your-system)
-- [Step 2: Installing Eclipse IDE for C/C++ Developers 2021-09](#step-2-installing-eclipse-ide-for-cc-developers-2021-09)
-- [Step 3: Installing the ESP-IDF plugin for Eclipse](#step-3-installing-the-esp-idf-plugin-for-eclipse)
-- [Step 4: Download the ESP-IDF environment from Eclipse](#step-4-download-the-esp-idf-environment-from-eclipse)
-- [Step 5: Download Grownode and build it](#step-5-download-grownode-and-build-it)
-- [Step 6: Flash your board from Eclipse](#step-6-flash-your-board-from-eclipse)
-- [Step 7: Monitor the serial output of your board from Eclipse](#step-7-monitor-the-serial-output-of-your-board-from-eclipse)
-- [Appendix](#appendix)
-	* [A. How to get the name of the serial device associated to the ESP32 board](#a-how-to-get-the-name-of-the-serial-device-associated-to-the-esp32-board)
-		+ [If you are NOT working inside a virtual machine](#if-you-are-not-working-inside-a-virtual-machine)
-		+ [If you are working inside a virtual machine](#if-you-are-working-inside-a-virtual-machine)
-	* [B. Installing Grownode into an Ubuntu virtual machine using VirtualBox](#b-installing-grownode-into-an-ubuntu-virtual-machine-using-virtualbox)
-		+ [Properly link the host and guest serial ports](#properly-link-the-host-and-guest-serial-ports)
-
 ## Introduction
 
 With this step-by-step tutorial you will be able to quickly deploy the Eclipse IDE with the Grownode development environment on your Ubuntu 18.04 or 20.04 workstation.

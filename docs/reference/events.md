@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---  
+
 # Event subsystem
 
 Main application works in a RTOS task. Leaves works in dedicated tasks. Networking and other ESP-IDF services has their own tasks as well. This means that all communication through those components must be done using the RTOS task messaging features and higher ESP-IDF abstractions.

@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---  
+
 # Networking
 
 GrowNode uses standard ESP32 provisioning framework to connect your wifi network. It can use SoftAP or BLE provisioning, to be specified from the [build system](build-system).

@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---  
+
 #EasyPot1
 
 A good starting point to make sure your pot won't suffer due to lack of attention :)

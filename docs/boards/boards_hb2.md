@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---  
+
 #Hydroboard2
 
 Second attempt to release a Water Tower system. this time I've added some MOSFETs to drive:

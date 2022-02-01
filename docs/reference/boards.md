@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---  
+
 # Boards
 
 Boards are a collection of preconfigured Leaves to have a ready made solution, described in [Boards](boards.md) section. Goal is to give you a working solution without the need of develop your own code.

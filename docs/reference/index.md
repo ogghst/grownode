@@ -1,3 +1,10 @@
+---
+hide:
+  - navigation
+---  
+
+Page last revised on:  {{ git_revision_date }}
+
 # Reference Guide
 
 This page aims to describe the GrowNode API and how to use it to develop your own firmware. 
@@ -18,9 +25,9 @@ The highest level structure on a GrowNode system is the board itself. Every solu
 
 - Several [Parameters](parameters) exposed by/to the Leaf, able to retrieve/command specific functionalities. *Examples: the temperature retrieved, a motor switch, a light power*
 
-- One centralized controller that orchestrates and exposes to the Leaves the services needed to work, called [Node](node). This is common on all the GrowNode implementations
+- One centralized controller that exposes to the Leaves the services needed to work, called [Node](node). This is common on all the GrowNode implementations
 
-- one entry point of the application, where the Node and Leaves are declared and configured, called [Board](#boards). *Examples: a Water Tower Board, a simple Temperature and Humidity pot controller*
+- one entry point of the application, where the Node and Leaves are declared and configured, called [Board](boards). *Examples: a Water Tower Board, a simple Temperature and Humidity pot controller*
 
 ## Architecture
 
