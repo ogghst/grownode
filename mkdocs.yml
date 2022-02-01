@@ -48,4 +48,3 @@ nav:
   - API: 'html/index.html'
 plugins:
     - search
-    - git-revision-date
