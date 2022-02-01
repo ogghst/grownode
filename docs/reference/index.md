@@ -3,8 +3,6 @@ hide:
   - navigation
 ---  
 
-Page last revised on:  {{ git_revision_date }}
-
 # Reference Guide
 
 This page aims to describe the GrowNode API and how to use it to develop your own firmware. 
