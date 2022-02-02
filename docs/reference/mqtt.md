@@ -6,7 +6,7 @@ GrowNode will connect to the MQTT server just after receiving wifi credentials.
 
 ## Configuration
 
-See [Network Configuration](start.md#network-startup) for a basic startup.
+See [Network Configuration](../start.md#network-startup) for a basic startup.
 
 Parameters involved in the MQTT server configuration are described in `gn_config_init_param_t` struct to be passed to node creation:
 
@@ -19,15 +19,19 @@ Parameters involved in the MQTT server configuration are described in `gn_config
 
 > All messages are sent using QoS 0, retain = false. This to improve efficiency and performances on the node side. But this also means that if no listeners are subscribed when the message is lost. 
 
-GrowNode uses JSON formatting to produce complex payloads. 
+GrowNode uses JSON formatting to produce complex payloads. Parts in *italic* have to be replaced with your configuration.
 
 ### Startup messages
 
 Upon Server connection, the Node will send a startup message.
 
+| From        | To          |
+| ----------- | ----------- |
+| Board       | Server      |
+
 | Parameter   | Description |
 | ----------- | ----------- |
-| Topic       | <base>/STS  |
+| Topic       | *base*/STS  |
 | QoS         | 0 			|
 | Payload     | { "msgtype": "online" }       |
 
@@ -35,9 +39,13 @@ Upon Server connection, the Node will send a startup message.
 
 LWT message (last will testament) is a particular message the MQTT server will publish if no messages are received from a certain time. 
 
+| From        | To          |
+| ----------- | ----------- |
+| Board       | Server      |
+
 | Parameter   | Description |
 | ----------- | ----------- |
-| Topic       | <base>/STS  |
+| Topic       | *base*/STS  |
 | QoS         | 1 			|
 | **retain**  | 1 			|
 | Payload     | { "msgtype": "offline" }  |
@@ -46,29 +54,48 @@ LWT message (last will testament) is a particular message the MQTT server will p
 
 This is a message showing the node configuration to the network. Currently, it is sent as keepalive.
 
+| From        | To          |
+| ----------- | ----------- |
+| Board       | Server      |
+
 | Parameter   | Description |
 | ----------- | ----------- |
-| Topic       | <base>/STS  |
+| Topic       | *base*/STS  |
 | QoS         | 0 			|
 | Payload     | { "msgtype": "config" }       | 
 
 todo
 
-### Leaf parameter change notify
-
-| Parameter   | Description |
-| ----------- | ----------- |
-| Topic       | <base>/<leaf>/<parameter>/STS  |
-| QoS         | 0 			|
-| Payload     | parameter-dependent    | 
 
 ### Leaf parameter change request
 
+
+To request a parameter to change, user shall send a mqtt message indicating the leaf and the parameter to change. This will be evaluated against the permissions for this parameter:
+
+| From        | To          |
+| ----------- | ----------- |
+| Server      | Board       |
+
 | Parameter   | Description |
 | ----------- | ----------- |
-| Topic       | <base>/<leaf>/<parameter>/CMD  |
+| Topic       | *base*/*leaf*/*parameter*/CMD  |
 | QoS         | 0 			|
-| Payload     | parameter-dependent    | 
+| Payload     | parameter-dependent    |
+
+
+### Leaf parameter change notify
+
+When a parameter changes its status, if configured the board will send a parameter status change:
+
+| From        | To          |
+| ----------- | ----------- |
+| Board       | Server      |
+
+| Parameter   | Description |
+| ----------- | ----------- |
+| Topic       | *base*/*leaf*/*parameter*/STS  |
+| QoS         | 0 			|
+| Payload     | parameter-dependent    |  
 
 ### Discovery messages
 
@@ -81,9 +108,13 @@ Parameters involved in the configuration are described in `gn_config_init_param_
 - `bool server_discovery`: whether the functionality shall be enabled - default false
 - `char server_discovery_prefix[80]`: topic prefix
 
+| From        | To          |
+| ----------- | ----------- |
+| Board       | Server      |
+
 | Parameter   | Description |
 | ----------- | ----------- |
-| Topic       | <server_discovery_prefix>  |
+| Topic       | *server_discovery_prefix*  |
 | QoS         | 0 			|
 | Payload     | todo    | 
 
@@ -92,60 +123,78 @@ Parameters involved in the configuration are described in `gn_config_init_param_
 
 This message informs the node to upload the firmware from the config specified URL.
 
+| From        | To          |
+| ----------- | ----------- |
+| Server      | Board       |
+
 | Parameter   | Description |
 | ----------- | ----------- |
-| Topic       | <base>/CMD  |
+| Topic       | *base*/CMD  |
 | QoS         | 0 			|
 | Payload     | OTA    | 
 
 This gives the confirmation the OTA message has been processed and the OTA is in progress
 
+| From        | To          |
+| ----------- | ----------- |
+| Board       | Server      |
+
 | Parameter   | Description |
 | ----------- | ----------- |
-| Topic       | <base>/STS  |
+| Topic       | *base*/STS  |
 | QoS         | 0 			|
-| Payload     | OTA    | 
+| Payload     | OTA         | 
 
 ### Reboot message
 
-This message informs the node to reboot 
+This message tells the node to reboot 
+
+| From        | To          |
+| ----------- | ----------- |
+| Server      | Board       |
 
 | Parameter   | Description |
 | ----------- | ----------- |
-| Topic       | <base>/CMD  |
+| Topic       | *base*/CMD  |
 | QoS         | 0 			|
 | Payload     | RBT    | 
 
 This gives the confirmation the reboot message has been processed and the board is rebooting
 
+| From        | To          |
+| ----------- | ----------- |
+| Board       | Server      |
+
 | Parameter   | Description |
 | ----------- | ----------- |
-| Topic       | <base>/STS  |
+| Topic       | *base*/STS  |
 | QoS         | 0 			|
 | Payload     | RBT    | 
 
 ### Reset  message
 
-This message informs the node to reset the NVS. This will bring to the initial configuration, including provisioning.
+This message tells the node to reset the NVS. This will bring to the initial configuration, including provisioning.
+
+| From        | To          |
+| ----------- | ----------- |
+| Server      | Board       |
 
 | Parameter   | Description |
 | ----------- | ----------- |
-| Topic       | <base>/CMD  |
+| Topic       | *base*/CMD  |
 | QoS         | 0 			|
 | Payload     | RST    | 
 
 This gives the confirmation the reset message has been processed and the reset is in progress
 
+| From        | To          |
+| ----------- | ----------- |
+| Board       | Server      |
+
 | Parameter   | Description |
 | ----------- | ----------- |
-| Topic       | <base>/STS  |
+| Topic       | *base*/STS  |
 | QoS         | 0 			|
 | Payload     | RST    | 
 
-### Leaf parameter change request
 
-| Parameter   | Description |
-| ----------- | ----------- |
-| Topic       | <base>/<leaf>/<parameter>/CMD  |
-| QoS         | 0 			|
-| Payload     | parameter-dependent    | 
