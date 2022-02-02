@@ -7,6 +7,8 @@ hide:
 
 This page describes the steps needed to have a working development environment on your PC. 
 
+For more detailed, platform - specific installation procedure including IDE, see section [Tutorials](tutorials)
+
 ## Set up your environment
 
 ### ESP-IDF

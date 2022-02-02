@@ -172,7 +172,7 @@ Last step, you should implement an infinite loop:
 
 ### Prebuilt leaves
 
-You can use the prebuilt leaves under `components/grownode/leaves` folder. Every leaf has his own header file you can use to understand how to use it.
+You can use the prebuilt leaves under [leaves](reference/leaves_list) or browsing the github `components/grownode/leaves` folder. Every leaf has his own header file you can use to understand how to use it.
 
 Basic leaves as per today:
 
@@ -180,7 +180,7 @@ Basic leaves as per today:
 
 - Relay: turns on/off a GPIO
 - Pump: uses the low frequency PWM API to drive a motor
-- Pump_HS: uses the LEDC API to drive a PWM device, lice dimming a LED or driving a motor
+- Pump_HS: uses the LEDC API to drive a PWM device, like dimming a LED or driving a motor
 
 #### Sensors:
 
