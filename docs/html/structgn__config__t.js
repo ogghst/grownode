@@ -5,7 +5,7 @@ var structgn__config__t =
     [ "event_loop", "structgn__config__t.html#a974d636a706cff4382392182923cf4b4", null ],
     [ "macAddress", "structgn__config__t.html#ad1f9372a3c02670409b3511450269284", null ],
     [ "mqtt_client", "structgn__config__t.html#a8d39f7c43fc06e68817e194b8452c7e3", null ],
-    [ "node_config", "structgn__config__t.html#ac2967c079b92322f200196d8e7d68486", null ],
+    [ "node_config", "structgn__config__t.html#a6342b2cffd8c0c656c0248358b0fda1f", null ],
     [ "prov_config", "structgn__config__t.html#abbd5d3bf2b7fe2d308f24b9bc18c24df", null ],
     [ "spiffs_conf", "structgn__config__t.html#ab41832a888de6ba26f8a4b56d441dde3", null ],
     [ "status", "structgn__config__t.html#ae61e118133f85acb919844603221fdd6", null ],

@@ -22,6 +22,5 @@ var gn__event__source_8h =
       [ "GN_SRV_KEEPALIVE_TRIGGERED_EVENT", "gn__event__source_8h.html#ab405715a16a715e1805398598736933fa23c8385ab5532a597c433f5afb59e514", null ],
       [ "GN_NODE_STARTED_EVENT", "gn__event__source_8h.html#ab405715a16a715e1805398598736933fafacecd29e5fa7a79a48b1a0e6b83f7be", null ]
     ] ],
-    [ "GN_BASE_EVENT", "gn__event__source_8h.html#ac35fe93bba9e2b1919de40fb646c2eaf", null ],
-    [ "GN_LEAF_EVENT", "gn__event__source_8h.html#a883bc6dd1f8765a4a2972f914f8ae5c2", null ]
+    [ "GN_BASE_EVENT", "gn__event__source_8h.html#ac35fe93bba9e2b1919de40fb646c2eaf", null ]
 ];

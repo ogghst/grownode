@@ -8,7 +8,7 @@ Parameters can be stored in the NVS flash (the ESP32 'hard drive') in order to b
 
 ## Initialization
 
-Each Leaf has a predetermined set of parameters. Those are initialized in the configuration phase described in the [Leaves](#leaves) section. However, the initial values can be overridden by the user. For instance, a parameter defining a GPIO pin should be customized depending on the board circuit. To do this, the `gn_leaf_param_init_XXX()` functions are defined. Example: 
+Each Leaf has a predetermined set of parameters. Those are initialized in the configuration phase described in the [Leaves](leaves.md) section. However, the initial values can be overridden by the user. For instance, a parameter defining a GPIO pin should be customized depending on the board circuit. To do this, the `gn_leaf_param_init_XXX()` functions are defined. Example: 
 
 ```
 	gn_leaf_handle_t lights = gn_leaf_create(node, "light switch", gn_gpio_config, 4096);
@@ -25,7 +25,7 @@ Some leaves has convenient functions created to perform creation and initializat
 
 A leaf parameter can be updated:
 
-- from the network: see [MQTT Protocol](#mqtt)
+- from the network: see [MQTT Protocol](mqtt.md)
 - from the code
 
 When updating from user code, the `gn_leaf_param_set_XXX()` functions are used. They inform the leaf that the parameter shall be changed to a new value. This is done via event passing as the leaf resides to another task, so it's an asynchronous call.

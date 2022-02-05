@@ -62,10 +62,39 @@ This is a message showing the node configuration to the network. Currently, it i
 | ----------- | ----------- |
 | Topic       | *base*/STS  |
 | QoS         | 0 			|
-| Payload     | { "msgtype": "config" }       | 
+| Payload     | { "msgtype": "config"... (see example) }       | 
 
-todo
+Example message:
 
+```
+{
+  "msgtype": "config",
+  "name": "node",
+  "leaves": [
+    {
+      "name": "blink",
+      "leaf_type": "gpio",
+      "params": [
+        {
+          "name": "status",
+          "type": "bool",
+          "val": true
+        },
+        {
+          "name": "inverted",
+          "type": "bool",
+          "val": false
+        },
+        {
+          "name": "gpio",
+          "type": "number",
+          "val": 2
+        }
+      ]
+    }
+  ]
+}
+```
 
 ### Leaf parameter change request
 
@@ -197,4 +226,17 @@ This gives the confirmation the reset message has been processed and the reset i
 | QoS         | 0 			|
 | Payload     | RST    | 
 
+### Log messages
+
+This is sent by the [logging API](logging.mw)
+
+| From        | To          |
+| ----------- | ----------- |
+| Board       | Server      |
+
+| Parameter   | Description |
+| ----------- | ----------- |
+| Topic       | *base*/STS  |
+| QoS         | 0 			|
+| Payload     | { "msgtype": "log"; "tag": "_tag_"; "lev": "_lev_"; "msg": "_payload_" }   	    | 
 

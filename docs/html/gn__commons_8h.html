@@ -72,8 +72,6 @@ $(document).ready(function(){initNavTree('gn__commons_8h.html',''); initResizabl
 
 <p>General structures and functions.  
 <a href="#details">More...</a></p>
-
-<p><a href="gn__commons_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Structures</h2></td></tr>
@@ -87,6 +85,7 @@ Data Structures</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">this represents the description and status informations of the leaf  <a href="structgn__leaf__descriptor__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">union &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uniongn__val__t.html">gn_val_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">holds the parameter value  <a href="uniongn__val__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
@@ -176,13 +175,15 @@ Enumerations</h2></td></tr>
 <tr class="separator:ac04e0e32194e4ebe5b315c2b6f2a2c91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3f7ee1da85fdb3e756b682d447ff9458"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458">gn_leaf_param_validator_result_t</a> { <br />
 &#160;&#160;<a class="el" href="gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458a734df3b79a1ca34a1d4820bbcd3749fb">GN_LEAF_PARAM_VALIDATOR_PASSED</a> = 0x000
-, <a class="el" href="gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458a33869539ffff251a818de1c19c5e6956">GN_LEAF_PARAM_VALIDATOR_ABOVE_MAX</a> = 0x001
-, <a class="el" href="gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458ac07f20a25708de521446ba50bf82dc07">GN_LEAF_PARAM_VALIDATOR_BELOW_MIN</a> = 0x002
-, <a class="el" href="gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458ae37d2c802342c6dc247506bf2da8a41d">GN_LEAF_PARAM_VALIDATOR_NOT_ALLOWED</a> = 0x100
+, <a class="el" href="gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458a719b2cf016f54de3e31107f5e90012d2">GN_LEAF_PARAM_VALIDATOR_ERROR_ABOVE_MAX</a> = 0x001
+, <a class="el" href="gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458a39188a5d43261e44a10295a1737e5a57">GN_LEAF_PARAM_VALIDATOR_ERROR_BELOW_MIN</a> = 0x002
+, <a class="el" href="gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458ad046e202bf869c9e6a0d9850b40dfec8">GN_LEAF_PARAM_VALIDATOR_ERROR_NOT_ALLOWED</a> = 0x100
 , <br />
-&#160;&#160;<a class="el" href="gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458ab83fa53d67768469f89ce1dfd824f05b">GN_LEAF_PARAM_VALIDATOR_ERROR</a> = 0x101
+&#160;&#160;<a class="el" href="gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458a553776f7f514dbd57f212f09b4b5f309">GN_LEAF_PARAM_VALIDATOR_ERROR_GENERIC</a> = 0x101
+, <a class="el" href="gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458a41e625900a193a52090d8ae1c2182024">GN_LEAF_PARAM_VALIDATOR_PASSED_CHANGED</a> = 0x200
 <br />
  }</td></tr>
+<tr class="memdesc:a3f7ee1da85fdb3e756b682d447ff9458"><td class="mdescLeft">&#160;</td><td class="mdescRight">result of a validation function run  <a href="gn__commons_8h.html#a3f7ee1da85fdb3e756b682d447ff9458">More...</a><br /></td></tr>
 <tr class="separator:a3f7ee1da85fdb3e756b682d447ff9458"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3486d4e9b104a1d3ed1e6e6ac04d8da4"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__commons_8h.html#a3486d4e9b104a1d3ed1e6e6ac04d8da4">gn_log_level_t</a> { <a class="el" href="gn__commons_8h.html#a3486d4e9b104a1d3ed1e6e6ac04d8da4ab240dbff4d5982c985b6cd39eff868f8">GN_LOG_DEBUG</a> = ESP_LOG_DEBUG
 , <a class="el" href="gn__commons_8h.html#a3486d4e9b104a1d3ed1e6e6ac04d8da4ac84aa31b84a74169956364735146ae6c">GN_LOG_INFO</a> = ESP_LOG_INFO
@@ -200,6 +201,7 @@ Enumerations</h2></td></tr>
 , <a class="el" href="gn__commons_8h.html#ad1014e416cafe9369c2d9f677465cf40a49561128df0836e9980067737c03ae20">GN_VAL_TYPE_BOOLEAN</a>
 , <a class="el" href="gn__commons_8h.html#ad1014e416cafe9369c2d9f677465cf40a6bf40bdc47870b47f7d3ef5bf40db497">GN_VAL_TYPE_DOUBLE</a>
  }</td></tr>
+<tr class="memdesc:ad1014e416cafe9369c2d9f677465cf40"><td class="mdescLeft">&#160;</td><td class="mdescRight">type of parameters available  <a href="gn__commons_8h.html#ad1014e416cafe9369c2d9f677465cf40">More...</a><br /></td></tr>
 <tr class="separator:ad1014e416cafe9369c2d9f677465cf40"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b3f9ab6d947b1ceea57d6f26a877920"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__commons_8h.html#a7b3f9ab6d947b1ceea57d6f26a877920">gn_leaf_param_access_type_t</a> { <a class="el" href="gn__commons_8h.html#a7b3f9ab6d947b1ceea57d6f26a877920a5b724c6ca10c507caead43298e610177">GN_LEAF_PARAM_ACCESS_ALL</a> = 0x01
 , <a class="el" href="gn__commons_8h.html#a7b3f9ab6d947b1ceea57d6f26a877920ac6ee97f23ca699baa8409784f2733627">GN_LEAF_PARAM_ACCESS_NETWORK</a> = 0x02
@@ -230,7 +232,7 @@ Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
 <tr class="memitem:a843e9ba0c05c71eb23938fb37f63f63c"><td class="memItemLeft" align="right" valign="top">static const int16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__commons_8h.html#a843e9ba0c05c71eb23938fb37f63f63c">GN_CONFIG_MAX_SERVER_KEEPALIVE_SEC</a> = 3600</td></tr>
-<tr class="memdesc:a843e9ba0c05c71eb23938fb37f63f63c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Contains the last error code.  <a href="gn__commons_8h.html#a843e9ba0c05c71eb23938fb37f63f63c">More...</a><br /></td></tr>
+<tr class="memdesc:a843e9ba0c05c71eb23938fb37f63f63c"><td class="mdescLeft">&#160;</td><td class="mdescRight">maximum time between two keepalive messages  <a href="gn__commons_8h.html#a843e9ba0c05c71eb23938fb37f63f63c">More...</a><br /></td></tr>
 <tr class="separator:a843e9ba0c05c71eb23938fb37f63f63c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a470297ae9dd28310fbc1b4ff9c3017c3"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gn__commons_8h.html#a470297ae9dd28310fbc1b4ff9c3017c3">gn_config_status_descriptions</a> [14]</td></tr>
 <tr class="separator:a470297ae9dd28310fbc1b4ff9c3017c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -568,12 +570,21 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>result of a validation function run </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a3f7ee1da85fdb3e756b682d447ff9458a734df3b79a1ca34a1d4820bbcd3749fb"></a>GN_LEAF_PARAM_VALIDATOR_PASSED&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a3f7ee1da85fdb3e756b682d447ff9458a33869539ffff251a818de1c19c5e6956"></a>GN_LEAF_PARAM_VALIDATOR_ABOVE_MAX&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a3f7ee1da85fdb3e756b682d447ff9458ac07f20a25708de521446ba50bf82dc07"></a>GN_LEAF_PARAM_VALIDATOR_BELOW_MIN&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a3f7ee1da85fdb3e756b682d447ff9458ae37d2c802342c6dc247506bf2da8a41d"></a>GN_LEAF_PARAM_VALIDATOR_NOT_ALLOWED&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a3f7ee1da85fdb3e756b682d447ff9458ab83fa53d67768469f89ce1dfd824f05b"></a>GN_LEAF_PARAM_VALIDATOR_ERROR&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a3f7ee1da85fdb3e756b682d447ff9458a734df3b79a1ca34a1d4820bbcd3749fb"></a>GN_LEAF_PARAM_VALIDATOR_PASSED&#160;</td><td class="fielddoc"><p>value is compliant </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3f7ee1da85fdb3e756b682d447ff9458a719b2cf016f54de3e31107f5e90012d2"></a>GN_LEAF_PARAM_VALIDATOR_ERROR_ABOVE_MAX&#160;</td><td class="fielddoc"><p>value is over the maximum limit </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3f7ee1da85fdb3e756b682d447ff9458a39188a5d43261e44a10295a1737e5a57"></a>GN_LEAF_PARAM_VALIDATOR_ERROR_BELOW_MIN&#160;</td><td class="fielddoc"><p>value is below the minimum limit </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3f7ee1da85fdb3e756b682d447ff9458ad046e202bf869c9e6a0d9850b40dfec8"></a>GN_LEAF_PARAM_VALIDATOR_ERROR_NOT_ALLOWED&#160;</td><td class="fielddoc"><p>value is not allowed for other reasons </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3f7ee1da85fdb3e756b682d447ff9458a553776f7f514dbd57f212f09b4b5f309"></a>GN_LEAF_PARAM_VALIDATOR_ERROR_GENERIC&#160;</td><td class="fielddoc"><p>algorithm has returned an error </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3f7ee1da85fdb3e756b682d447ff9458a41e625900a193a52090d8ae1c2182024"></a>GN_LEAF_PARAM_VALIDATOR_PASSED_CHANGED&#160;</td><td class="fielddoc"><p>value was not allowed but has been modified by the validator to be compliant </p>
+</td></tr>
 </table>
 
 </div>
@@ -678,10 +689,15 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>type of parameters available </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ad1014e416cafe9369c2d9f677465cf40acaa51bdf262791b1e6ba9d7c0fdb7d2a"></a>GN_VAL_TYPE_STRING&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ad1014e416cafe9369c2d9f677465cf40a49561128df0836e9980067737c03ae20"></a>GN_VAL_TYPE_BOOLEAN&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ad1014e416cafe9369c2d9f677465cf40a6bf40bdc47870b47f7d3ef5bf40db497"></a>GN_VAL_TYPE_DOUBLE&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ad1014e416cafe9369c2d9f677465cf40acaa51bdf262791b1e6ba9d7c0fdb7d2a"></a>GN_VAL_TYPE_STRING&#160;</td><td class="fielddoc"><p>character array, user defined dimension </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ad1014e416cafe9369c2d9f677465cf40a49561128df0836e9980067737c03ae20"></a>GN_VAL_TYPE_BOOLEAN&#160;</td><td class="fielddoc"><p>true/false </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ad1014e416cafe9369c2d9f677465cf40a6bf40bdc47870b47f7d3ef5bf40db497"></a>GN_VAL_TYPE_DOUBLE&#160;</td><td class="fielddoc"><p>floating point with sign </p>
+</td></tr>
 </table>
 
 </div>
@@ -896,8 +912,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Contains the last error code. </p>
-<dl class="section warning"><dt>Warning</dt><dd>Not thread safe! </dd></dl>
+<p>maximum time between two keepalive messages </p>
 
 </div>
 </div>
