@@ -6,7 +6,7 @@ Once provisioned, GrowNode engine will try to estabilish a connection to the spe
 
 ## Configuration
 
-See [Network Configuration](start.md#network-startup) for a basic startup.
+See [Network Configuration](/grownode/start#network-startup) for a basic startup.
 
 Parameters involved in the WiFi configuration are described in `gn_config_init_param_t` struct to be passed to node creation:
 
