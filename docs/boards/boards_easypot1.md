@@ -35,7 +35,7 @@ The board is equipped with LED showing the need to water your plant, excess ligh
 
 final configuration will look like:
 
-![board](../resources/images/board_easypot1_wiring.png)
+![board](../../resources/images/board_easypot1_wiring.png)
 
 ##Code
 
