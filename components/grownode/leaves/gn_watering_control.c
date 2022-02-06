@@ -95,7 +95,7 @@ gn_leaf_param_validator_result_t _gn_watering_interval_validator(
 
 	double val;
 	if (gn_leaf_param_get_value(param, &val) != GN_RET_OK)
-		return GN_LEAF_PARAM_VALIDATOR_ERROR;
+		return GN_LEAF_PARAM_VALIDATOR_ERROR_GENERIC;
 
 	double _p1 = **(double**) param_value;
 	ESP_LOGD(TAG, "_watering_interval_validator - param: %d", (int )_p1);
@@ -103,11 +103,11 @@ gn_leaf_param_validator_result_t _gn_watering_interval_validator(
 	if (MIN_WATERING_INTERVAL > **(double**) param_value) {
 		memcpy(param_value, &MIN_WATERING_INTERVAL,
 				sizeof(MIN_WATERING_INTERVAL));
-		return GN_LEAF_PARAM_VALIDATOR_BELOW_MIN;
+		return GN_LEAF_PARAM_VALIDATOR_ERROR_BELOW_MIN;
 	} else if (MAX_WATERING_INTERVAL < **(double**) param_value) {
 		memcpy(param_value, &MAX_WATERING_INTERVAL,
 				sizeof(MAX_WATERING_INTERVAL));
-		return GN_LEAF_PARAM_VALIDATOR_ABOVE_MAX;
+		return GN_LEAF_PARAM_VALIDATOR_ERROR_ABOVE_MAX;
 	}
 
 	_p1 = **(double**) param_value;
@@ -122,17 +122,17 @@ gn_leaf_param_validator_result_t _gn_watering_time_validator(
 
 	double val;
 	if (gn_leaf_param_get_value(param, &val) != GN_RET_OK)
-		return GN_LEAF_PARAM_VALIDATOR_ERROR;
+		return GN_LEAF_PARAM_VALIDATOR_ERROR_GENERIC;
 
 	double _p1 = **(double**) param_value;
 	ESP_LOGD(TAG, "_watering_time_validator - param: %d", (int )_p1);
 
 	if (MIN_WATERING_TIME > **(double**) param_value) {
 		memcpy(param_value, &MIN_WATERING_TIME, sizeof(MIN_WATERING_TIME));
-		return GN_LEAF_PARAM_VALIDATOR_BELOW_MIN;
+		return GN_LEAF_PARAM_VALIDATOR_ERROR_BELOW_MIN;
 	} else if (MAX_WATERING_TIME < **(double**) param_value) {
 		memcpy(param_value, &MIN_WATERING_TIME, sizeof(MAX_WATERING_TIME));
-		return GN_LEAF_PARAM_VALIDATOR_ABOVE_MAX;
+		return GN_LEAF_PARAM_VALIDATOR_ERROR_ABOVE_MAX;
 	}
 
 	_p1 = **(double**) param_value;
@@ -147,7 +147,7 @@ gn_leaf_param_validator_result_t _gn_watering_target_temp_validator(
 
 	double val;
 	if (gn_leaf_param_get_value(param, &val) != GN_RET_OK)
-		return GN_LEAF_PARAM_VALIDATOR_ERROR;
+		return GN_LEAF_PARAM_VALIDATOR_ERROR_GENERIC;
 
 	double _p1 = **(double**) param_value;
 	ESP_LOGD(TAG, "_watering_temp_validator - param: %d", (int )_p1);
@@ -155,12 +155,12 @@ gn_leaf_param_validator_result_t _gn_watering_target_temp_validator(
 	if (MIN_WATERING_TIME > **(double**) param_value) {
 		memcpy(param_value, &MIN_WATERING_TARGET_TEMP,
 				sizeof(MIN_WATERING_TARGET_TEMP));
-		return GN_LEAF_PARAM_VALIDATOR_BELOW_MIN;
+		return GN_LEAF_PARAM_VALIDATOR_ERROR_BELOW_MIN;
 	} else if (MAX_WATERING_TIME < **(double**) param_value) {
 		memcpy(param_value, &MAX_WATERING_TARGET_TEMP,
 				sizeof(MAX_WATERING_TARGET_TEMP));
 
-		return GN_LEAF_PARAM_VALIDATOR_ABOVE_MAX;
+		return GN_LEAF_PARAM_VALIDATOR_ERROR_ABOVE_MAX;
 	}
 
 	_p1 = **(double**) param_value;

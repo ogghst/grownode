@@ -84,17 +84,17 @@ gn_leaf_param_validator_result_t _gn_upd_time_sec_validator(
 
 	double val;
 	if (gn_leaf_param_get_value(param, &val) != GN_RET_OK)
-		return GN_LEAF_PARAM_VALIDATOR_ERROR;
+		return GN_LEAF_PARAM_VALIDATOR_ERROR_GENERIC;
 
 	double _p1 = **(double**) param_value;
 	ESP_LOGD(TAG, "_gn_upd_time_sec_validator - param: %d", (int )_p1);
 
 	if (MIN_UPDATE_TIME_SEC > **(double**) param_value) {
 		memcpy(param_value, &MIN_UPDATE_TIME_SEC, sizeof(MIN_UPDATE_TIME_SEC));
-		return GN_LEAF_PARAM_VALIDATOR_BELOW_MIN;
+		return GN_LEAF_PARAM_VALIDATOR_ERROR_BELOW_MIN;
 	} else if (MAX_UPDATE_TIME_SEC < **(double**) param_value) {
 		memcpy(param_value, &MAX_UPDATE_TIME_SEC, sizeof(MAX_UPDATE_TIME_SEC));
-		return GN_LEAF_PARAM_VALIDATOR_ABOVE_MAX;
+		return GN_LEAF_PARAM_VALIDATOR_ERROR_ABOVE_MAX;
 	}
 
 	_p1 = **(double**) param_value;
