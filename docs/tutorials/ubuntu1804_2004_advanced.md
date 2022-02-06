@@ -1,25 +1,25 @@
-# How to get started with Grownode on Ubuntu 18.04 and 20.04 - Advanced version
+# How to get started with GrowNode on Ubuntu 18.04 and 20.04 - Advanced version
 
 > Updated on January 18, 2022
 
 ## Introduction
 
-With this step-by-step tutorial you will be able to quickly deploy the Grownode development environment on your Ubuntu 18.04 or 20.04 workstation.
+With this step-by-step tutorial you will be able to quickly deploy the GrowNode development environment on your Ubuntu 18.04 or 20.04 workstation.
 
 At the end of the tutorial you will have:
-- installed the main packages required to Grownode
+- installed the main packages required to GrowNode
 - installed the ESP-IDF environment v4.4
-- compiled and run your first Grownode test board
+- compiled and run your first GrowNode test board
  
 In addition, the following optional steps are also explained:
 - installing the Eclipse IDE
 - installing the ESP-IDF plugin for Eclipse
-- compiling and running your first Grownode test board via Eclipse
+- compiling and running your first GrowNode test board via Eclipse
 
 > *Notes:*
 > - *The same steps should also apply for Ubuntu 18.10 and 20.10, but we haven't tried yet. Let us know if you did!*
-> - *Older versions of Ubuntu do not satisfy the minimal requirements out-of-the-box, so they are not officially supported by Grownode.*
-> - *This procedure could be also used to create an Ubuntu virtual machine to play with Grownode without affecting your system. Read more details on this in the Appendix below.*
+> - *Older versions of Ubuntu do not satisfy the minimal requirements out-of-the-box, so they are not officially supported by GrowNode.*
+> - *This procedure could be also used to create an Ubuntu virtual machine to play with GrowNode without affecting your system. Read more details on this in the Appendix below.*
 
 ### Prerequisites
 
@@ -29,9 +29,9 @@ In addition, the following optional steps are also explained:
  
 The ESP32 board could be a ready-to-use one (like the Wemos D1 R32), or other more compact ones that need some soldering (like the ESP32-DevKitC V4 and D1 Mini ESP32).
 
-## Installing the Grownode software environment
+## Installing the GrowNode software environment
 
-The following steps are mandatory in order to correctly deploy all the software libraries and basic tools for developing a Grownode board. Just follow the instructions: it will be easy!
+The following steps are mandatory in order to correctly deploy all the software libraries and basic tools for developing a GrowNode board. Just follow the instructions: it will be easy!
 
 ### Step 1: Package installation and system preparation
 
@@ -51,7 +51,7 @@ The latter command becomes effective only once you re-login to your workstation.
 
 ### Step 2: Install the ESP-IDF environment
 
-Grownode needs the environment called ESP-IDF v4.4 to compile the firmware board. Type the following commands to download it in your home and install it in your system:
+GrowNode needs the environment called ESP-IDF v4.4 to compile the firmware board. Type the following commands to download it in your home and install it in your system:
 
 ```
 mkdir -p ~/esp
@@ -63,12 +63,12 @@ echo -e "\nalias get_idf='. $HOME/esp/esp-idf/export.sh'" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-Congratulations! You have just installed the base environment that will allow you to build your Grownode boards!
-Now you are ready to download and build your first Grownode project.
+Congratulations! You have just installed the base environment that will allow you to build your GrowNode boards!
+Now you are ready to download and build your first GrowNode project.
 
-### Step 3: Download the Grownode source and build the firmware of your first board
+### Step 3: Download the GrowNode source and build the firmware of your first board
 
-The following commands allow you to download the current version of Grownode in your home ESP directory:
+The following commands allow you to download the current version of GrowNode in your home ESP directory:
 
 ```
 cd ~/esp
@@ -84,7 +84,7 @@ get_idf
 
 > **IMPORTANT:** this operation must be done every time you open a new terminal/console to use ESP-IDF commands, and applies only to that particular console.
 
-Now move to Grownode's folder and build the default project:
+Now move to GrowNode's folder and build the default project:
 
 ```
 cd ~/esp/grownode
@@ -179,9 +179,9 @@ If you are using VirtualBox and you followed the instructions below, your serial
 - `COM2` corresponds to `/dev/ttyS1`
 - ...and so on.
 
-#### B. Installing Grownode into an Ubuntu virtual machine using VirtualBox
+#### B. Installing GrowNode into an Ubuntu virtual machine using VirtualBox
 
-If you wish to create a new Ubuntu virtual machine (VM) from scratch using VirtualBox just to have a try of Grownode without affecting your system, you can still install the software environment inside the VM following the instructions of this page.
+If you wish to create a new Ubuntu virtual machine (VM) from scratch using VirtualBox just to have a try of GrowNode without affecting your system, you can still install the software environment inside the VM following the instructions of this page.
 
 > How to create an Ubuntu VM using VirtualBox is out of scope here. You can find many guides about this topic on the web.
 
@@ -241,7 +241,7 @@ Categories = Application;
 - run Eclipse using the command `eclipse` from a terminal, or by using the Eclipse icon in your desktop (if you created it)
  
 - at the first start, Eclipse will ask for the default workspace folder. If you followed these instructions, select the `esp` folder inside your home and then click on "Launch"
-> you may also select "Use this as the default..." if you are going to use Eclipse only for Grownode
+> you may also select "Use this as the default..." if you are going to use Eclipse only for GrowNode
 
 ### Step 2: Installing the ESP-IDF plugin for Eclipse
 
@@ -284,9 +284,9 @@ Now you are ready to link the ESP-IDF environment you installed at the beginning
 
 - click on "Install Tools" and monitor the installation in the status bar at the bottom right
 
-### Step 4: Import your first Grownode project and build it
+### Step 4: Import your first GrowNode project and build it
 
-Once the tool installation of the previous step is finished, import your first Grownode project doing:
+Once the tool installation of the previous step is finished, import your first GrowNode project doing:
 
 - close the "Welcome" tab
 - select "Import..." from the "File" menu
@@ -294,10 +294,10 @@ Once the tool installation of the previous step is finished, import your first G
 - click on "Browse..." and select the `grownode` folder. The field "Project Name" will auto-fill with "grownode"
 - click on "Finish"
 
-...and here you go! Grownode is imported into Eclipse. Well done!
-In the Project Explorer on the left you can see the Grownode workspace:
+...and here you go! GrowNode is imported into Eclipse. Well done!
+In the Project Explorer on the left you can see the GrowNode workspace:
 
-<p align="center"><img alt="Grownode Project explorer in Eclipse" src="../img/eclipse_grownode_project_explorer.png"></p>
+<p align="center"><img alt="GrowNode Project explorer in Eclipse" src="../img/eclipse_grownode_project_explorer.png"></p>
 
 Try your first build by clicking on the hammer icon at the top left, or typing `CTRL+B`.
 In the console at the bottom you should see your project compiling and ending with the message `Build complete (0 errors...`. That means it was successful. Great!
@@ -341,4 +341,4 @@ To stop the monitor, just close the "Terminal" window or click on the red "Disco
 
 <p align="center"><img alt="Monitor ESP-IDF from Eclipse" src="../img/eclipse_monitor.png"></p>
 
-Great job! You are ready to play more with Grownode ;)
+Great job! You are ready to play more with GrowNode ;)

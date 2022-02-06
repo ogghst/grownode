@@ -4,18 +4,18 @@
 
 ## Introduction
 
-With this step-by-step tutorial you will be able to quickly deploy the Eclipse IDE with the Grownode development environment on your Windows 10/11 workstation.
+With this step-by-step tutorial you will be able to quickly deploy the Eclipse IDE with the GrowNode development environment on your Windows 10/11 workstation.
 
 Despite the whole process is very simple, at the end of the tutorial you will have:
 - installed the Eclipse IDE
 - installed the ESP-IDF plugin for Eclipse
 - installed the latest ESP-IDFv4.4 environment
-- compiled and run your first Grownode test board via Eclipse
+- compiled and run your first GrowNode test board via Eclipse
  
 > *Notes:*
 > - *Only 64 bit operating systems are supported*
 > - *The same steps should also apply for Windows 7 64 bit, but we haven't tried yet. Let us know if you did!*
-> - *This procedure could be also used to create a Windows virtual machine to play with Grownode without affecting your system. Read more details on this in the Appendix below.*
+> - *This procedure could be also used to create a Windows virtual machine to play with GrowNode without affecting your system. Read more details on this in the Appendix below.*
 
 ### Prerequisites
 
@@ -29,7 +29,7 @@ The ESP32 board could be a ready-to-use one (like the Wemos D1 R32), or other mo
 
 Download the ESP-IDF online installer from `https://dl.espressif.com/dl/esp-idf/?idf=4.4`
 
-> The online installer is a small program that triggers the download of the needed software. Alternatively, if you need to install the Grownode environment on a machine without internet connection, you can also download the offline installer.
+> The online installer is a small program that triggers the download of the needed software. Alternatively, if you need to install the GrowNode environment on a machine without internet connection, you can also download the offline installer.
 
 Run the installer, accept the terms and conditions, and follow these steps:
 
@@ -55,7 +55,7 @@ Run the installer, accept the terms and conditions, and follow these steps:
 
 - click on "Yes" on the permission popup window (if any appears)
 
-## Step 2: Download Grownode and build it
+## Step 2: Download GrowNode and build it
 
 - launch Eclipse and in the popup window that appears select the parent folder of the ESP-IDF installation (in our case here `Documents\esp`). You can also flag "Use this as the default..." if you don't plan to use other workspaces
 
@@ -69,18 +69,18 @@ Run the installer, accept the terms and conditions, and follow these steps:
 - write `https://github.com/ogghst/grownode.git` into the "URI" field, anche click on "Next >"
 - select at least the branch called "master", as in figure, and click on "Next >"
 
-<p align="center"><img alt="Eclipse Grownode branch selection" src="../img/eclipse_grownode_branch_selection.png"></p>
+<p align="center"><img alt="Eclipse GrowNode branch selection" src="../img/eclipse_grownode_branch_selection.png"></p>
 
 - indicate as "Destination Directory" a `grownode` folder located in the parent of the ESP-IDF installation (in our case here `Documents\esp`) and tick the "Clone submodules" flag, as in figure. Then click on "Next >"
 
-<p align="center"><img alt="Eclipse Grownode clone folder" src="../img/eclipse_grownode_clone_folder.png"></p>
+<p align="center"><img alt="Eclipse GrowNode clone folder" src="../img/eclipse_grownode_clone_folder.png"></p>
 
 - when some downloads end, leave the selection "Import existing Eclipse projects" and click on "Next >"
 - select only the "grownode" project, as in figure, and click on "Finish"
 
-<p align="center"><img alt="Eclipse Grownode project selection" src="../img/eclipse_grownode_project.png"></p>
+<p align="center"><img alt="Eclipse GrowNode project selection" src="../img/eclipse_grownode_project.png"></p>
 
-...and here you go! Grownode is imported into Eclipse. Well done!
+...and here you go! GrowNode is imported into Eclipse. Well done!
 
 Try your first build by clicking on the hammer icon at the top left, or typing `CTRL+B`.
 In the console at the bottom you should see your project compiling and ending with the message `Build complete (0 errors...`. That means it was successful. Great!
@@ -125,11 +125,11 @@ To stop the monitor, just close the "Terminal" window or click on the red "Disco
 
 <p align="center"><img alt="Monitor ESP-IDF from Eclipse" src="../img/eclipse_monitor_win.png"></p>
 
-Great job! You are ready to play more with Grownode ;)
+Great job! You are ready to play more with GrowNode ;)
 
-## Appendix: Installing Grownode into a Windows virtual machine using VirtualBox
+## Appendix: Installing GrowNode into a Windows virtual machine using VirtualBox
 
-If you wish to create a new Windows virtual machine (VM) from scratch using VirtualBox just to have a try of Grownode without affecting your system, you can still install the software environment inside the VM following the instructions of this page.
+If you wish to create a new Windows virtual machine (VM) from scratch using VirtualBox just to have a try of GrowNode without affecting your system, you can still install the software environment inside the VM following the instructions of this page.
 
 > How to create a Windows VM using VirtualBox is out of scope here. You can find many guides about this topic on the web.
 

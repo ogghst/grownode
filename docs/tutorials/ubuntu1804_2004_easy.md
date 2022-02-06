@@ -1,22 +1,22 @@
-# How to get started with Grownode on Ubuntu 18.04 and 20.04 - Easy version
+# How to get started with GrowNode on Ubuntu 18.04 and 20.04 - Easy version
 
 > Updated on January 18, 2022
 
 ## Introduction
 
-With this step-by-step tutorial you will be able to quickly deploy the Eclipse IDE with the Grownode development environment on your Ubuntu 18.04 or 20.04 workstation.
+With this step-by-step tutorial you will be able to quickly deploy the Eclipse IDE with the GrowNode development environment on your Ubuntu 18.04 or 20.04 workstation.
 
 At the end of the tutorial you will have:
 - installed the Eclipse IDE
 - installed the ESP-IDF plugin for Eclipse
-- installed the main packages required to Grownode
+- installed the main packages required to GrowNode
 - installed the latest ESP-IDF environment
-- compiled and run your first Grownode test board via Eclipse
+- compiled and run your first GrowNode test board via Eclipse
  
 > *Notes:*
 > - *The same steps should also apply for Ubuntu 18.10 and 20.10, but we haven't tried yet. Let us know if you did!*
-> - *Older versions of Ubuntu do not satisfy the minimal requirements out-of-the-box, so they are not officially supported by Grownode.*
-> - *This procedure could be also used to create an Ubuntu virtual machine to play with Grownode without affecting your system. Read more details on this in the Appendix below.*
+> - *Older versions of Ubuntu do not satisfy the minimal requirements out-of-the-box, so they are not officially supported by GrowNode.*
+> - *This procedure could be also used to create an Ubuntu virtual machine to play with GrowNode without affecting your system. Read more details on this in the Appendix below.*
 
 ### Prerequisites
 
@@ -78,7 +78,7 @@ Categories = Application;
 - run Eclipse using the command `eclipse` from a terminal, or by using the Eclipse icon in your desktop (if you created it)
  
 - at the first start, Eclipse will ask for the default workspace folder. Click on "Browse...", select the folder called `esp` inside your home, click on "Open" and then on "Launch"
-> you may also select "Use this as the default..." if you are going to use Eclipse only for Grownode
+> you may also select "Use this as the default..." if you are going to use Eclipse only for GrowNode
 
 ## Step 3: Installing the ESP-IDF plugin for Eclipse
 
@@ -122,35 +122,35 @@ Now you are ready to download the ESP-IDF environment from Eclipse:
 
 - click on "Install Tools" and monitor the installation in the status bar at the bottom right
 
-## Step 5: Download Grownode and build it
+## Step 5: Download GrowNode and build it
 
-Once the tool installation of the previous step is finished, import your first Grownode project doing:
+Once the tool installation of the previous step is finished, import your first GrowNode project doing:
 
 - select "Import..." from the "File" menu
 - select "Git" > "Projects from Git" from the list and click on "Next >"
 - select "Clone URI" from the list and click on "Next >"
 - fill the field "URI" with `https://github.com/ogghst/grownode.git` and the remaining fields will auto-complete, as in figure, and click on "Next >"
 
-<p align="center"><img alt="Grownode GIT clone URI in Eclipse" src="../img/eclipse_grownode_git_clone_uri.png"></p>
+<p align="center"><img alt="GrowNode GIT clone URI in Eclipse" src="../img/eclipse_grownode_git_clone_uri.png"></p>
 
 - unless you are interested in other branches, select only the "master" branch, as in figure, and then click on "Next >" (with smart import)
 
-<p align="center"><img alt="Grownode GIT master clone in Eclipse" src="../img/eclipse_grownode_git_clone_master.png"></p>
+<p align="center"><img alt="GrowNode GIT master clone in Eclipse" src="../img/eclipse_grownode_git_clone_master.png"></p>
 
 - change the "Directory" field setting a `grownode` folder inside the `esp` folder you created before and flag the "Clone submodules" option, as in figure; click on "Next >"
 
-<p align="center"><img alt="Grownode GIT folder clone in Eclipse" src="../img/eclipse_grownode_git_clone_folder.png"></p>
+<p align="center"><img alt="GrowNode GIT folder clone in Eclipse" src="../img/eclipse_grownode_git_clone_folder.png"></p>
 
 - click on "Next >" in the following window, leaving unchanged the selection of "Import existing Eclipse projects"
 
 - unless you are interested in other projects, select only the `grownode` project from the list, as in figure, and click on "Finish"
 
-<p align="center"><img alt="Grownode GIT project clone in Eclipse" src="../img/eclipse_grownode_git_clone_project.png"></p>
+<p align="center"><img alt="GrowNode GIT project clone in Eclipse" src="../img/eclipse_grownode_git_clone_project.png"></p>
 
-...and here you go! Grownode is imported into Eclipse. Well done!
-In the Project Explorer on the left you can see the Grownode workspace:
+...and here you go! GrowNode is imported into Eclipse. Well done!
+In the Project Explorer on the left you can see the GrowNode workspace:
 
-<p align="center"><img alt="Grownode Project explorer in Eclipse" src="../img/eclipse_grownode_project_explorer.png"></p>
+<p align="center"><img alt="GrowNode Project explorer in Eclipse" src="../img/eclipse_grownode_project_explorer.png"></p>
 
 Try your first build by clicking on the hammer icon at the top left, or typing `CTRL+B`.
 In the console at the bottom you should see your project compiling and ending with the message `Build complete (0 errors...`. That means it was successful. Great!
@@ -193,7 +193,7 @@ To stop the monitor, just close the "Terminal" window or click on the red "Disco
 
 <p align="center"><img alt="Monitor ESP-IDF from Eclipse" src="../img/eclipse_monitor.png"></p>
 
-Great job! You are ready to play more with Grownode ;)
+Great job! You are ready to play more with GrowNode ;)
 
 ## Appendix
 
@@ -223,9 +223,9 @@ If you are using VirtualBox and you followed the instructions below, your serial
 - `COM2` corresponds to `/dev/ttyS1`
 - ...and so on.
 
-### B. Installing Grownode into an Ubuntu virtual machine using VirtualBox
+### B. Installing GrowNode into an Ubuntu virtual machine using VirtualBox
 
-If you wish to create a new Ubuntu virtual machine (VM) from scratch using VirtualBox just to have a try of Grownode without affecting your system, you can still install the software environment inside the VM following the instructions of this page.
+If you wish to create a new Ubuntu virtual machine (VM) from scratch using VirtualBox just to have a try of GrowNode without affecting your system, you can still install the software environment inside the VM following the instructions of this page.
 
 > How to create an Ubuntu VM using VirtualBox is out of scope here. You can find many guides about this topic on the web.
 
