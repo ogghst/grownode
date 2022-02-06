@@ -7,12 +7,14 @@
 With this step-by-step tutorial you will be able to quickly deploy the Eclipse IDE with the GrowNode development environment on your Windows 10/11 workstation.
 
 Despite the whole process is very simple, at the end of the tutorial you will have:
+
 - installed the Eclipse IDE
 - installed the ESP-IDF plugin for Eclipse
 - installed the latest ESP-IDFv4.4 environment
 - compiled and run your first GrowNode test board via Eclipse
  
 > *Notes:*
+>
 > - *Only 64 bit operating systems are supported*
 > - *The same steps should also apply for Windows 7 64 bit, but we haven't tried yet. Let us know if you did!*
 > - *This procedure could be also used to create a Windows virtual machine to play with GrowNode without affecting your system. Read more details on this in the Appendix below.*
@@ -134,6 +136,7 @@ If you wish to create a new Windows virtual machine (VM) from scratch using Virt
 > How to create a Windows VM using VirtualBox is out of scope here. You can find many guides about this topic on the web.
 
 When working inside a VM you have to be aware of the following issues/requirements in order to be able to flash and properly work with your board:
+
 - you must link the host serial device to a VM serial device
 - you must plug the board via USB **BEFORE** starting the VM
 - you should never unplug the board while the VM is running
@@ -146,6 +149,7 @@ In VirtualBox, open the "Serial Ports" tab of the VM settings, shown in figure.
 <p align="center"><img alt="Serial Ports tab in VirtualBox" src="../img/appendix_virtualbox_serial.png"></p>
 
 To properly set the serial communication, you have to:
+
 - flag "Enable Serial Port"
 - select the "Port Number" from the list (`COM1` will be ok in most cases)
 - select "Host Device" in "Port Mode"

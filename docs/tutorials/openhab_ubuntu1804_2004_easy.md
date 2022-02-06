@@ -7,6 +7,7 @@
 With this step-by-step tutorial you will be able to quickly deploy a message broker and the openHAB automation platform on your Ubuntu 18.04 or 20.04 workstation. How to link openHAB to GrowNode will be tackled in a dedicated tutorial.
 
 At the end of the tutorial you will have:
+
 - installed the Mosquitto MQTT message broker
 - installed a MQTT client
 - tested the reception of messages from GrowNode (if you have a provisioned working board)
@@ -14,6 +15,7 @@ At the end of the tutorial you will have:
 - set up your openHAB access
  
 > *Notes:*
+>
 > - *The same steps should also apply for Ubuntu 18.10 and 20.10, but we haven't tried yet. Let us know if you did!*
 > - *Older versions of Ubuntu do not satisfy the minimal requirements out-of-the-box, so they are not officially supported by GrowNode.*
 > - *This procedure could be also used to create an Ubuntu virtual machine to test the openHAB automation server without affecting your main system.*

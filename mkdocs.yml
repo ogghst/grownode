@@ -44,6 +44,7 @@ nav:
      - 'tutorials/windows10_11_easy.md'
      - 'tutorials/ubuntu1804_2004_easy.md'
      - 'tutorials/ubuntu1804_2004_advanced.md'
+     - 'tutorials/openhab_ubuntu1804_2004_easy.md'
   - Story: 'story.md'
   - API: 'html/index.html'
 plugins:
