@@ -28,6 +28,7 @@ nav:
      - 'reference/index.md'
      - 'reference/node.md'
      - 'reference/leaves.md'
+     - 'reference/parameters.md'
      - Standard Leaves: 
         - 'reference/leaves_list/index.md'
         - 'reference/leaves_list/bme280.md'
