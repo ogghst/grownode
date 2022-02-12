@@ -53,8 +53,8 @@ void _scan_sensors(int gpio, size_t *sensor_count, ds18x20_addr_t *addrs) {
 		return;
 	}
 
-	ESP_LOGD(TAG, "%d sensors detected. addr[0]=%llu, addr[1]=%llu",
-			*sensor_count, addrs[0], addrs[1]);
+	ESP_LOGD(TAG, "%d sensors detected. addr[0]=%llu, addr[1]=%llu, addr[2]=%llu, addr[3]=%llu",
+			*sensor_count, addrs[0], addrs[1], addrs[2], addrs[3]);
 
 	// If there were more sensors found than we have space to handle,
 	// just report the first MAX_SENSORS..
@@ -248,7 +248,7 @@ void gn_ds18b20_task(gn_leaf_handle_t leaf_config) {
 	//init sensors
 
 	//setup gpio
-	gpio_set_pull_mode(gpio, GPIO_PULLUP_ONLY);
+	//gpio_set_pull_mode(gpio, GPIO_PULLUP_ONLY);
 
 	_scan_sensors(gpio, &data->sensor_count, &data->addrs[0]);
 
@@ -264,6 +264,7 @@ void gn_ds18b20_task(gn_leaf_handle_t leaf_config) {
 	}
 
 	if (ret == ESP_OK && active == true) {
+
 		ret = esp_timer_start_periodic(data->sensor_timer,
 				update_time_sec * 1000000);
 		if (ret != ESP_OK) {

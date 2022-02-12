@@ -22,7 +22,7 @@
 #include "grownode.h"
 
 //include the board you want to start here
-#include "gn_blink.h"
+#include "gn_easypot1.h"
 
 #define TASK_STACK_SIZE 8192*4
 
@@ -40,12 +40,12 @@ void app_main(void) {
 	esp_log_level_set("grownode", ESP_LOG_INFO);
 	esp_log_level_set("gn_commons", ESP_LOG_INFO);
 	esp_log_level_set("gn_nvs", ESP_LOG_INFO);
-	esp_log_level_set("gn_mqtt_protocol", ESP_LOG_DEBUG);
+	esp_log_level_set("gn_mqtt_protocol", ESP_LOG_INFO);
 	esp_log_level_set("gn_network", ESP_LOG_INFO);
 	esp_log_level_set("gn_display", ESP_LOG_INFO);
 
 	//boards
-	esp_log_level_set("gn_blink", ESP_LOG_INFO);
+	esp_log_level_set("gn_easypot1", ESP_LOG_INFO);
 
 	gn_config_init_param_t config_init = {
 		.provisioning_security = true,
@@ -53,12 +53,15 @@ void app_main(void) {
 		.wifi_retries_before_reset_provisioning = 5,
 		.server_board_id_topic = false,
 		.server_base_topic = "/grownode/test",
-		.server_url = "mqtt://192.168.1.170:1883",
+		.server_url = "mqtt://192.168.1.10:1883",
 		.server_keepalive_timer_sec = 60,
 		.server_discovery = false,
 		.server_discovery_prefix = "homeassistant",
 		.firmware_url = "http://myserver/myfirmware.bin",
-		.sntp_url = "pool.ntp.org"
+		.sntp_url = "pool.ntp.org",
+		.sleep_delay_millisec = 10000LL,
+		.wakeup_time_millisec = 30000LL,
+		.sleep_mode = GN_SLEEP_MODE_DEEP
 	};
 
 	//creates the config handle
@@ -75,16 +78,14 @@ void app_main(void) {
 	gn_node_handle_t node = gn_node_create(config, "node");
 
 	//the board to start
-	gn_configure_blink(node);
+	gn_configure_easypot1(node);
 
 	//finally, start node
 	gn_node_start(node);
 
-	while (true) {
-		vTaskDelay(10000 / portTICK_PERIOD_MS);
-		ESP_LOGD(TAG, "grownode startup status: %s",
-				gn_get_status_description(config));
-	}
+	//handles loop
+	gn_node_loop(node);
+
 
 }
 

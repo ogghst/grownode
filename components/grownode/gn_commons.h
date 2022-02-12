@@ -41,22 +41,6 @@ extern "C" {
 */
 static const int16_t GN_CONFIG_MAX_SERVER_KEEPALIVE_SEC = 3600;
 
-typedef struct {
-	bool provisioning_security;
-	char provisioning_password[9];
-	int16_t wifi_retries_before_reset_provisioning; /*!< -1 to never lose provisioning (warning: in case of SSID change, no way to reset!*/
-	bool server_board_id_topic;
-	char server_base_topic[80];
-	char server_url[255];
-	uint32_t server_keepalive_timer_sec;
-	bool server_discovery;
-	char server_discovery_prefix[80];
-	char firmware_url[255];
-	char sntp_url[255];
-} gn_config_init_param_t;
-
-typedef struct gn_config_init_param_t *gn_config_init_param_handle_t;
-
 typedef enum {
 	GN_NODE_STATUS_NOT_INITIALIZED = 0,
 	GN_NODE_STATUS_INITIALIZING = 1,
@@ -75,8 +59,9 @@ typedef enum {
 } gn_node_status_t;
 
 typedef enum {
-	GN_SLEEP_MODE_LIGHT = 0,
-	GN_SLEEP_MODE_DEEP = 1
+	GN_SLEEP_MODE_NONE = 0,
+	GN_SLEEP_MODE_LIGHT = 1,
+	GN_SLEEP_MODE_DEEP = 2
 } gn_sleep_mode_t;
 
 const char *gn_config_status_descriptions [14];
@@ -122,6 +107,28 @@ typedef enum {
 	GN_LOG_WARNING = ESP_LOG_WARN,
 	GN_LOG_ERROR = ESP_LOG_ERROR,
 } gn_log_level_t;
+
+typedef struct {
+	bool provisioning_security;
+	char provisioning_password[9];
+	int16_t wifi_retries_before_reset_provisioning; /*!< -1 to never lose provisioning (warning: in case of SSID change, no way to reset!*/
+	bool server_board_id_topic;
+	char server_base_topic[80];
+	char server_url[255];
+	uint32_t server_keepalive_timer_sec;
+	bool server_discovery;
+	char server_discovery_prefix[80];
+	char firmware_url[255];
+	char sntp_url[255];
+	uint64_t wakeup_time_millisec;
+	uint64_t sleep_time_millisec;
+	uint64_t sleep_delay_millisec;
+	gn_sleep_mode_t sleep_mode;
+
+} gn_config_init_param_t;
+
+typedef struct gn_config_init_param_t *gn_config_init_param_handle_t;
+
 
 typedef void *gn_leaf_handle_t;
 typedef void *gn_node_handle_t;

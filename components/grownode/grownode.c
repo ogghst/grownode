@@ -85,6 +85,9 @@ esp_event_loop_handle_t gn_event_loop = NULL;
 
 gn_config_handle_intl_t _gn_default_conf = NULL;
 
+//remember last sleep reason
+RTC_DATA_ATTR static gn_sleep_mode_t wakeup_reason = GN_SLEEP_MODE_NONE;
+
 //SemaphoreHandle_t _gn_xEvtSemaphore;
 
 ESP_EVENT_DEFINE_BASE(GN_BASE_EVENT);
@@ -723,7 +726,9 @@ gn_err_t gn_node_start(gn_node_handle_t node) {
 		return GN_RET_ERR_EVENT_LOOP_ERROR;
 	}
 
-	ret = gn_send_node_leaf_param_status(node);
+	//if first boot, send parameter status
+	if (wakeup_reason == GN_SLEEP_MODE_NONE)
+		ret = gn_send_node_leaf_param_status(node);
 
 	return ret;
 
@@ -740,25 +745,111 @@ gn_err_t gn_node_start(gn_node_handle_t node) {
  */
 gn_err_t gn_node_loop(gn_node_handle_t node) {
 
-	while (true) {
-		vTaskDelay(1000 / portTICK_PERIOD_MS);
-		ESP_LOGD(TAG, "looping. grownode startup status: %s",
-				gn_get_status_description(config));
+	if (!node)
+		return GN_RET_ERR_INVALID_ARG;
+
+	gn_node_handle_intl_t _node = (gn_node_handle_intl_t) node;
+
+	if (_node->config->config_init_params->sleep_mode == GN_SLEEP_MODE_NONE) {
+
+		while (true) {
+			vTaskDelay(1000 / portTICK_PERIOD_MS);
+			ESP_LOGD(TAG, "looping. grownode startup status: %s, sleep mode = %d",
+					gn_get_status_description(
+							((gn_node_handle_intl_t )node)->config),
+			_node->config->config_init_params->sleep_mode
+			);
+		}
+
+	} else if (_node->config->config_init_params->sleep_mode == GN_SLEEP_MODE_DEEP) {
+		ESP_LOGD(TAG, "working. grownode startup status: %s, sleep mode = %d, sleep in %"PRIu64" millisec",
+				gn_get_status_description(
+						((gn_node_handle_intl_t )node)->config),
+		_node->config->config_init_params->sleep_mode,
+		_node->config->config_init_params->wakeup_time_millisec
+		);
+		vTaskDelay(_node->config->config_init_params->wakeup_time_millisec / portTICK_PERIOD_MS);
+		gn_node_sleep(node, GN_SLEEP_MODE_DEEP, 1000LL * _node->config->config_init_params->sleep_time_millisec);
+	} else if (_node->config->config_init_params->sleep_mode == GN_SLEEP_MODE_LIGHT) {
+		ESP_LOGD(TAG, "working. grownode startup status: %s, sleep mode = %d, sleep in %"PRIu64" millisec",
+				gn_get_status_description(
+						((gn_node_handle_intl_t )node)->config),
+		_node->config->config_init_params->sleep_mode,
+		_node->config->config_init_params->wakeup_time_millisec
+		);
+		vTaskDelay(_node->config->config_init_params->wakeup_time_millisec / portTICK_PERIOD_MS);
+		gn_node_sleep(node, GN_SLEEP_MODE_LIGHT, 1000LL * _node->config->config_init_params->sleep_time_millisec);
+	}
+	return GN_RET_OK;
+}
+
+/**
+ * @brief enter in sleep mode
+ *
+ * @param 		node the node to sleep
+ * @sleep_mode	the type of sleep
+ * @millisec	for how long
+ */
+gn_err_t gn_node_sleep(gn_node_handle_t node, gn_sleep_mode_t sleep_mode,
+		uint64_t millisec) {
+
+	if (!node)
+		return GN_RET_ERR_INVALID_ARG;
+
+	gn_node_handle_intl_t _node = (gn_node_handle_intl_t) node;
+
+	if (sleep_mode == GN_SLEEP_MODE_DEEP) {
+
+		if (ESP_OK
+				!= esp_event_post_to(_node->config->event_loop, GN_BASE_EVENT,
+						GN_NODE_DEEP_SLEEP_START_EVENT,
+						NULL, 0, portMAX_DELAY)) {
+			ESP_LOGD(TAG,
+					"failed to send GN_NODE_DEEP_SLEEP_START_EVENT event");
+			return GN_RET_ERR_EVENT_LOOP_ERROR;
+		}
+
+		ESP_LOGD(TAG,
+				"Entering deep sleep for %"PRIu64" millisec in %"PRIu64" millisec",
+				millisec,
+				_node->config->config_init_params->sleep_delay_millisec);
+		//gives some time to handle the event
+		vTaskDelay(
+				_node->config->config_init_params->sleep_delay_millisec
+						/ portTICK_PERIOD_MS);
+
+		wakeup_reason = GN_SLEEP_MODE_DEEP;
+		esp_deep_sleep(millisec * 1000LL);
 	}
 
+	if (sleep_mode == GN_SLEEP_MODE_LIGHT) {
+
+		if (ESP_OK
+				!= esp_event_post_to(_node->config->event_loop, GN_BASE_EVENT,
+						GN_NODE_LIGHT_SLEEP_START_EVENT,
+						NULL, 0, portMAX_DELAY)) {
+			ESP_LOGD(TAG,
+					"failed to send GN_NODE_LIGHT_SLEEP_START_EVENT event");
+			return GN_RET_ERR_EVENT_LOOP_ERROR;
+		}
+
+		ESP_LOGD(TAG,
+				"Entering light sleep for %"PRIu64" millisec in %"PRIu64" millisec",
+				millisec,
+				_node->config->config_init_params->sleep_delay_millisec);
+		//gives some time to handle the event
+		vTaskDelay(
+				_node->config->config_init_params->sleep_delay_millisec
+						/ portTICK_PERIOD_MS);
+
+		wakeup_reason = GN_SLEEP_MODE_LIGHT;
+		esp_sleep_enable_timer_wakeup(millisec * 1000LL);
+		esp_light_sleep_start();
+	}
+
+	return GN_RET_OK;
+
 }
-
-
-gn_err_t gn_node_sleep(gn_node_handle_t node, gn_sleep_mode_t sleep_mode, uint64_t msec) {
-
-    ESP_LOGI(TAG, "Entering deep sleep for %d seconds", msec);
-    esp_deep_sleep(1000000LL * deep_sleep_sec);
-
-    return GN_RET_OK;
-
-}
-
-
 
 gn_leaf_config_handle_intl_t _gn_leaf_config_create() {
 
