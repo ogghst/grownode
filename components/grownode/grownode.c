@@ -37,6 +37,7 @@ extern "C" {
 #include "esp_err.h"
 #include "esp_spiffs.h"
 #include "esp_vfs.h"
+#include "esp_sleep.h"
 
 #if CONFIG_GROWNODE_WIFI_ENABLED
 
@@ -727,6 +728,37 @@ gn_err_t gn_node_start(gn_node_handle_t node) {
 	return ret;
 
 }
+
+/**
+ * @brief		execute the main grownode loop
+ *
+ * depending on the configuration it can just wait for the leaf to execute or set the board in low power mode
+ *
+ * @param		node 	the node to be started
+ *
+ * @return		GN_RET_ERR in case of errors. this function should never return in normal circumstances.
+ */
+gn_err_t gn_node_loop(gn_node_handle_t node) {
+
+	while (true) {
+		vTaskDelay(1000 / portTICK_PERIOD_MS);
+		ESP_LOGD(TAG, "looping. grownode startup status: %s",
+				gn_get_status_description(config));
+	}
+
+}
+
+
+gn_err_t gn_node_sleep(gn_node_handle_t node, gn_sleep_mode_t sleep_mode, uint64_t msec) {
+
+    ESP_LOGI(TAG, "Entering deep sleep for %d seconds", msec);
+    esp_deep_sleep(1000000LL * deep_sleep_sec);
+
+    return GN_RET_OK;
+
+}
+
+
 
 gn_leaf_config_handle_intl_t _gn_leaf_config_create() {
 

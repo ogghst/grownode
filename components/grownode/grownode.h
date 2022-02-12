@@ -45,6 +45,10 @@ gn_err_t gn_node_destroy(gn_node_handle_t node);
 
 gn_err_t gn_node_start(gn_node_handle_t node);
 
+gn_err_t gn_node_loop(gn_node_handle_t node);
+
+gn_err_t gn_node_sleep(gn_node_handle_t node, gn_sleep_mode_t sleep_mode, uint64_t msec)
+
 size_t gn_node_get_size(gn_node_handle_t config);
 
 gn_config_handle_t gn_init(gn_config_init_param_t *config_init);

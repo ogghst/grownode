@@ -74,6 +74,11 @@ typedef enum {
 	GN_NODE_STATUS_ERROR_MISSING_SERVER_DISCOVERY_PREFIX = 13
 } gn_node_status_t;
 
+typedef enum {
+	GN_SLEEP_MODE_LIGHT = 0,
+	GN_SLEEP_MODE_DEEP = 1
+} gn_sleep_mode_t;
+
 const char *gn_config_status_descriptions [14];
 
 typedef enum {
