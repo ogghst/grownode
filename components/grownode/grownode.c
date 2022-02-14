@@ -105,15 +105,19 @@ gn_err_t _gn_leaf_start(gn_leaf_config_handle_intl_t leaf_config) {
 	int ret = GN_RET_OK;
 	ESP_LOGI(TAG, "_gn_leaf_start %s", leaf_config->name);
 
+	TaskHandle_t task_handle;
+
 	if (xTaskCreate((void*) leaf_config->leaf_descriptor->callback,
 			leaf_config->name, leaf_config->task_size, leaf_config, 1, //configMAX_PRIORITIES - 1,
-			NULL) != pdPASS) {
+			&task_handle) != pdPASS) {
 		gn_log(TAG, GN_LOG_ERROR, "failed to create lef task for %s",
 				leaf_config->name);
 		goto fail;
 	}
+	leaf_config->task_handle = task_handle;
 
-	vTaskDelay(pdMS_TO_TICKS(100));
+	while (eTaskGetState(task_handle) != eBlocked)
+		vTaskDelay(pdMS_TO_TICKS(100));
 
 	//gn_display_leaf_start(leaf_config);
 
@@ -543,6 +547,7 @@ gn_node_handle_intl_t _gn_node_config_create() {
 
 }
 
+
 /**
  * 	@brief retrieves the configuration status
  *
@@ -704,16 +709,6 @@ gn_err_t gn_node_start(gn_node_handle_t node) {
 	ESP_LOGD(TAG, "gn_start_node: %s, leaves: %d", _node->name,
 			_node->leaves.last);
 
-	//publish node
-	//if (gn_mqtt_send_node_config(node) != ESP_OK)
-	//return ESP_FAIL;
-
-	//run leaves
-	for (int i = 0; i < _node->leaves.last; i++) {
-		//ESP_LOGD(TAG, "starting leaf: %d", i);
-		if (_gn_leaf_start(_node->leaves.at[i]) != GN_RET_OK)
-			return GN_RET_ERR_NODE_NOT_STARTED;
-	}
 
 	_node->config->status = GN_NODE_STATUS_STARTED;
 
@@ -725,6 +720,22 @@ gn_err_t gn_node_start(gn_node_handle_t node) {
 				"failed to send GN_SERVER_CONNECTED_EVENT event");
 		return GN_RET_ERR_EVENT_LOOP_ERROR;
 	}
+
+	//publish node
+	//if (gn_mqtt_send_node_config(node) != ESP_OK)
+	//return ESP_FAIL;
+
+	//run leaves
+	for (int i = 0; i < _node->leaves.last; i++) {
+		//ESP_LOGD(TAG, "starting leaf: %d", i);
+		if (_gn_leaf_start(_node->leaves.at[i]) != GN_RET_OK) {
+			gn_log(TAG, GN_LOG_ERROR,
+					"failed to start leaf: %s", _node->leaves.at[i]->name);
+			_node->config->status = GN_NODE_STATUS_ERROR;
+			return GN_RET_ERR_NODE_NOT_STARTED;
+		}
+	}
+
 
 	//if first boot, send parameter status
 	if (wakeup_reason == GN_SLEEP_MODE_NONE)
@@ -754,33 +765,65 @@ gn_err_t gn_node_loop(gn_node_handle_t node) {
 
 		while (true) {
 			vTaskDelay(1000 / portTICK_PERIOD_MS);
-			ESP_LOGD(TAG, "looping. grownode startup status: %s, sleep mode = %d",
+			ESP_LOGD(TAG,
+					"looping. grownode startup status: %s, sleep mode = %d",
 					gn_get_status_description(
 							((gn_node_handle_intl_t )node)->config),
-			_node->config->config_init_params->sleep_mode
-			);
+					_node->config->config_init_params->sleep_mode);
 		}
 
-	} else if (_node->config->config_init_params->sleep_mode == GN_SLEEP_MODE_DEEP) {
-		ESP_LOGD(TAG, "working. grownode startup status: %s, sleep mode = %d, sleep in %"PRIu64" millisec",
+	} else if (_node->config->config_init_params->sleep_mode
+			== GN_SLEEP_MODE_DEEP) {
+		ESP_LOGD(TAG,
+				"working. grownode startup status: %s, sleep mode = %d, sleep in %"PRIu64" millisec",
 				gn_get_status_description(
 						((gn_node_handle_intl_t )node)->config),
-		_node->config->config_init_params->sleep_mode,
-		_node->config->config_init_params->wakeup_time_millisec
-		);
-		vTaskDelay(_node->config->config_init_params->wakeup_time_millisec / portTICK_PERIOD_MS);
-		gn_node_sleep(node, GN_SLEEP_MODE_DEEP, 1000LL * _node->config->config_init_params->sleep_time_millisec);
-	} else if (_node->config->config_init_params->sleep_mode == GN_SLEEP_MODE_LIGHT) {
-		ESP_LOGD(TAG, "working. grownode startup status: %s, sleep mode = %d, sleep in %"PRIu64" millisec",
+				_node->config->config_init_params->sleep_mode,
+				_node->config->config_init_params->wakeup_time_millisec);
+		vTaskDelay(
+				_node->config->config_init_params->wakeup_time_millisec
+						/ portTICK_PERIOD_MS);
+		gn_node_sleep(node, GN_SLEEP_MODE_DEEP,
+				_node->config->config_init_params->sleep_time_millisec);
+	} else if (_node->config->config_init_params->sleep_mode
+			== GN_SLEEP_MODE_LIGHT) {
+		ESP_LOGD(TAG,
+				"working. grownode startup status: %s, sleep mode = %d, sleep in %"PRIu64" millisec",
 				gn_get_status_description(
 						((gn_node_handle_intl_t )node)->config),
-		_node->config->config_init_params->sleep_mode,
-		_node->config->config_init_params->wakeup_time_millisec
-		);
-		vTaskDelay(_node->config->config_init_params->wakeup_time_millisec / portTICK_PERIOD_MS);
-		gn_node_sleep(node, GN_SLEEP_MODE_LIGHT, 1000LL * _node->config->config_init_params->sleep_time_millisec);
+				_node->config->config_init_params->sleep_mode,
+				_node->config->config_init_params->wakeup_time_millisec);
+		vTaskDelay(
+				_node->config->config_init_params->wakeup_time_millisec
+						/ portTICK_PERIOD_MS);
+		gn_node_sleep(node, GN_SLEEP_MODE_LIGHT,
+				_node->config->config_init_params->sleep_time_millisec);
 	}
 	return GN_RET_OK;
+}
+
+
+void _gn_wait_for_blocked_leaves(gn_node_handle_intl_t _node) {
+
+	//waits until all leaves has reached blocked status
+	int leaves_count = _node->leaves.last;
+
+	bool leaves_working = false;
+	bool this_leaf_working = false;
+
+	while (!leaves_working) {
+		for (int i = 0; i < leaves_count; i++) {
+			this_leaf_working = eTaskGetState(_node->leaves.at[i]->task_handle)
+					!= eBlocked;
+			leaves_working = this_leaf_working || leaves_working;
+			if (this_leaf_working) {
+				ESP_LOGD(TAG, "leaves working: %s", _node->leaves.at[i]->name);
+			}
+		}
+
+		if (leaves_working)
+			vTaskDelay(pdMS_TO_TICKS(5));
+	}
 }
 
 /**
@@ -810,19 +853,27 @@ gn_err_t gn_node_sleep(gn_node_handle_t node, gn_sleep_mode_t sleep_mode,
 		}
 
 		ESP_LOGD(TAG,
-				"Entering deep sleep for %"PRIu64" millisec in %"PRIu64" millisec",
-				millisec,
+				"Preparing deep sleep in %"PRIu64" millisec",
 				_node->config->config_init_params->sleep_delay_millisec);
+
 		//gives some time to handle the event
+		if (_node->config->config_init_params->sleep_delay_millisec > 0) {
 		vTaskDelay(
 				_node->config->config_init_params->sleep_delay_millisec
 						/ portTICK_PERIOD_MS);
+		}
+
+		_gn_wait_for_blocked_leaves(_node);
+
+		ESP_LOGD(TAG,
+				"Entering deep sleep for %"PRIu64" millisec",
+				millisec);
 
 		wakeup_reason = GN_SLEEP_MODE_DEEP;
 		esp_deep_sleep(millisec * 1000LL);
 	}
 
-	if (sleep_mode == GN_SLEEP_MODE_LIGHT) {
+	else if (sleep_mode == GN_SLEEP_MODE_LIGHT) {
 
 		if (ESP_OK
 				!= esp_event_post_to(_node->config->event_loop, GN_BASE_EVENT,
@@ -834,13 +885,21 @@ gn_err_t gn_node_sleep(gn_node_handle_t node, gn_sleep_mode_t sleep_mode,
 		}
 
 		ESP_LOGD(TAG,
-				"Entering light sleep for %"PRIu64" millisec in %"PRIu64" millisec",
-				millisec,
+				"Preparing light sleep in %"PRIu64" millisec",
 				_node->config->config_init_params->sleep_delay_millisec);
-		//gives some time to handle the event
+
+//gives some time to handle the event
+		if (_node->config->config_init_params->sleep_delay_millisec > 0) {
 		vTaskDelay(
 				_node->config->config_init_params->sleep_delay_millisec
 						/ portTICK_PERIOD_MS);
+		}
+
+		_gn_wait_for_blocked_leaves(_node);
+
+		ESP_LOGD(TAG,
+				"Entering light sleep for %"PRIu64" millisec",
+				millisec);
 
 		wakeup_reason = GN_SLEEP_MODE_LIGHT;
 		esp_sleep_enable_timer_wakeup(millisec * 1000LL);
@@ -1189,9 +1248,9 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
 	//ESP_LOGD(TAG, "building storage tag..");
 
 	if (storage == GN_LEAF_PARAM_STORAGE_PERSISTED) {
-		//check parameter stored
+//check parameter stored
 		int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
-		//ESP_LOGD(TAG, "..len: %i", _len);
+//ESP_LOGD(TAG, "..len: %i", _len);
 		char *_buf = (char*) calloc(_len, sizeof(char));
 
 		memcpy(_buf, _leaf_config->name,
@@ -1203,10 +1262,10 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
 
 		_buf[_len - 1] = '\0';
 
-		//ESP_LOGD(TAG, ".. storage tag: %s", _buf);
+//ESP_LOGD(TAG, ".. storage tag: %s", _buf);
 
 		char *value = 0;
-		//check if existing
+//check if existing
 		ESP_LOGD(TAG, "check stored value for key %s", _buf);
 
 		if (gn_storage_get(_buf, (void**) &value) == ESP_OK) {
@@ -1455,7 +1514,7 @@ gn_err_t gn_leaf_param_write_string(const gn_leaf_handle_t leaf_config,
 					sizeof(char) * (strlen(*validate) + 1));
 			strncpy(_param->param_val->v.s, *validate, strlen(*validate));
 		}
-		//ESP_LOGD(TAG, "processing validator - result: %d", (int )ret);
+//ESP_LOGD(TAG, "processing validator - result: %d", (int )ret);
 	} else {
 		_param->param_val->v.s = (char*) realloc(_param->param_val->v.s,
 				sizeof(char) * (strlen(val) + 1));
@@ -1670,7 +1729,7 @@ gn_err_t gn_leaf_param_write_bool(const gn_leaf_handle_t leaf_config,
 
 		_buf[_len - 1] = '\0';
 
-		//check if existing
+//check if existing
 		if (gn_storage_set(_buf, (void**) &val, sizeof(bool)) != ESP_OK) {
 			ESP_LOGW(TAG,
 					"not possible to store leaf parameter value - key %s value %i",
@@ -1950,7 +2009,7 @@ gn_err_t gn_leaf_param_write_double(const gn_leaf_handle_t leaf_config,
 
 		_buf[_len - 1] = '\0';
 
-		//check if existing
+//check if existing
 		if (gn_storage_set(_buf, (void**) &val, sizeof(double)) != ESP_OK) {
 			ESP_LOGW(TAG,
 					"not possible to store leaf parameter value - key %s value %f",
@@ -1971,7 +2030,7 @@ gn_err_t gn_leaf_param_write_double(const gn_leaf_handle_t leaf_config,
 		if (val_ret != GN_LEAF_PARAM_VALIDATOR_ERROR_GENERIC
 				&& val_ret != GN_LEAF_PARAM_VALIDATOR_ERROR_NOT_ALLOWED)
 			_param->param_val->v.d = **validate;
-		//ESP_LOGD(TAG, "processing validator - result: %d", (int )ret);
+//ESP_LOGD(TAG, "processing validator - result: %d", (int )ret);
 	} else {
 		_param->param_val->v.d = val;
 	}
@@ -2087,7 +2146,7 @@ gn_err_t _gn_leaf_parameter_update(const gn_leaf_handle_t leaf_config,
 
 	while (leaf_params != NULL) {
 
-		//check param name
+//check param name
 		if (strcmp(param, leaf_params->name) == 0) {
 			//param is the one to update
 
@@ -2417,10 +2476,10 @@ gn_leaf_param_handle_t gn_leaf_param_get_param_handle(
 			((gn_leaf_config_handle_intl_t) leaf_config)->params;
 
 	while (param) {
-		//ESP_LOGD(TAG,
-		//		"gn_leaf_param_get_param_handle - comparing %s (%d) and checking %s (%d)",
-		//		param_name, strlen(param_name), param->name,
-		//		strlen(param->name));
+//ESP_LOGD(TAG,
+//		"gn_leaf_param_get_param_handle - comparing %s (%d) and checking %s (%d)",
+//		param_name, strlen(param_name), param->name,
+//		strlen(param->name));
 		if (strncmp(param->name, param_name, strlen(param_name)) == 0) {
 			//ESP_LOGD(TAG, "found!");
 			return param;
@@ -2885,7 +2944,7 @@ gn_err_t gn_storage_get(const char *key, void **value) {
 	gn_hash_str(key, _hashedkey, len);
 
 // Read the size of memory space required for blob
-	size_t required_size = 0; // value will default to 0, if not set yet in NVS
+	size_t required_size = 0;// value will default to 0, if not set yet in NVS
 	err = nvs_get_blob(my_handle, _hashedkey, NULL, &required_size);
 	if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND) {
 		ESP_LOGD(TAG_NVS, "nvs_get_blob(handle, %s, NULL, %d) - %d", key,
@@ -2895,7 +2954,7 @@ gn_err_t gn_storage_get(const char *key, void **value) {
 
 	if (required_size > 0) {
 
-		// Read previously saved blob if available
+// Read previously saved blob if available
 		*value = malloc(required_size + sizeof(uint32_t));
 
 		err = nvs_get_blob(my_handle, _hashedkey, *value, &required_size);

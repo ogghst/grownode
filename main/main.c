@@ -59,8 +59,9 @@ void app_main(void) {
 		.server_discovery_prefix = "homeassistant",
 		.firmware_url = "http://myserver/myfirmware.bin",
 		.sntp_url = "pool.ntp.org",
-		.sleep_delay_millisec = 10000LL,
-		.wakeup_time_millisec = 30000LL,
+		.wakeup_time_millisec = 2000LL,
+		.sleep_delay_millisec = 50LL,
+		.sleep_time_millisec = 10000LL,
 		.sleep_mode = GN_SLEEP_MODE_DEEP
 	};
 

@@ -105,10 +105,8 @@ void gn_configure_easypot1(gn_node_handle_t node) {
 
 	//leaves
 	esp_log_level_set("gn_leaf_led", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_cms", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_ds18b20", ESP_LOG_INFO);
-
-
+	esp_log_level_set("gn_leaf_cms", ESP_LOG_DEBUG);
+	esp_log_level_set("gn_leaf_ds18b20", ESP_LOG_DEBUG);
 
 	//creates the moisture sensor
 	moist = gn_leaf_create(node, "moist", gn_capacitive_moisture_sensor_config,

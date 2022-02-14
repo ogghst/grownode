@@ -74,8 +74,7 @@ inline char* _gn_mqtt_build_node_name(gn_config_handle_intl_t config) {
 
 }
 
-void _gn_mqtt_build_leaf_command_topic(gn_leaf_handle_t _leaf_config,
-		char *buf) {
+void _gn_mqtt_build_leaf_command_topic(gn_leaf_handle_t _leaf_config, char *buf) {
 
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) _leaf_config;
@@ -99,8 +98,7 @@ void _gn_mqtt_build_leaf_command_topic(gn_leaf_handle_t _leaf_config,
 }
 
 void _gn_mqtt_build_leaf_parameter_command_topic(
-		const gn_leaf_handle_t _leaf_config, const char *param_name,
-		char *buf) {
+		const gn_leaf_handle_t _leaf_config, const char *param_name, char *buf) {
 
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) _leaf_config;
@@ -125,8 +123,8 @@ void _gn_mqtt_build_leaf_parameter_command_topic(
 
 }
 
-void _gn_mqtt_build_leaf_parameter_status_topic(
-		gn_leaf_handle_t _leaf_config, char *param_name, char *buf) {
+void _gn_mqtt_build_leaf_parameter_status_topic(gn_leaf_handle_t _leaf_config,
+		char *param_name, char *buf) {
 
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) _leaf_config;
@@ -151,8 +149,7 @@ void _gn_mqtt_build_leaf_parameter_status_topic(
 
 }
 
-void _gn_mqtt_build_leaf_status_topic(gn_leaf_handle_t _leaf_config,
-		char *buf) {
+void _gn_mqtt_build_leaf_status_topic(gn_leaf_handle_t _leaf_config, char *buf) {
 
 	gn_leaf_config_handle_intl_t leaf_config =
 			(gn_leaf_config_handle_intl_t) _leaf_config;
@@ -433,8 +430,7 @@ gn_err_t gn_mqtt_send_node_config(gn_node_handle_t _node_config) {
 	if (!_node_config)
 		return GN_RET_ERR_INVALID_ARG;
 
-	gn_node_handle_intl_t __node_config =
-			(gn_node_handle_intl_t) _node_config;
+	gn_node_handle_intl_t __node_config = (gn_node_handle_intl_t) _node_config;
 
 	if (!__node_config->config)
 		return GN_RET_ERR_INVALID_ARG;
@@ -452,8 +448,7 @@ gn_err_t gn_mqtt_send_node_config(gn_node_handle_t _node_config) {
 	msg->config = _node_config;
 	strncpy(msg->topic, _gn_sts_topic, _GN_MQTT_MAX_TOPIC_LENGTH);
 
-	gn_node_handle_intl_t node_config =
-			(gn_node_handle_intl_t) _node_config;
+	gn_node_handle_intl_t node_config = (gn_node_handle_intl_t) _node_config;
 	gn_config_handle_intl_t config =
 			(gn_config_handle_intl_t) node_config->config;
 
@@ -577,7 +572,7 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 	if (_node_config->config->status != GN_NODE_STATUS_STARTED)
 		return GN_RET_OK;
 
-	ESP_LOGD(TAG, "gn_mqtt_send_leaf_param %s", param->name);
+	ESP_LOGI(TAG, "gn_mqtt_send_leaf_param %s", param->name);
 
 	int ret = GN_RET_OK;
 
@@ -601,7 +596,9 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 		break;
 	case GN_VAL_TYPE_STRING:
 		len = strlen(param->param_val->v.s);
-		strncpy(buf, param->param_val->v.s, len > _GN_MQTT_MAX_PAYLOAD_LENGTH? _GN_MQTT_MAX_PAYLOAD_LENGTH: len);
+		strncpy(buf, param->param_val->v.s,
+				len > _GN_MQTT_MAX_PAYLOAD_LENGTH ?
+						_GN_MQTT_MAX_PAYLOAD_LENGTH : len);
 		break;
 	case GN_VAL_TYPE_DOUBLE:
 		snprintf(buf, 31, "%f", param->param_val->v.d);
@@ -633,6 +630,9 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 		free(buf);
 		return ((msg_id == -1) ? (GN_RET_ERR_MQTT_ERROR) : (GN_RET_OK));
 	}
+
+	//TODO remove
+	vTaskDelay(10 / portTICK_PERIOD_MS);
 
 	return ret;
 
@@ -1037,8 +1037,7 @@ gn_err_t gn_mqtt_send_ota_message(gn_config_handle_t _config) {
  * @return GN_RET_ERR_INVALID_ARG	if _config is null
  * @return GN_RET_ERR_MQTT_ERROR	if not possible to send message
  */
-gn_err_t gn_mqtt_send_leaf_message(gn_leaf_handle_t _leaf,
-		const char *msg) {
+gn_err_t gn_mqtt_send_leaf_message(gn_leaf_handle_t _leaf, const char *msg) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
@@ -1385,7 +1384,6 @@ gn_err_t gn_mqtt_init(gn_config_handle_t config) {
 		return GN_RET_ERR_INVALID_ARG;
 	}
 
-	/* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
 	ESP_ERROR_CHECK(
 			esp_mqtt_client_register_event(client, (esp_mqtt_event_id_t) ESP_EVENT_ANY_ID, _gn_mqtt_event_handler, NULL));
 

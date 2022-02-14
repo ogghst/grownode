@@ -75,6 +75,7 @@ struct gn_leaf_config_t {
 	//gn_leaf_config_handle_t next;
 	//gn_leaf_task_callback task_cb;
 	QueueHandle_t event_queue;
+	TaskHandle_t task_handle;
 	//esp_event_loop_handle_t event_loop;
 	gn_leaf_param_handle_t params;
 	//gn_display_handler_t display_handler;
