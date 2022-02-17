@@ -24,14 +24,15 @@
 
 void led_blink_callback(const gn_leaf_handle_t blink) {
 
-	bool status;
+	bool status = false;
 	//gets the previous parameter status
 	gn_leaf_param_get_bool(blink, GN_GPIO_PARAM_TOGGLE, &status);
+	ESP_LOGD(TAG, "blinking - old status = %d", status);
 
 	//invert the status
 	status = !status;
 
-	ESP_LOGI(TAG, "blinking - %d", status);
+	ESP_LOGI(TAG, "blinking - new status = %d", status);
 
 	//set the new parameter
 	gn_leaf_param_set_bool(blink, GN_GPIO_PARAM_TOGGLE, status);
@@ -47,6 +48,8 @@ void led_blink_callback(const gn_leaf_handle_t blink) {
  *
  */
 void gn_configure_blink(gn_node_handle_t node) {
+
+	esp_log_level_set("gn_leaf_gpio", esp_log_level_get(TAG));
 
 	//fastcreate call
 	gn_leaf_handle_t blink = gn_gpio_fastcreate(node, "blink", 2, false, false);

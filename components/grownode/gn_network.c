@@ -128,7 +128,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		memcpy(_conf->macAddress, eth_mac, 6);
 		strcpy(_conf->deviceName, deviceName);
 
-		snprintf(log, 41, "%s-%d.%d.%d.%d", deviceName,
+		snprintf(log, 52, "board:%s -IP: %d.%d.%d.%d", deviceName,
 				IP2STR(&event->ip_info.ip));
 		gn_log(TAG, GN_LOG_DEBUG, log);
 
@@ -416,8 +416,9 @@ esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
 	ESP_LOGD(TAG, "Wait for Wi-Fi connection");
 
 	/* Wait for Wi-Fi connection */
-	//xEventGroupWaitBits(_gn_event_group_wifi, GN_WIFI_CONNECTED_EVENT, false,
-	//true, portMAX_DELAY);
+	xEventGroupWaitBits(_gn_event_group_wifi, GN_WIFI_CONNECTED_EVENT, false,
+	true, portMAX_DELAY);
+
 	fail: return ret;
 
 #else

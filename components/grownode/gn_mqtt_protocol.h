@@ -35,7 +35,7 @@ extern "C" {
 
 #define _GN_MQTT_DEFAULT_QOS 0
 
-gn_err_t gn_mqtt_publish_leaf(gn_leaf_handle_t leaf_config);
+gn_err_t gn_mqtt_subscribe_leaf(gn_leaf_handle_t leaf_config);
 
 esp_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t param);
 

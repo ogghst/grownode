@@ -72,8 +72,8 @@ gn_leaf_handle_t gn_gpio_fastcreate(gn_node_handle_t node,
 	}
 
 	//creates the blink leave
-	gn_leaf_handle_t leaf = gn_leaf_create(node, leaf_name,
-			gn_gpio_config, 4096);
+	gn_leaf_handle_t leaf = gn_leaf_create(node, leaf_name, gn_gpio_config,
+			4096);
 
 	if (leaf == NULL) {
 		ESP_LOGE(TAG, "gn_gpio_fastcreate - cannot create leaf %s", leaf_name);
@@ -91,7 +91,7 @@ gn_leaf_handle_t gn_gpio_fastcreate(gn_node_handle_t node,
 void gn_gpio_task(gn_leaf_handle_t leaf_config);
 
 typedef struct {
-	gn_leaf_param_handle_t gn_gpio_status_param;
+	gn_leaf_param_handle_t gn_gpio_toggle_param;
 	gn_leaf_param_handle_t gn_gpio_inverted_param;
 	gn_leaf_param_handle_t gn_gpio_gpio_param;
 } gn_gpio_data_t;
@@ -106,7 +106,7 @@ gn_leaf_descriptor_handle_t gn_gpio_config(gn_leaf_handle_t leaf_config) {
 
 	gn_gpio_data_t *data = malloc(sizeof(gn_gpio_data_t));
 
-	data->gn_gpio_status_param = gn_leaf_param_create(leaf_config,
+	data->gn_gpio_toggle_param = gn_leaf_param_create(leaf_config,
 			GN_GPIO_PARAM_TOGGLE, GN_VAL_TYPE_BOOLEAN,
 			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
@@ -121,7 +121,7 @@ gn_leaf_descriptor_handle_t gn_gpio_config(gn_leaf_handle_t leaf_config) {
 			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED,
 			NULL);
 
-	gn_leaf_param_add_to_leaf(leaf_config, data->gn_gpio_status_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->gn_gpio_toggle_param);
 	gn_leaf_param_add_to_leaf(leaf_config, data->gn_gpio_inverted_param);
 	gn_leaf_param_add_to_leaf(leaf_config, data->gn_gpio_gpio_param);
 
@@ -231,12 +231,14 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 						evt.param_name, evt.data);
 
 				//parameter is status
-				if (gn_leaf_event_mask_param(&evt, data->gn_gpio_status_param)
+				if (gn_leaf_event_mask_param(&evt, data->gn_gpio_toggle_param)
 						== 0) {
 
 					int _active = atoi(evt.data);
 
 					//notify change
+					ESP_LOGD(TAG, "written: %d", _active);
+
 					gn_leaf_param_write_bool(leaf_config, GN_GPIO_PARAM_TOGGLE,
 							_active == 0 ? false : true);
 
@@ -247,12 +249,8 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 							inverted ? 1 : 0);
 
 					//update sensor using the parameter values
-					if (gn_gpio_state == GN_GPIO_STATE_RUNNING) {
-						gpio_set_level((int) gpio,
-								status ?
-										(inverted ? 0 : 1) :
-										(inverted ? 1 : 0));
-					}
+					gpio_set_level((int) gpio,
+							status ? (inverted ? 0 : 1) : (inverted ? 1 : 0));
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 					if (pdTRUE == gn_display_leaf_refresh_start()) {
@@ -271,7 +269,8 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 					int _inverted = atoi(evt.data);
 
 					//notify change
-					gn_leaf_param_write_bool(leaf_config, GN_GPIO_PARAM_INVERTED,
+					gn_leaf_param_write_bool(leaf_config,
+							GN_GPIO_PARAM_INVERTED,
 							_inverted == 0 ? false : true);
 
 					inverted = _inverted;
@@ -281,12 +280,8 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 							inverted ? 1 : 0);
 
 					//update sensor using the parameter values
-					if (gn_gpio_state == GN_GPIO_STATE_RUNNING) {
-						gpio_set_level((int) gpio,
-								status ?
-										(inverted ? 0 : 1) :
-										(inverted ? 1 : 0));
-					}
+					gpio_set_level((int) gpio,
+							status ? (inverted ? 0 : 1) : (inverted ? 1 : 0));
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 					if (pdTRUE == gn_display_leaf_refresh_start()) {
@@ -310,17 +305,17 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 
 				//what to do when network is disconnected
 			case GN_NET_DISCONNECTED_EVENT:
-				gn_gpio_state = GN_GPIO_STATE_STOP;
+				//gn_gpio_state = GN_GPIO_STATE_STOP;
 				break;
 
 				//what to do when server is connected
 			case GN_SRV_CONNECTED_EVENT:
-				gn_gpio_state = GN_GPIO_STATE_RUNNING;
+				//gn_gpio_state = GN_GPIO_STATE_RUNNING;
 				break;
 
 				//what to do when server is disconnected
 			case GN_SRV_DISCONNECTED_EVENT:
-				gn_gpio_state = GN_GPIO_STATE_STOP;
+				//gn_gpio_state = GN_GPIO_STATE_STOP;
 				break;
 
 			default:
