@@ -118,12 +118,13 @@ void gn_configure_easypot1(gn_node_handle_t node) {
 	//set initial status to active (on)
 	gn_leaf_param_init_bool(moist, GN_CMS_PARAM_ACTIVE, true);
 
+	moisture_callback();
 	//creates a timer that checks moisture every seconds, using esp_timer API
 	esp_timer_handle_t timer_moisture_handler;
 	esp_timer_create_args_t timer_moisture_args = { .callback =
 			&moisture_callback, .name = "moist_timer" };
 	esp_timer_create(&timer_moisture_args, &timer_moisture_handler);
-	esp_timer_start_periodic(timer_moisture_handler, 20 * 1000000);
+	esp_timer_start_periodic(timer_moisture_handler, 5 * 1000000);
 
 	//creates the temperature sensor
 	temp = gn_leaf_create(node, "temp", gn_ds18b20_config, 4096);
@@ -142,12 +143,13 @@ void gn_configure_easypot1(gn_node_handle_t node) {
 	led_moist = gn_leaf_create(node, "led_moist", gn_led_config, 4096);
 	gn_leaf_param_init_double(led_moist, GN_LED_PARAM_GPIO, 27);
 
+	temp_callback();
 	//creates a timer that checks temperature every seconds, using esp_timer API
 	esp_timer_handle_t timer_temp_handler;
 	esp_timer_create_args_t timer_temp_args = { .callback = &temp_callback,
 			.name = "temp_timer" };
 	esp_timer_create(&timer_temp_args, &timer_temp_handler);
-	esp_timer_start_periodic(timer_temp_handler, 20 * 1000000);
+	esp_timer_start_periodic(timer_temp_handler, 5 * 1000000);
 
 
 }

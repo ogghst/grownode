@@ -214,7 +214,8 @@ static bool IRAM_ATTR _gn_timer_callback_isr(void *args) {
 }
 */
 
-void _gn_timer_callback(gn_config_handle_intl_t conf) {
+void _gn_keepalive_callback(gn_config_handle_intl_t conf) {
+	ESP_LOGI(TAG, "_gn_keepalive_callback");
 	esp_event_post_to(gn_event_loop, GN_BASE_EVENT,
 			GN_SRV_KEEPALIVE_TRIGGERED_EVENT, NULL, 0, portMAX_DELAY);
 }
@@ -224,7 +225,7 @@ void _gn_keepalive_start(gn_config_handle_intl_t conf) {
 	if(!conf->keepalive_timer_handler) return;
 	//timer_start(TIMER_GROUP_0, TIMER_0);
 	if (!esp_timer_is_active(conf->keepalive_timer_handler))
-		esp_timer_start_periodic(conf->keepalive_timer_handler, conf->config_init_params->server_keepalive_timer_sec * 1000);
+		esp_timer_start_periodic(conf->keepalive_timer_handler, conf->config_init_params->server_keepalive_timer_sec * 1000000);
 	ESP_LOGD(TAG, "timer started");
 }
 
@@ -417,7 +418,7 @@ esp_err_t _gn_init_keepalive_timer(gn_config_handle_intl_t conf) {
 	*/
 
 	//creates the blink timer
-	const esp_timer_create_args_t keepalive_timer_args = { .callback = &_gn_timer_callback,
+	const esp_timer_create_args_t keepalive_timer_args = { .callback = &_gn_keepalive_callback,
 			.arg = conf, .name = "keepalive_timer" };
 
 	return esp_timer_create(&keepalive_timer_args, &conf->keepalive_timer_handler);

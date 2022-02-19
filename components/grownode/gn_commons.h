@@ -116,7 +116,7 @@ typedef struct {
 	bool server_board_id_topic;
 	char server_base_topic[80];
 	char server_url[255];
-	uint32_t server_keepalive_timer_sec;
+	uint16_t server_keepalive_timer_sec;
 	bool server_discovery;
 	char server_discovery_prefix[80];
 	char firmware_url[255];
