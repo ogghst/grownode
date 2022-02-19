@@ -22,7 +22,7 @@
 #include "grownode.h"
 
 //include the board you want to start here
-#include "gn_blink.h"
+#include "gn_easypot1.h"
 
 #define TASK_STACK_SIZE 8192*4
 
@@ -55,12 +55,12 @@ void app_main(void) {
 		.server_board_id_topic = false,
 		.server_base_topic = "/grownode/test",
 		.server_url = "mqtt://192.168.1.10:1883",
-		.server_keepalive_timer_sec = 60,
+		.server_keepalive_timer_sec = 600,
 		.server_discovery = false,
 		.server_discovery_prefix = "homeassistant",
 		.firmware_url = "http://myserver/myfirmware.bin",
 		.sntp_url = "pool.ntp.org",
-		.wakeup_time_millisec = 20000LL,
+		.wakeup_time_millisec = 10000LL,
 		.sleep_delay_millisec = 50LL,
 		.sleep_time_millisec = 20000LL,
 		.sleep_mode = GN_SLEEP_MODE_LIGHT
@@ -80,7 +80,7 @@ void app_main(void) {
 	gn_node_handle_t node = gn_node_create(config, "node");
 
 	//the board to start
-	gn_configure_blink(node);
+	gn_configure_easypot1(node);
 
 	//finally, start node
 	gn_node_start(node);
