@@ -217,7 +217,7 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 
 		//check for messages and cycle every 100ms
 		if (xQueueReceive(gn_leaf_get_event_queue(leaf_config), &evt,
-				pdMS_TO_TICKS(100)) == pdPASS) {
+				portMAX_DELAY) == pdPASS) {
 
 			ESP_LOGD(TAG, "%s - received message: %d", leaf_name, evt.id);
 
@@ -325,7 +325,8 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 
 		}
 
-		vTaskDelay(1000 / portTICK_PERIOD_MS);
+		//ESP_LOGD(TAG, "sleeping..");
+		//vTaskDelay(1000 / portTICK_PERIOD_MS);
 	}
 
 }

@@ -60,7 +60,7 @@ void gn_configure_blink(gn_node_handle_t node) {
 	esp_timer_create_args_t timer_args = { .callback = &led_blink_callback,
 			.arg = blink, .name = "blink_timer" };
 	esp_timer_create(&timer_args, &timer_handler);
-	esp_timer_start_periodic(timer_handler, 5 * 1000000);
+	esp_timer_start_periodic(timer_handler, 2 * 1000000);
 
 }
 

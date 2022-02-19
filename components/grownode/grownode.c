@@ -110,8 +110,7 @@ gn_err_t _gn_leaf_start(gn_leaf_config_handle_intl_t leaf_config) {
 	if (xTaskCreate((void*) leaf_config->leaf_descriptor->callback,
 			leaf_config->name, leaf_config->task_size, leaf_config, 1, //configMAX_PRIORITIES - 1,
 			&task_handle) != pdPASS) {
-		gn_log(TAG, GN_LOG_ERROR, "failed to create lef task for %s",
-				leaf_config->name);
+		ESP_LOGE(TAG, "failed to create lef task for %s", leaf_config->name);
 		goto fail;
 	}
 	leaf_config->task_handle = task_handle;
@@ -191,8 +190,7 @@ esp_err_t _gn_init_spiffs(gn_config_handle_intl_t conf) {
 	size_t total = 0, used = 0;
 	ret = esp_spiffs_info(NULL, &total, &used);
 	if (ret != ESP_OK) {
-		gn_log(TAG, GN_LOG_ERROR,
-				"Failed to get SPIFFS partition information (%s)",
+		ESP_LOGE(TAG, "Failed to get SPIFFS partition information (%s)",
 				esp_err_to_name(ret));
 	} else {
 		ESP_LOGD(TAG, "Partition size: total: %d, used: %d", total, used);
@@ -202,6 +200,7 @@ esp_err_t _gn_init_spiffs(gn_config_handle_intl_t conf) {
 
 }
 
+/*
 #define TIMER_DIVIDER         (16)  //  Hardware timer clock divider
 #define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
 
@@ -213,20 +212,34 @@ static bool IRAM_ATTR _gn_timer_callback_isr(void *args) {
 			GN_SRV_KEEPALIVE_TRIGGERED_EVENT, NULL, 0, &high_task_awoken);
 	return high_task_awoken == pdTRUE;
 }
+*/
 
-void _gn_keepalive_start() {
+void _gn_timer_callback(gn_config_handle_intl_t conf) {
+	esp_event_post_to(gn_event_loop, GN_BASE_EVENT,
+			GN_SRV_KEEPALIVE_TRIGGERED_EVENT, NULL, 0, portMAX_DELAY);
+}
+
+void _gn_keepalive_start(gn_config_handle_intl_t conf) {
+
+	if(!conf->keepalive_timer_handler) return;
+	//timer_start(TIMER_GROUP_0, TIMER_0);
+	if (!esp_timer_is_active(conf->keepalive_timer_handler))
+		esp_timer_start_periodic(conf->keepalive_timer_handler, conf->config_init_params->server_keepalive_timer_sec * 1000);
 	ESP_LOGD(TAG, "timer started");
-	timer_start(TIMER_GROUP_0, TIMER_0);
 }
 
-void _gn_keepalive_stop() {
+void _gn_keepalive_stop(gn_config_handle_intl_t conf) {
+
+	if(!conf->keepalive_timer_handler) return;
+	//timer_pause(TIMER_GROUP_0, TIMER_0);
+	if (!esp_timer_is_active(conf->keepalive_timer_handler))
+		esp_timer_stop(conf->keepalive_timer_handler);
 	ESP_LOGD(TAG, "timer paused");
-	timer_pause(TIMER_GROUP_0, TIMER_0);
 }
 
-gn_leaf_config_handle_intl_t _gn_leaf_get_by_name(char *leaf_name) {
+gn_leaf_config_handle_intl_t _gn_leaf_get_by_name(gn_config_handle_intl_t conf, char *leaf_name) {
 
-	gn_leaves_list leaves = _gn_default_conf->node_config->leaves;
+	gn_leaves_list leaves = conf->node_handle->leaves;
 
 	for (int i = 0; i < leaves.last; i++) {
 		if (strcmp(leaves.at[i]->name, leaf_name) == 0) {
@@ -257,7 +270,7 @@ gn_err_t _gn_send_event_to_leaf(gn_leaf_config_handle_intl_t leaf_config,
 	evt->data[evt->data_size] = '\0';
 
 	if (xQueueSend(leaf_config->event_queue, evt, portMAX_DELAY) != pdTRUE) {
-		gn_log(TAG, GN_LOG_ERROR, "not possible to send message to leaf %s",
+		ESP_LOGE(TAG, "not possible to send message to leaf %s",
 				leaf_config->name);
 		return GN_RET_ERR_EVENT_NOT_SENT;
 	}
@@ -265,8 +278,12 @@ gn_err_t _gn_send_event_to_leaf(gn_leaf_config_handle_intl_t leaf_config,
 	return GN_RET_OK;
 }
 
-void _gn_evt_handler(void *handler_args, esp_event_base_t base, int32_t id,
-		void *event_data) {
+void _gn_evt_handler(void* handler_data, esp_event_base_t base, int32_t id,
+		void* event_data) {
+
+	if (!handler_data) return;
+
+	gn_config_handle_intl_t conf = (gn_config_handle_intl_t) handler_data;
 
 	//if (pdTRUE == xSemaphoreTake(_gn_xEvtSemaphore, portMAX_DELAY)) {
 
@@ -294,23 +311,23 @@ void _gn_evt_handler(void *handler_args, esp_event_base_t base, int32_t id,
 		break;
 	case GN_SRV_CONNECTED_EVENT:
 
-		if (!_gn_default_conf)
+		if (!conf)
 			break;
 
 		//from unknown status: reboot - to keep consistency
-		if (_gn_default_conf->status != GN_NODE_STATUS_READY_TO_START
-				&& _gn_default_conf->status != GN_NODE_STATUS_STARTED) {
+		if (conf->status != GN_NODE_STATUS_READY_TO_START
+				&& conf->status != GN_NODE_STATUS_STARTED) {
 			gn_reboot();
 			break;
 		}
 
 		//start keepalive service
-		_gn_keepalive_start();
+		_gn_keepalive_start(conf);
 
 		break;
 	case GN_SRV_DISCONNECTED_EVENT:
 		//stop keepalive service
-		_gn_keepalive_stop();
+		_gn_keepalive_stop(conf);
 		break;
 
 		/*
@@ -335,7 +352,7 @@ void _gn_evt_handler(void *handler_args, esp_event_base_t base, int32_t id,
 
 	case GN_SRV_KEEPALIVE_TRIGGERED_EVENT:
 		//publish node
-		if (gn_mqtt_send_node_config(_gn_default_conf->node_config)
+		if (gn_mqtt_send_node_config(conf->node_handle)
 				!= GN_RET_OK) {
 			ESP_LOGE(TAG, "Error in sending node config message");
 		}
@@ -346,7 +363,7 @@ void _gn_evt_handler(void *handler_args, esp_event_base_t base, int32_t id,
 		gn_leaf_parameter_event_handle_t evt =
 				(gn_leaf_parameter_event_handle_t) event_data;
 
-		gn_leaf_config_handle_intl_t leaf_config = _gn_leaf_get_by_name(
+		gn_leaf_config_handle_intl_t leaf_config = _gn_leaf_get_by_name(conf,
 				evt->leaf_name);
 
 		if (leaf_config != NULL) {
@@ -385,6 +402,7 @@ esp_err_t _gn_init_keepalive_timer(gn_config_handle_intl_t conf) {
 	if (conf->config_init_params->server_keepalive_timer_sec == 0)
 		return ESP_OK;
 
+	/*
 	timer_config_t config = { .divider = TIMER_DIVIDER, .counter_dir =
 			TIMER_COUNT_UP, .counter_en = TIMER_PAUSE, .alarm_en =
 			TIMER_ALARM_EN, .auto_reload = 1, }; // default clock source is APB
@@ -396,7 +414,13 @@ esp_err_t _gn_init_keepalive_timer(gn_config_handle_intl_t conf) {
 	return timer_isr_callback_add(TIMER_GROUP_0, TIMER_0,
 			_gn_timer_callback_isr,
 			NULL, 0);
+	*/
 
+	//creates the blink timer
+	const esp_timer_create_args_t keepalive_timer_args = { .callback = &_gn_timer_callback,
+			.arg = conf, .name = "keepalive_timer" };
+
+	return esp_timer_create(&keepalive_timer_args, &conf->keepalive_timer_handler);
 }
 
 /**
@@ -641,8 +665,7 @@ gn_node_handle_t gn_node_create(gn_config_handle_t config, const char *name) {
 	if (config == NULL
 			|| ((gn_config_handle_intl_t) config)->mqtt_client == NULL
 			|| name == NULL) {
-		gn_log(TAG, GN_LOG_ERROR,
-				"gn_create_node failed. parameters not correct");
+		ESP_LOGE(TAG, "gn_create_node failed. parameters not correct");
 		return NULL;
 	}
 
@@ -656,7 +679,7 @@ gn_node_handle_t gn_node_create(gn_config_handle_t config, const char *name) {
 	gn_leaves_list leaves = { .size = GN_NODE_LEAVES_MAX_SIZE, .last = 0 };
 
 	n_c->leaves = leaves;
-	((gn_config_handle_intl_t) config)->node_config = n_c;
+	((gn_config_handle_intl_t) config)->node_handle = n_c;
 
 	return n_c;
 }
@@ -715,8 +738,7 @@ gn_err_t gn_node_start(gn_node_handle_t node) {
 			!= esp_event_post_to(_node->config->event_loop, GN_BASE_EVENT,
 					GN_NODE_STARTED_EVENT,
 					NULL, 0, portMAX_DELAY)) {
-		gn_log(TAG, GN_LOG_ERROR,
-				"failed to send GN_SERVER_CONNECTED_EVENT event");
+		ESP_LOGE(TAG, "failed to send GN_SERVER_CONNECTED_EVENT event");
 		return GN_RET_ERR_EVENT_LOOP_ERROR;
 	}
 
@@ -728,7 +750,7 @@ gn_err_t gn_node_start(gn_node_handle_t node) {
 	for (int i = 0; i < _node->leaves.last; i++) {
 		//ESP_LOGD(TAG, "starting leaf: %d", i);
 		if (_gn_leaf_start(_node->leaves.at[i]) != GN_RET_OK) {
-			gn_log(TAG, GN_LOG_ERROR, "failed to start leaf: %s",
+			ESP_LOGE(TAG, "failed to start leaf: %s",
 					_node->leaves.at[i]->name);
 			_node->config->status = GN_NODE_STATUS_ERROR;
 			return GN_RET_ERR_NODE_NOT_STARTED;
@@ -803,31 +825,43 @@ gn_err_t gn_node_loop(gn_node_handle_t node) {
 	return GN_RET_OK;
 }
 
+/**
+ * TODO warning: this is not working, seems that eTaskGetState blocks the main task sometimes
+ */
 void _gn_wait_for_blocked_leaves(gn_node_handle_intl_t _node) {
+
+
+	if (!_node) return;
 
 	//waits until all leaves has reached blocked status
 	int leaves_count = _node->leaves.last;
+	ESP_LOGI(TAG, "leaves_count %d", leaves_count);
 
 	bool leaves_working = false;
 	bool this_leaf_working = false;
 
 	while (!leaves_working) {
+
 		for (int i = 0; i < leaves_count; i++) {
-			this_leaf_working = eTaskGetState(_node->leaves.at[i]->task_handle)
-					!= eBlocked;
-			leaves_working = this_leaf_working || leaves_working;
-			if (this_leaf_working) {
-				ESP_LOGD(TAG, "leaves working: %s", _node->leaves.at[i]->name);
+			if (_node->leaves.at[i] && _node->leaves.at[i]->task_handle) {
+				this_leaf_working = eTaskGetState(
+						_node->leaves.at[i]->task_handle) == eRunning;
+				leaves_working = this_leaf_working || leaves_working;
+				if (this_leaf_working) {
+					ESP_LOGI(TAG, "leaves working: %s",
+							_node->leaves.at[i]->name);
+				}
 			}
 		}
 
 		if (leaves_working)
 			vTaskDelay(pdMS_TO_TICKS(5));
 	}
+
 }
 
 /**
- * @brief enter in sleep mode
+ * @brief enter in sleep mode, disabling networking and releasing resources.
  *
  * @param 		node the node to sleep
  * @sleep_mode	the type of sleep
@@ -862,12 +896,26 @@ gn_err_t gn_node_sleep(gn_node_handle_t node, gn_sleep_mode_t sleep_mode,
 							/ portTICK_PERIOD_MS);
 		}
 
-		_gn_wait_for_blocked_leaves(_node);
+		_node->config->status = GN_NODE_STATUS_SLEEPING;
+		//stop mqtt
+		gn_mqtt_stop(_node->config);
+
+		//stop wifi
+		gn_wifi_stop(_node->config);
 
 		ESP_LOGI(TAG, "Entering deep sleep for %"PRIu64" millisec", millisec);
 
 		wakeup_reason = GN_SLEEP_MODE_DEEP;
+
+		//_gn_wait_for_blocked_leaves(_node);
 		esp_deep_sleep(millisec * 1000LL);
+
+		//start wifi
+		gn_wifi_start(_node->config);
+
+		//start mqtt
+		gn_mqtt_start(_node->config);
+		_node->config->status = GN_NODE_STATUS_STARTED;
 	}
 
 	else if (sleep_mode == GN_SLEEP_MODE_LIGHT) {
@@ -891,13 +939,28 @@ gn_err_t gn_node_sleep(gn_node_handle_t node, gn_sleep_mode_t sleep_mode,
 							/ portTICK_PERIOD_MS);
 		}
 
-		_gn_wait_for_blocked_leaves(_node);
+		_node->config->status = GN_NODE_STATUS_SLEEPING;
+		//stop mqtt
+		gn_mqtt_stop(_node->config);
+
+		//stop wifi
+		gn_wifi_stop(_node->config);
 
 		ESP_LOGI(TAG, "Entering light sleep for %"PRIu64" millisec", millisec);
 
 		wakeup_reason = GN_SLEEP_MODE_LIGHT;
+
+		//_gn_wait_for_blocked_leaves(_node);
 		esp_sleep_enable_timer_wakeup(millisec * 1000LL);
 		esp_light_sleep_start();
+
+		//start wifi
+		gn_wifi_start(_node->config);
+
+		//start mqtt
+		gn_mqtt_start(_node->config);
+		_node->config->status = GN_NODE_STATUS_STARTED;
+
 	}
 
 	return GN_RET_OK;
@@ -960,8 +1023,7 @@ gn_leaf_handle_t gn_leaf_create(gn_node_handle_t node_config, const char *name,
 
 	if (node_cfg == NULL || node_cfg->config == NULL || name == NULL
 			|| node_cfg->config->mqtt_client == NULL) {
-		gn_log(TAG, GN_LOG_ERROR,
-				"gn_leaf_create failed. parameters not correct");
+		ESP_LOGE(TAG, "gn_leaf_create failed. parameters not correct");
 		return NULL;
 	}
 
@@ -986,7 +1048,7 @@ gn_leaf_handle_t gn_leaf_create(gn_node_handle_t node_config, const char *name,
 
 	//TODO add leaf to node. implement dynamic array
 	if (n_c->leaves.last >= n_c->leaves.size - 1) {
-		gn_log(TAG, GN_LOG_ERROR,
+		ESP_LOGE(TAG,
 				"gn_leaf_create failed. not possible to add more than %d leaves to a node",
 				n_c->leaves.size);
 		return NULL;
@@ -1129,7 +1191,7 @@ void _gn_leaf_evt_handler(void *handler_args, esp_event_base_t base, int32_t id,
 		if (_gn_send_event_to_leaf(leaf_config, evt) == GN_RET_OK) {
 			//ESP_LOGD(TAG, "_gn_leaf_evt_handler OK");
 		} else {
-			gn_log(TAG, GN_LOG_ERROR, "_gn_leaf_evt_handler ERROR");
+			ESP_LOGE(TAG, "_gn_leaf_evt_handler ERROR");
 		}
 
 	} else {
@@ -1150,7 +1212,7 @@ void _gn_leaf_evt_handler(void *handler_args, esp_event_base_t base, int32_t id,
 		if (_gn_send_event_to_leaf(leaf_config, &evt) == GN_RET_OK) {
 			//ESP_LOGD(TAG, "_gn_leaf_evt_handler OK");
 		} else {
-			gn_log(TAG, GN_LOG_ERROR, "_gn_leaf_evt_handler ERROR");
+			ESP_LOGE(TAG, "_gn_leaf_evt_handler ERROR");
 		}
 
 	}
@@ -1231,7 +1293,7 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
 		gn_validator_callback_t validator) {
 
 	if (!name) {
-		gn_log(TAG, GN_LOG_ERROR, "gn_leaf_param_create incorrect parameters");
+		ESP_LOGE(TAG, "gn_leaf_param_create incorrect parameters");
 		return NULL;
 	}
 
@@ -1283,7 +1345,7 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
 				free(value);
 				break;
 			default:
-				gn_log(TAG, GN_LOG_ERROR, "param type not handled");
+				ESP_LOGE(TAG, "param type not handled");
 				free(value);
 				free(_buf);
 				return NULL;
@@ -1311,8 +1373,7 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
 	switch (type) {
 	case GN_VAL_TYPE_STRING:
 		if (!val.s) {
-			gn_log(TAG, GN_LOG_ERROR,
-					"gn_leaf_param_create incorrect string parameter");
+			ESP_LOGE(TAG, "gn_leaf_param_create incorrect string parameter");
 			return NULL;
 		}
 		_val.s = strdup(val.s);
@@ -1324,7 +1385,7 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
 		_val.d = val.d;
 		break;
 	default:
-		gn_log(TAG, GN_LOG_ERROR, "param type not handled");
+		ESP_LOGE(TAG, "param type not handled");
 		return NULL;
 		break;
 	}
@@ -1426,9 +1487,9 @@ gn_err_t gn_leaf_param_init_string(const gn_leaf_handle_t leaf_config,
 			_leaf_config->node_config->config->event_loop, GN_BASE_EVENT,
 			evt.id, &evt, sizeof(evt), portMAX_DELAY);
 	if (ret != ESP_OK) {
-		gn_log(TAG, GN_LOG_ERROR,
+		ESP_LOGE(TAG,
 				"gn_leaf_param_init_string - not possible to send param message to event loop - id:%d, size:%d - result: %d",
-				evt.id, sizeof(evt), (int) ret);
+				evt.id, sizeof(evt), (int ) ret);
 		return GN_RET_ERR;
 	}
 
@@ -1677,9 +1738,9 @@ gn_err_t gn_leaf_param_init_bool(const gn_leaf_handle_t leaf_config,
 			_leaf_config->node_config->config->event_loop, GN_BASE_EVENT,
 			evt.id, &evt, sizeof(evt), portMAX_DELAY);
 	if (ret != ESP_OK) {
-		gn_log(TAG, GN_LOG_ERROR,
+		ESP_LOGE(TAG,
 				"gn_leaf_param_init_bool - not possible to send param message to event loop - id:%d, size:%d - result: %d",
-				evt.id, sizeof(evt), (int) ret);
+				evt.id, sizeof(evt), (int ) ret);
 		return GN_RET_ERR;
 	}
 
@@ -1893,8 +1954,7 @@ gn_err_t gn_leaf_param_init_double(const gn_leaf_handle_t leaf_config,
 		const char *name, double val) {
 
 	if (!leaf_config || !name) {
-		gn_log(TAG, GN_LOG_ERROR,
-				"gn_leaf_param_init_double - wrong parameters");
+		ESP_LOGE(TAG, "gn_leaf_param_init_double - wrong parameters");
 		return ESP_ERR_INVALID_ARG;
 	}
 
@@ -1902,8 +1962,8 @@ gn_err_t gn_leaf_param_init_double(const gn_leaf_handle_t leaf_config,
 			(gn_leaf_param_handle_intl_t) gn_leaf_param_get_param_handle(
 					leaf_config, name);
 	if (!_param) {
-		gn_log(TAG, GN_LOG_ERROR,
-				"gn_leaf_param_init_double - cannot find parameter %s", name);
+		ESP_LOGE(TAG, "gn_leaf_param_init_double - cannot find parameter %s",
+				name);
 		return ESP_ERR_INVALID_ARG;
 	}
 
@@ -1969,9 +2029,9 @@ gn_err_t gn_leaf_param_init_double(const gn_leaf_handle_t leaf_config,
 			evt.id, &evt, sizeof(evt),
 			portMAX_DELAY);
 	if (ret != ESP_OK) {
-		gn_log(TAG, GN_LOG_ERROR,
+		ESP_LOGE(TAG,
 				"gn_leaf_param_init_double - not possible to send param message to event loop - id:%d, size:%d - result: %d",
-				evt.id, sizeof(evt), (int) ret);
+				evt.id, sizeof(evt), (int ) ret);
 		return GN_RET_ERR;
 	}
 
@@ -2244,7 +2304,7 @@ gn_err_t gn_leaf_param_add_to_leaf(const gn_leaf_handle_t leaf,
 	gn_leaf_param_handle_intl_t new_param = (gn_leaf_param_handle_intl_t) param;
 
 	if (!leaf || !new_param) {
-		gn_log(TAG, GN_LOG_ERROR, "gn_leaf_param_add incorrect parameters");
+		ESP_LOGE(TAG, "gn_leaf_param_add incorrect parameters");
 		return GN_RET_ERR_INVALID_ARG;
 	}
 
@@ -2253,10 +2313,9 @@ gn_err_t gn_leaf_param_add_to_leaf(const gn_leaf_handle_t leaf,
 
 	while (_param) {
 		if (strcmp(_param->name, new_param->name) == 0) {
-			gn_log(TAG, GN_LOG_ERROR,
-					"Parameter with name %s already exists in Leaf %s",
+			ESP_LOGE(TAG, "Parameter with name %s already exists in Leaf %s",
 					new_param->name,
-					((gn_leaf_config_handle_intl_t) leaf)->name);
+					((gn_leaf_config_handle_intl_t ) leaf)->name);
 			return GN_RET_ERR_INVALID_ARG;
 		}
 		if (_param->next) {
@@ -2277,17 +2336,17 @@ gn_err_t gn_leaf_param_add_to_leaf(const gn_leaf_handle_t leaf,
 
 	ret = gn_mqtt_subscribe_leaf_param(new_param);
 	if (ret != GN_RET_OK) {
-		gn_log(TAG, GN_LOG_ERROR,
+		ESP_LOGE(TAG,
 				"gn_leaf_param_add failed to subscribe param %s of leaf %s",
-				new_param->name, ((gn_leaf_config_handle_intl_t) leaf)->name);
+				new_param->name, ((gn_leaf_config_handle_intl_t ) leaf)->name);
 		return ret;
 	}
 
 	ret = gn_mqtt_send_leaf_param(new_param);
 	if (ret != GN_RET_OK) {
-		gn_log(TAG, GN_LOG_ERROR,
+		ESP_LOGE(TAG,
 				"gn_leaf_param_add failed to send param configuration %s of leaf %s",
-				new_param->name, ((gn_leaf_config_handle_intl_t) leaf)->name);
+				new_param->name, ((gn_leaf_config_handle_intl_t ) leaf)->name);
 		return ret;
 	}
 
@@ -2322,7 +2381,7 @@ gn_err_t gn_send_node_leaf_param_status(const gn_node_handle_t _node_config) {
 
 				gn_err_t ret = gn_mqtt_send_leaf_param(_param);
 				if (ret != GN_RET_OK) {
-					gn_log(TAG, GN_LOG_ERROR,
+					ESP_LOGE(TAG,
 							"gn_leaf_param_add failed to send param configuration %s of leaf %s",
 							_param->name, leaf_config->name);
 					return ret;
@@ -2356,12 +2415,11 @@ gn_err_t gn_send_leaf_param_change_message(const char *leaf_name,
 		const char *param_name, const void *message, size_t message_len) {
 
 	if (leaf_name == NULL || param_name == NULL || message == NULL) {
-		gn_log(TAG, GN_LOG_ERROR,
-				"gn_send_leaf_param_change_message - invalid args");
+		ESP_LOGE(TAG, "gn_send_leaf_param_change_message - invalid args");
 		return GN_RET_ERR_INVALID_ARG;
 	}
 
-	gn_leaves_list leaves = _gn_default_conf->node_config->leaves;
+	gn_leaves_list leaves = _gn_default_conf->node_handle->leaves;
 
 	for (int i = 0; i < leaves.last; i++) {
 
@@ -2372,8 +2430,7 @@ gn_err_t gn_send_leaf_param_change_message(const char *leaf_name,
 
 		}
 	}
-	gn_log(TAG, GN_LOG_ERROR,
-			"gn_send_leaf_param_change_message(%s) - leaf not found",
+	ESP_LOGE(TAG, "gn_send_leaf_param_change_message(%s) - leaf not found",
 			leaf_name);
 	return GN_RET_ERR_LEAF_NOT_FOUND;
 }
@@ -2397,7 +2454,7 @@ gn_err_t gn_leaf_param_set_bool(const gn_leaf_handle_t leaf_config,
 		const char *name,
 		bool val) {
 	if (leaf_config == NULL || name == NULL) {
-		gn_log(TAG, GN_LOG_ERROR, "gn_leaf_param_set_bool - invalid args");
+		ESP_LOGE(TAG, "gn_leaf_param_set_bool - invalid args");
 		return GN_RET_ERR_INVALID_ARG;
 	}
 	gn_leaf_config_handle_intl_t _leaf_config =
@@ -2427,7 +2484,7 @@ gn_err_t gn_leaf_param_set_bool(const gn_leaf_handle_t leaf_config,
 gn_err_t gn_leaf_param_set_double(const gn_leaf_handle_t leaf_config,
 		const char *name, double val) {
 	if (leaf_config == NULL || name == NULL) {
-		gn_log(TAG, GN_LOG_ERROR, "gn_leaf_param_set_double - invalid args");
+		ESP_LOGE(TAG, "gn_leaf_param_set_double - invalid args");
 		return GN_RET_ERR_INVALID_ARG;
 	}
 	gn_leaf_config_handle_intl_t _leaf_config =
@@ -2457,7 +2514,7 @@ gn_err_t gn_leaf_param_set_double(const gn_leaf_handle_t leaf_config,
 gn_err_t gn_leaf_param_set_string(const gn_leaf_handle_t leaf_config,
 		const char *name, char *val) {
 	if (leaf_config == NULL || name == NULL) {
-		gn_log(TAG, GN_LOG_ERROR, "gn_leaf_param_set_string - invalid args");
+		ESP_LOGE(TAG, "gn_leaf_param_set_string - invalid args");
 		return GN_RET_ERR_INVALID_ARG;
 	}
 	gn_leaf_config_handle_intl_t _leaf_config =
@@ -2534,7 +2591,7 @@ void* _gn_leaf_context_add_to_leaf(const gn_leaf_handle_t leaf, char *key,
 		void *value) {
 
 	if (!leaf || !key || !value) {
-		gn_log(TAG, GN_LOG_ERROR, "gn_leaf_context_add incorrect parameters");
+		ESP_LOGE(TAG, "gn_leaf_context_add incorrect parameters");
 		return NULL;
 	}
 
@@ -2549,8 +2606,7 @@ void* _gn_leaf_context_add_to_leaf(const gn_leaf_handle_t leaf, char *key,
 void* _gn_leaf_context_remove_to_leaf(const gn_leaf_handle_t leaf, char *key) {
 
 	if (!leaf || !key) {
-		gn_log(TAG, GN_LOG_ERROR,
-				"gn_leaf_context_remove_to_leaf incorrect parameters");
+		ESP_LOGE(TAG, "gn_leaf_context_remove_to_leaf incorrect parameters");
 		return NULL;
 	}
 
@@ -2565,8 +2621,7 @@ void* _gn_leaf_context_remove_to_leaf(const gn_leaf_handle_t leaf, char *key) {
 void* _gn_leaf_context_get_key_to_leaf(const gn_leaf_handle_t leaf, char *key) {
 
 	if (!leaf || !key) {
-		gn_log(TAG, GN_LOG_ERROR,
-				"gn_leaf_context_remove_to_leaf incorrect parameters");
+		ESP_LOGE(TAG, "gn_leaf_context_remove_to_leaf incorrect parameters");
 		return NULL;
 	}
 
@@ -2689,7 +2744,7 @@ gn_err_t gn_firmware_update() {
 		ESP_LOGE(TAG, "OTA message not sent");
 	}
 	vTaskDelay(1000 / portTICK_PERIOD_MS);
-	xTaskCreate(_gn_ota_task, "gn_ota_task", 8196, NULL, 10,
+	xTaskCreate(gn_ota_task, "gn_ota_task", 8196, NULL, 10,
 	NULL);
 #endif
 	return GN_RET_OK;
@@ -2758,8 +2813,7 @@ gn_err_t gn_log(char *log_tag, gn_log_level_t level, const char *message, ...) {
 			portMAX_DELAY);
 
 	if (ret != GN_RET_OK) {
-		gn_log(TAG, GN_LOG_ERROR, "Not possible to post log event: %s",
-				formatted_message);
+		ESP_LOGE(TAG, "Not possible to post log event: %s", formatted_message);
 		return ret;
 	}
 
@@ -2847,16 +2901,16 @@ gn_config_handle_t gn_init(gn_config_init_param_t *config_init) {
 			"error on timer init: %s", esp_err_to_name(ret));
 
 	//init wifi
-	ESP_GOTO_ON_ERROR(_gn_init_wifi(_gn_default_conf), err_net, TAG,
+	ESP_GOTO_ON_ERROR(gn_wifi_init(_gn_default_conf), err_net, TAG,
 			"error on wifi init: %s", esp_err_to_name(ret));
 
 	//init time sync. note: if bad, continue
-	ESP_GOTO_ON_ERROR(_gn_init_time_sync(_gn_default_conf), err_timesync, TAG,
-			"error on time sync init: %s", esp_err_to_name(ret));
+	ESP_GOTO_ON_ERROR(gn_wifi_time_sync_init(_gn_default_conf), err_timesync,
+			TAG, "error on time sync init: %s", esp_err_to_name(ret));
 
 	err_timesync:
 	//init mqtt system
-	ESP_GOTO_ON_ERROR(gn_mqtt_init(_gn_default_conf), err_srv, TAG,
+	ESP_GOTO_ON_ERROR(gn_mqtt_start(_gn_default_conf), err_srv, TAG,
 			"error on server init: %s", esp_err_to_name(ret));
 
 #endif

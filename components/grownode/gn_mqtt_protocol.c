@@ -32,8 +32,8 @@ extern "C" {
 #define TAG "gn_mqtt_protocol"
 
 EventGroupHandle_t _gn_event_group_mqtt;
-const int _GN_MQTT_CONNECTED_OK_EVENT_BIT = BIT0;
-const int _GN_MQTT_CONNECTED_KO_EVENT_BIT = BIT1;
+const int _GN_MQTT_CONNECTED_EVENT_BIT = BIT0;
+const int _GN_MQTT_DISCONNECT_EVENT_BIT = BIT1;
 
 const int _GN_MQTT_DEBUG_WAIT_MS = 500;
 
@@ -284,8 +284,9 @@ gn_err_t gn_mqtt_subscribe_leaf(gn_leaf_handle_t _leaf_config) {
 	char topic[_GN_MQTT_MAX_TOPIC_LENGTH];
 	_gn_mqtt_build_leaf_command_topic(leaf_config, topic);
 
-	if(esp_log_level_get(TAG) == ESP_LOG_DEBUG) {
-		ESP_LOGD(TAG, "gn_mqtt_subscribe_leaf - topic = %s. now waiting %d ms", topic, _GN_MQTT_DEBUG_WAIT_MS);
+	if (esp_log_level_get(TAG) == ESP_LOG_DEBUG) {
+		ESP_LOGD(TAG, "gn_mqtt_subscribe_leaf - topic = %s. now waiting %d ms",
+				topic, _GN_MQTT_DEBUG_WAIT_MS);
 		vTaskDelay(_GN_MQTT_DEBUG_WAIT_MS / portTICK_PERIOD_MS);
 	}
 
@@ -403,13 +404,14 @@ gn_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t _param) {
 
 	int msg_id = esp_mqtt_client_subscribe(config->mqtt_client, topic, 0);
 
-	if(esp_log_level_get(TAG) == ESP_LOG_DEBUG) {
-		ESP_LOGD(TAG, "gn_mqtt_subscribe_leaf_param, topic = %s, msg_id=%d. now waiting %d ms", topic,
-				msg_id, _GN_MQTT_DEBUG_WAIT_MS);
+	if (esp_log_level_get(TAG) == ESP_LOG_DEBUG) {
+		ESP_LOGD(TAG,
+				"gn_mqtt_subscribe_leaf_param, topic = %s, msg_id=%d. now waiting %d ms",
+				topic, msg_id, _GN_MQTT_DEBUG_WAIT_MS);
 		vTaskDelay(_GN_MQTT_DEBUG_WAIT_MS / portTICK_PERIOD_MS);
 	}
 
-	return msg_id == -1? GN_RET_ERR: GN_RET_OK;
+	return msg_id == -1 ? GN_RET_ERR : GN_RET_OK;
 
 #else
 	return GN_RET_OK;
@@ -603,7 +605,8 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 		len = strlen(param->param_val->v.s);
 		strncpy(buf, param->param_val->v.s,
 				len > _GN_MQTT_MAX_PAYLOAD_LENGTH ?
-						_GN_MQTT_MAX_PAYLOAD_LENGTH : len);
+				_GN_MQTT_MAX_PAYLOAD_LENGTH :
+													len);
 		break;
 	case GN_VAL_TYPE_DOUBLE:
 		snprintf(buf, 31, "%f", param->param_val->v.d);
@@ -628,9 +631,9 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 	if (msg_id == -1)
 		goto fail;
 
-
-	if(esp_log_level_get(TAG) == ESP_LOG_DEBUG) {
-		ESP_LOGD(TAG, "sent publish successful, msg_id=%d, topic=%s, payload=%s. now waiting %d ms",
+	if (esp_log_level_get(TAG) == ESP_LOG_DEBUG) {
+		ESP_LOGD(TAG,
+				"sent publish successful, msg_id=%d, topic=%s, payload=%s. now waiting %d ms",
 				msg_id, _topic, buf, _GN_MQTT_DEBUG_WAIT_MS);
 		vTaskDelay(_GN_MQTT_DEBUG_WAIT_MS / portTICK_PERIOD_MS);
 	}
@@ -639,9 +642,6 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 		free(buf);
 		return ((msg_id == -1) ? (GN_RET_ERR_MQTT_ERROR) : (GN_RET_OK));
 	}
-
-
-
 
 	return ret;
 
@@ -772,7 +772,7 @@ gn_err_t gn_mqtt_send_startup_message(gn_config_handle_t _config) {
 
 	gn_config_handle_intl_t config = (gn_config_handle_intl_t) _config;
 
-	//if (config->status != GN_CONFIG_STATUS_COMPLETED)
+	//if (config->status != GN_NODE_STATUS_STARTED)
 	//	return GN_RET_OK;
 
 //build
@@ -1071,12 +1071,11 @@ gn_err_t gn_mqtt_send_leaf_message(gn_leaf_handle_t _leaf, const char *msg) {
 			0);
 
 //publish
-	if(esp_log_level_get(TAG) == ESP_LOG_DEBUG) {
-		ESP_LOGD(TAG, "publish topic %s, msg=%s. now waiting %d ms"
-				, buf, msg, _GN_MQTT_DEBUG_WAIT_MS);
+	if (esp_log_level_get(TAG) == ESP_LOG_DEBUG) {
+		ESP_LOGD(TAG, "publish topic %s, msg=%s. now waiting %d ms", buf, msg,
+				_GN_MQTT_DEBUG_WAIT_MS);
 		vTaskDelay(_GN_MQTT_DEBUG_WAIT_MS / portTICK_PERIOD_MS);
 	}
-
 
 	return ((msg_id == -1) ? (GN_RET_ERR_MQTT_ERROR) : (GN_RET_OK));
 
@@ -1186,7 +1185,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 	case MQTT_EVENT_CONNECTED:
 		ESP_LOGD(TAG, "MQTT_EVENT_CONNECTED");
 		xEventGroupSetBits(_gn_event_group_mqtt,
-					_GN_MQTT_CONNECTED_OK_EVENT_BIT);
+				_GN_MQTT_CONNECTED_EVENT_BIT);
 
 		/*
 		 msg_id = esp_mqtt_client_publish(client, "/topic/qos1", "data_3", 0, 1,
@@ -1206,22 +1205,22 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 	case MQTT_EVENT_DISCONNECTED:
 		ESP_LOGD(TAG, "MQTT_EVENT_DISCONNECTED");
 		xEventGroupSetBits(_gn_event_group_mqtt,
-					_GN_MQTT_CONNECTED_KO_EVENT_BIT);
+				_GN_MQTT_DISCONNECT_EVENT_BIT);
 		_gn_mqtt_on_disconnected(config);
 
 		break;
 
-	/*
-	case MQTT_EVENT_SUBSCRIBED:
-		ESP_LOGD(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
-		break;
-	case MQTT_EVENT_UNSUBSCRIBED:
-		ESP_LOGD(TAG, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
-		break;
-	case MQTT_EVENT_PUBLISHED:
-		ESP_LOGD(TAG, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
-		break;
-	*/
+		/*
+		 case MQTT_EVENT_SUBSCRIBED:
+		 ESP_LOGD(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
+		 break;
+		 case MQTT_EVENT_UNSUBSCRIBED:
+		 ESP_LOGD(TAG, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
+		 break;
+		 case MQTT_EVENT_PUBLISHED:
+		 ESP_LOGD(TAG, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
+		 break;
+		 */
 	case MQTT_EVENT_DATA:
 		//TODO here the code to forward the call to appropriate node/leaf or system handler. start from remote OTA and RST
 		ESP_LOGD(TAG, "MQTT_EVENT_DATA");
@@ -1260,16 +1259,16 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 			char param_topic[_GN_MQTT_MAX_TOPIC_LENGTH];
 			gn_leaf_parameter_event_t evt;
 
-			for (int i = 0; i < config->node_config->leaves.last; i++) {
+			for (int i = 0; i < config->node_handle->leaves.last; i++) {
 
 				//message is for this leaf
 				_gn_mqtt_build_leaf_command_topic(
-						config->node_config->leaves.at[i], leaf_topic);
+						config->node_handle->leaves.at[i], leaf_topic);
 				if (strncmp(leaf_topic, event->topic, event->topic_len) == 0) {
 
 					evt.id = GN_LEAF_MESSAGE_RECEIVED_EVENT;
 					strncpy(evt.leaf_name,
-							config->node_config->leaves.at[i]->name,
+							config->node_handle->leaves.at[i]->name,
 							GN_LEAF_NAME_SIZE);
 					//evt.data = event->data;
 					memcpy(&evt.data[0], event->data,
@@ -1282,35 +1281,35 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 					if (esp_event_post_to(config->event_loop, GN_BASE_EVENT,
 							evt.id, &evt, sizeof(evt), portMAX_DELAY) != ESP_OK) {
 						ESP_LOGE(TAG, "not possible to send message to leaf %s",
-								config->node_config->leaves.at[i]->name);
+								config->node_handle->leaves.at[i]->name);
 					}
 
 					//send message to the interested leaf
-					_gn_send_event_to_leaf(config->node_config->leaves.at[i],
+					_gn_send_event_to_leaf(config->node_handle->leaves.at[i],
 							&evt);
 
 					break;
 				}
 
 				gn_leaf_param_handle_intl_t _param =
-						(gn_leaf_param_handle_intl_t) config->node_config->leaves.at[i]->params;
+						(gn_leaf_param_handle_intl_t) config->node_handle->leaves.at[i]->params;
 				while (_param) {
 					//message is for a parameter of this leaf
 					_gn_mqtt_build_leaf_parameter_command_topic(
-							config->node_config->leaves.at[i], _param->name,
+							config->node_handle->leaves.at[i], _param->name,
 							param_topic);
 					if (strncmp(param_topic, event->topic, event->topic_len)
 							== 0) {
 
 						if (GN_RET_OK
 								!= _gn_leaf_parameter_update(
-										config->node_config->leaves.at[i],
+										config->node_handle->leaves.at[i],
 										_param->name, event->data,
 										event->data_len)) {
 							ESP_LOGE(TAG,
 									"error in updating parameter %s with value %s to leaf %s",
 									_param->name, event->data,
-									config->node_config->leaves.at[i]->name);
+									config->node_handle->leaves.at[i]->name);
 							break;
 						}
 
@@ -1377,13 +1376,16 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
  * @return	GN_RET_ERR_MQTT_ERROR 	in case of MQTT errors
  * @return	GN_RET_ERR 				in case of general errors
  */
-gn_err_t gn_mqtt_init(gn_config_handle_t config) {
+gn_err_t gn_mqtt_start(gn_config_handle_t config) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	gn_config_handle_intl_t _config = (gn_config_handle_intl_t) config;
 
 	_gn_event_group_mqtt = xEventGroupCreate();
+
+	xEventGroupClearBits(_gn_event_group_mqtt, _GN_MQTT_DISCONNECT_EVENT_BIT);
+	xEventGroupClearBits(_gn_event_group_mqtt, _GN_MQTT_CONNECTED_EVENT_BIT);
 
 	char _topic[_GN_MQTT_MAX_TOPIC_LENGTH];
 	_gn_mqtt_build_status_topic(_config, _topic);
@@ -1420,47 +1422,29 @@ gn_err_t gn_mqtt_init(gn_config_handle_t config) {
 	_gn_mqtt_build_status_topic(_config, _gn_sts_topic);
 	_gn_mqtt_build_log_topic(_config, _gn_log_topic);
 
+	ESP_LOGI(TAG, "gn_mqtt_init waiting to connect");
+
 	EventBits_t uxBits;
 	uxBits = xEventGroupWaitBits(_gn_event_group_mqtt,
-			_GN_MQTT_CONNECTED_OK_EVENT_BIT | _GN_MQTT_CONNECTED_KO_EVENT_BIT,
-			pdTRUE,
+			_GN_MQTT_CONNECTED_EVENT_BIT | _GN_MQTT_DISCONNECT_EVENT_BIT,
+			pdFALSE,
 			pdFALSE, portMAX_DELAY);
 
-	if ((uxBits & _GN_MQTT_CONNECTED_OK_EVENT_BIT) != 0) {
-		ESP_LOGI(TAG, "MQTT connection successful");
+	if ((uxBits & _GN_MQTT_CONNECTED_EVENT_BIT) != 0) {
 
+		ESP_LOGD(TAG, "gn_mqtt_init connection successful. returning");
 		_gn_mqtt_on_connected(config);
-		/*
-		 //publish server connected event
-		 if (ESP_OK
-		 != esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
-		 GN_SERVER_CONNECTED_EVENT,
-		 NULL, 0, portMAX_DELAY)) {
-		 ESP_LOGE(TAG, "failed to send GN_SERVER_CONNECTED_EVENT event");
-		 goto fail;
-		 }
-		 */
-
 		return GN_RET_OK;
 	}
 
-	else if ((uxBits & _GN_MQTT_CONNECTED_KO_EVENT_BIT) != 0) {
-		ESP_LOGE(TAG, "MQTT connection error");
+	else if ((uxBits & _GN_MQTT_DISCONNECT_EVENT_BIT) != 0) {
 
-
-		//publish server disconnected event
-		/*
-		 if (ESP_OK
-		 != esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
-		 GN_SERVER_DISCONNECTED_EVENT,
-		 NULL, 0, portMAX_DELAY)) {
-		 ESP_LOGE(TAG, "failed to send GN_SERVER_DISCONNECTED_EVENT event");
-		 return ESP_FAIL;
-		 }
-		 */
+		ESP_LOGE(TAG, "gn_mqtt_init connection error. returning");
 		return GN_RET_ERR_MQTT_ERROR;
+
 	} else {
 		//should never reach here
+		ESP_LOGE(TAG, "gn_mqtt_init control flow error. returning");
 		return GN_RET_ERR;
 	}
 
@@ -1468,6 +1452,157 @@ gn_err_t gn_mqtt_init(gn_config_handle_t config) {
 	return ESP_OK;
 #endif /* CONFIG_GROWNODE_WIFI_ENABLED */
 
+}
+
+/**
+ * @brief 	stops the MQTT subsystem. this requires the client to be reinitialized
+ *
+ * @param 	config	the configuration to use
+ *
+ * @return 	GN_RET_ERR_INVALID_ARG 	in case of null _conf
+ * @return	GN_RET_ERR 				in case of general errors
+ */
+
+gn_err_t gn_mqtt_stop(gn_config_handle_t config) {
+
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
+
+	if (!config)
+		return GN_RET_ERR_INVALID_ARG;
+
+	gn_config_handle_intl_t _config = (gn_config_handle_intl_t) config;
+
+	if (!_config->mqtt_client)
+		return GN_RET_ERR_INVALID_ARG;
+
+	esp_err_t esp_ret;
+	esp_ret = esp_mqtt_client_disconnect(_config->mqtt_client);
+	if (esp_ret != ESP_OK) {
+		ESP_LOGE(TAG, "Error on esp_mqtt_client_disconnect: %s",
+				esp_err_to_name(esp_ret));
+		return GN_RET_ERR;
+	}
+
+	esp_ret = esp_mqtt_client_stop(_config->mqtt_client);
+	if (esp_ret != ESP_OK) {
+		ESP_LOGE(TAG, "Error on esp_mqtt_client_stop: %s",
+				esp_err_to_name(esp_ret));
+		return GN_RET_ERR;
+	}
+
+	/*
+	ESP_LOGI(TAG, "gn_mqtt_stop waiting to disconnect");
+
+	xEventGroupWaitBits(_gn_event_group_mqtt, _GN_MQTT_DISCONNECT_EVENT_BIT,
+	pdFALSE,
+	pdFALSE, portMAX_DELAY);
+
+	xEventGroupClearBits(_gn_event_group_mqtt, _GN_MQTT_DISCONNECT_EVENT_BIT);
+	xEventGroupClearBits(_gn_event_group_mqtt, _GN_MQTT_CONNECTED_EVENT_BIT);
+
+	ESP_LOGI(TAG, "gn_mqtt_stop returning");
+	*/
+
+	return GN_RET_OK;
+
+#else
+	return GN_RET_OK;
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
+
+}
+
+/**
+ * @brief 	disconnect the MQTT subsystem, this is useful if the reconnection using same client is planned. use gn_mqtt_reconnect to restart
+ *
+ * @param 	config	the configuration to use
+ *
+ * @return 	GN_RET_ERR_INVALID_ARG 	in case of null _conf
+ * @return	GN_RET_ERR 				in case of general errors
+ */
+
+gn_err_t gn_mqtt_disconnect(gn_config_handle_t config) {
+
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
+
+	if (!config)
+		return GN_RET_ERR_INVALID_ARG;
+
+	gn_config_handle_intl_t _config = (gn_config_handle_intl_t) config;
+
+	if (!_config->mqtt_client)
+		return GN_RET_ERR_INVALID_ARG;
+
+	esp_err_t esp_ret;
+	esp_ret = esp_mqtt_client_disconnect(_config->mqtt_client);
+	if (esp_ret != ESP_OK) {
+		ESP_LOGE(TAG, "Error on esp_mqtt_client_disconnect: %s",
+				esp_err_to_name(esp_ret));
+		return GN_RET_ERR;
+	}
+
+	/*
+	ESP_LOGI(TAG, "gn_mqtt_disconnect waiting to disconnect");
+
+	EventBits_t uxBits;
+	uxBits = xEventGroupWaitBits(_gn_event_group_mqtt,
+			_GN_MQTT_DISCONNECT_EVENT_BIT,
+			pdFALSE,
+			pdFALSE, portMAX_DELAY);
+
+	ESP_LOGI(TAG, "gn_mqtt_disconnect returning");
+	*/
+
+	return GN_RET_OK;
+
+#else
+	 return GN_RET_OK;
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
+
+}
+
+/**
+ * @brief 	reconnect the MQTT subsystem keeping the client configuration
+ *
+ * @param 	config	the configuration to use
+ *
+ * @return 	GN_RET_ERR_INVALID_ARG 	in case of null _conf
+ * @return	GN_RET_ERR 				in case of general errors
+ */
+
+gn_err_t gn_mqtt_reconnect(gn_config_handle_t config) {
+
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
+
+	if (!config)
+		return GN_RET_ERR_INVALID_ARG;
+
+	gn_config_handle_intl_t _config = (gn_config_handle_intl_t) config;
+
+	if (!_config->mqtt_client)
+		return GN_RET_ERR_INVALID_ARG;
+
+	esp_err_t esp_ret;
+	esp_ret = esp_mqtt_client_reconnect(_config->mqtt_client);
+	if (esp_ret != ESP_OK) {
+		ESP_LOGE(TAG, "Error on esp_mqtt_client_disconnect: %s",
+				esp_err_to_name(esp_ret));
+		return GN_RET_ERR;
+	}
+
+	ESP_LOGD(TAG, "gn_mqtt_reconnect waiting to connect");
+
+	xEventGroupWaitBits(_gn_event_group_mqtt,
+			_GN_MQTT_CONNECTED_EVENT_BIT,
+			pdFALSE,
+			pdFALSE, portMAX_DELAY);
+
+	ESP_LOGD(TAG, "gn_mqtt_reconnect returning");
+
+	return GN_RET_OK;
+
+#else
+	return GN_RET_OK;
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
 }
 
 /*

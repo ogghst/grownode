@@ -39,7 +39,13 @@ gn_err_t gn_mqtt_subscribe_leaf(gn_leaf_handle_t leaf_config);
 
 esp_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t param);
 
-gn_err_t gn_mqtt_init(gn_config_handle_t config);
+gn_err_t gn_mqtt_start(gn_config_handle_t config);
+
+gn_err_t gn_mqtt_stop(gn_config_handle_t config);
+
+gn_err_t gn_mqtt_disconnect(gn_config_handle_t config);
+
+gn_err_t gn_mqtt_reconnect(gn_config_handle_t config);
 
 gn_err_t gn_mqtt_send_node_config(gn_node_handle_t conf);
 

@@ -19,9 +19,12 @@
 extern "C" {
 #endif
 
-esp_err_t _gn_init_wifi(gn_config_handle_t conf);
-void _gn_ota_task(void *pvParameter);
-esp_err_t _gn_init_time_sync(gn_config_handle_t conf);
+esp_err_t gn_wifi_init(gn_config_handle_t conf);
+void gn_ota_task(void *pvParameter);
+esp_err_t gn_wifi_time_sync_init(gn_config_handle_t conf);
+
+gn_err_t gn_wifi_stop(gn_config_handle_t conf);
+gn_err_t gn_wifi_start(gn_config_handle_t conf);
 
 #ifdef __cplusplus
 }

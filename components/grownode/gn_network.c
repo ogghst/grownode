@@ -57,6 +57,8 @@ extern "C" {
 const int GN_WIFI_CONNECTED_EVENT = BIT0;
 const int GN_WIFI_FAIL_EVENT = BIT2;
 const int GN_PROV_END_EVENT = BIT1;
+const int GN_WIFI_DISCONNECTED_EVENT = BIT3;
+const int GN_WIFI_STOPPED_EVENT = BIT4;
 
 EventGroupHandle_t _gn_event_group_wifi;
 int s_retry_num = 0;
@@ -72,6 +74,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 
 	if (event_base == WIFI_PROV_EVENT) {
 		switch (event_id) {
+
 		case WIFI_PROV_START:
 			ESP_LOGD(TAG, "WIFI_PROV_START");
 			gn_log(TAG, GN_LOG_INFO, "Provisioning Started");
@@ -85,6 +88,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 					(const char* ) wifi_sta_cfg->password);
 			break;
 		}
+
 		case WIFI_PROV_CRED_FAIL: {
 			ESP_LOGD(TAG, "WIFI_PROV_CRED_FAIL");
 			wifi_prov_sta_fail_reason_t *reason =
@@ -98,9 +102,11 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 			gn_reboot();
 			break;
 		}
+
 		case WIFI_PROV_CRED_SUCCESS:
 			ESP_LOGD(TAG, "WIFI_PROV_CRED_SUCCESS");
 			break;
+
 		case WIFI_PROV_END:
 			ESP_LOGD(TAG, "WIFI_PROV_END");
 			gn_log(TAG, GN_LOG_INFO, "Provisioning OK");
@@ -108,10 +114,13 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		default:
 			break;
 		}
+
 	} else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
+
 		ESP_LOGD(TAG, "WIFI_EVENT_STA_START");
 		esp_wifi_connect();
 	} else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+
 		ESP_LOGD(TAG, "IP_EVENT_STA_GOT_IP");
 		s_retry_num = 0;
 		ip_event_got_ip_t *event = (ip_event_got_ip_t*) event_data;
@@ -144,33 +153,50 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 	} else if (event_base == WIFI_EVENT
 			&& event_id == WIFI_EVENT_STA_DISCONNECTED) {
 		ESP_LOGD(TAG, "WIFI_EVENT_STA_DISCONNECTED");
-		wifi_event_sta_disconnected_t *disconnected = (wifi_event_sta_disconnected_t *) event_data;
-		ESP_LOGE(TAG,"Wifi disconnected. reason: %d", disconnected->reason);
+		wifi_event_sta_disconnected_t *disconnected =
+				(wifi_event_sta_disconnected_t*) event_data;
+		ESP_LOGD(TAG, "wifi_event_sta_disconnected_t reason: %d",
+				disconnected->reason);
 		//ESP_LOGI(TAG, "Disconnected. Connecting to the AP again.");
 
 		esp_event_post_to(_conf->event_loop, GN_BASE_EVENT,
 				GN_NET_DISCONNECTED_EVENT, NULL, 0,
 				portMAX_DELAY);
 
-		if (_conf->config_init_params->wifi_retries_before_reset_provisioning
-				== -1
-				|| s_retry_num
-						< _conf->config_init_params->wifi_retries_before_reset_provisioning) {
-			ESP_LOGI(TAG, "Retry to connect - attempt %i of %i", s_retry_num, _conf->config_init_params->wifi_retries_before_reset_provisioning);
-			s_retry_num++;
-			esp_wifi_connect();
-		} else {
-			xEventGroupSetBits(_gn_event_group_wifi, GN_WIFI_FAIL_EVENT);
-		}
-		//ESP_LOGI(TAG,"connect to the AP fail");
+		xEventGroupSetBits(_gn_event_group_wifi, GN_WIFI_DISCONNECTED_EVENT);
 
+		//WIFI_REASON_ASSOC_LEAVE means that is a voluntary disconnect, do not retry to reconnect
+		if (disconnected->reason != WIFI_REASON_ASSOC_LEAVE) {
+
+			if (_conf->config_init_params->wifi_retries_before_reset_provisioning
+					== -1
+					|| s_retry_num
+							< _conf->config_init_params->wifi_retries_before_reset_provisioning) {
+				ESP_LOGI(TAG, "Retry to connect - attempt %i of %i",
+						s_retry_num,
+						_conf->config_init_params->wifi_retries_before_reset_provisioning);
+				s_retry_num++;
+				esp_wifi_connect();
+			} else {
+				xEventGroupSetBits(_gn_event_group_wifi, GN_WIFI_FAIL_EVENT);
+			}
+			//ESP_LOGI(TAG,"connect to the AP fail");
+		}
+
+	} else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_STOP) {
+
+		xEventGroupSetBits(_gn_event_group_wifi, GN_WIFI_STOPPED_EVENT);
+
+	} else {
+		ESP_LOGD(TAG, "other event received. event_base = %s, event_id = %d",
+				event_base, event_id);
 	}
 
 #endif
 
 }
 
-void _gn_wifi_init_sta(void) {
+gn_err_t _gn_wifi_init_sta(void) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
@@ -180,21 +206,28 @@ void _gn_wifi_init_sta(void) {
 
 	EventBits_t bits = xEventGroupWaitBits(_gn_event_group_wifi,
 			GN_WIFI_CONNECTED_EVENT | GN_WIFI_FAIL_EVENT,
-			pdFALSE,
+			pdTRUE,
 			pdFALSE,
 			portMAX_DELAY);
 
 	if (bits & GN_WIFI_CONNECTED_EVENT) {
-		gn_log(TAG, GN_LOG_INFO, "Connected to AP");
+		ESP_LOGI(TAG, "_gn_wifi_init_sta - connected");
 	} else if (bits & GN_WIFI_FAIL_EVENT) {
-		gn_log(TAG, GN_LOG_ERROR, "Failed to connect to AP. Resetting Provisioning Status");
+		ESP_LOGE(TAG,
+				"_gn_wifi_init_sta - Failed to connect to AP. Resetting Provisioning Status");
 		wifi_prov_mgr_reset_provisioning();
 		gn_reboot();
+		return GN_RET_ERR;
 	} else {
-		gn_log(TAG, GN_LOG_ERROR, "UNEXPECTED EVENT");
+		ESP_LOGE(TAG, "_gn_wifi_init_sta - UNEXPECTED EVENT");
+		return GN_RET_ERR;
 	}
 
-#endif
+	return GN_RET_OK;
+
+#else
+	return GN_RET_OK;
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
 
 }
 
@@ -238,7 +271,7 @@ esp_err_t _gn_wifi_custom_prov_data_handler(uint32_t session_id,
 	return ESP_OK;
 }
 
-esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
+esp_err_t gn_wifi_init(gn_config_handle_intl_t conf) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
@@ -336,8 +369,6 @@ esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
 		 *          for encryption/decryption of messages.
 		 */
 
-
-
 		wifi_prov_security_t security = WIFI_PROV_SECURITY_0;
 
 		if (_conf->config_init_params->provisioning_security) {
@@ -416,9 +447,8 @@ esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
 	ESP_LOGD(TAG, "Wait for Wi-Fi connection");
 
 	/* Wait for Wi-Fi connection */
-	xEventGroupWaitBits(_gn_event_group_wifi, GN_WIFI_CONNECTED_EVENT, false,
-	true, portMAX_DELAY);
-
+	//xEventGroupWaitBits(_gn_event_group_wifi, GN_WIFI_CONNECTED_EVENT, false,
+	//true, portMAX_DELAY);
 	fail: return ret;
 
 #else
@@ -431,7 +461,7 @@ esp_err_t _gn_init_wifi(gn_config_handle_intl_t conf) {
 static bool time_sync_init_done = false;
 #endif
 
-esp_err_t _gn_init_time_sync(gn_config_handle_t conf) {
+esp_err_t gn_wifi_time_sync_init(gn_config_handle_t conf) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
@@ -455,7 +485,7 @@ esp_err_t _gn_init_time_sync(gn_config_handle_t conf) {
 
 }
 
-void _gn_ota_task(void *pvParameter) {
+void gn_ota_task(void *pvParameter) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
@@ -491,6 +521,81 @@ void _gn_ota_task(void *pvParameter) {
 
 	vTaskDelete(NULL);
 
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
+
+}
+
+/**
+ * @brief 	stops the wifi connection, this is usually done in power saving mode
+ *
+ * @param 	config	the configuration to use
+ *
+ * @return 	GN_RET_ERR_INVALID_ARG 	in case of null _conf
+ * @return	GN_RET_ERR 				in case of general errors
+ */
+gn_err_t gn_wifi_stop(gn_config_handle_t config) {
+
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
+
+	if (!config)
+		return GN_RET_ERR_INVALID_ARG;
+
+	//gn_config_handle_intl_t _config = (gn_config_handle_intl_t) config;
+
+	esp_err_t esp_ret;
+	esp_ret = esp_wifi_disconnect();
+	if (esp_ret != ESP_OK) {
+		ESP_LOGE(TAG, "Error on esp_wifi_disconnect: %s",
+				esp_err_to_name(esp_ret));
+		return GN_RET_ERR;
+	}
+
+	ESP_LOGD(TAG, "gn_wifi_stop - Start Wait for Wi-Fi disconnection");
+
+	xEventGroupWaitBits(_gn_event_group_wifi, GN_WIFI_DISCONNECTED_EVENT,
+	pdTRUE,
+	pdFALSE, portMAX_DELAY);
+
+	ESP_LOGD(TAG, "gn_wifi_stop - End Wait for Wi-Fi disconnection");
+
+	esp_ret = esp_wifi_stop();
+	if (esp_ret != ESP_OK) {
+		ESP_LOGE(TAG, "Error on esp_wifi_stop: %s", esp_err_to_name(esp_ret));
+		return GN_RET_ERR;
+	}
+
+	xEventGroupWaitBits(_gn_event_group_wifi, GN_WIFI_STOPPED_EVENT,
+	pdTRUE,
+	pdFALSE, portMAX_DELAY);
+
+	ESP_LOGD(TAG, "gn_wifi_stop - returning");
+
+	return GN_RET_OK;
+
+#else
+	return GN_RET_OK;
+#endif /* CONFIG_GROWNODE_WIFI_ENABLED */
+
+}
+
+/**
+ * @brief 	reconnect the MQTT subsystem keeping the client configuration
+ *
+ * @param 	config	the configuration to use
+ *
+ * @return 	GN_RET_ERR_INVALID_ARG 	in case of null _conf
+ * @return	GN_RET_ERR 				in case of general errors
+ */
+gn_err_t gn_wifi_start(gn_config_handle_t conf) {
+
+#ifdef CONFIG_GROWNODE_WIFI_ENABLED
+
+	_gn_wifi_init_sta();
+
+	return GN_RET_OK;
+
+#else
+	return GN_RET_OK;
 #endif /* CONFIG_GROWNODE_WIFI_ENABLED */
 
 }
