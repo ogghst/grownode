@@ -53,17 +53,17 @@ void app_main(void) {
 		.provisioning_password = "grownode",
 		.wifi_retries_before_reset_provisioning = 5,
 		.server_board_id_topic = false,
-		.server_base_topic = "/grownode/test",
+		.server_base_topic = "grownode/stella",
 		.server_url = "mqtt://192.168.1.10:1883",
-		.server_keepalive_timer_sec = 600,
+		.server_keepalive_timer_sec = 3600,
 		.server_discovery = false,
 		.server_discovery_prefix = "homeassistant",
-		.firmware_url = "http://myserver/myfirmware.bin",
+		.firmware_url = "http://grownode.duckdns.org/grownode/stella/grownode.bin",
 		.sntp_url = "pool.ntp.org",
-		.wakeup_time_millisec = 10000LL,
+		.wakeup_time_millisec = 5000LL,
 		.sleep_delay_millisec = 50LL,
-		.sleep_time_millisec = 20000LL,
-		.sleep_mode = GN_SLEEP_MODE_LIGHT
+		.sleep_time_millisec = 120000LL,
+		.sleep_mode = GN_SLEEP_MODE_DEEP
 	};
 
 	//creates the config handle
