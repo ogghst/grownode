@@ -262,6 +262,12 @@ gn_leaf_config_handle_intl_t _gn_leaf_get_by_name(gn_config_handle_intl_t conf, 
 gn_err_t _gn_send_event_to_leaf(gn_leaf_config_handle_intl_t leaf_config,
 		gn_leaf_parameter_event_handle_t evt) {
 
+	if (!leaf_config || !evt)
+		return GN_RET_ERR_INVALID_ARG;
+
+	if (leaf_config->node_config->config->status != GN_NODE_STATUS_STARTED)
+		return GN_RET_ERR_NODE_NOT_STARTED;
+
 	ESP_LOGD(TAG_EVENT,
 			"_gn_send_event_to_leaf - id: %d, param %s, leaf %s, data %.*s",
 			evt->id, evt->param_name, evt->leaf_name, evt->data_size,
@@ -270,7 +276,7 @@ gn_err_t _gn_send_event_to_leaf(gn_leaf_config_handle_intl_t leaf_config,
 	//make sure data will end with terminating char
 	evt->data[evt->data_size] = '\0';
 
-	if (xQueueSend(leaf_config->event_queue, evt, portMAX_DELAY) != pdTRUE) {
+	if (xQueueSend(leaf_config->event_queue, evt, pdMS_TO_TICKS(1000)) != pdTRUE) {
 		ESP_LOGE(TAG, "not possible to send message to leaf %s",
 				leaf_config->name);
 		return GN_RET_ERR_EVENT_NOT_SENT;
@@ -785,16 +791,17 @@ gn_err_t gn_node_loop(gn_node_handle_t node) {
 	if (_node->config->config_init_params->sleep_mode == GN_SLEEP_MODE_NONE) {
 
 		while (true) {
-			vTaskDelay(1000 / portTICK_PERIOD_MS);
 			ESP_LOGI(TAG,
 					"looping. grownode startup status: %s, sleep mode = %d",
 					gn_get_status_description(
 							((gn_node_handle_intl_t )node)->config),
 					_node->config->config_init_params->sleep_mode);
+			vTaskDelay(1000 / portTICK_PERIOD_MS);
 		}
 
 	} else if (_node->config->config_init_params->sleep_mode
 			== GN_SLEEP_MODE_DEEP) {
+
 		ESP_LOGI(TAG,
 				"working. grownode startup status: %s, sleep mode = deep, sleep in %"PRIu64" millisec",
 				gn_get_status_description(
@@ -806,8 +813,10 @@ gn_err_t gn_node_loop(gn_node_handle_t node) {
 		gn_node_sleep(node, GN_SLEEP_MODE_DEEP,
 				_node->config->config_init_params->sleep_time_millisec);
 		//not needed to cycle as the board will restart
+
 	} else if (_node->config->config_init_params->sleep_mode
 			== GN_SLEEP_MODE_LIGHT) {
+
 		while (true) {
 			ESP_LOGI(TAG,
 					"working. grownode startup status: %s, sleep mode = light, sleep in %"PRIu64" millisec",
@@ -822,8 +831,22 @@ gn_err_t gn_node_loop(gn_node_handle_t node) {
 			ESP_LOGI(TAG, "waking up from light sleep");
 		}
 
+	} else {
+		ESP_LOGW(TAG, "sleep mode unrecognized: %d", (int)_node->config->config_init_params->sleep_mode);
+
+		while (true) {
+			ESP_LOGI(TAG,
+					"looping. grownode startup status: %s, sleep mode = %d",
+					gn_get_status_description(
+							((gn_node_handle_intl_t )node)->config),
+					_node->config->config_init_params->sleep_mode);
+			vTaskDelay(1000 / portTICK_PERIOD_MS);
+		}
+
 	}
+
 	return GN_RET_OK;
+
 }
 
 /**
