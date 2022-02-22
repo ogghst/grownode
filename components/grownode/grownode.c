@@ -1061,7 +1061,7 @@ gn_leaf_handle_t gn_leaf_create(gn_node_handle_t node_config, const char *name,
 	l_c->leaf_context = gn_leaf_context_create();
 	l_c->display_container = NULL;
 	//l_c->display_task = display_task;
-	l_c->event_queue = xQueueCreate(1, sizeof(gn_leaf_parameter_event_t));
+	l_c->event_queue = xQueueCreate(GN_NODE_LEAF_QUEUE_SIZE, sizeof(gn_leaf_parameter_event_t));
 	if (l_c->event_queue == NULL) {
 		return NULL;
 	}

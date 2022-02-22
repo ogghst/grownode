@@ -36,6 +36,7 @@ extern "C" {
 #endif /* CONFIG_GROWNODE_PROV_TRANSPORT_BLE */
 
 #define GN_NODE_LEAVES_MAX_SIZE 64
+#define GN_NODE_LEAF_QUEUE_SIZE 3
 
 //functions
 gn_node_handle_t gn_node_create(gn_config_handle_t config,
