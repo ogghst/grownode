@@ -98,6 +98,11 @@ typedef struct {
 
 gn_leaf_descriptor_handle_t gn_gpio_config(gn_leaf_handle_t leaf_config) {
 
+	char leaf_name[GN_LEAF_NAME_SIZE];
+	gn_leaf_get_name(leaf_config, leaf_name);
+
+	ESP_LOGD(TAG, "[%s] gn_gpio_config", leaf_name);
+
 	gn_leaf_descriptor_handle_t descriptor =
 			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
 	strncpy(descriptor->type, GN_LEAF_GPIO_TYPE, GN_LEAF_DESC_TYPE_SIZE);
@@ -136,7 +141,7 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 	char leaf_name[GN_LEAF_NAME_SIZE];
 	gn_leaf_get_name(leaf_config, leaf_name);
 
-	ESP_LOGD(TAG, "Initializing gpio leaf %s..", leaf_name);
+	ESP_LOGD(TAG, "[%s] gn_gpio_task", leaf_name);
 
 	const size_t GN_GPIO_STATE_STOP = 0;
 	const size_t GN_GPIO_STATE_RUNNING = 1;
@@ -213,13 +218,13 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 	//task cycle
 	while (true) {
 
-		//ESP_LOGD(TAG, "task cycle..");
+		ESP_LOGD(TAG, "[%s] task cycle..", leaf_name);
 
 		//check for messages and cycle every 100ms
 		if (xQueueReceive(gn_leaf_get_event_queue(leaf_config), &evt,
 				portMAX_DELAY) == pdPASS) {
 
-			ESP_LOGD(TAG, "%s - received message: %d", leaf_name, evt.id);
+			ESP_LOGD(TAG, "[%s] received message: %d", leaf_name, evt.id);
 
 			//event arrived for this node
 			switch (evt.id) {
@@ -227,8 +232,8 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 			//parameter change
 			case GN_LEAF_PARAM_CHANGE_REQUEST_EVENT:
 
-				ESP_LOGD(TAG, "request to update param %s, data = '%s'",
-						evt.param_name, evt.data);
+				ESP_LOGD(TAG, "[%s] request to update param %s, data = '%s'",
+						leaf_name, evt.param_name, evt.data);
 
 				//parameter is status
 				if (gn_leaf_event_mask_param(&evt, data->gn_gpio_toggle_param)
@@ -244,7 +249,7 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 
 					status = _active;
 
-					ESP_LOGD(TAG, "%s - gpio %d, toggle %d, inverted %d",
+					ESP_LOGD(TAG, "[%s] - gpio %d, toggle %d, inverted %d",
 							leaf_name, (int )gpio, status ? 1 : 0,
 							inverted ? 1 : 0);
 
@@ -275,7 +280,7 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 
 					inverted = _inverted;
 
-					ESP_LOGD(TAG, "%s - gpio %d, toggle %d, inverted %d",
+					ESP_LOGD(TAG, "[%s] - gpio %d, toggle %d, inverted %d",
 							leaf_name, (int )gpio, status ? 1 : 0,
 							inverted ? 1 : 0);
 
