@@ -78,6 +78,7 @@ typedef struct {
 	gn_leaf_param_handle_t update_time_param;
 	gn_leaf_param_handle_t gpio_param;
 	gn_leaf_param_handle_t active_param;
+	gn_leaf_param_handle_t parasitic_param;
 
 } gn_ds18b20_data_t;
 
@@ -126,12 +127,19 @@ void gn_ds18b20_temp_sensor_collect(gn_leaf_handle_t leaf_config) {
 	double gpio;
 	gn_leaf_param_get_double(leaf_config, GN_DS18B20_PARAM_GPIO, &gpio);
 
+	bool parasitic;
+	gn_leaf_param_get_bool(leaf_config, GN_DS18B20_PARAM_PARASITIC, &parasitic);
+
 	if (active == true) {
 
 		ESP_LOGD(TAG, "[%s] reading from GPIO %d..", leaf_name, (int )gpio);
 
+		for (int i = 0; i < GN_DS18B20_MAX_SENSORS; i++) {
+			if (data->addrs[i])
+				ds18x20_measure(gpio, data->addrs[i], parasitic);
+		}
 		//read data from sensors using GPIO parameter
-		res = ds18x20_measure_and_read_multi(gpio, data->addrs,
+		res = ds18x20_read_temp_multi(gpio, data->addrs,
 				data->sensor_count, data->temp);
 
 		if (res != ESP_OK) {
@@ -212,6 +220,12 @@ gn_leaf_descriptor_handle_t gn_ds18b20_config(gn_leaf_handle_t leaf_config) {
 				GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
 		gn_leaf_param_add_to_leaf(leaf_config, data->temp_param[i]);
 	}
+
+	data->parasitic_param = gn_leaf_param_create(leaf_config,
+			GN_DS18B20_PARAM_PARASITIC, GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b =
+					false }, GN_LEAF_PARAM_ACCESS_NODE,
+			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
+	gn_leaf_param_add_to_leaf(leaf_config, data->parasitic_param);
 
 	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
 	descriptor->data = data;
