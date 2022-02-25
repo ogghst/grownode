@@ -36,6 +36,7 @@ nav:
      - 'reference/events.md'
      - 'reference/networking.md'
      - 'reference/mqtt.md'
+     - 'reference/power_management.md'
      - 'reference/display.md'
      - 'reference/logging.md'
      - 'reference/error.md'
