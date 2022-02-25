@@ -854,7 +854,7 @@ gn_err_t gn_node_loop(gn_node_handle_t node) {
  */
 void _gn_wait_for_blocked_leaves(gn_node_handle_intl_t _node) {
 
-
+	/*
 	if (!_node) return;
 
 	//waits until all leaves has reached blocked status
@@ -881,6 +881,7 @@ void _gn_wait_for_blocked_leaves(gn_node_handle_intl_t _node) {
 		if (leaves_working)
 			vTaskDelay(pdMS_TO_TICKS(5));
 	}
+	*/
 
 }
 
@@ -974,7 +975,7 @@ gn_err_t gn_node_sleep(gn_node_handle_t node, gn_sleep_mode_t sleep_mode,
 
 		wakeup_reason = GN_SLEEP_MODE_LIGHT;
 
-		//_gn_wait_for_blocked_leaves(_node);
+		_gn_wait_for_blocked_leaves(_node);
 		esp_sleep_enable_timer_wakeup(millisec * 1000LL);
 		esp_light_sleep_start();
 

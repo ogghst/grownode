@@ -121,10 +121,10 @@ typedef struct {
 	char server_discovery_prefix[80];
 	char firmware_url[255];
 	char sntp_url[255];
-	uint64_t wakeup_time_millisec;
-	uint64_t sleep_time_millisec;
-	uint64_t sleep_delay_millisec;
-	gn_sleep_mode_t sleep_mode;
+	uint64_t wakeup_time_millisec; /*! if sleep mode is GN_SLEEP_MODE_LIGHT or GN_SLEEP_MODE_DEEP, sets for how long the board must stay on (counted from boot) !*/
+	uint64_t sleep_time_millisec; /*! if sleep mode is GN_SLEEP_MODE_LIGHT or GN_SLEEP_MODE_DEEP, sets for how long the board must sleep !*/
+	uint64_t sleep_delay_millisec; /*! if sleep mode is GN_SLEEP_MODE_LIGHT or GN_SLEEP_MODE_DEEP, sets for how long the board must stay on waiting for leaves to complete its job before sleeping!*/
+	gn_sleep_mode_t sleep_mode; /*! define if and how the board must sleep !*/
 
 } gn_config_init_param_t;
 
