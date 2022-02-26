@@ -26,6 +26,11 @@ Main parameters are:
  - 	`uint64_t sleep_time_millisec` - if sleep mode is GN_SLEEP_MODE_LIGHT or GN_SLEEP_MODE_DEEP, sets for how long the board must sleep
  - 	`uint64_t sleep_delay_millisec` - if sleep mode is GN_SLEEP_MODE_LIGHT or GN_SLEEP_MODE_DEEP, sets for how long the board must stay on waiting for leaves to complete its job before sleeping
 
-## Sleep start cycle
+## Sleep start cycle (automatic)
 
 In light and deep sleep mode, a timer sets until when the board must stay on. Upon timeout, the board sends to its leaves a GN_NODE_LIGHT_SLEEP_START_EVENT o GN_NODE_DEEP_SLEEP_START_EVENT. This allows the leaves to perform housekeeping work in preparation to sleep. Then, waits for `sleep_delay_millisec`. After this time, its starts checking whether leaves are still working. Once all leaves are in blocking status if releases the MQTT and WIFI connection and start the sleep cycle for `sleep_time_millisec`.
+
+## Manual sleep cycle management
+
+If you want to sleep the board directly from your code, you can use the `gn_err_t gn_node_sleep(gn_node_handle_t node, gn_sleep_mode_t sleep_mode, uint64_t delay_msec, uint64_t millisec)` function. It starts the same cycle called in automatic mode.
+
