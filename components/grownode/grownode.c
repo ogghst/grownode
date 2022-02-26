@@ -201,18 +201,18 @@ esp_err_t _gn_init_spiffs(gn_config_handle_intl_t conf) {
 }
 
 /*
-#define TIMER_DIVIDER         (16)  //  Hardware timer clock divider
-#define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
+ #define TIMER_DIVIDER         (16)  //  Hardware timer clock divider
+ #define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
 
-static bool IRAM_ATTR _gn_timer_callback_isr(void *args) {
-	BaseType_t high_task_awoken = pdFALSE;
-	if (!gn_event_loop)
-		return high_task_awoken;
-	esp_event_isr_post_to(gn_event_loop, GN_BASE_EVENT,
-			GN_SRV_KEEPALIVE_TRIGGERED_EVENT, NULL, 0, &high_task_awoken);
-	return high_task_awoken == pdTRUE;
-}
-*/
+ static bool IRAM_ATTR _gn_timer_callback_isr(void *args) {
+ BaseType_t high_task_awoken = pdFALSE;
+ if (!gn_event_loop)
+ return high_task_awoken;
+ esp_event_isr_post_to(gn_event_loop, GN_BASE_EVENT,
+ GN_SRV_KEEPALIVE_TRIGGERED_EVENT, NULL, 0, &high_task_awoken);
+ return high_task_awoken == pdTRUE;
+ }
+ */
 
 void _gn_keepalive_callback(gn_config_handle_intl_t conf) {
 	ESP_LOGI(TAG, "_gn_keepalive_callback");
@@ -222,23 +222,27 @@ void _gn_keepalive_callback(gn_config_handle_intl_t conf) {
 
 void _gn_keepalive_start(gn_config_handle_intl_t conf) {
 
-	if(!conf->keepalive_timer_handler) return;
+	if (!conf->keepalive_timer_handler)
+		return;
 	//timer_start(TIMER_GROUP_0, TIMER_0);
 	if (!esp_timer_is_active(conf->keepalive_timer_handler))
-		esp_timer_start_periodic(conf->keepalive_timer_handler, conf->config_init_params->server_keepalive_timer_sec * 1000000);
+		esp_timer_start_periodic(conf->keepalive_timer_handler,
+				conf->config_init_params->server_keepalive_timer_sec * 1000000);
 	ESP_LOGD(TAG, "timer started");
 }
 
 void _gn_keepalive_stop(gn_config_handle_intl_t conf) {
 
-	if(!conf->keepalive_timer_handler) return;
+	if (!conf->keepalive_timer_handler)
+		return;
 	//timer_pause(TIMER_GROUP_0, TIMER_0);
 	if (!esp_timer_is_active(conf->keepalive_timer_handler))
 		esp_timer_stop(conf->keepalive_timer_handler);
 	ESP_LOGD(TAG, "timer paused");
 }
 
-gn_leaf_config_handle_intl_t _gn_leaf_get_by_name(gn_config_handle_intl_t conf, char *leaf_name) {
+gn_leaf_config_handle_intl_t _gn_leaf_get_by_name(gn_config_handle_intl_t conf,
+		char *leaf_name) {
 
 	gn_leaves_list leaves = conf->node_handle->leaves;
 
@@ -285,10 +289,11 @@ gn_err_t _gn_send_event_to_leaf(gn_leaf_config_handle_intl_t leaf_config,
 	return GN_RET_OK;
 }
 
-void _gn_evt_handler(void* handler_data, esp_event_base_t base, int32_t id,
-		void* event_data) {
+void _gn_evt_handler(void *handler_data, esp_event_base_t base, int32_t id,
+		void *event_data) {
 
-	if (!handler_data) return;
+	if (!handler_data)
+		return;
 
 	gn_config_handle_intl_t conf = (gn_config_handle_intl_t) handler_data;
 
@@ -359,8 +364,7 @@ void _gn_evt_handler(void* handler_data, esp_event_base_t base, int32_t id,
 
 	case GN_SRV_KEEPALIVE_TRIGGERED_EVENT:
 		//publish node
-		if (gn_mqtt_send_node_config(conf->node_handle)
-				!= GN_RET_OK) {
+		if (gn_mqtt_send_node_config(conf->node_handle) != GN_RET_OK) {
 			ESP_LOGE(TAG, "Error in sending node config message");
 		}
 		break;
@@ -410,24 +414,25 @@ esp_err_t _gn_init_keepalive_timer(gn_config_handle_intl_t conf) {
 		return ESP_OK;
 
 	/*
-	timer_config_t config = { .divider = TIMER_DIVIDER, .counter_dir =
-			TIMER_COUNT_UP, .counter_en = TIMER_PAUSE, .alarm_en =
-			TIMER_ALARM_EN, .auto_reload = 1, }; // default clock source is APB
-	timer_init(TIMER_GROUP_0, TIMER_0, &config);
-	timer_set_counter_value(TIMER_GROUP_0, TIMER_0, 0);
-	timer_set_alarm_value(TIMER_GROUP_0, TIMER_0,
-			conf->config_init_params->server_keepalive_timer_sec * TIMER_SCALE);
-	timer_enable_intr(TIMER_GROUP_0, TIMER_0);
-	return timer_isr_callback_add(TIMER_GROUP_0, TIMER_0,
-			_gn_timer_callback_isr,
-			NULL, 0);
-	*/
+	 timer_config_t config = { .divider = TIMER_DIVIDER, .counter_dir =
+	 TIMER_COUNT_UP, .counter_en = TIMER_PAUSE, .alarm_en =
+	 TIMER_ALARM_EN, .auto_reload = 1, }; // default clock source is APB
+	 timer_init(TIMER_GROUP_0, TIMER_0, &config);
+	 timer_set_counter_value(TIMER_GROUP_0, TIMER_0, 0);
+	 timer_set_alarm_value(TIMER_GROUP_0, TIMER_0,
+	 conf->config_init_params->server_keepalive_timer_sec * TIMER_SCALE);
+	 timer_enable_intr(TIMER_GROUP_0, TIMER_0);
+	 return timer_isr_callback_add(TIMER_GROUP_0, TIMER_0,
+	 _gn_timer_callback_isr,
+	 NULL, 0);
+	 */
 
 	//creates the blink timer
-	const esp_timer_create_args_t keepalive_timer_args = { .callback = &_gn_keepalive_callback,
-			.arg = conf, .name = "keepalive_timer" };
+	const esp_timer_create_args_t keepalive_timer_args = { .callback =
+			&_gn_keepalive_callback, .arg = conf, .name = "keepalive_timer" };
 
-	return esp_timer_create(&keepalive_timer_args, &conf->keepalive_timer_handler);
+	return esp_timer_create(&keepalive_timer_args,
+			&conf->keepalive_timer_handler);
 }
 
 /**
@@ -811,6 +816,7 @@ gn_err_t gn_node_loop(gn_node_handle_t node) {
 				_node->config->config_init_params->wakeup_time_millisec
 						/ portTICK_PERIOD_MS);
 		gn_node_sleep(node, GN_SLEEP_MODE_DEEP,
+				_node->config->config_init_params->sleep_delay_millisec,
 				_node->config->config_init_params->sleep_time_millisec);
 		//not needed to cycle as the board will restart
 
@@ -827,12 +833,14 @@ gn_err_t gn_node_loop(gn_node_handle_t node) {
 					_node->config->config_init_params->wakeup_time_millisec
 							/ portTICK_PERIOD_MS);
 			gn_node_sleep(node, GN_SLEEP_MODE_LIGHT,
+					_node->config->config_init_params->sleep_delay_millisec,
 					_node->config->config_init_params->sleep_time_millisec);
 			ESP_LOGI(TAG, "waking up from light sleep");
 		}
 
 	} else {
-		ESP_LOGW(TAG, "sleep mode unrecognized: %d", (int)_node->config->config_init_params->sleep_mode);
+		ESP_LOGW(TAG, "sleep mode unrecognized: %d",
+				(int )_node->config->config_init_params->sleep_mode);
 
 		while (true) {
 			ESP_LOGI(TAG,
@@ -855,45 +863,49 @@ gn_err_t gn_node_loop(gn_node_handle_t node) {
 void _gn_wait_for_blocked_leaves(gn_node_handle_intl_t _node) {
 
 	/*
-	if (!_node) return;
+	 if (!_node) return;
 
-	//waits until all leaves has reached blocked status
-	int leaves_count = _node->leaves.last;
-	ESP_LOGI(TAG, "leaves_count %d", leaves_count);
+	 //waits until all leaves has reached blocked status
+	 int leaves_count = _node->leaves.last;
+	 ESP_LOGI(TAG, "leaves_count %d", leaves_count);
 
-	bool leaves_working = false;
-	bool this_leaf_working = false;
+	 bool leaves_working = false;
+	 bool this_leaf_working = false;
 
-	while (!leaves_working) {
+	 while (!leaves_working) {
 
-		for (int i = 0; i < leaves_count; i++) {
-			if (_node->leaves.at[i] && _node->leaves.at[i]->task_handle) {
-				this_leaf_working = eTaskGetState(
-						_node->leaves.at[i]->task_handle) == eRunning;
-				leaves_working = this_leaf_working || leaves_working;
-				if (this_leaf_working) {
-					ESP_LOGI(TAG, "leaves working: %s",
-							_node->leaves.at[i]->name);
-				}
-			}
-		}
+	 for (int i = 0; i < leaves_count; i++) {
+	 if (_node->leaves.at[i] && _node->leaves.at[i]->task_handle) {
+	 this_leaf_working = eTaskGetState(
+	 _node->leaves.at[i]->task_handle) == eRunning;
+	 leaves_working = this_leaf_working || leaves_working;
+	 if (this_leaf_working) {
+	 ESP_LOGI(TAG, "leaves working: %s",
+	 _node->leaves.at[i]->name);
+	 }
+	 }
+	 }
 
-		if (leaves_working)
-			vTaskDelay(pdMS_TO_TICKS(5));
-	}
-	*/
+	 if (leaves_working)
+	 vTaskDelay(pdMS_TO_TICKS(5));
+	 }
+	 */
 
 }
 
 /**
  * @brief enter in sleep mode, disabling networking and releasing resources.
  *
- * @param 		node the node to sleep
- * @sleep_mode	the type of sleep
- * @millisec	for how long
+ * @param 		node 			the node to sleep
+ * @param		delay_msec		the delay to wait before sleeping
+ * @param 		sleep_mode	the type of sleep
+ * @param		millisec	for how long
+ *
+ * @return		GN_RET_ERR_INVALID_ARG in case of node null
+ * @return		GN_RET_OK if sleep cycle is completed successfully (only in light sleep, otherwise board restarts)
  */
 gn_err_t gn_node_sleep(gn_node_handle_t node, gn_sleep_mode_t sleep_mode,
-		uint64_t millisec) {
+		uint64_t delay_msec, uint64_t millisec) {
 
 	if (!node)
 		return GN_RET_ERR_INVALID_ARG;
@@ -911,14 +923,13 @@ gn_err_t gn_node_sleep(gn_node_handle_t node, gn_sleep_mode_t sleep_mode,
 			return GN_RET_ERR_EVENT_LOOP_ERROR;
 		}
 
-		ESP_LOGI(TAG, "Preparing deep sleep in %"PRIu64" millisec",
-				_node->config->config_init_params->sleep_delay_millisec);
-
 		//gives some time to handle the event
-		if (_node->config->config_init_params->sleep_delay_millisec > 0) {
-			vTaskDelay(
-					_node->config->config_init_params->sleep_delay_millisec
-							/ portTICK_PERIOD_MS);
+		if (delay_msec > 0) {
+
+			ESP_LOGI(TAG, "Preparing deep sleep in %"PRIu64" millisec",
+					delay_msec);
+
+			vTaskDelay(delay_msec / portTICK_PERIOD_MS);
 		}
 
 		_node->config->status = GN_NODE_STATUS_SLEEPING;
@@ -954,14 +965,13 @@ gn_err_t gn_node_sleep(gn_node_handle_t node, gn_sleep_mode_t sleep_mode,
 			return GN_RET_ERR_EVENT_LOOP_ERROR;
 		}
 
-		ESP_LOGI(TAG, "Preparing light sleep in %"PRIu64" millisec",
-				_node->config->config_init_params->sleep_delay_millisec);
+		//gives some time to handle the event
+		if (delay_msec > 0) {
 
-//gives some time to handle the event
-		if (_node->config->config_init_params->sleep_delay_millisec > 0) {
-			vTaskDelay(
-					_node->config->config_init_params->sleep_delay_millisec
-							/ portTICK_PERIOD_MS);
+			ESP_LOGI(TAG, "Preparing deep sleep in %"PRIu64" millisec",
+					delay_msec);
+
+			vTaskDelay(delay_msec / portTICK_PERIOD_MS);
 		}
 
 		_node->config->status = GN_NODE_STATUS_SLEEPING;
@@ -1062,7 +1072,8 @@ gn_leaf_handle_t gn_leaf_create(gn_node_handle_t node_config, const char *name,
 	l_c->leaf_context = gn_leaf_context_create();
 	l_c->display_container = NULL;
 	//l_c->display_task = display_task;
-	l_c->event_queue = xQueueCreate(GN_NODE_LEAF_QUEUE_SIZE, sizeof(gn_leaf_parameter_event_t));
+	l_c->event_queue = xQueueCreate(GN_NODE_LEAF_QUEUE_SIZE,
+			sizeof(gn_leaf_parameter_event_t));
 	if (l_c->event_queue == NULL) {
 		return NULL;
 	}
