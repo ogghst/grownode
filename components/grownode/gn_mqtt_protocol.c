@@ -1234,6 +1234,11 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 					== 0) {
 				//ota message
 
+				if (event->retain) {
+					//clear retain message
+					esp_mqtt_client_publish(config->mqtt_client, _gn_cmd_topic, "", 0, 1, true);
+				}
+
 				esp_event_post_to(config->event_loop, GN_BASE_EVENT,
 						GN_NET_OTA_START, NULL, 0, portMAX_DELAY);
 
@@ -1241,12 +1246,22 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 					event->data_len) == 0) {
 				//rst message
 
+				if (event->retain) {
+					//clear retain message
+					esp_mqtt_client_publish(config->mqtt_client, _gn_cmd_topic, "", 0, 1, true);
+				}
+
 				esp_event_post_to(config->event_loop, GN_BASE_EVENT,
 						GN_NET_RST_START, NULL, 0, portMAX_DELAY);
 
 			} else if (strncmp(event->data, _GN_MQTT_PAYLOAD_RBT,
 					event->data_len) == 0) {
 				//rst message
+
+				if (event->retain) {
+					//clear retain message
+					esp_mqtt_client_publish(config->mqtt_client, _gn_cmd_topic, "", 0, 1, true);
+				}
 
 				esp_event_post_to(config->event_loop, GN_BASE_EVENT,
 						GN_NET_RBT_START, NULL, 0, portMAX_DELAY);
