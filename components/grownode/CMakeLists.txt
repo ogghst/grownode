@@ -113,7 +113,7 @@ else()
 	
 	if(DEFINED ENV{IDF_LIB_PATH})
 	    list(APPEND components_required 
-     		"bmp280" "ds18x20" 
+     		"bmp280" "ds18x20" "ina219"
      	)
    	endif()
 
@@ -143,6 +143,7 @@ else()
 					"leaves/gn_gpio.c"
 					"leaves/gn_led.c"
 					"leaves/gn_leaf_status_led.c"
+					"leaves/gn_leaf_ina219.c"
 					"test/test_grownode.c"
 					"test/test_pump.c"
 					"test/test_ds18b20.c"
@@ -152,6 +153,7 @@ else()
 					"boards/gn_hydroboard2.c"
 					"boards/gn_easypot1.c"
 					"boards/gn_blink.c"
+					"boards/gn_oscilloscope.c"
 					
 					REQUIRES "${components_required}"
                     INCLUDE_DIRS 

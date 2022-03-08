@@ -835,7 +835,7 @@ gn_err_t gn_node_loop(gn_node_handle_t node) {
 			gn_node_sleep(node, GN_SLEEP_MODE_LIGHT,
 					_node->config->config_init_params->sleep_delay_millisec,
 					_node->config->config_init_params->sleep_time_millisec);
-			ESP_LOGI(TAG, "waking up from light sleep");
+			ESP_LOGD(TAG, "waking up from light sleep");
 		}
 
 	} else {
@@ -1503,7 +1503,7 @@ gn_err_t gn_leaf_param_init_string(const gn_leaf_handle_t leaf_config,
 	}
 
 	//store the parameter
-	if (gn_storage_set(_buf, (void**) &val, strlen(val)) != ESP_OK) {
+	if (gn_storage_set(_buf, (void*) val, strlen(val)+1) != ESP_OK) {
 		ESP_LOGW(TAG,
 				"not possible to store leaf parameter value - key %s value %s",
 				_buf, val);
@@ -1611,7 +1611,7 @@ gn_err_t gn_leaf_param_write_string(const gn_leaf_handle_t leaf_config,
 
 		_buf[_len] = '\0';
 
-		if (gn_storage_set(_buf, (void**) &val, strlen(val)) != ESP_OK) {
+		if (gn_storage_set(_buf, (void*) val, strlen(val)) != ESP_OK) {
 			ESP_LOGW(TAG,
 					"not possible to store leaf parameter value - key %s value %s",
 					_buf, val);
@@ -1623,7 +1623,7 @@ gn_err_t gn_leaf_param_write_string(const gn_leaf_handle_t leaf_config,
 
 	}
 
-	ESP_LOGD(TAG, "gn_leaf_param_write_string - result %s",
+	ESP_LOGD(TAG, "gn_leaf_param_write_string - result: %s",
 			_param->param_val->v.s);
 
 	//notify event loop
@@ -2996,6 +2996,7 @@ gn_err_t gn_storage_set(const char *key, const void *value,
 	 goto fail;
 	 }
 	 */
+	ESP_LOGD(TAG_NVS, "gn_storage_set(%s, %s)", key, (char*)value);
 
 	nvs_handle_t my_handle;
 
@@ -3082,7 +3083,7 @@ gn_err_t gn_storage_get(const char *key, void **value) {
 	if (required_size > 0) {
 
 // Read previously saved blob if available
-		*value = malloc(required_size + sizeof(uint32_t));
+		*value = calloc(required_size + sizeof(uint32_t),1);
 
 		err = nvs_get_blob(my_handle, _hashedkey, *value, &required_size);
 
@@ -3092,7 +3093,7 @@ gn_err_t gn_storage_get(const char *key, void **value) {
 			free(*value);
 			goto fail;
 		}
-		ESP_LOGD(TAG_NVS, "gn_storage_get(%s) - %s - ESP_OK", key,
+		ESP_LOGD(TAG_NVS, "gn_storage_get(%s) - %s - OK", key,
 				(char* ) *value);
 	} else
 		goto fail;
