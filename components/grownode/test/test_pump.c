@@ -85,8 +85,8 @@ TEST_CASE("gn_receive_status_0", "[pump]") {
 	event->topic_len = strlen(topic);
 	event->data_len = strlen(data);
 
-	strncpy(event->topic, topic, event->topic_len);
-	strncpy(event->data, data, event->data_len);
+	strcpy(event->topic, topic);
+	strcpy(event->data, data);
 
 	esp_event_base_t base = "base";
 	void *handler_args = 0;
@@ -118,8 +118,8 @@ TEST_CASE("gn_receive_status_1", "[pump]") {
 	event->topic_len = strlen(topic);
 	event->data_len = strlen(data);
 
-	strncpy(event->topic, topic, event->topic_len);
-	strncpy(event->data, data, event->data_len);
+	strcpy(event->topic, topic);
+	strcpy(event->data, data);
 
 	esp_event_base_t base = "base";
 	void *handler_args = 0;
@@ -151,8 +151,8 @@ TEST_CASE("gn_receive_power_0", "[pump]") {
 	event->topic_len = strlen(topic);
 	event->data_len = strlen(data);
 
-	strncpy(event->topic, topic, event->topic_len);
-	strncpy(event->data, data, event->data_len);
+	strcpy(event->topic, topic);
+	strcpy(event->data, data);
 
 	esp_event_base_t base = "base";
 	void *handler_args = 0;
@@ -184,8 +184,8 @@ TEST_CASE("gn_receive_power_128", "[pump]") {
 	event->topic_len = strlen(topic);
 	event->data_len = strlen(data);
 
-	strncpy(event->topic, topic, event->topic_len);
-	strncpy(event->data, data, event->data_len);
+	strcpy(event->topic, topic);
+	strcpy(event->data, data);
 
 	esp_event_base_t base = "base";
 	void *handler_args = 0;
@@ -217,8 +217,8 @@ TEST_CASE("gn_receive_power_500", "[pump]") {
 	event->topic_len = strlen(topic);
 	event->data_len = strlen(data);
 
-	strncpy(event->topic, topic, event->topic_len);
-	strncpy(event->data, data, event->data_len);
+	strcpy(event->topic, topic);
+	strcpy(event->data, data);
 
 	esp_event_base_t base = "base";
 	void *handler_args = 0;
@@ -286,8 +286,8 @@ TEST_CASE("gn_pump_mqtt_stress_test", "[pump]") {
 			event->topic_len = strlen(topic);
 			event->data_len = strlen(data);
 
-			strncpy(event->topic, topic, event->topic_len);
-			strncpy(event->data, data, event->data_len);
+			strcpy(event->topic, topic);
+			strcpy(event->data, data);
 
 			ESP_LOGD(TAG, "sending command - topic %s, data %s", topic, data);
 

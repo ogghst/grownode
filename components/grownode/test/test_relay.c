@@ -90,8 +90,8 @@ TEST_CASE("gn_receive_status_0", "[relay]") {
 	event->topic_len = strlen(topic);
 	event->data_len = strlen(data);
 
-	strncpy(event->topic, topic, event->topic_len);
-	strncpy(event->data, data, event->data_len);
+	strcpy(event->topic, topic);
+	strcpy(event->data, data);
 
 	esp_event_base_t base = "base";
 	void *handler_args = 0;
@@ -122,8 +122,8 @@ TEST_CASE("gn_receive_status_1", "[relay]") {
 	event->topic_len = strlen(topic);
 	event->data_len = strlen(data);
 
-	strncpy(event->topic, topic, event->topic_len);
-	strncpy(event->data, data, event->data_len);
+	strcpy(event->topic, topic);
+	strcpy(event->data, data);
 
 	esp_event_base_t base = "base";
 	void *handler_args = 0;
@@ -182,8 +182,8 @@ TEST_CASE("gn_relay_mqtt_stress_test", "[relay]") {
 		event->topic_len = strlen(topic);
 		event->data_len = strlen(data);
 
-		strncpy(event->topic, topic, event->topic_len);
-		strncpy(event->data, data, event->data_len);
+		strcpy(event->topic, topic);
+		strcpy(event->data, data);
 
 		ESP_LOGD(TAG, "sending command - topic %s, data %s", topic, data);
 

@@ -91,7 +91,7 @@ void _gn_mqtt_build_leaf_command_topic(gn_leaf_handle_t _leaf_config, char *buf)
 	strncat(buf, config->node_handle->name, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	if (config->config_init_params->server_board_id_topic) {
-		strncat(buf, _gn_mqtt_build_node_name(config), 12);
+		strncat(buf, _gn_mqtt_build_node_name(config), 13);
 		strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	}
 	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -117,7 +117,7 @@ void _gn_mqtt_build_leaf_parameter_command_topic(
 	strncat(buf, config->node_handle->name, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	if (config->config_init_params->server_board_id_topic) {
-		strncat(buf, _gn_mqtt_build_node_name(config), 12);
+		strncat(buf, _gn_mqtt_build_node_name(config), GN_MQTT_NODE_NAME_SIZE);
 		strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	}
 	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -145,7 +145,7 @@ void _gn_mqtt_build_leaf_parameter_status_topic(gn_leaf_handle_t _leaf_config,
 	strncat(buf, config->node_handle->name, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	if (config->config_init_params->server_board_id_topic) {
-		strncat(buf, _gn_mqtt_build_node_name(config), 12);
+		strncat(buf, _gn_mqtt_build_node_name(config), GN_MQTT_NODE_NAME_SIZE);
 		strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	}
 	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -172,7 +172,7 @@ void _gn_mqtt_build_leaf_status_topic(gn_leaf_handle_t _leaf_config, char *buf) 
 	strncat(buf, config->node_handle->name, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	if (config->config_init_params->server_board_id_topic) {
-		strncat(buf, _gn_mqtt_build_node_name(config), 12);
+		strncat(buf, _gn_mqtt_build_node_name(config), GN_MQTT_NODE_NAME_SIZE);
 		strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	}
 	strncat(buf, leaf_config->name, _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -190,7 +190,7 @@ void _gn_mqtt_build_status_topic(gn_config_handle_intl_t config, char *buf) {
 	//strncat(buf, config->node_handle->name, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	if (config->config_init_params->server_board_id_topic) {
-		strncat(buf, _gn_mqtt_build_node_name(config), 12);
+		strncat(buf, _gn_mqtt_build_node_name(config), GN_MQTT_NODE_NAME_SIZE);
 		strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	}
 	strncat(buf, _GN_MQTT_STATUS_MESS, _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -206,7 +206,7 @@ void _gn_mqtt_build_log_topic(gn_config_handle_intl_t config, char *buf) {
 	//strncat(buf, config->node_handle->name, _GN_MQTT_MAX_TOPIC_LENGTH);
 	//strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	if (config->config_init_params->server_board_id_topic) {
-		strncat(buf, _gn_mqtt_build_node_name(config), 12);
+		strncat(buf, _gn_mqtt_build_node_name(config), GN_MQTT_NODE_NAME_SIZE);
 		strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	}
 	strncat(buf, _GN_MQTT_LOG_MESS, _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -221,7 +221,7 @@ void _gn_mqtt_build_command_topic(gn_config_handle_intl_t config, char *buf) {
 	//strncat(buf, config->node_handle->name, _GN_MQTT_MAX_TOPIC_LENGTH);
 	strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	if (config->config_init_params->server_board_id_topic) {
-		strncat(buf, _gn_mqtt_build_node_name(config), 12);
+		strncat(buf, _gn_mqtt_build_node_name(config), GN_MQTT_NODE_NAME_SIZE);
 		strncat(buf, "/", _GN_MQTT_MAX_TOPIC_LENGTH);
 	}
 	strncat(buf, _GN_MQTT_COMMAND_MESS, _GN_MQTT_MAX_TOPIC_LENGTH);
@@ -329,14 +329,14 @@ gn_err_t gn_mqtt_subscribe_leaf(gn_leaf_handle_t _leaf_config) {
 			cJSON *root = cJSON_CreateObject();
 
 			//build parameter ID
-			char d_param_id[_GN_MQTT_MAX_TOPIC_LENGTH + 1] = { 0 };
+			char d_param_id[_GN_MQTT_MAX_TOPIC_LENGTH] = { 0 };
 			strncpy(d_param_id, _node_config->config->deviceName,
 			_GN_MQTT_MAX_TOPIC_LENGTH);
-			strncat(d_param_id, "-", _GN_MQTT_MAX_TOPIC_LENGTH);
+			strncat(d_param_id, "-", _GN_MQTT_MAX_TOPIC_LENGTH - 1);
 			strncat(d_param_id, leaf_config->name,
-			_GN_MQTT_MAX_TOPIC_LENGTH);
-			strncat(d_param_id, "-", _GN_MQTT_MAX_TOPIC_LENGTH);
-			strncat(d_param_id, _param->name, _GN_MQTT_MAX_TOPIC_LENGTH);
+			_GN_MQTT_MAX_TOPIC_LENGTH - 1);
+			strncat(d_param_id, "-", _GN_MQTT_MAX_TOPIC_LENGTH - 1);
+			strncat(d_param_id, _param->name, _GN_MQTT_MAX_TOPIC_LENGTH - 1);
 
 			//build payload
 			strncpy(_d_msg_topic,
@@ -605,8 +605,6 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 	_gn_mqtt_build_leaf_parameter_status_topic(param->leaf_config, param->name,
 			_topic);
 
-	size_t len = 0;
-
 	switch (param->param_val->t) {
 	case GN_VAL_TYPE_BOOLEAN:
 		if (param->param_val->v.b) {
@@ -616,11 +614,8 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 		}
 		break;
 	case GN_VAL_TYPE_STRING:
-		len = strlen(param->param_val->v.s);
-		strncpy(buf, param->param_val->v.s,
-				len > _GN_MQTT_MAX_PAYLOAD_LENGTH ?
-				_GN_MQTT_MAX_PAYLOAD_LENGTH :
-													len);
+		//size_t len = strlen(param->param_val->v.s);
+		strncpy(buf, param->param_val->v.s, _GN_MQTT_MAX_PAYLOAD_LENGTH);
 		break;
 	case GN_VAL_TYPE_DOUBLE:
 		snprintf(buf, 31, "%f", param->param_val->v.d);
@@ -1198,8 +1193,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 	switch ((esp_mqtt_event_id_t) event_id) {
 	case MQTT_EVENT_CONNECTED:
 		ESP_LOGD(TAG, "MQTT_EVENT_CONNECTED");
-		xEventGroupSetBits(_gn_event_group_mqtt,
-				_GN_MQTT_CONNECTED_EVENT_BIT);
+		xEventGroupSetBits(_gn_event_group_mqtt, _GN_MQTT_CONNECTED_EVENT_BIT);
 
 		/*
 		 msg_id = esp_mqtt_client_publish(client, "/topic/qos1", "data_3", 0, 1,
@@ -1218,8 +1212,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 		break;
 	case MQTT_EVENT_DISCONNECTED:
 		ESP_LOGD(TAG, "MQTT_EVENT_DISCONNECTED");
-		xEventGroupSetBits(_gn_event_group_mqtt,
-				_GN_MQTT_DISCONNECT_EVENT_BIT);
+		xEventGroupSetBits(_gn_event_group_mqtt, _GN_MQTT_DISCONNECT_EVENT_BIT);
 		_gn_mqtt_on_disconnected(config);
 
 		break;
@@ -1250,7 +1243,8 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 
 				if (event->retain) {
 					//clear retain message
-					esp_mqtt_client_publish(config->mqtt_client, _gn_cmd_topic, "", 0, 1, true);
+					esp_mqtt_client_publish(config->mqtt_client, _gn_cmd_topic,
+							"", 0, 1, true);
 				}
 
 				esp_event_post_to(config->event_loop, GN_BASE_EVENT,
@@ -1262,7 +1256,8 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 
 				if (event->retain) {
 					//clear retain message
-					esp_mqtt_client_publish(config->mqtt_client, _gn_cmd_topic, "", 0, 1, true);
+					esp_mqtt_client_publish(config->mqtt_client, _gn_cmd_topic,
+							"", 0, 1, true);
 				}
 
 				esp_event_post_to(config->event_loop, GN_BASE_EVENT,
@@ -1274,7 +1269,8 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 
 				if (event->retain) {
 					//clear retain message
-					esp_mqtt_client_publish(config->mqtt_client, _gn_cmd_topic, "", 0, 1, true);
+					esp_mqtt_client_publish(config->mqtt_client, _gn_cmd_topic,
+							"", 0, 1, true);
 				}
 
 				esp_event_post_to(config->event_loop, GN_BASE_EVENT,
@@ -1520,17 +1516,17 @@ gn_err_t gn_mqtt_stop(gn_config_handle_t config) {
 	}
 
 	/*
-	ESP_LOGI(TAG, "gn_mqtt_stop waiting to disconnect");
+	 ESP_LOGI(TAG, "gn_mqtt_stop waiting to disconnect");
 
-	xEventGroupWaitBits(_gn_event_group_mqtt, _GN_MQTT_DISCONNECT_EVENT_BIT,
-	pdFALSE,
-	pdFALSE, portMAX_DELAY);
+	 xEventGroupWaitBits(_gn_event_group_mqtt, _GN_MQTT_DISCONNECT_EVENT_BIT,
+	 pdFALSE,
+	 pdFALSE, portMAX_DELAY);
 
-	xEventGroupClearBits(_gn_event_group_mqtt, _GN_MQTT_DISCONNECT_EVENT_BIT);
-	xEventGroupClearBits(_gn_event_group_mqtt, _GN_MQTT_CONNECTED_EVENT_BIT);
+	 xEventGroupClearBits(_gn_event_group_mqtt, _GN_MQTT_DISCONNECT_EVENT_BIT);
+	 xEventGroupClearBits(_gn_event_group_mqtt, _GN_MQTT_CONNECTED_EVENT_BIT);
 
-	ESP_LOGI(TAG, "gn_mqtt_stop returning");
-	*/
+	 ESP_LOGI(TAG, "gn_mqtt_stop returning");
+	 */
 
 	return GN_RET_OK;
 
@@ -1570,16 +1566,16 @@ gn_err_t gn_mqtt_disconnect(gn_config_handle_t config) {
 	}
 
 	/*
-	ESP_LOGI(TAG, "gn_mqtt_disconnect waiting to disconnect");
+	 ESP_LOGI(TAG, "gn_mqtt_disconnect waiting to disconnect");
 
-	EventBits_t uxBits;
-	uxBits = xEventGroupWaitBits(_gn_event_group_mqtt,
-			_GN_MQTT_DISCONNECT_EVENT_BIT,
-			pdFALSE,
-			pdFALSE, portMAX_DELAY);
+	 EventBits_t uxBits;
+	 uxBits = xEventGroupWaitBits(_gn_event_group_mqtt,
+	 _GN_MQTT_DISCONNECT_EVENT_BIT,
+	 pdFALSE,
+	 pdFALSE, portMAX_DELAY);
 
-	ESP_LOGI(TAG, "gn_mqtt_disconnect returning");
-	*/
+	 ESP_LOGI(TAG, "gn_mqtt_disconnect returning");
+	 */
 
 	return GN_RET_OK;
 
@@ -1620,10 +1616,9 @@ gn_err_t gn_mqtt_reconnect(gn_config_handle_t config) {
 
 	ESP_LOGD(TAG, "gn_mqtt_reconnect waiting to connect");
 
-	xEventGroupWaitBits(_gn_event_group_mqtt,
-			_GN_MQTT_CONNECTED_EVENT_BIT,
-			pdFALSE,
-			pdFALSE, portMAX_DELAY);
+	xEventGroupWaitBits(_gn_event_group_mqtt, _GN_MQTT_CONNECTED_EVENT_BIT,
+	pdFALSE,
+	pdFALSE, portMAX_DELAY);
 
 	ESP_LOGD(TAG, "gn_mqtt_reconnect returning");
 

@@ -33,6 +33,8 @@ extern "C" {
 #define _GN_MQTT_PAYLOAD_OTA "OTA"
 #define _GN_MQTT_PAYLOAD_RBT "RBT"
 
+#define GN_MQTT_NODE_NAME_SIZE 13
+
 #define _GN_MQTT_DEFAULT_QOS 0
 
 gn_err_t gn_mqtt_subscribe_leaf(gn_leaf_handle_t leaf_config);

@@ -683,7 +683,7 @@ gn_node_handle_t gn_node_create(gn_config_handle_t config, const char *name) {
 
 	gn_node_handle_intl_t n_c = _gn_node_config_create();
 
-	strncpy(n_c->name, name, GN_NODE_NAME_SIZE);
+	strncpy(n_c->name, name, GN_NODE_NAME_SIZE-1);
 	//n_c->event_loop = config->event_loop;
 	n_c->config = config;
 
@@ -1019,7 +1019,7 @@ gn_leaf_config_handle_intl_t _gn_leaf_config_create() {
  *	@brief		gets the name of the node referenced by the handle
  *
  *	@param		node_config		the handle to be queried
- *	@param		name			the pointer where the name will be set. set lenght to GN_LEAF_NAME_SIZE
+ *	@param		name			the pointer where the name will be set. set length to GN_NODE_NAME_SIZE
  *
  *	@return		GN_RET_ERR_INVALID_ARG if the handle is not valid
  *	@return 	GN_RET_OK if everything OK
@@ -1029,8 +1029,7 @@ gn_err_t gn_node_get_name(gn_node_handle_t node_config, char *name) {
 
 	if (!node_config)
 		return GN_RET_ERR_INVALID_ARG;
-	strncpy(name, ((gn_node_handle_intl_t) node_config)->name,
-			strlen(((gn_node_handle_intl_t) node_config)->name) + 1);
+	strcpy(name, ((gn_node_handle_intl_t) node_config)->name);
 
 	return GN_RET_OK;
 
@@ -1066,7 +1065,7 @@ gn_leaf_handle_t gn_leaf_create(gn_node_handle_t node_config, const char *name,
 	gn_leaf_config_handle_intl_t l_c = _gn_leaf_config_create();
 	gn_node_handle_intl_t n_c = node_cfg;
 
-	strncpy(l_c->name, name, GN_LEAF_NAME_SIZE);
+	strncpy(l_c->name, name, GN_LEAF_NAME_SIZE-1);
 	l_c->node_config = node_cfg;
 	//l_c->task_cb = task;
 	l_c->task_size = task_size;
@@ -1123,7 +1122,7 @@ gn_err_t _gn_leaf_destroy(gn_leaf_handle_t leaf_config) {
  *	@brief		gets the name of the leaf referenced by the handle
  *
  *	@param		leaf_config		the handle to be queried
- *	@param		name			the pointer where the name will be set. set lenght to GN_LEAF_NAME_SIZE
+ *	@param		name			the pointer where the name will be set. set length to GN_LEAF_NAME_SIZE
  *
  *	@return		GN_RET_ERR_INVALID_ARG if the handle is not valid
  *	@return 	GN_RET_OK if everything OK
@@ -1133,8 +1132,7 @@ gn_err_t gn_leaf_get_name(gn_leaf_handle_t leaf_config, char *name) {
 
 	if (!leaf_config)
 		return GN_RET_ERR_INVALID_ARG;
-	strncpy(name, ((gn_leaf_config_handle_intl_t) leaf_config)->name,
-			strlen(((gn_leaf_config_handle_intl_t) leaf_config)->name) + 1);
+	strcpy(name, ((gn_leaf_config_handle_intl_t) leaf_config)->name);
 
 	return GN_RET_OK;
 
@@ -1497,10 +1495,10 @@ gn_err_t gn_leaf_param_init_string(const gn_leaf_handle_t leaf_config,
 				validate);
 		if (val_ret != GN_LEAF_PARAM_VALIDATOR_ERROR_GENERIC
 				&& val_ret != GN_LEAF_PARAM_VALIDATOR_ERROR_NOT_ALLOWED) {
-			strncpy(_val->v.s, *validate, strlen(*validate));
+			strcpy(_val->v.s, *validate);
 			ESP_LOGD(TAG, "processing validator - result: %d", (int ) val_ret);
 		} else {
-			strncpy(_val->v.s, val, strlen(val));
+			strcpy(_val->v.s, val);
 		}
 	}
 
@@ -1519,7 +1517,7 @@ gn_err_t gn_leaf_param_init_string(const gn_leaf_handle_t leaf_config,
 	strcpy(evt.param_name, _param->name);
 	evt.id = GN_LEAF_PARAM_INITIALIZED_EVENT;
 	//evt.data = calloc((strlen(_param->param_val->v.s) + 1) * sizeof(char));
-	strncpy(evt.data, _param->param_val->v.s, GN_LEAF_DATA_SIZE);
+	strncpy(evt.data, _param->param_val->v.s, GN_LEAF_DATA_SIZE-1);
 
 	esp_err_t ret = esp_event_post_to(
 			_leaf_config->node_config->config->event_loop, GN_BASE_EVENT,
@@ -1584,7 +1582,7 @@ gn_err_t gn_leaf_param_write_string(const gn_leaf_handle_t leaf_config,
 					sizeof(char) * (strlen(*validate) + 1));
 			memset(_param->param_val->v.s, 0,
 					sizeof(char) * (strlen(*validate) + 1));
-			strncpy(_param->param_val->v.s, *validate, strlen(*validate));
+			strcpy(_param->param_val->v.s, *validate);
 		} else {
 			ESP_LOGD(TAG,
 					"gn_leaf_param_write_string: validation error. code %d",
@@ -1596,7 +1594,7 @@ gn_err_t gn_leaf_param_write_string(const gn_leaf_handle_t leaf_config,
 		_param->param_val->v.s = (char*) realloc(_param->param_val->v.s,
 				sizeof(char) * (strlen(val) + 1));
 		memset(_param->param_val->v.s, 0, sizeof(char) * (strlen(val) + 1));
-		strncpy(_param->param_val->v.s, val, strlen(val));
+		strncpy(_param->param_val->v.s, val, GN_LEAF_PARAM_VAL_SIZE -1);
 	}
 
 	if (_param->storage == GN_LEAF_PARAM_STORAGE_PERSISTED) {
@@ -1634,7 +1632,7 @@ gn_err_t gn_leaf_param_write_string(const gn_leaf_handle_t leaf_config,
 	strcpy(evt.param_name, _param->name);
 	evt.id = GN_LEAF_PARAM_CHANGED_EVENT;
 	//evt.data = calloc((strlen(_param->param_val->v.s) + 1) * sizeof(char));
-	strncpy(evt.data, _param->param_val->v.s, GN_LEAF_DATA_SIZE);
+	strncpy(evt.data, _param->param_val->v.s, GN_LEAF_DATA_SIZE-1);
 
 	esp_err_t ret = esp_event_post_to(
 			_leaf_config->node_config->config->event_loop, GN_BASE_EVENT,
@@ -2292,7 +2290,7 @@ gn_err_t _gn_leaf_parameter_update(const gn_leaf_handle_t leaf_config,
 			strncpy(evt.leaf_name, _leaf_config->name,
 			GN_LEAF_NAME_SIZE);
 			strncpy(evt.param_name, param,
-			GN_LEAF_PARAM_NAME_SIZE);
+			GN_LEAF_PARAM_NAME_SIZE-1);
 
 			memcpy(&evt.data[0], data, data_len);
 			evt.data_size = data_len;

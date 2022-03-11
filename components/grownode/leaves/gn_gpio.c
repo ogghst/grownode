@@ -143,10 +143,10 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 
 	ESP_LOGD(TAG, "[%s] gn_gpio_task", leaf_name);
 
-	const size_t GN_GPIO_STATE_STOP = 0;
-	const size_t GN_GPIO_STATE_RUNNING = 1;
+	//const size_t GN_GPIO_STATE_STOP = 0;
+	//const size_t GN_GPIO_STATE_RUNNING = 1;
 
-	size_t gn_gpio_state = GN_GPIO_STATE_RUNNING;
+	//size_t gn_gpio_state = GN_GPIO_STATE_RUNNING;
 	gn_leaf_parameter_event_t evt;
 
 	//retrieves status descriptor from config
