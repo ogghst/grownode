@@ -28,7 +28,7 @@ static const char GN_LEAF_INA219_TYPE[] = "ina219";
 static const char GN_LEAF_INA219_PARAM_ACTIVE[] = "active"; /*!< whether INA219 shall transmit data */
 static const char GN_LEAF_INA219_PARAM_IP[] = "ip"; /*!< ip address of the server */
 static const char GN_LEAF_INA219_PARAM_PORT[] = "port"; /*!< port of the server */
-static const char GN_LEAF_INA219_PARAM_SAMPLING_MS[] = "sampling"; /*!< sampling time in msec */
+static const char GN_LEAF_INA219_PARAM_SAMPLING_TICKS[] = "sampling_ticks"; /*!< sampling time, approx 1 tick is 1 msec */
 static const char GN_LEAF_INA219_PARAM_SDA[] = "sda"; /*!< SDA PIN */
 static const char GN_LEAF_INA219_PARAM_SCL[] = "scl"; /*!< SCL PIN */
 

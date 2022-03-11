@@ -33,7 +33,7 @@ void gn_configure_oscilloscope(gn_node_handle_t node) {
 
 	esp_log_level_set("gn_leaf_ina219", esp_log_level_get(TAG));
 
-	gn_leaf_handle_t ina219 = gn_leaf_create(node, "ina219", gn_leaf_ina219_config, 8192);
+	gn_leaf_handle_t ina219 = gn_leaf_create(node, "ina219", gn_leaf_ina219_config, 8192, GN_LEAF_TASK_PRIORITY);
 	gn_leaf_param_init_bool(ina219, GN_LEAF_INA219_PARAM_ACTIVE, true);
 
 	char* ip = calloc(16, sizeof(char));
@@ -41,9 +41,10 @@ void gn_configure_oscilloscope(gn_node_handle_t node) {
 
 	gn_leaf_param_init_string(ina219, GN_LEAF_INA219_PARAM_IP, ip);
 	gn_leaf_param_init_double(ina219, GN_LEAF_INA219_PARAM_PORT, 8094);
-	gn_leaf_param_init_double(ina219, GN_LEAF_INA219_PARAM_SAMPLING_MS, 50);
+	gn_leaf_param_init_double(ina219, GN_LEAF_INA219_PARAM_SAMPLING_TICKS, 50);
 	gn_leaf_param_init_double(ina219, GN_LEAF_INA219_PARAM_SDA, 26);
 	gn_leaf_param_init_double(ina219, GN_LEAF_INA219_PARAM_SCL, 27);
+
 
 }
 

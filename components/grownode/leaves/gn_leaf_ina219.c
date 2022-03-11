@@ -54,6 +54,8 @@ extern "C" {
 #define I2C_PORT 0
 #define I2C_ADDR INA219_ADDR_GND_GND
 
+#define IP_STRING_SIZE 16
+
 typedef struct {
 	gn_leaf_param_handle_t gn_leaf_ina219_active_param;
 	gn_leaf_param_handle_t gn_leaf_ina219_ip_param;
@@ -94,7 +96,7 @@ gn_leaf_descriptor_handle_t gn_leaf_ina219_config(gn_leaf_handle_t leaf_config) 
 			GN_LEAF_PARAM_STORAGE_PERSISTED, gn_validator_double_positive);
 
 	data->gn_leaf_ina219_sampling_ms_param = gn_leaf_param_create(leaf_config,
-			GN_LEAF_INA219_PARAM_SAMPLING_MS, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
+			GN_LEAF_INA219_PARAM_SAMPLING_TICKS, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
 							.d = 100 }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, gn_validator_double_positive);
 
@@ -126,6 +128,10 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 
 	char leaf_name[GN_LEAF_NAME_SIZE];
 	gn_leaf_get_name(leaf_config, leaf_name);
+
+	char node_name[GN_NODE_NAME_SIZE];
+	gn_node_get_name(gn_leaf_get_node(leaf_config), node_name);
+
 	ESP_LOGD(TAG, "[%s] - Initializing ..", leaf_name);
 
 	gn_leaf_parameter_event_t evt;
@@ -133,15 +139,15 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 	bool active = true;
 	gn_leaf_param_get_bool(leaf_config, GN_LEAF_INA219_PARAM_ACTIVE, &active);
 
-	char ip[16];
-	gn_leaf_param_get_string(leaf_config, GN_LEAF_INA219_PARAM_IP, ip, 16);
+	char ip[IP_STRING_SIZE];
+	gn_leaf_param_get_string(leaf_config, GN_LEAF_INA219_PARAM_IP, ip, IP_STRING_SIZE);
 
 	double port = 0;
 	gn_leaf_param_get_double(leaf_config, GN_LEAF_INA219_PARAM_PORT, &port);
 
-	double sampling_ms = 0;
-	gn_leaf_param_get_double(leaf_config, GN_LEAF_INA219_PARAM_SAMPLING_MS,
-			&sampling_ms);
+	double sampling_ticks = 0;
+	gn_leaf_param_get_double(leaf_config, GN_LEAF_INA219_PARAM_SAMPLING_TICKS,
+			&sampling_ticks);
 
 	double sda = 0;
 	gn_leaf_param_get_double(leaf_config, GN_LEAF_INA219_PARAM_SDA, &sda);
@@ -174,8 +180,6 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 
 	ESP_LOGD(TAG, "ina219_calibrate: %s", esp_err_to_name(esp_ret));
 
-	float bus_voltage, shunt_voltage, current, power;
-
 	int addr_family = 0;
 	int ip_protocol = 0;
 
@@ -190,22 +194,22 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 	if (sock < 0) {
 		ESP_LOGE(TAG, "Unable to create socket: errno %d", errno);
 	}
-	ESP_LOGI(TAG, "Socket created, sending to %s:%d", ip, (int )port);
+	ESP_LOGD(TAG, "Socket created, sending to %s:%d", ip, (int )port);
 
-	char current_msg[80];
-	char bus_voltage_msg[80];
-	char shunt_voltage_msg[80];
-	char load_voltage_msg[80];
-	char power_msg[80];
+	float bus_voltage = 0, shunt_voltage = 0, current = 0, power = 0;
+	float bus_voltage_instant = 0, shunt_voltage_instant = 0, current_instant =
+			0, power_instant = 0;
+
+	char total_msg[255];
 
 //task cycle
 	while (true) {
 
 		//ESP_LOGD(TAG, "task cycle..");
 
-		//check for messages and cycle every 100ms
+		//check for messages
 		if (xQueueReceive(gn_leaf_get_event_queue(leaf_config), &evt,
-				pdMS_TO_TICKS(sampling_ms)) == pdPASS) {
+				0) == pdPASS) {
 
 			ESP_LOGD(TAG, "%s - received message: %d", leaf_name, evt.id);
 
@@ -235,7 +239,9 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 					//execute change
 					gn_leaf_param_write_string(leaf_config,
 							GN_LEAF_INA219_PARAM_IP, evt.data);
-					strncpy(ip, evt.data, 16);
+					//strncpy(ip, evt.data, IP_STRING_SIZE-1);
+					memcpy(ip, evt.data, IP_STRING_SIZE-1);
+					ip[15]=0;
 
 					//restart messaging configuration
 					shutdown(sock, 0);
@@ -276,10 +282,10 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_leaf_ina219_sampling_ms_param) == 0) {
 
-					sampling_ms = atof(evt.data);
+					sampling_ticks = atof(evt.data);
 					//execute change
 					gn_leaf_param_write_double(leaf_config,
-							GN_LEAF_INA219_PARAM_SAMPLING_MS, sampling_ms);
+							GN_LEAF_INA219_PARAM_SAMPLING_TICKS, sampling_ticks);
 
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_leaf_ina219_sda_param) == 0) {
@@ -310,12 +316,43 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 
 		if (active) {
 
+			bus_voltage = 0;
+			shunt_voltage = 0;
+			current = 0;
+			power = 0;
+
+			//ESP_LOGD(TAG,"start sampling");
+
 			//retrieve sensor info
-			ESP_ERROR_CHECK(ina219_get_bus_voltage(&data->dev, &bus_voltage));
-			ESP_ERROR_CHECK(
-					ina219_get_shunt_voltage(&data->dev, &shunt_voltage));
-			ESP_ERROR_CHECK(ina219_get_current(&data->dev, &current));
-			ESP_ERROR_CHECK(ina219_get_power(&data->dev, &power));
+			//sampling configurable
+			for (int i = 0; i < sampling_ticks; i++) {
+
+				ESP_ERROR_CHECK(
+						ina219_get_bus_voltage(&data->dev,
+								&bus_voltage_instant));
+				bus_voltage += bus_voltage_instant;
+
+				ESP_ERROR_CHECK(
+						ina219_get_shunt_voltage(&data->dev,
+								&shunt_voltage_instant));
+				shunt_voltage += shunt_voltage_instant;
+
+				ESP_ERROR_CHECK(
+						ina219_get_current(&data->dev, &current_instant));
+				current += current_instant;
+
+				ESP_ERROR_CHECK(ina219_get_power(&data->dev, &power_instant));
+				power += power_instant;
+
+
+				vTaskDelay(pdMS_TO_TICKS(0.9));
+
+			}
+
+			bus_voltage = bus_voltage / (float) sampling_ticks;
+			shunt_voltage = shunt_voltage / (float) sampling_ticks;
+			current = current / (float) sampling_ticks;
+			power = power / (float) sampling_ticks;
 
 			ESP_LOGD(TAG,
 					"VBUS: %.04f V, VSHUNT: %.04f mV, IBUS: %.04f mA, PBUS: %.04f mW\n",
@@ -324,60 +361,24 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 
 			int err;
 
-			snprintf(current_msg, 80, "ina219,sensor=current value=%f",
-					current * 1000);
-			err = sendto(sock, current_msg, strlen(current_msg), 0,
-					(struct sockaddr*) &dest_addr, sizeof(dest_addr));
-			if (err < 0) {
-				ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
-			}
-			ESP_LOGD(TAG, "Message sent: %s to %s:%d", current_msg, ip,
-					(int )port);
+			snprintf(total_msg, 255,
+					"grownode,node=%s,leaf=%s power=%f,current=%f,vbus=%f,vshunt=%f,vload=%f",
+					node_name, leaf_name, power,
+					current,
+					bus_voltage,
+					shunt_voltage,
+					(shunt_voltage + bus_voltage) );
 
-			snprintf(bus_voltage_msg, 80, "ina219,sensor=voltage value=%f",
-					bus_voltage);
-			err = sendto(sock, bus_voltage_msg, strlen(bus_voltage_msg), 0,
+			err = sendto(sock, total_msg, strlen(total_msg), 0,
 					(struct sockaddr*) &dest_addr, sizeof(dest_addr));
 			if (err < 0) {
 				ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
 			}
-			ESP_LOGD(TAG, "Message sent: %s to %s:%d", bus_voltage_msg, ip,
-					(int )port);
-
-			snprintf(shunt_voltage_msg, 80,
-					"ina219,sensor=shunt_voltage value=%f",
-					shunt_voltage * 1000);
-			err = sendto(sock, shunt_voltage_msg, strlen(shunt_voltage_msg), 0,
-					(struct sockaddr*) &dest_addr, sizeof(dest_addr));
-			if (err < 0) {
-				ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
-			}
-			ESP_LOGD(TAG, "Message sent: %s to %s:%d", shunt_voltage_msg, ip,
-					(int )port);
-
-			snprintf(load_voltage_msg, 80, "ina219,sensor=load_voltage value=%f",
-					power * 1000);
-			err = sendto(sock, load_voltage_msg, strlen(load_voltage_msg), 0,
-					(struct sockaddr*) &dest_addr, sizeof(dest_addr));
-			if (err < 0) {
-				ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
-			}
-			ESP_LOGD(TAG, "Message sent: %s to %s:%d", load_voltage_msg, ip,
-					(int )port);
-
-			snprintf(power_msg, 80, "ina219,sensor=power value=%f",
-					power * 1000);
-			err = sendto(sock, power_msg, strlen(power_msg), 0,
-					(struct sockaddr*) &dest_addr, sizeof(dest_addr));
-			if (err < 0) {
-				ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
-			}
-			ESP_LOGD(TAG, "Message sent: %s to %s:%d", power_msg, ip,
+			ESP_LOGD(TAG, "Message sent: %s to %s:%d", total_msg, ip,
 					(int )port);
 
 		}
 
-		//vTaskDelay(1000 / portTICK_PERIOD_MS);
 	}
 
 }
