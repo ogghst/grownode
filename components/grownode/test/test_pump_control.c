@@ -59,19 +59,19 @@ TEST_CASE("gn_pump_control_stress_test", "[pump_control]") {
 	TEST_ASSERT_EQUAL_STRING("node", node_name);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 0);
 
-	pump_config = gn_leaf_create(node_config, "pump", gn_pump_config, 4096);
+	pump_config = gn_leaf_create(node_config, "pump", gn_pump_config, 4096, 1);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 1);
 
 	ds18b20_config = gn_leaf_create(node_config, "ds18b20", gn_ds18b20_config,
-			4096);
+			4096, 1);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 2);
 
 	ds18b20_config = gn_leaf_create(node_config, "cwl",
-			gn_capacitive_water_level_config, 8192);
+			gn_capacitive_water_level_config, 8192, 1);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 3);
 
 	pump_control_config = gn_leaf_create(node_config, "pump_control",
-			gn_pump_control_config, 4096);
+			gn_pump_control_config, 4096, 1);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 4);
 
 	esp_err_t ret = gn_node_start(node_config);

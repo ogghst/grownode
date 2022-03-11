@@ -62,7 +62,7 @@ gn_err_t gn_reboot();
 
 gn_leaf_handle_t gn_leaf_create(gn_node_handle_t node_config,
 		const char *name, gn_leaf_config_callback callback,
-		size_t task_size);
+		size_t task_size, UBaseType_t priority);
 
 gn_leaf_descriptor_handle_t gn_leaf_get_descriptor(
 		gn_leaf_handle_t leaf_config);

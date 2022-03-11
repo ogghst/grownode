@@ -71,6 +71,7 @@ struct gn_leaf_config_t {
 	gn_leaf_descriptor_handle_t leaf_descriptor;
 	char name[GN_LEAF_NAME_SIZE];
 	size_t task_size;
+	UBaseType_t priority;
 	gn_node_handle_intl_t node_config;
 	//gn_leaf_display_task_t display_task;
 	//gn_leaf_config_handle_t next;

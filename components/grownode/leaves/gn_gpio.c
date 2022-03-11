@@ -73,7 +73,7 @@ gn_leaf_handle_t gn_gpio_fastcreate(gn_node_handle_t node,
 
 	//creates the blink leave
 	gn_leaf_handle_t leaf = gn_leaf_create(node, leaf_name, gn_gpio_config,
-			4096);
+			4096, GN_LEAF_TASK_PRIORITY);
 
 	if (leaf == NULL) {
 		ESP_LOGE(TAG, "gn_gpio_fastcreate - cannot create leaf %s", leaf_name);

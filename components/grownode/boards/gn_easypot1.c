@@ -111,7 +111,7 @@ void gn_configure_easypot1(gn_node_handle_t node) {
 
 	//creates the moisture sensor
 	moist = gn_leaf_create(node, "moist", gn_capacitive_moisture_sensor_config,
-			4096);
+			4096, GN_LEAF_TASK_PRIORITY);
 	//set the channel
 	gn_leaf_param_init_double(moist, GN_CMS_PARAM_ADC_CHANNEL, 5); //gpio33
 	//set update time
@@ -120,7 +120,7 @@ void gn_configure_easypot1(gn_node_handle_t node) {
 	gn_leaf_param_init_bool(moist, GN_CMS_PARAM_ACTIVE, true);
 
 	//creates the temperature sensor
-	temp = gn_leaf_create(node, "temp", gn_ds18b20_config, 4096);
+	temp = gn_leaf_create(node, "temp", gn_ds18b20_config, 4096, GN_LEAF_TASK_PRIORITY);
 	//set GPIO
 	gn_leaf_param_init_double(temp, GN_DS18B20_PARAM_GPIO, 26);
 	//set update time
@@ -129,11 +129,11 @@ void gn_configure_easypot1(gn_node_handle_t node) {
 	gn_leaf_param_init_bool(temp, GN_DS18B20_PARAM_ACTIVE, true);
 
 	//create the temp led leaf
-	led_temp = gn_leaf_create(node, "led_temp", gn_led_config, 4096);
+	led_temp = gn_leaf_create(node, "led_temp", gn_led_config, 4096, GN_LEAF_TASK_PRIORITY);
 	gn_leaf_param_init_double(led_temp, GN_LED_PARAM_GPIO, 14);
 
 	//create the moisture led leaf
-	led_moist = gn_leaf_create(node, "led_moist", gn_led_config, 4096);
+	led_moist = gn_leaf_create(node, "led_moist", gn_led_config, 4096, GN_LEAF_TASK_PRIORITY);
 	gn_leaf_param_init_double(led_moist, GN_LED_PARAM_GPIO, 27);
 
 	//creates a timer that checks temperature and moisture, using esp_timer API

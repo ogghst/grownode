@@ -24,8 +24,10 @@
 extern "C" {
 #endif
 
-#define GN_NODE_NAME_SIZE 32
-#define GN_LEAF_NAME_SIZE 32
+#define GN_LEAF_TASK_PRIORITY 1
+
+#define GN_NODE_NAME_SIZE 16
+#define GN_LEAF_NAME_SIZE 16
 #define GN_LEAF_PARAM_NAME_SIZE 32
 #define GN_LEAF_DATA_SIZE 512
 #define GN_NODE_DATA_SIZE 512

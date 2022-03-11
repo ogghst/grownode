@@ -108,7 +108,7 @@ gn_err_t _gn_leaf_start(gn_leaf_config_handle_intl_t leaf_config) {
 	TaskHandle_t task_handle;
 
 	if (xTaskCreate((void*) leaf_config->leaf_descriptor->callback,
-			leaf_config->name, leaf_config->task_size, leaf_config, 1, //configMAX_PRIORITIES - 1,
+			leaf_config->name, leaf_config->task_size, leaf_config, GN_LEAF_TASK_PRIORITY, //configMAX_PRIORITIES - 1,
 			&task_handle) != pdPASS) {
 		ESP_LOGE(TAG, "failed to create lef task for %s", leaf_config->name);
 		goto fail;
@@ -1045,14 +1045,15 @@ gn_err_t gn_node_get_name(gn_node_handle_t node_config, char *name) {
  *	@param		name		the name of the leaf to be created
  *	@param		callback	the callback to be called to configure the leaf
  *	@param		task		callback function of the leaf task
- *	@param		task_size	the size of the task to be memory allocated
+ *	@param		task_size	the size of the task to be memory allocated (see freertos documentation)
+ *	@param		priority	the task priority (see freertos documentation)
  *
  *	@return		an handle to the leaf config
  *	@return		NULL if the handle cannot be created
  *
  */
 gn_leaf_handle_t gn_leaf_create(gn_node_handle_t node_config, const char *name,
-		gn_leaf_config_callback callback, size_t task_size) { //, gn_leaf_display_task_t display_task) {
+		gn_leaf_config_callback callback, size_t task_size, UBaseType_t priority) { //, gn_leaf_display_task_t display_task) {
 
 	gn_node_handle_intl_t node_cfg = (gn_node_handle_intl_t) node_config;
 
@@ -1069,6 +1070,7 @@ gn_leaf_handle_t gn_leaf_create(gn_node_handle_t node_config, const char *name,
 	l_c->node_config = node_cfg;
 	//l_c->task_cb = task;
 	l_c->task_size = task_size;
+	l_c->priority = priority;
 	l_c->leaf_context = gn_leaf_context_create();
 	l_c->display_container = NULL;
 	//l_c->display_task = display_task;
