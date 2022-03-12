@@ -39,3 +39,9 @@ It has an onboard logic to keep the reservoir at desired temperature prior to wa
 the board is powered with 220V - 12V 10A power adaptor so it can manage quite a lot of power consumption
 
 [Board Detail](boards_hb2.md)
+
+##Oscilloscope
+
+This is a board dedicated to measure current and power of a circuit using INA219, capable of transferring information to a Telegraf instance or via MQTT. I did it to probe other board power consumption in battery powered mode.
+
+[Board Detail](boards_oscilloscope.md)

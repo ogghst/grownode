@@ -427,6 +427,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 
 			}
 
+			//averaging
 			bus_voltage = bus_voltage / (float) sampling_cycles;
 			shunt_voltage = shunt_voltage / (float) sampling_cycles;
 			current = current / (float) sampling_cycles;

@@ -41,8 +41,8 @@ void gn_configure_oscilloscope(gn_node_handle_t node) {
 
 	gn_leaf_param_init_string(ina219, GN_LEAF_INA219_PARAM_IP, ip);
 	gn_leaf_param_init_double(ina219, GN_LEAF_INA219_PARAM_PORT, 8094);
-	gn_leaf_param_init_double(ina219, GN_LEAF_INA219_PARAM_SAMPLING_CYCLES, 5);
-	gn_leaf_param_init_double(ina219, GN_LEAF_INA219_PARAM_SAMPLING_INTERVAL, 10);
+	gn_leaf_param_init_double(ina219, GN_LEAF_INA219_PARAM_SAMPLING_CYCLES, 10);
+	gn_leaf_param_init_double(ina219, GN_LEAF_INA219_PARAM_SAMPLING_INTERVAL, 100);
 	gn_leaf_param_init_double(ina219, GN_LEAF_INA219_PARAM_SDA, 26);
 	gn_leaf_param_init_double(ina219, GN_LEAF_INA219_PARAM_SCL, 27);
 	gn_leaf_param_init_double(ina219, GN_LEAF_INA219_PARAM_WORKING_MODE, 1);

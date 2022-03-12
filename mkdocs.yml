@@ -24,6 +24,7 @@ nav:
      - EasyPot1: 'boards/boards_easypot1.md'
      - HydroBoard1: 'boards/boards_hb1.md'
      - HydroBoard2: 'boards/boards_hb2.md'
+     - Oscilloscope: 'boards/oscilloscope.md'
   - Reference Guide: 
      - 'reference/index.md'
      - 'reference/node.md'
