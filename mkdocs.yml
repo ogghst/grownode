@@ -32,6 +32,7 @@ nav:
      - Standard Leaves: 
         - 'reference/leaves_list/index.md'
         - 'reference/leaves_list/bme280.md'
+        - 'reference/leaves_list/ina219.md'
      - 'reference/boards.md'
      - 'reference/events.md'
      - 'reference/networking.md'

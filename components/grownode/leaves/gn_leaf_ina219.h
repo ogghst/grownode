@@ -25,12 +25,22 @@ extern "C" {
 static const char GN_LEAF_INA219_TYPE[] = "ina219";
 
 //parameters
-static const char GN_LEAF_INA219_PARAM_ACTIVE[] = "active"; /*!< whether INA219 shall transmit data */
+static const char GN_LEAF_INA219_PARAM_ACTIVE[] = "active"; /*!< whether INA219 shall be enabled */
 static const char GN_LEAF_INA219_PARAM_IP[] = "ip"; /*!< ip address of the server */
 static const char GN_LEAF_INA219_PARAM_PORT[] = "port"; /*!< port of the server */
-static const char GN_LEAF_INA219_PARAM_SAMPLING_TICKS[] = "sampling_ticks"; /*!< sampling time, approx 1 tick is 1 msec */
+static const char GN_LEAF_INA219_PARAM_SAMPLING_CYCLES[] = "samp_cycles"; /*!< sampling cycles */
+static const char GN_LEAF_INA219_PARAM_SAMPLING_INTERVAL[] = "samp_interval"; /*!< sampling interval, (approx) in msec */
 static const char GN_LEAF_INA219_PARAM_SDA[] = "sda"; /*!< SDA PIN */
 static const char GN_LEAF_INA219_PARAM_SCL[] = "scl"; /*!< SCL PIN */
+static const char GN_LEAF_INA219_PARAM_WORKING_MODE[] = "working_mode"; /*!< 0 = through UDP via influxdb protocol, 1 = parameters, 2 both*/
+static const char GN_LEAF_INA219_PARAM_POWER[] = "power"; /*!< last power measured, in mW*/
+static const char GN_LEAF_INA219_PARAM_VOLTAGE[] = "voltage"; /*!< last voltage measured, in mV */
+static const char GN_LEAF_INA219_PARAM_SHUNT_VOLTAGE[] = "shunt_voltage"; /*!< last shunt voltage measured, in mV */
+static const char GN_LEAF_INA219_PARAM_BUS_VOLTAGE[] = "bus_voltage"; /*!< last bus voltage measured, in mV */
+static const char GN_LEAF_INA219_PARAM_CURRENT[] = "current"; /*!< last current measured, in mA */
+
+
+
 
 gn_leaf_descriptor_handle_t gn_leaf_ina219_config(gn_leaf_handle_t leaf_config);
 

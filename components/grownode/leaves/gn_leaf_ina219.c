@@ -60,9 +60,16 @@ typedef struct {
 	gn_leaf_param_handle_t gn_leaf_ina219_active_param;
 	gn_leaf_param_handle_t gn_leaf_ina219_ip_param;
 	gn_leaf_param_handle_t gn_leaf_ina219_port_param;
-	gn_leaf_param_handle_t gn_leaf_ina219_sampling_ms_param;
+	gn_leaf_param_handle_t gn_leaf_ina219_sampling_cycles_param;
+	gn_leaf_param_handle_t gn_leaf_ina219_sampling_interval_param;
 	gn_leaf_param_handle_t gn_leaf_ina219_sda_param;
 	gn_leaf_param_handle_t gn_leaf_ina219_scl_param;
+	gn_leaf_param_handle_t gn_leaf_ina219_working_mode_param;
+	gn_leaf_param_handle_t gn_leaf_ina219_power_param;
+	gn_leaf_param_handle_t gn_leaf_ina219_voltage_param;
+	gn_leaf_param_handle_t gn_leaf_ina219_shunt_voltage_param;
+	gn_leaf_param_handle_t gn_leaf_ina219_bus_voltage_param;
+	gn_leaf_param_handle_t gn_leaf_ina219_current_param;
 	ina219_t dev;
 } gn_leaf_ina219_data_t;
 
@@ -82,41 +89,86 @@ gn_leaf_descriptor_handle_t gn_leaf_ina219_config(gn_leaf_handle_t leaf_config) 
 
 	data->gn_leaf_ina219_active_param = gn_leaf_param_create(leaf_config,
 			GN_LEAF_INA219_PARAM_ACTIVE, GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b =
-					true }, GN_LEAF_PARAM_ACCESS_NETWORK,
+					true }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, gn_validator_boolean);
 
 	data->gn_leaf_ina219_ip_param = gn_leaf_param_create(leaf_config,
 			GN_LEAF_INA219_PARAM_IP, GN_VAL_TYPE_STRING, (gn_val_t ) { .s =
-							malloc(16) }, GN_LEAF_PARAM_ACCESS_NETWORK,
-			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
+							calloc(16, sizeof(char)) },
+			GN_LEAF_PARAM_ACCESS_ALL, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	data->gn_leaf_ina219_port_param = gn_leaf_param_create(leaf_config,
-			GN_LEAF_INA219_PARAM_PORT, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+			GN_LEAF_INA219_PARAM_PORT, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d =
+							8094 }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, gn_validator_double_positive);
 
-	data->gn_leaf_ina219_sampling_ms_param = gn_leaf_param_create(leaf_config,
-			GN_LEAF_INA219_PARAM_SAMPLING_TICKS, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
-							.d = 100 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+	data->gn_leaf_ina219_sampling_cycles_param = gn_leaf_param_create(leaf_config,
+			GN_LEAF_INA219_PARAM_SAMPLING_CYCLES, GN_VAL_TYPE_DOUBLE,
+			(gn_val_t ) { .d = 1 }, GN_LEAF_PARAM_ACCESS_ALL,
+			GN_LEAF_PARAM_STORAGE_PERSISTED, gn_validator_double_positive);
+
+	data->gn_leaf_ina219_sampling_interval_param = gn_leaf_param_create(leaf_config,
+			GN_LEAF_INA219_PARAM_SAMPLING_INTERVAL, GN_VAL_TYPE_DOUBLE,
+			(gn_val_t ) { .d = 1000 }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, gn_validator_double_positive);
 
 	data->gn_leaf_ina219_sda_param = gn_leaf_param_create(leaf_config,
 			GN_LEAF_INA219_PARAM_SDA, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 26 }, GN_LEAF_PARAM_ACCESS_NODE,
+			(gn_val_t ) { .d = 26 }, GN_LEAF_PARAM_ACCESS_NODE_INTERNAL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, gn_validator_double_positive);
 
 	data->gn_leaf_ina219_scl_param = gn_leaf_param_create(leaf_config,
 			GN_LEAF_INA219_PARAM_SCL, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 27 }, GN_LEAF_PARAM_ACCESS_NODE,
+			(gn_val_t ) { .d = 27 }, GN_LEAF_PARAM_ACCESS_NODE_INTERNAL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, gn_validator_double_positive);
+
+	data->gn_leaf_ina219_working_mode_param = gn_leaf_param_create(leaf_config,
+			GN_LEAF_INA219_PARAM_WORKING_MODE, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
+							.d = 1 }, GN_LEAF_PARAM_ACCESS_ALL,
+			GN_LEAF_PARAM_STORAGE_PERSISTED, gn_validator_double_positive);
+
+	data->gn_leaf_ina219_power_param = gn_leaf_param_create(leaf_config,
+			GN_LEAF_INA219_PARAM_POWER, GN_VAL_TYPE_DOUBLE,
+			(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+			GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
+
+	data->gn_leaf_ina219_voltage_param = gn_leaf_param_create(leaf_config,
+			GN_LEAF_INA219_PARAM_VOLTAGE, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d =
+							0 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+			GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
+
+	data->gn_leaf_ina219_bus_voltage_param = gn_leaf_param_create(leaf_config,
+			GN_LEAF_INA219_PARAM_BUS_VOLTAGE, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
+							.d = 0 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+			GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
+
+	data->gn_leaf_ina219_shunt_voltage_param = gn_leaf_param_create(leaf_config,
+			GN_LEAF_INA219_PARAM_SHUNT_VOLTAGE, GN_VAL_TYPE_DOUBLE,
+			(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+			GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
+
+	data->gn_leaf_ina219_current_param = gn_leaf_param_create(leaf_config,
+			GN_LEAF_INA219_PARAM_CURRENT, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d =
+							0 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+			GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
 
 	gn_leaf_param_add_to_leaf(leaf_config, data->gn_leaf_ina219_active_param);
 	gn_leaf_param_add_to_leaf(leaf_config, data->gn_leaf_ina219_ip_param);
 	gn_leaf_param_add_to_leaf(leaf_config, data->gn_leaf_ina219_port_param);
 	gn_leaf_param_add_to_leaf(leaf_config,
-			data->gn_leaf_ina219_sampling_ms_param);
+			data->gn_leaf_ina219_sampling_cycles_param);
+	gn_leaf_param_add_to_leaf(leaf_config,
+			data->gn_leaf_ina219_sampling_interval_param);
 	gn_leaf_param_add_to_leaf(leaf_config, data->gn_leaf_ina219_sda_param);
 	gn_leaf_param_add_to_leaf(leaf_config, data->gn_leaf_ina219_scl_param);
+	gn_leaf_param_add_to_leaf(leaf_config,
+			data->gn_leaf_ina219_working_mode_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->gn_leaf_ina219_voltage_param);
+	gn_leaf_param_add_to_leaf(leaf_config,
+			data->gn_leaf_ina219_bus_voltage_param);
+	gn_leaf_param_add_to_leaf(leaf_config,
+			data->gn_leaf_ina219_shunt_voltage_param);
+	gn_leaf_param_add_to_leaf(leaf_config, data->gn_leaf_ina219_current_param);
 
 	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
 	descriptor->data = data;
@@ -140,20 +192,29 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 	gn_leaf_param_get_bool(leaf_config, GN_LEAF_INA219_PARAM_ACTIVE, &active);
 
 	char ip[IP_STRING_SIZE];
-	gn_leaf_param_get_string(leaf_config, GN_LEAF_INA219_PARAM_IP, ip, IP_STRING_SIZE);
+	gn_leaf_param_get_string(leaf_config, GN_LEAF_INA219_PARAM_IP, ip,
+			IP_STRING_SIZE);
 
 	double port = 0;
 	gn_leaf_param_get_double(leaf_config, GN_LEAF_INA219_PARAM_PORT, &port);
 
-	double sampling_ticks = 0;
-	gn_leaf_param_get_double(leaf_config, GN_LEAF_INA219_PARAM_SAMPLING_TICKS,
-			&sampling_ticks);
+	double sampling_cycles = 0;
+	gn_leaf_param_get_double(leaf_config, GN_LEAF_INA219_PARAM_SAMPLING_CYCLES,
+			&sampling_cycles);
+
+	double sampling_interval = 0;
+	gn_leaf_param_get_double(leaf_config, GN_LEAF_INA219_PARAM_SAMPLING_INTERVAL,
+			&sampling_interval);
 
 	double sda = 0;
 	gn_leaf_param_get_double(leaf_config, GN_LEAF_INA219_PARAM_SDA, &sda);
 
 	double scl = 0;
 	gn_leaf_param_get_double(leaf_config, GN_LEAF_INA219_PARAM_SCL, &scl);
+
+	double working_mode = 0;
+	gn_leaf_param_get_double(leaf_config, GN_LEAF_INA219_PARAM_WORKING_MODE,
+			&working_mode);
 
 	//retrieves status descriptor from config
 	gn_leaf_ina219_data_t *data =
@@ -240,8 +301,8 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 					gn_leaf_param_write_string(leaf_config,
 							GN_LEAF_INA219_PARAM_IP, evt.data);
 					//strncpy(ip, evt.data, IP_STRING_SIZE-1);
-					memcpy(ip, evt.data, IP_STRING_SIZE-1);
-					ip[15]=0;
+					memcpy(ip, evt.data, IP_STRING_SIZE - 1);
+					ip[15] = 0;
 
 					//restart messaging configuration
 					shutdown(sock, 0);
@@ -280,12 +341,22 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 							(int )port);
 
 				} else if (gn_leaf_event_mask_param(&evt,
-						data->gn_leaf_ina219_sampling_ms_param) == 0) {
+						data->gn_leaf_ina219_sampling_cycles_param) == 0) {
 
-					sampling_ticks = atof(evt.data);
+					sampling_cycles = atof(evt.data);
 					//execute change
 					gn_leaf_param_write_double(leaf_config,
-							GN_LEAF_INA219_PARAM_SAMPLING_TICKS, sampling_ticks);
+							GN_LEAF_INA219_PARAM_SAMPLING_CYCLES,
+							sampling_cycles);
+
+				} else if (gn_leaf_event_mask_param(&evt,
+						data->gn_leaf_ina219_sampling_interval_param) == 0) {
+
+					sampling_interval = atof(evt.data);
+					//execute change
+					gn_leaf_param_write_double(leaf_config,
+							GN_LEAF_INA219_PARAM_SAMPLING_INTERVAL,
+							sampling_interval);
 
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_leaf_ina219_sda_param) == 0) {
@@ -302,6 +373,14 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 					//execute change
 					gn_leaf_param_write_double(leaf_config,
 							GN_LEAF_INA219_PARAM_SCL, scl);
+
+				} else if (gn_leaf_event_mask_param(&evt,
+						data->gn_leaf_ina219_working_mode_param) == 0) {
+
+					working_mode = atof(evt.data);
+					//execute change
+					gn_leaf_param_write_double(leaf_config,
+							GN_LEAF_INA219_PARAM_WORKING_MODE, working_mode);
 
 				}
 
@@ -325,7 +404,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 
 			//retrieve sensor info
 			//sampling configurable
-			for (int i = 0; i < sampling_ticks; i++) {
+			for (int i = 0; i < sampling_cycles; i++) {
 
 				ESP_ERROR_CHECK(
 						ina219_get_bus_voltage(&data->dev,
@@ -344,30 +423,27 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 				ESP_ERROR_CHECK(ina219_get_power(&data->dev, &power_instant));
 				power += power_instant;
 
-
-				vTaskDelay(pdMS_TO_TICKS(0.9));
+				vTaskDelay(pdMS_TO_TICKS(sampling_interval));
 
 			}
 
-			bus_voltage = bus_voltage / (float) sampling_ticks;
-			shunt_voltage = shunt_voltage / (float) sampling_ticks;
-			current = current / (float) sampling_ticks;
-			power = power / (float) sampling_ticks;
+			bus_voltage = bus_voltage / (float) sampling_cycles;
+			shunt_voltage = shunt_voltage / (float) sampling_cycles;
+			current = current / (float) sampling_cycles;
+			power = power / (float) sampling_cycles;
 
 			ESP_LOGD(TAG,
 					"VBUS: %.04f V, VSHUNT: %.04f mV, IBUS: %.04f mA, PBUS: %.04f mW\n",
 					bus_voltage, shunt_voltage * 1000, current * 1000,
 					power * 1000);
 
+			if (working_mode == 0 || working_mode == 2) {
 			int err;
 
 			snprintf(total_msg, 255,
 					"grownode,node=%s,leaf=%s power=%f,current=%f,vbus=%f,vshunt=%f,vload=%f",
-					node_name, leaf_name, power,
-					current,
-					bus_voltage,
-					shunt_voltage,
-					(shunt_voltage + bus_voltage) );
+					node_name, leaf_name, power, current, bus_voltage,
+					shunt_voltage, (shunt_voltage + bus_voltage));
 
 			err = sendto(sock, total_msg, strlen(total_msg), 0,
 					(struct sockaddr*) &dest_addr, sizeof(dest_addr));
@@ -376,6 +452,26 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 			}
 			ESP_LOGD(TAG, "Message sent: %s to %s:%d", total_msg, ip,
 					(int )port);
+			}
+
+			if (working_mode == 1 || working_mode == 2) {
+
+				gn_leaf_param_write_double(leaf_config,
+						GN_LEAF_INA219_PARAM_VOLTAGE, (shunt_voltage + bus_voltage));
+
+				gn_leaf_param_write_double(leaf_config,
+						GN_LEAF_INA219_PARAM_SHUNT_VOLTAGE, shunt_voltage);
+
+				gn_leaf_param_write_double(leaf_config,
+						GN_LEAF_INA219_PARAM_BUS_VOLTAGE, bus_voltage);
+
+				gn_leaf_param_write_double(leaf_config,
+						GN_LEAF_INA219_PARAM_POWER, power);
+
+				gn_leaf_param_write_double(leaf_config,
+						GN_LEAF_INA219_PARAM_CURRENT, current);
+
+			}
 
 		}
 
