@@ -17,7 +17,7 @@ This is a board dedicated to measure current and power of a circuit using INA219
 Measurement Voltage	0V...26V
 Max Current	3.2A
 Max Power	83W
-Operation Voltage	3V…5.5V
+Operation Voltage	3V...5.5V
 Communication Protocol	I2C
 
 ##Bill of Material
