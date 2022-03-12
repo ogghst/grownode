@@ -37,11 +37,11 @@ Communication Protocol	I2C
 | 27       | SCL      |
 | 26       | SDA      |
 
-![oscilloscope wiring](resources/images/oscilloscope_wiring.png)
+![oscilloscope wiring](../../resources/images/oscilloscope_wiring.png)
 
 - Wire your load to be measured to VIN+ and VIN- as per the figure
 
-![oscilloscope load](resources/images/oscilloscope_load.png)
+![oscilloscope load](../../resources/images/oscilloscope_load.png)
 
 ##Code
 
