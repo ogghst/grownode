@@ -102,15 +102,17 @@ gn_leaf_descriptor_handle_t gn_leaf_ina219_config(gn_leaf_handle_t leaf_config) 
 							8094 }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, gn_validator_double_positive);
 
-	data->gn_leaf_ina219_sampling_cycles_param = gn_leaf_param_create(leaf_config,
-			GN_LEAF_INA219_PARAM_SAMPLING_CYCLES, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 1 }, GN_LEAF_PARAM_ACCESS_ALL,
-			GN_LEAF_PARAM_STORAGE_PERSISTED, gn_validator_double_positive);
+	data->gn_leaf_ina219_sampling_cycles_param = gn_leaf_param_create(
+			leaf_config, GN_LEAF_INA219_PARAM_SAMPLING_CYCLES,
+			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 1 },
+			GN_LEAF_PARAM_ACCESS_ALL, GN_LEAF_PARAM_STORAGE_PERSISTED,
+			gn_validator_double_positive);
 
-	data->gn_leaf_ina219_sampling_interval_param = gn_leaf_param_create(leaf_config,
-			GN_LEAF_INA219_PARAM_SAMPLING_INTERVAL, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 1000 }, GN_LEAF_PARAM_ACCESS_ALL,
-			GN_LEAF_PARAM_STORAGE_PERSISTED, gn_validator_double_positive);
+	data->gn_leaf_ina219_sampling_interval_param = gn_leaf_param_create(
+			leaf_config, GN_LEAF_INA219_PARAM_SAMPLING_INTERVAL,
+			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 1000 },
+			GN_LEAF_PARAM_ACCESS_ALL, GN_LEAF_PARAM_STORAGE_PERSISTED,
+			gn_validator_double_positive);
 
 	data->gn_leaf_ina219_sda_param = gn_leaf_param_create(leaf_config,
 			GN_LEAF_INA219_PARAM_SDA, GN_VAL_TYPE_DOUBLE,
@@ -193,7 +195,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 
 	char ip[IP_STRING_SIZE];
 	gn_leaf_param_get_string(leaf_config, GN_LEAF_INA219_PARAM_IP, ip,
-			IP_STRING_SIZE);
+	IP_STRING_SIZE);
 
 	double port = 0;
 	gn_leaf_param_get_double(leaf_config, GN_LEAF_INA219_PARAM_PORT, &port);
@@ -203,8 +205,8 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 			&sampling_cycles);
 
 	double sampling_interval = 0;
-	gn_leaf_param_get_double(leaf_config, GN_LEAF_INA219_PARAM_SAMPLING_INTERVAL,
-			&sampling_interval);
+	gn_leaf_param_get_double(leaf_config,
+			GN_LEAF_INA219_PARAM_SAMPLING_INTERVAL, &sampling_interval);
 
 	double sda = 0;
 	gn_leaf_param_get_double(leaf_config, GN_LEAF_INA219_PARAM_SDA, &sda);
@@ -234,7 +236,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 
 	esp_ret = ina219_configure(&data->dev, INA219_BUS_RANGE_16V,
 			INA219_GAIN_0_125, INA219_RES_12BIT_1S, INA219_RES_12BIT_1S,
-			INA219_MODE_CONT_SHUNT);
+			INA219_MODE_CONT_SHUNT_BUS);
 	ESP_LOGD(TAG, "ina219_configure: %s", esp_err_to_name(esp_ret));
 
 	esp_ret = ina219_calibrate(&data->dev, 5.0, 0.1); // 5A max current, 0.1 Ohm shunt resistance
@@ -423,42 +425,45 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 				ESP_ERROR_CHECK(ina219_get_power(&data->dev, &power_instant));
 				power += power_instant;
 
-				vTaskDelay(pdMS_TO_TICKS(sampling_interval));
+				vTaskDelay(pdMS_TO_TICKS(sampling_interval-0.5)); //0.6msec is the time needed to perform a 12bit measure 1 sample
 
 			}
 
 			//averaging
-			bus_voltage = bus_voltage / (float) sampling_cycles;
-			shunt_voltage = shunt_voltage / (float) sampling_cycles;
-			current = current / (float) sampling_cycles;
-			power = power / (float) sampling_cycles;
+			bus_voltage = (bus_voltage / (float) sampling_cycles)  * 1000;
+			shunt_voltage = (shunt_voltage / (float) sampling_cycles) * 1000;
+			current = (current / (float) sampling_cycles) * 1000;
+			power = (power / (float) sampling_cycles) * 1000;
 
 			ESP_LOGD(TAG,
-					"VBUS: %.04f V, VSHUNT: %.04f mV, IBUS: %.04f mA, PBUS: %.04f mW\n",
-					bus_voltage, shunt_voltage * 1000, current * 1000,
-					power * 1000);
+					"VBUS: %.04f mV, VSHUNT: %.04f mV, IBUS: %.04f mA, PBUS: %.04f mW\n",
+					bus_voltage, shunt_voltage, current,
+					power);
 
 			if (working_mode == 0 || working_mode == 2) {
-			int err;
+				int err;
 
-			snprintf(total_msg, 255,
-					"grownode,node=%s,leaf=%s power=%f,current=%f,vbus=%f,vshunt=%f,vload=%f",
-					node_name, leaf_name, power, current, bus_voltage,
-					shunt_voltage, (shunt_voltage + bus_voltage));
+				snprintf(total_msg, 255,
+						"grownode,node=%s,leaf=%s power=%f,current=%f,vbus=%f,vshunt=%f,vload=%f",
+						node_name, leaf_name, power, current,
+						bus_voltage, shunt_voltage,
+						(shunt_voltage + bus_voltage));
 
-			err = sendto(sock, total_msg, strlen(total_msg), 0,
-					(struct sockaddr*) &dest_addr, sizeof(dest_addr));
-			if (err < 0) {
-				ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
-			}
-			ESP_LOGD(TAG, "Message sent: %s to %s:%d", total_msg, ip,
-					(int )port);
+				err = sendto(sock, total_msg, strlen(total_msg), 0,
+						(struct sockaddr*) &dest_addr, sizeof(dest_addr));
+				if (err < 0) {
+					ESP_LOGE(TAG, "Error occurred during sending: errno %d",
+							errno);
+				}
+				ESP_LOGD(TAG, "Message sent: %s to %s:%d", total_msg, ip,
+						(int )port);
 			}
 
 			if (working_mode == 1 || working_mode == 2) {
 
 				gn_leaf_param_write_double(leaf_config,
-						GN_LEAF_INA219_PARAM_VOLTAGE, (shunt_voltage + bus_voltage));
+						GN_LEAF_INA219_PARAM_VOLTAGE,
+						(shunt_voltage + bus_voltage));
 
 				gn_leaf_param_write_double(leaf_config,
 						GN_LEAF_INA219_PARAM_SHUNT_VOLTAGE, shunt_voltage);
