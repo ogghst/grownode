@@ -52,10 +52,11 @@ struct gn_config_t {
 	esp_event_loop_handle_t event_loop;
 	wifi_init_config_t wifi_config;
 	wifi_prov_mgr_config_t prov_config;
+	esp_timer_handle_t keepalive_timer_handler;
 	char deviceName[17];
 	uint8_t macAddress[6];
 	gn_node_status_t status;
-	gn_node_handle_intl_t node_config;
+	gn_node_handle_intl_t node_handle;
 	gn_config_init_param_t *config_init_params;
 };
 
@@ -70,11 +71,13 @@ struct gn_leaf_config_t {
 	gn_leaf_descriptor_handle_t leaf_descriptor;
 	char name[GN_LEAF_NAME_SIZE];
 	size_t task_size;
+	UBaseType_t priority;
 	gn_node_handle_intl_t node_config;
 	//gn_leaf_display_task_t display_task;
 	//gn_leaf_config_handle_t next;
 	//gn_leaf_task_callback task_cb;
 	QueueHandle_t event_queue;
+	TaskHandle_t task_handle;
 	//esp_event_loop_handle_t event_loop;
 	gn_leaf_param_handle_t params;
 	//gn_display_handler_t display_handler;

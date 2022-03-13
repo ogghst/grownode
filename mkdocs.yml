@@ -24,6 +24,7 @@ nav:
      - EasyPot1: 'boards/boards_easypot1.md'
      - HydroBoard1: 'boards/boards_hb1.md'
      - HydroBoard2: 'boards/boards_hb2.md'
+     - Oscilloscope: 'boards/oscilloscope.md'
   - Reference Guide: 
      - 'reference/index.md'
      - 'reference/node.md'
@@ -32,10 +33,12 @@ nav:
      - Standard Leaves: 
         - 'reference/leaves_list/index.md'
         - 'reference/leaves_list/bme280.md'
+        - 'reference/leaves_list/ina219.md'
      - 'reference/boards.md'
      - 'reference/events.md'
      - 'reference/networking.md'
      - 'reference/mqtt.md'
+     - 'reference/power_management.md'
      - 'reference/display.md'
      - 'reference/logging.md'
      - 'reference/error.md'

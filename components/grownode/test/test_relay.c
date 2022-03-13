@@ -58,7 +58,7 @@ TEST_CASE("gn_init_add_relay", "[relay]") {
 	gn_node_get_name(node_config, node_name);
 	TEST_ASSERT_EQUAL_STRING("node", node_name);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 0);
-	relay_config = gn_leaf_create(node_config, "relay", gn_gpio_config, 4096);
+	relay_config = gn_leaf_create(node_config, "relay", gn_gpio_config, 4096, 1);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 1);
 	esp_err_t ret = gn_node_start(node_config);
 	TEST_ASSERT_EQUAL(ret, ESP_OK);
@@ -68,7 +68,7 @@ TEST_CASE("gn_init_add_relay", "[relay]") {
 TEST_CASE("gn_leaf_create relay", "[relay]") {
 
 	size_t oldsize = gn_node_get_size(node_config);
-	relay_config = gn_leaf_create(node_config, "relay", gn_gpio_config, 4096);
+	relay_config = gn_leaf_create(node_config, "relay", gn_gpio_config, 4096, 1);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), oldsize+1);
 	TEST_ASSERT(relay_config != NULL);
 
@@ -90,8 +90,8 @@ TEST_CASE("gn_receive_status_0", "[relay]") {
 	event->topic_len = strlen(topic);
 	event->data_len = strlen(data);
 
-	strncpy(event->topic, topic, event->topic_len);
-	strncpy(event->data, data, event->data_len);
+	strcpy(event->topic, topic);
+	strcpy(event->data, data);
 
 	esp_event_base_t base = "base";
 	void *handler_args = 0;
@@ -122,8 +122,8 @@ TEST_CASE("gn_receive_status_1", "[relay]") {
 	event->topic_len = strlen(topic);
 	event->data_len = strlen(data);
 
-	strncpy(event->topic, topic, event->topic_len);
-	strncpy(event->data, data, event->data_len);
+	strcpy(event->topic, topic);
+	strcpy(event->data, data);
 
 	esp_event_base_t base = "base";
 	void *handler_args = 0;
@@ -150,7 +150,7 @@ TEST_CASE("gn_relay_mqtt_stress_test", "[relay]") {
 	gn_node_get_name(node_config, node_name);
 	TEST_ASSERT_EQUAL_STRING("node", node_name);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 0);
-	relay_config = gn_leaf_create(node_config, "relay", gn_gpio_config, 4096);
+	relay_config = gn_leaf_create(node_config, "relay", gn_gpio_config, 4096, 1);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 1);
 	esp_err_t ret = gn_node_start(node_config);
 	TEST_ASSERT_EQUAL(ret, ESP_OK);
@@ -182,8 +182,8 @@ TEST_CASE("gn_relay_mqtt_stress_test", "[relay]") {
 		event->topic_len = strlen(topic);
 		event->data_len = strlen(data);
 
-		strncpy(event->topic, topic, event->topic_len);
-		strncpy(event->data, data, event->data_len);
+		strcpy(event->topic, topic);
+		strcpy(event->data, data);
 
 		ESP_LOGD(TAG, "sending command - topic %s, data %s", topic, data);
 

@@ -35,6 +35,7 @@ static const char GN_DS18B20_PARAM_UPDATE_TIME_SEC[16] = "upd_time_sec"; /*!< se
 static const char GN_DS18B20_PARAM_GPIO[5] = "gpio"; /*!< GPIO connected to the temp sensor */
 static const char GN_DS18B20_PARAM_SENSOR_NAMES[GN_DS18B20_MAX_SENSORS][6] = { "temp1", "temp2",
 		"temp3", "temp4" };
+static const char GN_DS18B20_PARAM_PARASITIC[] = "parasitic"; /*!< whether to use the parasitic mode. */
 
 gn_leaf_descriptor_handle_t gn_ds18b20_config(gn_leaf_handle_t leaf_config);
 

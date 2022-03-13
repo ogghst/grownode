@@ -22,13 +22,23 @@
 #include "grownode.h"
 
 //include the board you want to start here
-#include "gn_blink.h"
+#include "gn_oscilloscope.h"
+#include "gn_easypot1.h"
 
 #define TASK_STACK_SIZE 8192*4
 
 #define TAG "gn_main"
 
+#include "esp_check.h"
+
+//switch from LOGI to LOGD
+//#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
+#include "esp_log.h"
+
+
 void app_main(void) {
+
+	//vTaskDelay(5000 / portTICK_PERIOD_MS);
 
 	//set default log level
 	esp_log_level_set("*", ESP_LOG_INFO);
@@ -40,25 +50,30 @@ void app_main(void) {
 	esp_log_level_set("grownode", ESP_LOG_INFO);
 	esp_log_level_set("gn_commons", ESP_LOG_INFO);
 	esp_log_level_set("gn_nvs", ESP_LOG_INFO);
-	esp_log_level_set("gn_mqtt_protocol", ESP_LOG_DEBUG);
+	esp_log_level_set("gn_mqtt_protocol", ESP_LOG_INFO);
 	esp_log_level_set("gn_network", ESP_LOG_INFO);
 	esp_log_level_set("gn_display", ESP_LOG_INFO);
 
 	//boards
-	esp_log_level_set("gn_blink", ESP_LOG_INFO);
+	esp_log_level_set("gn_oscilloscope", ESP_LOG_INFO);
+	esp_log_level_set("gn_easypot1", ESP_LOG_DEBUG);
 
 	gn_config_init_param_t config_init = {
 		.provisioning_security = true,
 		.provisioning_password = "grownode",
 		.wifi_retries_before_reset_provisioning = 5,
 		.server_board_id_topic = false,
-		.server_base_topic = "/grownode/test",
-		.server_url = "mqtt://192.168.1.170:1883",
-		.server_keepalive_timer_sec = 60,
+		.server_base_topic = "grownode",
+		.server_url = "mqtt://192.168.1.10:1883",
+		.server_keepalive_timer_sec = 3600,
 		.server_discovery = false,
 		.server_discovery_prefix = "homeassistant",
-		.firmware_url = "http://myserver/myfirmware.bin",
-		.sntp_url = "pool.ntp.org"
+		.firmware_url = "http://grownode.duckdns.org/grownode/oscilloscope/grownode.bin",
+		.sntp_url = "pool.ntp.org",
+		.wakeup_time_millisec = 5000LL,
+		.sleep_delay_millisec = 50LL,
+		.sleep_time_millisec = 10000LL,
+		.sleep_mode = GN_SLEEP_MODE_NONE
 	};
 
 	//creates the config handle
@@ -72,19 +87,17 @@ void app_main(void) {
 	}
 
 	//creates a new node
-	gn_node_handle_t node = gn_node_create(config, "node");
+	gn_node_handle_t node = gn_node_create(config, "oscilloscope");
 
 	//the board to start
-	gn_configure_blink(node);
+	gn_configure_oscilloscope(node);
+	//gn_configure_easypot1(node);
 
 	//finally, start node
 	gn_node_start(node);
 
-	while (true) {
-		vTaskDelay(10000 / portTICK_PERIOD_MS);
-		ESP_LOGD(TAG, "grownode startup status: %s",
-				gn_get_status_description(config));
-	}
+	//handles loop
+	gn_node_loop(node);
 
 }
 

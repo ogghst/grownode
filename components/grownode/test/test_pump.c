@@ -52,7 +52,7 @@ TEST_CASE("gn_init_add_pump", "[pump]") {
 	gn_node_get_name(node_config, node_name);
 	TEST_ASSERT_EQUAL_STRING("node", node_name);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 0);
-	pump_config = gn_leaf_create(node_config, "pump", gn_pump_config, 4096);
+	pump_config = gn_leaf_create(node_config, "pump", gn_pump_config, 4096, 1);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 1);
 	esp_err_t ret = gn_node_start(node_config);
 	TEST_ASSERT_EQUAL(ret, ESP_OK);
@@ -62,7 +62,7 @@ TEST_CASE("gn_init_add_pump", "[pump]") {
 TEST_CASE("gn_leaf_create pump", "[pump]") {
 
 	size_t oldsize = gn_node_get_size(node_config);
-	pump_config = gn_leaf_create(node_config, "pump", gn_pump_config, 4096);
+	pump_config = gn_leaf_create(node_config, "pump", gn_pump_config, 4096, 1);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), oldsize + 1);
 	TEST_ASSERT(pump_config != NULL);
 
@@ -85,8 +85,8 @@ TEST_CASE("gn_receive_status_0", "[pump]") {
 	event->topic_len = strlen(topic);
 	event->data_len = strlen(data);
 
-	strncpy(event->topic, topic, event->topic_len);
-	strncpy(event->data, data, event->data_len);
+	strcpy(event->topic, topic);
+	strcpy(event->data, data);
 
 	esp_event_base_t base = "base";
 	void *handler_args = 0;
@@ -118,8 +118,8 @@ TEST_CASE("gn_receive_status_1", "[pump]") {
 	event->topic_len = strlen(topic);
 	event->data_len = strlen(data);
 
-	strncpy(event->topic, topic, event->topic_len);
-	strncpy(event->data, data, event->data_len);
+	strcpy(event->topic, topic);
+	strcpy(event->data, data);
 
 	esp_event_base_t base = "base";
 	void *handler_args = 0;
@@ -151,8 +151,8 @@ TEST_CASE("gn_receive_power_0", "[pump]") {
 	event->topic_len = strlen(topic);
 	event->data_len = strlen(data);
 
-	strncpy(event->topic, topic, event->topic_len);
-	strncpy(event->data, data, event->data_len);
+	strcpy(event->topic, topic);
+	strcpy(event->data, data);
 
 	esp_event_base_t base = "base";
 	void *handler_args = 0;
@@ -184,8 +184,8 @@ TEST_CASE("gn_receive_power_128", "[pump]") {
 	event->topic_len = strlen(topic);
 	event->data_len = strlen(data);
 
-	strncpy(event->topic, topic, event->topic_len);
-	strncpy(event->data, data, event->data_len);
+	strcpy(event->topic, topic);
+	strcpy(event->data, data);
 
 	esp_event_base_t base = "base";
 	void *handler_args = 0;
@@ -217,8 +217,8 @@ TEST_CASE("gn_receive_power_500", "[pump]") {
 	event->topic_len = strlen(topic);
 	event->data_len = strlen(data);
 
-	strncpy(event->topic, topic, event->topic_len);
-	strncpy(event->data, data, event->data_len);
+	strcpy(event->topic, topic);
+	strcpy(event->data, data);
 
 	esp_event_base_t base = "base";
 	void *handler_args = 0;
@@ -242,7 +242,7 @@ TEST_CASE("gn_pump_mqtt_stress_test", "[pump]") {
 	gn_node_get_name(node_config, node_name);
 	TEST_ASSERT_EQUAL_STRING("node", node_name);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 0);
-	pump_config = gn_leaf_create(node_config, "pump", gn_pump_config, 4096);
+	pump_config = gn_leaf_create(node_config, "pump", gn_pump_config, 4096, 1);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 1);
 	esp_err_t ret = gn_node_start(node_config);
 	TEST_ASSERT_EQUAL(ret, ESP_OK);
@@ -286,8 +286,8 @@ TEST_CASE("gn_pump_mqtt_stress_test", "[pump]") {
 			event->topic_len = strlen(topic);
 			event->data_len = strlen(data);
 
-			strncpy(event->topic, topic, event->topic_len);
-			strncpy(event->data, data, event->data_len);
+			strcpy(event->topic, topic);
+			strcpy(event->data, data);
 
 			ESP_LOGD(TAG, "sending command - topic %s, data %s", topic, data);
 

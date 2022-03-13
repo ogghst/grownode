@@ -150,7 +150,7 @@ Parameters involved in the configuration are described in `gn_config_init_param_
 
 ### OTA message
 
-This message informs the node to upload the firmware from the config specified URL.
+This message informs the node to upload the firmware from the config specified URL. This message can be sent also with retained flag = true, and will be resetted by the board upon processing. This in order to call the functionality even if waking up from deep sleep
 
 | From        | To          |
 | ----------- | ----------- |
@@ -176,7 +176,7 @@ This gives the confirmation the OTA message has been processed and the OTA is in
 
 ### Reboot message
 
-This message tells the node to reboot 
+This message tells the node to reboot. This message can be sent also with retained flag = true, and will be resetted by the board upon processing. This in order to call the functionality even if waking up from deep sleep
 
 | From        | To          |
 | ----------- | ----------- |
@@ -202,7 +202,7 @@ This gives the confirmation the reboot message has been processed and the board 
 
 ### Reset  message
 
-This message tells the node to reset the NVS. This will bring to the initial configuration, including provisioning.
+This message tells the node to reset the NVS. This will bring to the initial configuration, including provisioning. This message can be sent also with retained flag = true, and will be resetted by the board upon processing. This in order to call the functionality even if waking up from deep sleep
 
 | From        | To          |
 | ----------- | ----------- |

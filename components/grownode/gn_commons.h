@@ -24,9 +24,12 @@
 extern "C" {
 #endif
 
-#define GN_NODE_NAME_SIZE 32
-#define GN_LEAF_NAME_SIZE 32
+#define GN_LEAF_TASK_PRIORITY 1
+
+#define GN_NODE_NAME_SIZE 16
+#define GN_LEAF_NAME_SIZE 16
 #define GN_LEAF_PARAM_NAME_SIZE 32
+#define GN_LEAF_PARAM_VAL_SIZE 64
 #define GN_LEAF_DATA_SIZE 512
 #define GN_NODE_DATA_SIZE 512
 #define GN_LEAF_DESC_TYPE_SIZE 32
@@ -40,22 +43,6 @@ extern "C" {
     @brief maximum time between two keepalive messages
 */
 static const int16_t GN_CONFIG_MAX_SERVER_KEEPALIVE_SEC = 3600;
-
-typedef struct {
-	bool provisioning_security;
-	char provisioning_password[9];
-	int16_t wifi_retries_before_reset_provisioning; /*!< -1 to never lose provisioning (warning: in case of SSID change, no way to reset!*/
-	bool server_board_id_topic;
-	char server_base_topic[80];
-	char server_url[255];
-	uint32_t server_keepalive_timer_sec;
-	bool server_discovery;
-	char server_discovery_prefix[80];
-	char firmware_url[255];
-	char sntp_url[255];
-} gn_config_init_param_t;
-
-typedef struct gn_config_init_param_t *gn_config_init_param_handle_t;
 
 typedef enum {
 	GN_NODE_STATUS_NOT_INITIALIZED = 0,
@@ -71,8 +58,15 @@ typedef enum {
 	GN_NODE_STATUS_ERROR_MISSING_SERVER_URL = 10,
 	GN_NODE_STATUS_ERROR_BAD_SERVER_KEEPALIVE_SEC = 11,
 	GN_NODE_STATUS_ERROR_MISSING_SNTP_URL = 12,
-	GN_NODE_STATUS_ERROR_MISSING_SERVER_DISCOVERY_PREFIX = 13
+	GN_NODE_STATUS_ERROR_MISSING_SERVER_DISCOVERY_PREFIX = 13,
+	GN_NODE_STATUS_SLEEPING = 14
 } gn_node_status_t;
+
+typedef enum {
+	GN_SLEEP_MODE_NONE = 0,
+	GN_SLEEP_MODE_LIGHT = 1,
+	GN_SLEEP_MODE_DEEP = 2
+} gn_sleep_mode_t;
 
 const char *gn_config_status_descriptions [14];
 
@@ -117,6 +111,28 @@ typedef enum {
 	GN_LOG_WARNING = ESP_LOG_WARN,
 	GN_LOG_ERROR = ESP_LOG_ERROR,
 } gn_log_level_t;
+
+typedef struct {
+	bool provisioning_security;
+	char provisioning_password[9];
+	int16_t wifi_retries_before_reset_provisioning; /*!< -1 to never lose provisioning (warning: in case of SSID change, no way to reset!*/
+	bool server_board_id_topic;
+	char server_base_topic[80];
+	char server_url[255];
+	uint16_t server_keepalive_timer_sec;
+	bool server_discovery;
+	char server_discovery_prefix[80];
+	char firmware_url[255];
+	char sntp_url[255];
+	uint64_t wakeup_time_millisec; /*! if sleep mode is GN_SLEEP_MODE_LIGHT or GN_SLEEP_MODE_DEEP, sets for how long the board must stay on (counted from boot) !*/
+	uint64_t sleep_time_millisec; /*! if sleep mode is GN_SLEEP_MODE_LIGHT or GN_SLEEP_MODE_DEEP, sets for how long the board must sleep !*/
+	uint64_t sleep_delay_millisec; /*! if sleep mode is GN_SLEEP_MODE_LIGHT or GN_SLEEP_MODE_DEEP, sets for how long the board must stay on waiting for leaves to complete its job before sleeping!*/
+	gn_sleep_mode_t sleep_mode; /*! define if and how the board must sleep !*/
+
+} gn_config_init_param_t;
+
+typedef struct gn_config_init_param_t *gn_config_init_param_handle_t;
+
 
 typedef void *gn_leaf_handle_t;
 typedef void *gn_node_handle_t;

@@ -59,59 +59,59 @@ void gn_configure_hydroboard2(gn_node_handle_t node) {
 	const char *LIGHT_2 = "lig_2";
 
 	gn_leaf_handle_t lights1in = gn_leaf_create(node, LIGHT_1,
-			gn_gpio_config, 4096);
+			gn_gpio_config, 4096, GN_LEAF_TASK_PRIORITY);
 	gn_leaf_param_init_double(lights1in, GN_GPIO_PARAM_GPIO, 25);
 	gn_leaf_param_init_bool(lights1in, GN_GPIO_PARAM_INVERTED, true);
 	gn_leaf_param_init_bool(lights1in, GN_GPIO_PARAM_TOGGLE, false);
 
 	gn_leaf_handle_t lights2in = gn_leaf_create(node, LIGHT_2,
-			gn_gpio_config, 4096);
+			gn_gpio_config, 4096, GN_LEAF_TASK_PRIORITY);
 	gn_leaf_param_init_double(lights2in, GN_GPIO_PARAM_GPIO, 33);
 	gn_leaf_param_init_bool(lights2in, GN_GPIO_PARAM_INVERTED, true);
 	gn_leaf_param_init_bool(lights2in, GN_GPIO_PARAM_TOGGLE, false);
 
 	gn_leaf_handle_t plt_a = gn_leaf_create(node, PLT_HOT,
-			gn_gpio_config, 4096);
+			gn_gpio_config, 4096, GN_LEAF_TASK_PRIORITY);
 	gn_leaf_param_init_double(plt_a, GN_GPIO_PARAM_GPIO, 5);
 	gn_leaf_param_init_bool(plt_a, GN_GPIO_PARAM_INVERTED, true);
 	gn_leaf_param_init_bool(plt_a, GN_GPIO_PARAM_TOGGLE, false);
 
 	gn_leaf_handle_t plt_b = gn_leaf_create(node, PLT_COOL,
-			gn_gpio_config, 4096);
+			gn_gpio_config, 4096, GN_LEAF_TASK_PRIORITY);
 	gn_leaf_param_init_double(plt_b, GN_GPIO_PARAM_GPIO, 23);
 	gn_leaf_param_init_bool(plt_b, GN_GPIO_PARAM_INVERTED, true);
 	gn_leaf_param_init_bool(plt_b, GN_GPIO_PARAM_TOGGLE, false);
 
 	gn_leaf_handle_t wat_pump = gn_leaf_create(node, WAT_PUMP,
-			gn_leaf_pwm_config, 4096);
+			gn_leaf_pwm_config, 4096, GN_LEAF_TASK_PRIORITY);
 	gn_leaf_param_init_bool(wat_pump, GN_LEAF_PWM_PARAM_TOGGLE, false);
 	gn_leaf_param_init_double(wat_pump, GN_LEAF_PWM_PARAM_GPIO, 16);
 	gn_leaf_param_init_double(wat_pump, GN_LEAF_PWM_PARAM_CHANNEL, 0);
 	gn_leaf_param_init_double(wat_pump, GN_LEAF_PWM_PARAM_POWER, 0);
 
 	gn_leaf_handle_t plt_pump = gn_leaf_create(node, PLT_PUMP,
-			gn_leaf_pwm_config, 4096);
+			gn_leaf_pwm_config, 4096, GN_LEAF_TASK_PRIORITY);
 	gn_leaf_param_init_bool(plt_pump, GN_LEAF_PWM_PARAM_TOGGLE, false);
 	gn_leaf_param_init_double(plt_pump, GN_LEAF_PWM_PARAM_GPIO, 19);
 	gn_leaf_param_init_double(plt_pump, GN_LEAF_PWM_PARAM_CHANNEL, 1);
 	gn_leaf_param_init_double(plt_pump, GN_LEAF_PWM_PARAM_POWER, 0);
 
 	gn_leaf_handle_t plt_fan = gn_leaf_create(node, PLT_FAN,
-			gn_leaf_pwm_config, 4096);
+			gn_leaf_pwm_config, 4096, GN_LEAF_TASK_PRIORITY);
 	gn_leaf_param_init_bool(plt_fan, GN_LEAF_PWM_PARAM_TOGGLE, false);
 	gn_leaf_param_init_double(plt_fan, GN_LEAF_PWM_PARAM_GPIO, 18);
 	gn_leaf_param_init_double(plt_fan, GN_LEAF_PWM_PARAM_CHANNEL, 2);
 	gn_leaf_param_init_double(plt_fan, GN_LEAF_PWM_PARAM_POWER, 0);
 
 	gn_leaf_handle_t env_fan = gn_leaf_create(node, ENV_FAN,
-			gn_leaf_pwm_config, 4096);
+			gn_leaf_pwm_config, 4096, GN_LEAF_TASK_PRIORITY);
 	gn_leaf_param_init_bool(env_fan, GN_LEAF_PWM_PARAM_TOGGLE, false);
 	gn_leaf_param_init_double(env_fan, GN_LEAF_PWM_PARAM_GPIO, 27);
 	gn_leaf_param_init_double(env_fan, GN_LEAF_PWM_PARAM_CHANNEL, 3);
 	gn_leaf_param_init_double(env_fan, GN_LEAF_PWM_PARAM_POWER, 0);
 
 	gn_leaf_handle_t wat_lev = gn_leaf_create(node, WAT_LEV,
-			gn_capacitive_water_level_config, 4096);
+			gn_capacitive_water_level_config, 4096, GN_LEAF_TASK_PRIORITY);
 	gn_leaf_param_init_bool(wat_lev, GN_CWL_PARAM_ACTIVE, true);
 	gn_leaf_param_init_double(wat_lev, GN_CWL_PARAM_TOUCH_CHANNEL, 1);
 	gn_leaf_param_init_double(wat_lev, GN_CWL_PARAM_UPDATE_TIME_SEC, 10);
@@ -119,20 +119,20 @@ void gn_configure_hydroboard2(gn_node_handle_t node) {
 	gn_leaf_param_init_double(wat_lev, GN_CWL_PARAM_MAX_LEVEL, 2048);
 
 	gn_leaf_handle_t env_thp = gn_leaf_create(node, BME280,
-			gn_bme280_config, 8192);
+			gn_bme280_config, 8192, GN_LEAF_TASK_PRIORITY);
 	gn_leaf_param_init_double(env_thp, GN_BME280_PARAM_SDA, 21);
 	gn_leaf_param_init_double(env_thp, GN_BME280_PARAM_SCL, 22);
 	gn_leaf_param_init_bool(env_thp, GN_BME280_PARAM_ACTIVE, true);
 	gn_leaf_param_init_double(env_thp, GN_BME280_PARAM_UPDATE_TIME_SEC, 10);
 
 	gn_leaf_handle_t temps = gn_leaf_create(node, DS18B20,
-			gn_ds18b20_config, 4096);
+			gn_ds18b20_config, 4096, GN_LEAF_TASK_PRIORITY);
 	gn_leaf_param_init_double(temps, GN_DS18B20_PARAM_GPIO, 4);
 	gn_leaf_param_init_bool(temps, GN_DS18B20_PARAM_ACTIVE, true);
 	gn_leaf_param_init_double(temps, GN_DS18B20_PARAM_UPDATE_TIME_SEC, 5);
 
 	gn_leaf_handle_t watering_control = gn_leaf_create(node,
-			"watering_control", gn_hb2_watering_control_config, 4096);
+			"watering_control", gn_hb2_watering_control_config, 4096, GN_LEAF_TASK_PRIORITY);
 	gn_leaf_param_init_double(watering_control,
 			GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_INTERVAL_SEC, 60 * 1);
 	gn_leaf_param_init_double(watering_control,
@@ -155,7 +155,7 @@ void gn_configure_hydroboard2(gn_node_handle_t node) {
 	gn_leaf_param_init_string(watering_control, GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_LIGHT_2, LIGHT_2);
 
 	gn_leaf_handle_t led = gn_leaf_create(node, "led",
-			gn_leaf_status_led_config, 4096);
+			gn_leaf_status_led_config, 4096, GN_LEAF_TASK_PRIORITY);
 	gn_leaf_param_init_double(led, GN_LEAF_STATUS_LED_PARAM_GPIO, 32);
 
 }

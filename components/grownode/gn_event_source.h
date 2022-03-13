@@ -69,8 +69,11 @@ typedef enum {
 	GN_SRV_KEEPALIVE_TRIGGERED_EVENT = 0x503,
 
 	//node events
-	GN_NODE_STARTED_EVENT = 0x601
+	GN_NODE_STARTED_EVENT = 0x601,
 
+	//power events
+	GN_NODE_DEEP_SLEEP_START_EVENT = 0x701,
+	GN_NODE_LIGHT_SLEEP_START_EVENT = 0x702
 
 } gn_event_id_t;
 

@@ -36,6 +36,7 @@ extern "C" {
 #endif /* CONFIG_GROWNODE_PROV_TRANSPORT_BLE */
 
 #define GN_NODE_LEAVES_MAX_SIZE 64
+#define GN_NODE_LEAF_QUEUE_SIZE 3
 
 //functions
 gn_node_handle_t gn_node_create(gn_config_handle_t config,
@@ -44,6 +45,10 @@ gn_node_handle_t gn_node_create(gn_config_handle_t config,
 gn_err_t gn_node_destroy(gn_node_handle_t node);
 
 gn_err_t gn_node_start(gn_node_handle_t node);
+
+gn_err_t gn_node_loop(gn_node_handle_t node);
+
+gn_err_t gn_node_sleep(gn_node_handle_t node, gn_sleep_mode_t sleep_mode, uint64_t delay_msec, uint64_t millisec);
 
 size_t gn_node_get_size(gn_node_handle_t config);
 
@@ -57,7 +62,7 @@ gn_err_t gn_reboot();
 
 gn_leaf_handle_t gn_leaf_create(gn_node_handle_t node_config,
 		const char *name, gn_leaf_config_callback callback,
-		size_t task_size);
+		size_t task_size, UBaseType_t priority);
 
 gn_leaf_descriptor_handle_t gn_leaf_get_descriptor(
 		gn_leaf_handle_t leaf_config);

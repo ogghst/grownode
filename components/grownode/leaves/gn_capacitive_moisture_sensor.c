@@ -146,7 +146,7 @@ gn_leaf_descriptor_handle_t gn_capacitive_moisture_sensor_config(
 	gn_cms_data_t *data = malloc(sizeof(gn_cms_data_t));
 
 	data->active_param = gn_leaf_param_create(leaf_config, GN_CMS_PARAM_ACTIVE,
-			GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b = false },
+			GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b = true },
 			GN_LEAF_PARAM_ACCESS_ALL, GN_LEAF_PARAM_STORAGE_PERSISTED,
 			NULL);
 
@@ -367,17 +367,25 @@ void gn_cms_task(gn_leaf_handle_t leaf_config) {
 	ret = esp_timer_create(&water_sensor_timer_args, &data->sensor_timer);
 	if (ret != ESP_OK) {
 		gn_log(TAG, GN_LOG_ERROR,
-				"[%s] failed to init capacitive moisture sensor timer", leaf_name);
+				"[%s] failed to init capacitive moisture sensor timer",
+				leaf_name);
 	}
 
 	if (ret == ESP_OK && active == true) {
 
-		//start sensor callback
-		ret = esp_timer_start_periodic(data->sensor_timer,
-				update_time_sec * 1000000);
+		//first shot immediate
+		gn_cms_sensor_collect(leaf_config);
+
+		//then start the periodic wakeup
+		if (ret == ESP_OK) {
+			ret = esp_timer_start_periodic(data->sensor_timer,
+					update_time_sec * 1000000);
+		}
+
 		if (ret != ESP_OK) {
 			gn_log(TAG, GN_LOG_ERROR,
-					"[%s] failed to start capacitive moisture sensor timer", leaf_name);
+					"[%s] failed to start capacitive moisture sensor timer",
+					leaf_name);
 			gn_leaf_get_descriptor(leaf_config)->status = GN_LEAF_STATUS_ERROR;
 			gn_leaf_param_write_bool(leaf_config, GN_CMS_PARAM_ACTIVE, false);
 			descriptor->status = GN_LEAF_STATUS_ERROR;

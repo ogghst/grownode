@@ -50,7 +50,7 @@ TEST_CASE("gn_init_add_ds18b20", "[ds18b20]") {
 	gn_node_get_name(node_config, node_name);
 	TEST_ASSERT_EQUAL_STRING("node", node_name);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 0);
-	ds18b20_config = gn_leaf_create(node_config, "ds18b20", gn_ds18b20_config, 4096);
+	ds18b20_config = gn_leaf_create(node_config, "ds18b20", gn_ds18b20_config, 4096, 1);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 1);
 	esp_err_t ret = gn_node_start(node_config);
 	TEST_ASSERT_EQUAL(ret, ESP_OK);
@@ -60,7 +60,7 @@ TEST_CASE("gn_init_add_ds18b20", "[ds18b20]") {
 TEST_CASE("gn_leaf_create ds18b20", "[ds18b20]") {
 
 	size_t oldsize = gn_node_get_size(node_config);
-	ds18b20_config = gn_leaf_create(node_config, "ds18b20", gn_ds18b20_config, 4096);
+	ds18b20_config = gn_leaf_create(node_config, "ds18b20", gn_ds18b20_config, 4096, 1);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), oldsize+1);
 	TEST_ASSERT(ds18b20_config != NULL);
 
@@ -78,7 +78,7 @@ TEST_CASE("gn_ds18b20_mqtt_stress_test", "[ds18b20]") {
 	gn_node_get_name(node_config, node_name);
 	TEST_ASSERT_EQUAL_STRING("node", node_name);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 0);
-	ds18b20_config = gn_leaf_create(node_config, "ds18b20", gn_ds18b20_config, 4096);
+	ds18b20_config = gn_leaf_create(node_config, "ds18b20", gn_ds18b20_config, 4096, 1);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 1);
 	esp_err_t ret = gn_node_start(node_config);
 	TEST_ASSERT_EQUAL(ret, ESP_OK);
