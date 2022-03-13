@@ -100,11 +100,11 @@ gn_leaf_param_validator_result_t gn_validator_double_positive(
 	double _p1 = **(double**) param_value;
 	ESP_LOGD(TAG, "gn_validator_double_positive - param: %f", _p1);
 
-	if (min > **(double**) param_value) {
-		memcpy(param_value, &zero, sizeof(min));
+	if (**(double**) param_value < zero) {
+		memcpy(param_value, &zero, sizeof(double));
 		return GN_LEAF_PARAM_VALIDATOR_ERROR_BELOW_MIN;
-	} else if (max < **(double**) param_value) {
-		memcpy(param_value, &max, sizeof(max));
+	} else if (**(double**) param_value >= max) {
+		memcpy(param_value, &max, sizeof(double));
 		return GN_LEAF_PARAM_VALIDATOR_ERROR_ABOVE_MAX;
 	}
 
@@ -125,11 +125,11 @@ gn_leaf_param_validator_result_t gn_validator_double(
 	double _p1 = **(double**) param_value;
 	ESP_LOGD(TAG, "gn_validator_double - param: %f", _p1);
 
-	if (min > **(double**) param_value) {
-		memcpy(param_value, &min, sizeof(min));
+	if (**(double**) param_value < min) {
+		memcpy(param_value, &min, sizeof(double));
 		return GN_LEAF_PARAM_VALIDATOR_ERROR_BELOW_MIN;
-	} else if (max < **(double**) param_value) {
-		memcpy(param_value, &max, sizeof(max));
+	} else if (**(double**) param_value >= max) {
+		memcpy(param_value, &max, sizeof(double));
 		return GN_LEAF_PARAM_VALIDATOR_ERROR_ABOVE_MAX;
 	}
 
