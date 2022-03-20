@@ -43,7 +43,7 @@ extern "C" {
 
 static const ledc_mode_t GN_LEAF_PWM_PARAM_LEDC_MODE = LEDC_HIGH_SPEED_MODE;
 
-#define GN_PUMP_HS_FADE /*!< define if duty has to be faded */
+//#define GN_PUMP_HS_FADE /*!< define if duty has to be faded */
 #define GN_LEAF_PWM_FADE_SPEED 500 /*!< define fade speed (msec) */
 
 #define GN_LEAF_PWM_UNKNOWN_CHANNEL	-1

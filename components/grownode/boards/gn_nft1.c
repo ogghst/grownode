@@ -43,22 +43,29 @@ void gn_configure_nft1(gn_node_handle_t node) {
 
 	esp_log_level_set("gn_leaf_pump_control", ESP_LOG_INFO);
 	esp_log_level_set("gn_leaf_hb2_watering_control", ESP_LOG_DEBUG);
-	esp_log_level_set("gn_leaf_pwm", ESP_LOG_INFO);
+	esp_log_level_set("gn_leaf_pwm", ESP_LOG_DEBUG);
 
 	//leaves names
 	const char *PUMP = "pump";
-	const char *LIGHT = "light";
+	const char *VALVE = "valve";
+	const char *LIGHTS = "lights";
 
-	gn_leaf_handle_t lights = gn_leaf_create(node, LIGHT,
+	gn_leaf_handle_t valve = gn_leaf_create(node, VALVE, gn_gpio_config,
+			4096, GN_LEAF_TASK_PRIORITY);
+	gn_leaf_param_init_double(valve, GN_GPIO_PARAM_GPIO, 26);
+	gn_leaf_param_init_bool(valve, GN_GPIO_PARAM_INVERTED, true);
+	gn_leaf_param_init_bool(valve, GN_GPIO_PARAM_TOGGLE, false);
+
+	gn_leaf_handle_t lights = gn_leaf_create(node, LIGHTS,
 			gn_gpio_config, 4096, GN_LEAF_TASK_PRIORITY);
-	gn_leaf_param_init_double(lights, GN_GPIO_PARAM_GPIO, 26);
+	gn_leaf_param_init_double(lights, GN_GPIO_PARAM_GPIO, 18);
 	gn_leaf_param_init_bool(lights, GN_GPIO_PARAM_INVERTED, true);
 	gn_leaf_param_init_bool(lights, GN_GPIO_PARAM_TOGGLE, false);
 
-	gn_leaf_handle_t pump = gn_leaf_create(node, PUMP,
-			gn_leaf_pwm_config, 4096, GN_LEAF_TASK_PRIORITY);
+	gn_leaf_handle_t pump = gn_leaf_create(node, PUMP, gn_leaf_pwm_config, 4096,
+			GN_LEAF_TASK_PRIORITY);
 	gn_leaf_param_init_bool(pump, GN_LEAF_PWM_PARAM_TOGGLE, false);
-	gn_leaf_param_init_double(pump, GN_LEAF_PWM_PARAM_GPIO, 34);
+	gn_leaf_param_init_double(pump, GN_LEAF_PWM_PARAM_GPIO, 5);
 	gn_leaf_param_init_double(pump, GN_LEAF_PWM_PARAM_CHANNEL, 2);
 	gn_leaf_param_init_double(pump, GN_LEAF_PWM_PARAM_POWER, 0);
 
