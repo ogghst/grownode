@@ -1360,7 +1360,7 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
 //check if existing
 		ESP_LOGD(TAG, "check stored value for key %s", _buf);
 
-		if (gn_storage_get(_buf, (void**) &value) == ESP_OK) {
+		if (gn_storage_get(_buf, (void**) &value) == GN_RET_NVS_PARAMETER_FOUND) {
 			ESP_LOGD(TAG, "found stored value for key %s", _buf);
 
 			switch (type) {
@@ -1388,6 +1388,8 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
 				break;
 			}
 
+		} else {
+			ESP_LOGD(TAG, "not found stored value for key %s", _buf);
 		}
 
 		free(_buf);
@@ -1481,7 +1483,7 @@ gn_err_t gn_leaf_param_init_string(const gn_leaf_handle_t leaf_config,
 	_buf[_len - 1] = '\0';
 
 	//if already set keep old value
-	if (gn_storage_get(_buf, (void**) &val) == ESP_OK) {
+	if (gn_storage_get(_buf, (void**) &val) == GN_RET_NVS_PARAMETER_FOUND) {
 		ESP_LOGD(TAG, ".. value already found: (%s) - skipping", val);
 		return GN_RET_OK;
 	}
@@ -1727,7 +1729,7 @@ gn_err_t gn_leaf_param_init_bool(const gn_leaf_handle_t leaf_config,
 	_buf[_len - 1] = '\0';
 
 	//if already set keep old value
-	if (gn_storage_get(_buf, (void**) &val) == ESP_OK) {
+	if (gn_storage_get(_buf, (void**) &val) == GN_RET_NVS_PARAMETER_FOUND) {
 		ESP_LOGD(TAG, ".. value already found: (%d) - skipping", val);
 		return GN_RET_OK;
 	}
@@ -2020,7 +2022,7 @@ gn_err_t gn_leaf_param_init_double(const gn_leaf_handle_t leaf_config,
 	_buf[_len - 1] = '\0';
 
 	//if already set keep old value
-	if (gn_storage_get(_buf, (void**) &val) == ESP_OK) {
+	if (gn_storage_get(_buf, (void**) &val) == GN_RET_NVS_PARAMETER_FOUND) {
 		ESP_LOGD(TAG, ".. value already found: (%f) - skipping", val);
 		return GN_RET_OK;
 	}
@@ -3048,7 +3050,8 @@ gn_err_t gn_storage_set(const char *key, const void *value,
  *	@param value	pointer where the pointer of the data acquired will be stored
  *
  *	@return GN_RET_ERR_INVALID_ARG if input params are not valid
- *	@return GN_RET_OK if key is stored successfully
+ *	@return GN_RET_NVS_PARAMETER_FOUND if key is retrieved successfully
+ *	@return GN_RET_NVS_PARAMETER_NOT_FOUND if key is not retrieved from NVS. in this case 'value' keeps the original value
  *
  */
 gn_err_t gn_storage_get(const char *key, void **value) {
@@ -3100,7 +3103,7 @@ gn_err_t gn_storage_get(const char *key, void **value) {
 
 // Close
 	nvs_close(my_handle);
-	return GN_RET_OK;
+	return required_size == 0? GN_RET_NVS_PARAMETER_NOT_FOUND: GN_RET_NVS_PARAMETER_FOUND;
 
 	fail:
 // Close

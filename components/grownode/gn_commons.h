@@ -90,7 +90,9 @@ typedef enum {
 	GN_RET_ERR_LEAF_NOT_FOUND = 0x206,
 	GN_RET_ERR_EVENT_NOT_SENT = 0x207,
 	GN_RET_ERR_MQTT_SUBSCRIBE = 0x208,
-	GN_RET_ERR_MQTT_ERROR = 0x209
+	GN_RET_ERR_MQTT_ERROR = 0x209,
+	GN_RET_NVS_PARAMETER_NOT_FOUND = 0x301,/*!< parameter requested was not found in NVS */
+	GN_RET_NVS_PARAMETER_FOUND = 0x302/*!< parameter requested was found in NVS */
 } gn_err_t;
 
 /**
