@@ -64,6 +64,60 @@ typedef struct {
 
 void gn_cms_task(gn_leaf_handle_t leaf_config);
 
+/**
+ * creates a CMS leaf defining all parameters
+ *
+ * @param	node			the parent node
+ * @param	leaf_name		the name of the leaf to be created
+ * @param	adc_channel		the ADC channel for analog input
+ * @param	update_time_sec	the time interval between measurements [seconds]
+ *
+ * @return	an handle to the leaf initialized
+ * @return	NULL		in case of errors
+ */
+gn_leaf_handle_t gn_capacitive_moisture_sensor_fastcreate(gn_node_handle_t node,
+		const char *leaf_name, int adc_channel, double update_time_sec) {
+
+	if (node == NULL) {
+		ESP_LOGE(TAG, "gn_capacitive_moisture_sensor_fastcreate - node is null");
+		return NULL;
+	}
+
+	if (leaf_name == NULL) {
+		ESP_LOGE(TAG, "gn_capacitive_moisture_sensor_fastcreate - leaf_name is null");
+		return NULL;
+	}
+
+	if (adc_channel < 0 || adc_channel > ADC1_CHANNEL_MAX) {
+		ESP_LOGE(TAG, "gn_capacitive_moisture_sensor_fastcreate - ADC1 channel out of limits");
+		return NULL;
+	}
+
+	if (update_time_sec <= 0) {
+		ESP_LOGE(TAG, "gn_bh1750_fastcreate - update time must be positive");
+		return NULL;
+	}
+
+	//creates the moisture sensor
+	gn_leaf_handle_t leaf = gn_leaf_create(node, leaf_name, gn_capacitive_moisture_sensor_config,
+			4096, GN_LEAF_TASK_PRIORITY);
+
+	if (leaf == NULL) {
+		ESP_LOGE(TAG, "gn_capacitive_moisture_sensor_fastcreate - cannot create leaf %s", leaf_name);
+		return NULL;
+	}
+
+	//set the channel
+	gn_leaf_param_init_double(leaf, GN_CMS_PARAM_ADC_CHANNEL, adc_channel);
+	//set update time
+	gn_leaf_param_init_double(leaf, GN_CMS_PARAM_UPDATE_TIME_SEC, update_time_sec);
+
+	ESP_LOGD(TAG, "[%s] CMS leaf created", leaf_name);
+
+	return leaf;
+
+}
+
 void gn_cms_sensor_collect(gn_leaf_handle_t leaf_config) {
 
 	char leaf_name[GN_LEAF_NAME_SIZE];
@@ -117,7 +171,7 @@ void gn_cms_sensor_collect(gn_leaf_handle_t leaf_config) {
 		gn_leaf_param_write_bool(leaf_config, GN_CMS_PARAM_TRG_HIGH, false);
 	} else
 
-	//if level is below maximum, trigger min
+	//if level is below minimum, trigger min
 	if (result <= min_level && trg_low == false) {
 		gn_leaf_param_write_bool(leaf_config, GN_CMS_PARAM_TRG_LOW, true);
 	} else

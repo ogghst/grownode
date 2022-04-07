@@ -113,7 +113,7 @@ else()
 	
 	if(DEFINED ENV{IDF_LIB_PATH})
 	    list(APPEND components_required 
-     		"bmp280" "ds18x20" "ina219"
+     		"bmp280" "ds18x20" "ina219" "bh1750"
      	)
    	endif()
 
@@ -130,6 +130,7 @@ else()
 					"gn_mqtt_protocol.c"
 					"gn_network.c"
 					"gn_leaf_context.c"
+					"leaves/gn_bh1750.c"
 					"leaves/gn_pwm.c"
 					"leaves/gn_pump.c"
 					"leaves/gn_pump_hs.c"
@@ -144,6 +145,7 @@ else()
 					"leaves/gn_led.c"
 					"leaves/gn_leaf_status_led.c"
 					"leaves/gn_leaf_ina219.c"
+					"leaves/gn_leaf_mux_cms.c"
 					"test/test_grownode.c"
 					"test/test_pump.c"
 					"test/test_ds18b20.c"

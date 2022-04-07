@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MAIN_GN_BLINK_H_
-#define MAIN_GN_BLINK_H_
+#ifndef MAIN_GN_EASYPOT1_H_
+#define MAIN_GN_EASYPOT1_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,4 +27,4 @@ void gn_configure_easypot1(gn_node_handle_t node);
 }
 #endif //__cplusplus
 
-#endif /* MAIN_GN_HYDROBOARD1_H_ */
+#endif /* MAIN_GN_EASYPOT1_H_ */

@@ -27,14 +27,17 @@ static const char GN_LEAF_CMS_TYPE[] = "cms";
 //parameters
 static const char GN_CMS_PARAM_ACTIVE[] = "active"; /*!< whether the sensor is running*/
 static const char GN_CMS_PARAM_ADC_CHANNEL[] = "touch_ch"; /*!< touch channel for sensing. stored, read/write */
-static const char GN_CMS_PARAM_MAX_LEVEL[] = "max_level"; /*!< minimum water level. stored, read/write */
-static const char GN_CMS_PARAM_MIN_LEVEL[] = "min_level"; /*!< maximum water level. stored, read/write */
-static const char GN_CMS_PARAM_ACT_LEVEL[] = "act_level"; /*!< actual water level. volatile, read only */
-static const char GN_CMS_PARAM_TRG_HIGH[] = "trg_hig"; /*!< water level above max level = 1. volatile, read only */
-static const char GN_CMS_PARAM_TRG_LOW[] = "trg_low"; /*!<  water level below min level = 1. volatile, read only */
+static const char GN_CMS_PARAM_MAX_LEVEL[] = "max_level"; /*!< minimum moisture level. stored, read/write */
+static const char GN_CMS_PARAM_MIN_LEVEL[] = "min_level"; /*!< maximum moisture level. stored, read/write */
+static const char GN_CMS_PARAM_ACT_LEVEL[] = "act_level"; /*!< actual moisture level. volatile, read only */
+static const char GN_CMS_PARAM_TRG_HIGH[] = "trg_hig"; /*!< moisture level above max level = 1. volatile, read only */
+static const char GN_CMS_PARAM_TRG_LOW[] = "trg_low"; /*!<  moisture level below min level = 1. volatile, read only */
 static const char GN_CMS_PARAM_UPDATE_TIME_SEC[] = "upd_time_sec"; /*!< seconds between sensor sampling. stored, read/write */
 
 gn_leaf_descriptor_handle_t gn_capacitive_moisture_sensor_config(gn_leaf_handle_t leaf_config);
+
+gn_leaf_handle_t gn_capacitive_moisture_sensor_fastcreate(gn_node_handle_t node,
+		const char *leaf_name, int adc_channel, double update_time_sec);
 
 #ifdef __cplusplus
 }
