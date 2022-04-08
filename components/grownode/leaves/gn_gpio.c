@@ -81,7 +81,7 @@ gn_leaf_handle_t gn_gpio_fastcreate(gn_node_handle_t node,
 	}
 
 	gn_leaf_param_init_double(leaf, GN_GPIO_PARAM_GPIO, gpio);
-	gn_leaf_param_init_bool(leaf, GN_GPIO_PARAM_TOGGLE, toggled);
+	gn_leaf_param_init_bool(leaf, GN_GPIO_PARAM_INVERTED, inverted);
 	gn_leaf_param_init_bool(leaf, GN_GPIO_PARAM_TOGGLE, toggled);
 
 	return leaf;

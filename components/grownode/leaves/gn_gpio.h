@@ -37,4 +37,4 @@ gn_leaf_handle_t gn_gpio_fastcreate(gn_node_handle_t node, const char* leaf_name
 }
 #endif //__cplusplus
 
-#endif /* MAIN_GN_RELAY_H_ */
+#endif /* MAIN_GN_GPIO_H_ */

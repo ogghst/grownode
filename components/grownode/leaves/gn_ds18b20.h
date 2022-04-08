@@ -26,8 +26,8 @@ extern "C" {
 //define type
 static const char GN_LEAF_DS18B20_TYPE[] = "ds18b20";
 
-static const int32_t MIN_UPDATE_TIME_SEC = 3;
-static const int32_t MAX_UPDATE_TIME_SEC = 3600;
+static const int32_t GN_DS18B20_MIN_UPDATE_TIME_SEC = 3;
+static const int32_t GN_DS18B20_MAX_UPDATE_TIME_SEC = 3600;
 
 //parameters
 static const char GN_DS18B20_PARAM_ACTIVE[] = "active"; /*!< whether the sensor is running*/
@@ -38,6 +38,8 @@ static const char GN_DS18B20_PARAM_SENSOR_NAMES[GN_DS18B20_MAX_SENSORS][6] = { "
 static const char GN_DS18B20_PARAM_PARASITIC[] = "parasitic"; /*!< whether to use the parasitic mode. */
 
 gn_leaf_descriptor_handle_t gn_ds18b20_config(gn_leaf_handle_t leaf_config);
+
+gn_leaf_handle_t gn_ds18b20_fastcreate(gn_node_handle_t node, const char *leaf_name, double gpio, double update_time_sec);
 
 #ifdef __cplusplus
 }

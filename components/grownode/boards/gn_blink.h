@@ -27,4 +27,4 @@ void gn_configure_blink(gn_node_handle_t node);
 }
 #endif //__cplusplus
 
-#endif /* MAIN_GN_HYDROBOARD1_H_ */
+#endif /* MAIN_GN_BLINK_H_ */

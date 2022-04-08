@@ -92,11 +92,11 @@ gn_leaf_param_validator_result_t _gn_upd_time_sec_validator(
 	double _p1 = **(double**) param_value;
 	ESP_LOGD(TAG, "_gn_upd_time_sec_validator - param: %d", (int )_p1);
 
-	if (MIN_UPDATE_TIME_SEC > **(double**) param_value) {
-		memcpy(param_value, &MIN_UPDATE_TIME_SEC, sizeof(MIN_UPDATE_TIME_SEC));
+	if (GN_DS18B20_MIN_UPDATE_TIME_SEC > **(double**) param_value) {
+		memcpy(param_value, &GN_DS18B20_MIN_UPDATE_TIME_SEC, sizeof(GN_DS18B20_MIN_UPDATE_TIME_SEC));
 		return GN_LEAF_PARAM_VALIDATOR_ERROR_BELOW_MIN;
-	} else if (MAX_UPDATE_TIME_SEC < **(double**) param_value) {
-		memcpy(param_value, &MAX_UPDATE_TIME_SEC, sizeof(MAX_UPDATE_TIME_SEC));
+	} else if (GN_DS18B20_MAX_UPDATE_TIME_SEC < **(double**) param_value) {
+		memcpy(param_value, &GN_DS18B20_MAX_UPDATE_TIME_SEC, sizeof(GN_DS18B20_MAX_UPDATE_TIME_SEC));
 		return GN_LEAF_PARAM_VALIDATOR_ERROR_ABOVE_MAX;
 	}
 
@@ -104,6 +104,46 @@ gn_leaf_param_validator_result_t _gn_upd_time_sec_validator(
 	ESP_LOGD(TAG, "_watering_interval_validator - param: %d", (int )_p1);
 
 	return GN_LEAF_PARAM_VALIDATOR_PASSED;
+
+}
+
+gn_leaf_handle_t gn_ds18b20_fastcreate(gn_node_handle_t node, const char *leaf_name, double gpio, double update_time_sec) {
+
+	if (node == NULL) {
+		ESP_LOGE(TAG, "gn_ds18b20_fastcreate - node is null");
+		return NULL;
+	}
+
+	if (leaf_name == NULL) {
+		ESP_LOGE(TAG, "gn_ds18b20_fastcreate - leaf_name is null");
+		return NULL;
+	}
+
+	if (gpio < GPIO_NUM_0 || gpio > GPIO_NUM_MAX) {
+		ESP_LOGE(TAG, "gn_ds18b20_fastcreate - gpio out of limits");
+		return NULL;
+	}
+
+	if (update_time_sec <= 0) {
+		ESP_LOGE(TAG, "gn_ds18b20_fastcreate - update time must be positive");
+		return NULL;
+	}
+
+	//creates the ds18b20 leave
+	gn_leaf_handle_t leaf = gn_leaf_create(node, leaf_name, gn_ds18b20_config,
+			4096, GN_LEAF_TASK_PRIORITY);
+
+	if (leaf == NULL) {
+		ESP_LOGE(TAG, "gn_ds18b20_fastcreate - cannot create leaf %s", leaf_name);
+		return NULL;
+	}
+
+	gn_leaf_param_init_double(leaf, GN_DS18B20_PARAM_GPIO, gpio);
+	gn_leaf_param_init_double(leaf, GN_DS18B20_PARAM_UPDATE_TIME_SEC, update_time_sec);
+
+	ESP_LOGD(TAG, "[%s] ds18b20 leaf created", leaf_name);
+
+	return leaf;
 
 }
 
