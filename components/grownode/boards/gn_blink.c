@@ -52,7 +52,16 @@ void gn_configure_blink(gn_node_handle_t node) {
 	esp_log_level_set("gn_leaf_gpio", esp_log_level_get(TAG));
 
 	//fastcreate call
+
+	// FIRST TRIAL (original board code)
 	gn_leaf_handle_t blink = gn_gpio_fastcreate(node, "blink", 2, false, false);
+
+	// SECOND TRIAL
+	//	gn_leaf_handle_t blink = gn_gpio_fastcreate(node, "blink", 3, false, false);
+
+	// THIRD TRIAL
+	//	gn_leaf_handle_t blink = gn_gpio_fastcreate(node, "blink123", 3, false, false);
+
 
 	//creates a timer that fires the led blinking every 5 seconds, using esp_timer API
 
