@@ -43,7 +43,7 @@ extern "C" {
 
 static const ledc_mode_t GN_LEAF_PWM_PARAM_LEDC_MODE = LEDC_HIGH_SPEED_MODE;
 
-#define GN_PUMP_HS_FADE /*!< define if duty has to be faded */
+//#define GN_PUMP_HS_FADE /*!< define if duty has to be faded */
 #define GN_LEAF_PWM_FADE_SPEED 500 /*!< define fade speed (msec) */
 
 #define GN_LEAF_PWM_UNKNOWN_CHANNEL	-1
@@ -68,6 +68,7 @@ typedef struct {
  * Use callback only if you are aware it is being called inside an ISR
  * Otherwise, you can use a semaphore to unblock tasks
  */
+#ifdef GN_PUMP_HS_FADE
 static bool cb_ledc_fade_end_event(const ledc_cb_param_t *param, void *user_arg) {
 	portBASE_TYPE taskAwoken = pdFALSE;
 
@@ -78,6 +79,7 @@ static bool cb_ledc_fade_end_event(const ledc_cb_param_t *param, void *user_arg)
 
 	return (taskAwoken == pdTRUE);
 }
+#endif
 
 void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config);
 
