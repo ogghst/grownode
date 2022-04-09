@@ -154,6 +154,7 @@ else()
 					"boards/gn_hydroboard2.c"
 					"boards/gn_easypot1.c"
 					"boards/gn_nft1.c"
+					"boards/gn_nft2.c"
 					"boards/gn_blink.c"
 					"boards/gn_oscilloscope.c"
 					

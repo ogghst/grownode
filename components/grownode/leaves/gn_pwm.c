@@ -68,6 +68,7 @@ typedef struct {
  * Use callback only if you are aware it is being called inside an ISR
  * Otherwise, you can use a semaphore to unblock tasks
  */
+#ifdef GN_PUMP_HS_FADE
 static bool cb_ledc_fade_end_event(const ledc_cb_param_t *param, void *user_arg) {
 	portBASE_TYPE taskAwoken = pdFALSE;
 
@@ -78,6 +79,7 @@ static bool cb_ledc_fade_end_event(const ledc_cb_param_t *param, void *user_arg)
 
 	return (taskAwoken == pdTRUE);
 }
+#endif
 
 void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config);
 

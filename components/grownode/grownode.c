@@ -48,7 +48,7 @@ extern "C" {
 
 #include "mqtt_client.h"
 
-#include "lwip/apps/sntp.h"
+#include "esp_sntp.h"
 
 #include "wifi_provisioning/manager.h"
 
@@ -281,7 +281,7 @@ gn_err_t _gn_send_event_to_leaf(gn_leaf_config_handle_intl_t leaf_config,
 	evt->data[evt->data_size] = '\0';
 
 	if (xQueueSend(leaf_config->event_queue, evt, pdMS_TO_TICKS(1000)) != pdTRUE) {
-		ESP_LOGE(TAG, "not possible to send message to leaf %s",
+		ESP_LOGE(TAG, "xQueueSend failed - not possible to send message to leaf %s",
 				leaf_config->name);
 		return GN_RET_ERR_EVENT_NOT_SENT;
 	}
@@ -675,7 +675,7 @@ esp_event_loop_handle_t gn_node_get_event_loop(gn_node_handle_t node) {
 gn_node_handle_t gn_node_create(gn_config_handle_t config, const char *name) {
 
 	if (config == NULL
-			|| ((gn_config_handle_intl_t) config)->mqtt_client == NULL
+			//|| ((gn_config_handle_intl_t) config)->mqtt_client == NULL
 			|| name == NULL) {
 		ESP_LOGE(TAG, "gn_create_node failed. parameters not correct");
 		return NULL;
@@ -801,7 +801,7 @@ gn_err_t gn_node_loop(gn_node_handle_t node) {
 					gn_get_status_description(
 							((gn_node_handle_intl_t )node)->config),
 					_node->config->config_init_params->sleep_mode);
-			vTaskDelay(1000 / portTICK_PERIOD_MS);
+			vTaskDelay(10000 / portTICK_PERIOD_MS);
 		}
 
 	} else if (_node->config->config_init_params->sleep_mode
@@ -848,7 +848,7 @@ gn_err_t gn_node_loop(gn_node_handle_t node) {
 					gn_get_status_description(
 							((gn_node_handle_intl_t )node)->config),
 					_node->config->config_init_params->sleep_mode);
-			vTaskDelay(1000 / portTICK_PERIOD_MS);
+			vTaskDelay(10000 / portTICK_PERIOD_MS);
 		}
 
 	}
@@ -1056,8 +1056,7 @@ gn_leaf_handle_t gn_leaf_create(gn_node_handle_t node_config, const char *name,
 
 	gn_node_handle_intl_t node_cfg = (gn_node_handle_intl_t) node_config;
 
-	if (node_cfg == NULL || node_cfg->config == NULL || name == NULL
-			|| node_cfg->config->mqtt_client == NULL) {
+	if (node_cfg == NULL || node_cfg->config == NULL || name == NULL) {
 		ESP_LOGE(TAG, "gn_leaf_create failed. parameters not correct");
 		return NULL;
 	}
@@ -1360,7 +1359,7 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
 //check if existing
 		ESP_LOGD(TAG, "check stored value for key %s", _buf);
 
-		if (gn_storage_get(_buf, (void**) &value) == ESP_OK) {
+		if (gn_storage_get(_buf, (void**) &value) == GN_RET_NVS_PARAMETER_FOUND) {
 			ESP_LOGD(TAG, "found stored value for key %s", _buf);
 
 			switch (type) {
@@ -1388,6 +1387,8 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
 				break;
 			}
 
+		} else {
+			ESP_LOGD(TAG, "not found stored value for key %s", _buf);
 		}
 
 		free(_buf);
@@ -1481,7 +1482,7 @@ gn_err_t gn_leaf_param_init_string(const gn_leaf_handle_t leaf_config,
 	_buf[_len - 1] = '\0';
 
 	//if already set keep old value
-	if (gn_storage_get(_buf, (void**) &val) == ESP_OK) {
+	if (gn_storage_get(_buf, (void**) &val) == GN_RET_NVS_PARAMETER_FOUND) {
 		ESP_LOGD(TAG, ".. value already found: (%s) - skipping", val);
 		return GN_RET_OK;
 	}
@@ -1727,7 +1728,7 @@ gn_err_t gn_leaf_param_init_bool(const gn_leaf_handle_t leaf_config,
 	_buf[_len - 1] = '\0';
 
 	//if already set keep old value
-	if (gn_storage_get(_buf, (void**) &val) == ESP_OK) {
+	if (gn_storage_get(_buf, (void**) &val) == GN_RET_NVS_PARAMETER_FOUND) {
 		ESP_LOGD(TAG, ".. value already found: (%d) - skipping", val);
 		return GN_RET_OK;
 	}
@@ -2020,7 +2021,7 @@ gn_err_t gn_leaf_param_init_double(const gn_leaf_handle_t leaf_config,
 	_buf[_len - 1] = '\0';
 
 	//if already set keep old value
-	if (gn_storage_get(_buf, (void**) &val) == ESP_OK) {
+	if (gn_storage_get(_buf, (void**) &val) == GN_RET_NVS_PARAMETER_FOUND) {
 		ESP_LOGD(TAG, ".. value already found: (%f) - skipping", val);
 		return GN_RET_OK;
 	}
@@ -3048,7 +3049,8 @@ gn_err_t gn_storage_set(const char *key, const void *value,
  *	@param value	pointer where the pointer of the data acquired will be stored
  *
  *	@return GN_RET_ERR_INVALID_ARG if input params are not valid
- *	@return GN_RET_OK if key is stored successfully
+ *	@return GN_RET_NVS_PARAMETER_FOUND if key is retrieved successfully
+ *	@return GN_RET_NVS_PARAMETER_NOT_FOUND if key is not retrieved from NVS. in this case 'value' keeps the original value
  *
  */
 gn_err_t gn_storage_get(const char *key, void **value) {
@@ -3100,7 +3102,7 @@ gn_err_t gn_storage_get(const char *key, void **value) {
 
 // Close
 	nvs_close(my_handle);
-	return GN_RET_OK;
+	return required_size == 0? GN_RET_NVS_PARAMETER_NOT_FOUND: GN_RET_NVS_PARAMETER_FOUND;
 
 	fail:
 // Close
