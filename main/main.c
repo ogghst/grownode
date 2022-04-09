@@ -24,6 +24,7 @@
 //include the board you want to start here
 #include "gn_oscilloscope.h"
 #include "gn_easypot1.h"
+#include "gn_nft2.h"
 
 #define TASK_STACK_SIZE 8192*4
 
@@ -56,24 +57,26 @@ void app_main(void) {
 
 	//boards
 	esp_log_level_set("gn_oscilloscope", ESP_LOG_INFO);
-	esp_log_level_set("gn_easypot1", ESP_LOG_DEBUG);
+	esp_log_level_set("gn_easypot1", ESP_LOG_INFO);
+	esp_log_level_set("gn_nft2", ESP_LOG_INFO);
 
 	gn_config_init_param_t config_init = {
 		.provisioning_security = true,
 		.provisioning_password = "grownode",
 		.wifi_retries_before_reset_provisioning = 5,
 		.server_board_id_topic = false,
-		.server_base_topic = "grownode",
+		.server_base_topic = "grownode/test/nft2",
 		.server_url = "mqtt://192.168.1.10:1883",
 		.server_keepalive_timer_sec = 3600,
 		.server_discovery = false,
 		.server_discovery_prefix = "homeassistant",
-		.firmware_url = "http://grownode.duckdns.org/grownode/oscilloscope/grownode.bin",
+		.firmware_url = "http://grownode.duckdns.org/grownode/mansarda/nft2/grownode.bin",
 		.sntp_url = "pool.ntp.org",
 		.wakeup_time_millisec = 5000LL,
 		.sleep_delay_millisec = 50LL,
 		.sleep_time_millisec = 10000LL,
-		.sleep_mode = GN_SLEEP_MODE_NONE
+		.sleep_mode = GN_SLEEP_MODE_NONE,
+		.timezone = "CET-1CEST,M3.5.0,M10.5.0/3"
 	};
 
 	//creates the config handle
@@ -87,10 +90,10 @@ void app_main(void) {
 	}
 
 	//creates a new node
-	gn_node_handle_t node = gn_node_create(config, "oscilloscope");
+	gn_node_handle_t node = gn_node_create(config, "nft2");
 
 	//the board to start
-	gn_configure_oscilloscope(node);
+	gn_configure_nft2(node);
 	//gn_configure_easypot1(node);
 
 	//finally, start node
