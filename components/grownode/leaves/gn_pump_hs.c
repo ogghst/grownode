@@ -196,7 +196,7 @@ void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 
 #ifdef GN_PUMP_HS_FADE
 		if (ret == ESP_OK) {
-			ret = ledc_fade_func_install(0);
+			ledc_fade_func_install(0);
 			ledc_cbs_t callbacks = { .fade_cb = cb_ledc_fade_end_event };
 
 			ledc_cb_register(ledc_channel.speed_mode, ledc_channel.channel,
