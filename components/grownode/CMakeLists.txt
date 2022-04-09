@@ -145,6 +145,7 @@ else()
 					"leaves/gn_led.c"
 					"leaves/gn_leaf_status_led.c"
 					"leaves/gn_leaf_ina219.c"
+					"leaves/gn_leaf_mux_cms.c"
 					"test/test_grownode.c"
 					"test/test_pump.c"
 					"test/test_ds18b20.c"

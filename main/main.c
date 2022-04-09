@@ -21,9 +21,10 @@
 
 #include "grownode.h"
 
-//include the board you want to start here
-#include "gn_oscilloscope.h"
-#include "gn_easypot1.h"
+#include "gn_bh1750.h"
+#include "gn_ds18b20.h"
+#include "gn_leaf_mux_cms.h"
+//#include "gn_capacitive_moisture_sensor.h"
 
 #define TASK_STACK_SIZE 8192*4
 
@@ -47,16 +48,18 @@ void app_main(void) {
 	esp_log_level_set("gn_main", ESP_LOG_INFO);
 
 	//core
-	esp_log_level_set("grownode", ESP_LOG_INFO);
+	esp_log_level_set("grownode", ESP_LOG_NONE);
 	esp_log_level_set("gn_commons", ESP_LOG_INFO);
 	esp_log_level_set("gn_nvs", ESP_LOG_INFO);
 	esp_log_level_set("gn_mqtt_protocol", ESP_LOG_INFO);
 	esp_log_level_set("gn_network", ESP_LOG_INFO);
 	esp_log_level_set("gn_display", ESP_LOG_INFO);
 
-	//boards
-	esp_log_level_set("gn_oscilloscope", ESP_LOG_INFO);
-	esp_log_level_set("gn_easypot1", ESP_LOG_DEBUG);
+	//leaves
+	esp_log_level_set("gn_leaf_bh1750", ESP_LOG_DEBUG);
+	esp_log_level_set("gn_leaf_ds18b20", ESP_LOG_DEBUG);
+	esp_log_level_set("gn_leaf_mux_cms", ESP_LOG_DEBUG);
+//	esp_log_level_set("gn_leaf_cms", ESP_LOG_DEBUG);
 
 	gn_config_init_param_t config_init = {
 		.provisioning_security = true,
@@ -64,7 +67,7 @@ void app_main(void) {
 		.wifi_retries_before_reset_provisioning = 5,
 		.server_board_id_topic = false,
 		.server_base_topic = "grownode",
-		.server_url = "mqtt://192.168.1.10:1883",
+		.server_url = "mqtt://192.168.43.251:1883",
 		.server_keepalive_timer_sec = 3600,
 		.server_discovery = false,
 		.server_discovery_prefix = "homeassistant",
@@ -82,16 +85,20 @@ void app_main(void) {
 	//waits until the config process ends
 	while (gn_get_status(config) != GN_NODE_STATUS_READY_TO_START) {
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
-		ESP_LOGI(TAG, "grownode startup status: %s",
-				gn_get_status_description(config));
+		ESP_LOGI(TAG, "grownode startup status: %s", gn_get_status_description(config));
 	}
 
 	//creates a new node
-	gn_node_handle_t node = gn_node_create(config, "oscilloscope");
+	gn_node_handle_t node = gn_node_create(config, "balcony");
 
-	//the board to start
-	gn_configure_oscilloscope(node);
-	//gn_configure_easypot1(node);
+	gn_leaf_handle_t temps = gn_ds18b20_fastcreate(node, "temps", 18, 20);
+	gn_leaf_handle_t illuminance = gn_bh1750_fastcreate(node, "illuminance", 21, 22, 10);
+
+	gn_leaf_handle_t mux_cms = gn_leaf_create(node, "mux_cms", gn_mux_cms_config, 4096, GN_LEAF_TASK_PRIORITY);
+	gn_leaf_param_init_double(mux_cms, GN_MUX_CMS_PARAM_N_SENSORS, 10);
+	gn_leaf_param_init_double(mux_cms, GN_MUX_CMS_PARAM_UPDATE_TIME_SEC, 20);
+
+//	gn_leaf_handle_t cms = gn_capacitive_moisture_sensor_fastcreate(node, "cms", 3, 15);
 
 	//finally, start node
 	gn_node_start(node);
@@ -105,3 +112,21 @@ int main(int argc, char **argv) {
 	app_main();
 	return 0;
 }
+
+
+//gn_leaf_handle_t illuminance2 = gn_leaf_create(node, "illuminance2",
+//			gn_bh1750_config, 4096, GN_LEAF_TASK_PRIORITY);
+//gn_leaf_param_init_double(illuminance2, GN_BH1750_PARAM_SDA, 21);
+//gn_leaf_param_init_double(illuminance2, GN_BH1750_PARAM_SCL, 22);
+//gn_leaf_param_init_bool(illuminance2, GN_BH1750_PARAM_ACTIVE, true);
+//gn_leaf_param_init_double(illuminance2, GN_BH1750_PARAM_UPDATE_TIME_SEC, 15);
+//
+//
+//gn_leaf_handle_t temps2 = gn_leaf_create(node, "temps2", gn_ds18b20_config, 4096, GN_LEAF_TASK_PRIORITY);
+//gn_leaf_param_init_double(temps2, GN_DS18B20_PARAM_GPIO, 18);
+//gn_leaf_param_init_bool(temps2, GN_DS18B20_PARAM_ACTIVE, true);
+//gn_leaf_param_init_double(temps2, GN_DS18B20_PARAM_UPDATE_TIME_SEC, 15);
+
+
+
+
