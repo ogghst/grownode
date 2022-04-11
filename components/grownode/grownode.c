@@ -2998,7 +2998,7 @@ gn_err_t gn_storage_set(const char *key, const void *value,
 	 goto fail;
 	 }
 	 */
-	ESP_LOGD(TAG_NVS, "gn_storage_set(%s, %s)", key, (char*)value);
+	ESP_LOGD(TAG_NVS, "gn_storage_set(%s, %s, %d)", key, (char*)value, required_size);
 
 	nvs_handle_t my_handle;
 
