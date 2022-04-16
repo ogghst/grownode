@@ -113,52 +113,52 @@ void gn_configure_nft2(gn_node_handle_t node) {
 
 	gn_leaf_handle_t leaf_led = gn_leaf_create(node, LED, gn_gpio_config, 4096,
 	GN_LEAF_TASK_PRIORITY);
-	gn_leaf_param_write_double(leaf_led, GN_GPIO_PARAM_GPIO, 19);
-	gn_leaf_param_write_bool(leaf_led, GN_GPIO_PARAM_INVERTED, true);
-	gn_leaf_param_write_bool(leaf_led, GN_GPIO_PARAM_TOGGLE, false);
+	gn_leaf_param_force_double(leaf_led, GN_GPIO_PARAM_GPIO, 19);
+	gn_leaf_param_force_bool(leaf_led, GN_GPIO_PARAM_INVERTED, true);
+	gn_leaf_param_force_bool(leaf_led, GN_GPIO_PARAM_TOGGLE, false);
 
 	gn_leaf_handle_t leaf_pwm1 = gn_leaf_create(node, PWM1, gn_leaf_pwm_config,
 			4096, GN_LEAF_TASK_PRIORITY);
-	gn_leaf_param_write_bool(leaf_pwm1, GN_LEAF_PWM_PARAM_TOGGLE, false);
-	gn_leaf_param_write_double(leaf_pwm1, GN_LEAF_PWM_PARAM_GPIO, 16);
-	gn_leaf_param_write_double(leaf_pwm1, GN_LEAF_PWM_PARAM_CHANNEL, 0);
-	gn_leaf_param_write_double(leaf_pwm1, GN_LEAF_PWM_PARAM_POWER, 0);
+	gn_leaf_param_force_bool(leaf_pwm1, GN_LEAF_PWM_PARAM_TOGGLE, false);
+	gn_leaf_param_force_double(leaf_pwm1, GN_LEAF_PWM_PARAM_GPIO, 16);
+	gn_leaf_param_force_double(leaf_pwm1, GN_LEAF_PWM_PARAM_CHANNEL, 0);
+	gn_leaf_param_force_double(leaf_pwm1, GN_LEAF_PWM_PARAM_POWER, 0);
 
 	gn_leaf_handle_t leaf_pwm2 = gn_leaf_create(node, PWM2, gn_leaf_pwm_config,
 			4096, GN_LEAF_TASK_PRIORITY);
-	gn_leaf_param_write_bool(leaf_pwm2, GN_LEAF_PWM_PARAM_TOGGLE, false);
-	gn_leaf_param_write_double(leaf_pwm2, GN_LEAF_PWM_PARAM_GPIO, 17);
-	gn_leaf_param_write_double(leaf_pwm2, GN_LEAF_PWM_PARAM_CHANNEL, 1);
-	gn_leaf_param_write_double(leaf_pwm2, GN_LEAF_PWM_PARAM_POWER, 0);
+	gn_leaf_param_force_bool(leaf_pwm2, GN_LEAF_PWM_PARAM_TOGGLE, false);
+	gn_leaf_param_force_double(leaf_pwm2, GN_LEAF_PWM_PARAM_GPIO, 17);
+	gn_leaf_param_force_double(leaf_pwm2, GN_LEAF_PWM_PARAM_CHANNEL, 1);
+	gn_leaf_param_force_double(leaf_pwm2, GN_LEAF_PWM_PARAM_POWER, 0);
 
 	gn_leaf_handle_t leaf_pwm3 = gn_leaf_create(node, PWM3, gn_leaf_pwm_config,
 			4096, GN_LEAF_TASK_PRIORITY);
-	gn_leaf_param_write_bool(leaf_pwm3, GN_LEAF_PWM_PARAM_TOGGLE, false);
-	gn_leaf_param_write_double(leaf_pwm3, GN_LEAF_PWM_PARAM_GPIO, 18);
-	gn_leaf_param_write_double(leaf_pwm3, GN_LEAF_PWM_PARAM_CHANNEL, 2);
-	gn_leaf_param_write_double(leaf_pwm3, GN_LEAF_PWM_PARAM_POWER, 0);
+	gn_leaf_param_force_bool(leaf_pwm3, GN_LEAF_PWM_PARAM_TOGGLE, false);
+	gn_leaf_param_force_double(leaf_pwm3, GN_LEAF_PWM_PARAM_GPIO, 18);
+	gn_leaf_param_force_double(leaf_pwm3, GN_LEAF_PWM_PARAM_CHANNEL, 2);
+	gn_leaf_param_force_double(leaf_pwm3, GN_LEAF_PWM_PARAM_POWER, 0);
 
 	gn_leaf_handle_t wat_lev = gn_leaf_create(node, WAT_LEV,
 			gn_capacitive_water_level_config, 4096, GN_LEAF_TASK_PRIORITY);
-	gn_leaf_param_write_bool(wat_lev, GN_CWL_PARAM_ACTIVE, true);
-	gn_leaf_param_write_double(wat_lev, GN_CWL_PARAM_TOUCH_CHANNEL,
+	gn_leaf_param_force_bool(wat_lev, GN_CWL_PARAM_ACTIVE, true);
+	gn_leaf_param_force_double(wat_lev, GN_CWL_PARAM_TOUCH_CHANNEL,
 	TOUCH_PAD_GPIO0_CHANNEL);
-	gn_leaf_param_write_double(wat_lev, GN_CWL_PARAM_UPDATE_TIME_SEC, 10);
-	gn_leaf_param_write_double(wat_lev, GN_CWL_PARAM_MIN_LEVEL, 0);
-	gn_leaf_param_write_double(wat_lev, GN_CWL_PARAM_MAX_LEVEL, 2048);
+	gn_leaf_param_force_double(wat_lev, GN_CWL_PARAM_UPDATE_TIME_SEC, 10);
+	gn_leaf_param_force_double(wat_lev, GN_CWL_PARAM_MIN_LEVEL, 0);
+	gn_leaf_param_force_double(wat_lev, GN_CWL_PARAM_MAX_LEVEL, 2048);
 
 	gn_leaf_handle_t bme280 = gn_leaf_create(node, BME280, gn_bme280_config,
 			8192, GN_LEAF_TASK_PRIORITY);
-	gn_leaf_param_write_double(bme280, GN_BME280_PARAM_SDA, 21);
-	gn_leaf_param_write_double(bme280, GN_BME280_PARAM_SCL, 22);
-	gn_leaf_param_write_bool(bme280, GN_BME280_PARAM_ACTIVE, true);
-	gn_leaf_param_write_double(bme280, GN_BME280_PARAM_UPDATE_TIME_SEC, 10);
+	gn_leaf_param_force_double(bme280, GN_BME280_PARAM_SDA, 21);
+	gn_leaf_param_force_double(bme280, GN_BME280_PARAM_SCL, 22);
+	gn_leaf_param_force_bool(bme280, GN_BME280_PARAM_ACTIVE, true);
+	gn_leaf_param_force_double(bme280, GN_BME280_PARAM_UPDATE_TIME_SEC, 10);
 
 	gn_leaf_handle_t ds18b20 = gn_leaf_create(node, DS18B20, gn_ds18b20_config,
 			4096, GN_LEAF_TASK_PRIORITY);
-	gn_leaf_param_write_double(ds18b20, GN_DS18B20_PARAM_GPIO, 4);
-	gn_leaf_param_write_bool(ds18b20, GN_DS18B20_PARAM_ACTIVE, true);
-	gn_leaf_param_write_double(ds18b20, GN_DS18B20_PARAM_UPDATE_TIME_SEC, 5);
+	gn_leaf_param_force_double(ds18b20, GN_DS18B20_PARAM_GPIO, 4);
+	gn_leaf_param_force_bool(ds18b20, GN_DS18B20_PARAM_ACTIVE, true);
+	gn_leaf_param_force_double(ds18b20, GN_DS18B20_PARAM_UPDATE_TIME_SEC, 5);
 
 
 	/*

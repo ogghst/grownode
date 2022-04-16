@@ -301,7 +301,7 @@ void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 									false : true;
 
 					//execute change
-					gn_leaf_param_write_bool(leaf_config, GN_PUMP_HS_PARAM_TOGGLE,
+					gn_leaf_param_force_bool(leaf_config, GN_PUMP_HS_PARAM_TOGGLE,
 							_toggle);
 					toggle = _toggle;
 
@@ -327,7 +327,7 @@ void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 					int gpio = atoi(evt.data);
 					if (gpio >= 0 && gpio < GPIO_NUM_MAX) {
 						//execute change. this will have no effects until restart
-						gn_leaf_param_write_double(leaf_config,
+						gn_leaf_param_force_double(leaf_config,
 								GN_PUMP_HS_PARAM_GPIO_TOGGLE, gpio);
 					}
 
@@ -343,7 +343,7 @@ void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 						pow = 100;
 
 					//execute change
-					gn_leaf_param_write_double(leaf_config,
+					gn_leaf_param_force_double(leaf_config,
 							GN_PUMP_HS_PARAM_POWER, pow);
 
 					need_update = true;
@@ -367,7 +367,7 @@ void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 					int gpio = atoi(evt.data);
 					if (gpio >= 0 && gpio < GPIO_NUM_MAX) {
 						//execute change. this will have no effects until restart
-						gn_leaf_param_write_double(leaf_config,
+						gn_leaf_param_force_double(leaf_config,
 								GN_PUMP_HS_PARAM_GPIO_POWER, gpio);
 					}
 

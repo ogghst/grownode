@@ -1550,7 +1550,7 @@ gn_err_t gn_leaf_param_init_string(const gn_leaf_handle_t leaf_config,
  * 	@return GN_RET_ERR_INVALID_ARG in case of input errors or validation error
  * 	@return GN_RET_ERR in case of messaging error
  */
-gn_err_t gn_leaf_param_write_string(const gn_leaf_handle_t leaf_config,
+gn_err_t gn_leaf_param_force_string(const gn_leaf_handle_t leaf_config,
 		const char *name, char *val) {
 
 	if (!leaf_config || !name) {
@@ -1800,7 +1800,7 @@ gn_err_t gn_leaf_param_init_bool(const gn_leaf_handle_t leaf_config,
  * 	@return GN_RET_OK if the parameter is set
  * 	@return GN_RET_ERR_INVALID_ARG in case of input errors or validation error
  */
-gn_err_t gn_leaf_param_write_bool(const gn_leaf_handle_t leaf_config,
+gn_err_t gn_leaf_param_force_bool(const gn_leaf_handle_t leaf_config,
 		const char *name, bool val) {
 
 	if (!leaf_config || !name) {
@@ -1912,7 +1912,7 @@ gn_err_t gn_leaf_param_write_bool(const gn_leaf_handle_t leaf_config,
  * 	@return GN_RET_OK if the parameter is set
  * 	@return GN_RET_ERR_INVALID_ARG in case of input errors
  */
-gn_err_t gn_leaf_param_write(const gn_leaf_param_handle_t param_handle,
+gn_err_t gn_leaf_param_force(const gn_leaf_param_handle_t param_handle,
 		const void *value) {
 
 	if (!param_handle || !value)
@@ -1929,15 +1929,15 @@ gn_err_t gn_leaf_param_write(const gn_leaf_param_handle_t param_handle,
 	switch (_param->param_val->t) {
 
 	case GN_VAL_TYPE_STRING:
-		return gn_leaf_param_write_string(_leaf_config, _param->name,
+		return gn_leaf_param_force_string(_leaf_config, _param->name,
 				(char*) value);
 		break;
 	case GN_VAL_TYPE_BOOLEAN:
-		return gn_leaf_param_write_bool(_leaf_config, _param->name,
+		return gn_leaf_param_force_bool(_leaf_config, _param->name,
 				*(bool*) value);
 		break;
 	case GN_VAL_TYPE_DOUBLE:
-		return gn_leaf_param_write_double(_leaf_config, _param->name,
+		return gn_leaf_param_force_double(_leaf_config, _param->name,
 				*(double*) value);
 		break;
 	default:
@@ -2092,7 +2092,7 @@ gn_err_t gn_leaf_param_init_double(const gn_leaf_handle_t leaf_config,
  * 	@return GN_RET_OK if the parameter is set
  * 	@return GN_RET_ERR_INVALID_ARG in case of input errors or validation errors
  */
-gn_err_t gn_leaf_param_write_double(const gn_leaf_handle_t leaf_config,
+gn_err_t gn_leaf_param_force_double(const gn_leaf_handle_t leaf_config,
 		const char *name, double val) {
 
 	if (!leaf_config || !name) {

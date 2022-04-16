@@ -762,7 +762,7 @@ void gn_watering_control_task(gn_leaf_handle_t leaf_config) {
 				//parameter is watering interval
 				if (gn_leaf_event_mask_param(&evt,
 						data->param_watering_interval) == 0) {
-					gn_leaf_param_write_double(leaf_config,
+					gn_leaf_param_force_double(leaf_config,
 							GN_WAT_CTR_PARAM_WATERING_INTERVAL_SEC,
 							(double) atof(evt.data));
 					gn_leaf_param_get_double(leaf_config,
@@ -775,7 +775,7 @@ void gn_watering_control_task(gn_leaf_handle_t leaf_config) {
 				//parameter is watering time
 				if (gn_leaf_event_mask_param(&evt,
 						data->param_watering_t_temp) == 0) {
-					gn_leaf_param_write_double(leaf_config,
+					gn_leaf_param_force_double(leaf_config,
 							GN_WAT_CTR_PARAM_WATERING_TARGET_TEMP,
 							(double) atof(evt.data));
 				} else
@@ -787,7 +787,7 @@ void gn_watering_control_task(gn_leaf_handle_t leaf_config) {
 					int _active = atoi(evt.data);
 
 					//execute change
-					gn_leaf_param_write_bool(leaf_config, GN_WAT_CTR_PARAM_ACTIVE,
+					gn_leaf_param_force_bool(leaf_config, GN_WAT_CTR_PARAM_ACTIVE,
 							_active == 0 ? false : true);
 
 					p_active = _active;
