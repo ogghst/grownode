@@ -47,14 +47,14 @@ void gn_configure_nft1(gn_node_handle_t node) {
 
 	//leaves names
 	const char *PUMP = "pump";
-	const char *VALVE = "valve";
+	const char *FAN = "fan";
 	const char *LIGHTS = "lights";
 
-	gn_leaf_handle_t valve = gn_leaf_create(node, VALVE, gn_gpio_config,
+	gn_leaf_handle_t fan = gn_leaf_create(node, FAN, gn_gpio_config,
 			4096, GN_LEAF_TASK_PRIORITY);
-	gn_leaf_param_init_double(valve, GN_GPIO_PARAM_GPIO, 26);
-	gn_leaf_param_init_bool(valve, GN_GPIO_PARAM_INVERTED, true);
-	gn_leaf_param_init_bool(valve, GN_GPIO_PARAM_TOGGLE, false);
+	gn_leaf_param_init_double(fan, GN_GPIO_PARAM_GPIO, 26);
+	gn_leaf_param_init_bool(fan, GN_GPIO_PARAM_INVERTED, true);
+	gn_leaf_param_init_bool(fan, GN_GPIO_PARAM_TOGGLE, false);
 
 	gn_leaf_handle_t lights = gn_leaf_create(node, LIGHTS,
 			gn_gpio_config, 4096, GN_LEAF_TASK_PRIORITY);
