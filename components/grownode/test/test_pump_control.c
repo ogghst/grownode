@@ -23,7 +23,7 @@
 #include "gn_pump.h"
 #include "gn_ds18b20.h"
 #include "gn_capacitive_water_level.h"
-#include "gn_pump_control.h"
+#include "synapses/gn_pump_control.h"
 
 //static const char TAG[10] = "test_pump";
 

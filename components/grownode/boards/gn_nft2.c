@@ -28,7 +28,7 @@
 #include "gn_capacitive_water_level.h"
 #include "gn_pwm.h"
 #include "gn_bme280.h"
-#include "gn_hydroboard2_watering_control.h"
+#include "synapses/gn_hydroboard2_watering_control.h"
 #include "gn_leaf_status_led.h"
 
 #include "gn_nft2.h"

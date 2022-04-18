@@ -136,7 +136,6 @@ typedef struct {
 
 typedef struct gn_config_init_param_t *gn_config_init_param_handle_t;
 
-
 typedef void *gn_leaf_handle_t;
 typedef void *gn_node_handle_t;
 typedef void *gn_config_handle_t;
