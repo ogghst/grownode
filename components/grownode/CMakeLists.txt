@@ -105,8 +105,8 @@ else()
 		"unity" "mqtt" "spiffs" "json" "wifi_provisioning" "esp_https_ota" "app_update" "esp_adc_cal"
 	)
 	
-		if(DEFINED ENV{COLLECTIONS_C_PATH})
-	    list(APPEND components_required 
+	if(DEFINED ENV{COLLECTIONS_C_PATH})
+		list(APPEND components_required 
      		"collections-c" 
      	)
    	endif()
@@ -120,6 +120,12 @@ else()
 	if(DEFINED ENV{LVGL_PATH})
     	list(APPEND components_required 
      		"lvgl" "lvgl_esp32_drivers"
+     	)
+ 	endif()
+ 	
+	if(DEFINED ENV{CRON_LIB_PATH})
+    	list(APPEND components_required 
+     		"esp_cron"
      	)
  	endif()
 
@@ -149,8 +155,8 @@ else()
 					"boards/gn_hydroboard1.c"
 					"boards/gn_hydroboard2.c"
 					"boards/gn_easypot1.c"
-					"boards/gn_nft1.c"
 					"boards/gn_nft2.c"
+					"boards/gn_nft1.c"
 					"boards/gn_blink.c"
 					"boards/gn_oscilloscope.c"
 					"test/test_grownode.c"
@@ -164,6 +170,7 @@ else()
                     "."
                     "leaves/"
                     "boards/"
+                    "synapses/"
                     EMBED_TXTFILES server_certs/ca_cert.pem)
 endif()
 

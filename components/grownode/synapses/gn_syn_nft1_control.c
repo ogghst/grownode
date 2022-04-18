@@ -25,7 +25,7 @@ extern "C" {
 
 #include "gn_commons.h"
 
-#include "gn_ds18b20.h"
+#include "gn_pwm.h"
 
 #include "gn_syn_nft1_control.h"
 
@@ -44,30 +44,46 @@ typedef struct {
 
 } gn_syn_nft1_control_data_t;
 
-_gn_syn_nft1_change_duration(gn_syn_nft1_control_data_t data) {
+/**
+ * stops timers and restart with new interval
+ */
+void _gn_syn_nft1_change_interval(gn_syn_nft1_control_data_t *data) {
 
 	//stop timers
+	esp_timer_stop(data->watering_cycle_start_timer);
+	esp_timer_stop(data->watering_cycle_stop_timer);
+
+	double interval;
+	gn_leaf_param_get_value(data->gn_syn_nft1_control_watering_interval_param,
+			&interval);
 
 	//restart with new duration
-
+	esp_timer_start_periodic(data->watering_cycle_start_timer,
+			interval * 1000 * 1000);
 
 }
 
-_gn_syn_nft1_change_interval(gn_syn_nft1_control_data_t data);
-_gn_syn_nft1_change_enable(gn_syn_nft1_control_data_t data);
+/**
+ * stops timers and restart with new duration
+ */
+void _gn_syn_nft1_change_duration(gn_syn_nft1_control_data_t *data) {
 
+	_gn_syn_nft1_change_interval(data);
+
+}
 
 /*
  * what to do when watering time stops
  */
 void watering_timer_stop_callback(void *arg) {
 
-	ESP_LOGI(TAG, "watering_timer_stop_callback");
+	ESP_LOGD(TAG, "watering_timer_stop_callback");
 
 	gn_leaf_handle_t leaf = (gn_leaf_handle_t) arg;
 	gn_node_handle_t node = gn_leaf_get_node(leaf);
 	char pump_leaf[16];
-	gn_leaf_param_get_string(leaf, GN_SYN_NFT1_CONTROL_PARAM_PUMP_LEAF, &pump_leaf[0], 16);
+	gn_leaf_param_get_string(leaf, GN_SYN_NFT1_CONTROL_PARAM_PUMP_LEAF,
+			&pump_leaf[0], 16);
 
 	//gets the pump leaf
 	gn_leaf_handle_t pump = gn_leaf_get_config_handle(node, pump_leaf);
@@ -80,29 +96,56 @@ void watering_timer_stop_callback(void *arg) {
  */
 void watering_timer_start_callback(void *arg) {
 
-	ESP_LOGI(TAG, "watering_timer_start_callback");
+	ESP_LOGD(TAG, "watering_timer_start_callback");
 
 	gn_leaf_handle_t leaf = (gn_leaf_handle_t) arg;
 	gn_node_handle_t node = gn_leaf_get_node(leaf);
 
-	char pump_leaf[16];
-	gn_leaf_param_get_string(leaf, GN_SYN_NFT1_CONTROL_PARAM_PUMP_LEAF, pump_leaf, 16);
+	/*
+	char nft1_name[GN_LEAF_NAME_SIZE];
+	gn_leaf_get_name(leaf, nft1_name);
+	ESP_LOGD(TAG, "nft1 leaf name: %s",nft1_name);
+	*/
+
+	char pump_param_leaf[16];
+	gn_leaf_param_get_string(leaf, GN_SYN_NFT1_CONTROL_PARAM_PUMP_LEAF,
+			pump_param_leaf, 16);
+
+	//ESP_LOGD(TAG, "pump parameter leaf: %s",pump_param_leaf);
 
 	double duration = 0;
-	gn_leaf_param_get_string(leaf, GN_SYN_NFT1_CONTROL_PARAM_DURATION_SEC, &duration);
+	gn_leaf_param_get_double(leaf, GN_SYN_NFT1_CONTROL_PARAM_DURATION_SEC,
+			&duration);
 
-	//gets the pump leaf
-	gn_leaf_handle_t pump = gn_leaf_get_config_handle(node, pump_leaf);
-	gn_leaf_param_set_bool(pump, GN_LEAF_PWM_PARAM_TOGGLE, true);
+	bool enable;
+	gn_leaf_param_get_bool(leaf, GN_SYN_NFT1_CONTROL_PARAM_ENABLE, &enable);
 
-	//gets the timer
-	gn_leaf_descriptor_handle_t desc = gn_leaf_get_descriptor(leaf);
-	gn_syn_nft1_control_data_t data = (gn_syn_nft1_control_data_t)desc->data;
+	//if enabled, starts the timer and then stops after duration interval
+	if (enable) {
 
-	//stops after a while
-	esp_timer_start_once(data->watering_cycle_stop_timer, duration * 1000 * 1000);
+		//gets the pump leaf
+		gn_leaf_handle_t pump = gn_leaf_get_config_handle(node, pump_param_leaf);
+
+		/*
+		char pump_leaf_name[GN_LEAF_NAME_SIZE];
+		gn_leaf_get_name(pump, pump_leaf_name);
+
+		ESP_LOGD(TAG, "pump leaf: %s",pump_leaf_name);
+		*/
+
+		gn_leaf_param_set_bool(pump, GN_LEAF_PWM_PARAM_TOGGLE, true);
+
+		//gets the timer
+		gn_leaf_descriptor_handle_t desc = gn_leaf_get_descriptor(leaf);
+		gn_syn_nft1_control_data_t *data =
+				(gn_syn_nft1_control_data_t*) desc->data;
+
+		//stops after a while
+		esp_timer_start_once(data->watering_cycle_stop_timer,
+				duration * 1000 * 1000);
+	}
+
 }
-
 
 gn_leaf_descriptor_handle_t gn_syn_nft1_control_config(
 		gn_leaf_handle_t leaf_config) {
@@ -123,7 +166,7 @@ gn_leaf_descriptor_handle_t gn_syn_nft1_control_config(
 
 	data->gn_syn_nft1_control_watering_duration_param = gn_leaf_param_create(
 			leaf_config, GN_SYN_NFT1_CONTROL_PARAM_DURATION_SEC,
-			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 1200 },
+			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 20 },
 			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED,
 			gn_validator_double_positive);
 	gn_leaf_param_add_to_leaf(leaf_config,
@@ -138,7 +181,7 @@ gn_leaf_descriptor_handle_t gn_syn_nft1_control_config(
 			data->gn_syn_nft1_control_watering_interval_param);
 
 	data->gn_syn_nft1_control_watering_enable_param = gn_leaf_param_create(
-			leaf_config, GN_GPIO_PARAM_INVERTED, GN_VAL_TYPE_BOOLEAN,
+			leaf_config, GN_SYN_NFT1_CONTROL_PARAM_ENABLE, GN_VAL_TYPE_BOOLEAN,
 			(gn_val_t ) { .b =
 					false }, GN_LEAF_PARAM_ACCESS_NETWORK,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, gn_validator_boolean);
@@ -146,22 +189,26 @@ gn_leaf_descriptor_handle_t gn_syn_nft1_control_config(
 			data->gn_syn_nft1_control_watering_enable_param);
 
 	data->gn_syn_nft1_control_pump_leaf_param = gn_leaf_param_create(
-			leaf_config, GN_SYN_NFT1_CONTROL_PARAM_PUMP_LEAF, GN_VAL_TYPE_STRING,
-			(gn_val_t ) { .s = "" }, GN_LEAF_PARAM_ACCESS_NODE_INTERNAL,
-			GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
+			leaf_config, GN_SYN_NFT1_CONTROL_PARAM_PUMP_LEAF,
+			GN_VAL_TYPE_STRING, (gn_val_t ) { .s = "" },
+			GN_LEAF_PARAM_ACCESS_NODE_INTERNAL, GN_LEAF_PARAM_STORAGE_VOLATILE,
+			NULL);
 	gn_leaf_param_add_to_leaf(leaf_config,
 			data->gn_syn_nft1_control_pump_leaf_param);
 
 	const esp_timer_create_args_t watering_timer_start_args = { .callback =
-			&watering_timer_start_callback, .name = "watering_start", .arg = leaf_config };
+			&watering_timer_start_callback, .name = "watering_start", .arg =
+			leaf_config };
 
-	esp_timer_create(&watering_timer_start_args, &data->watering_cycle_start_timer);
+	esp_timer_create(&watering_timer_start_args,
+			&data->watering_cycle_start_timer);
 
 	const esp_timer_create_args_t watering_timer_stop_args = { .callback =
 			&watering_timer_stop_callback, .name = "watering_stop", .arg =
-					leaf_config };
+			leaf_config };
 
-	esp_timer_create(&watering_timer_stop_args, &data->watering_cycle_stop_timer);
+	esp_timer_create(&watering_timer_stop_args,
+			&data->watering_cycle_stop_timer);
 
 	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
 	descriptor->data = data;
@@ -194,11 +241,15 @@ void gn_syn_nft1_control_task(gn_leaf_handle_t leaf_config) {
 			&enable);
 
 	char pump_leaf[16];
-	gn_leaf_param_get_string(leaf_config,
-			GN_SYN_NFT1_CONTROL_PARAM_PUMP_LEAF, pump_leaf, 16)
+	gn_leaf_param_get_string(leaf_config, GN_SYN_NFT1_CONTROL_PARAM_PUMP_LEAF,
+			pump_leaf, 16);
 
-	ESP_LOGD(TAG, "configuring - duration %d, interval %d, enable %b, pump leaf '%s'",
+	ESP_LOGD(TAG,
+			"configuring - duration %d, interval %d, enable %d, pump leaf '%s'",
 			(int )duration, (int )interval, enable, pump_leaf);
+
+	esp_timer_start_periodic(data->watering_cycle_start_timer,
+			interval * 1000 * 1000);
 
 	//task cycle
 	while (true) {
@@ -214,16 +265,7 @@ void gn_syn_nft1_control_task(gn_leaf_handle_t leaf_config) {
 			//event arrived for this node
 			switch (evt.id) {
 
-			case GN_NODE_STARTED_EVENT:
-				vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-				ESP_LOGI(TAG, "[%s] - GN_NODE_STARTED_EVENT");
-				esp_timer_start_periodic(data->watering_cycle_start_timer,
-						duration);
-
-			break;
-
-			//parameter change
+				//parameter change
 			case GN_LEAF_PARAM_CHANGE_REQUEST_EVENT:
 
 				ESP_LOGD(TAG, "[%s] request to update param %s, data = '%s'",
@@ -243,20 +285,25 @@ void gn_syn_nft1_control_task(gn_leaf_handle_t leaf_config) {
 							GN_SYN_NFT1_CONTROL_PARAM_INTERVAL_SEC,
 							atoi(evt.data));
 					_gn_syn_nft1_change_interval(data);
-				} else if (gn_leaf_event_mask_param(&evt,
-						data->gn_syn_nft1_control_watering_enable_param) == 0) {
-					gn_leaf_param_force_double(leaf_config,
-							GN_SYN_NFT1_CONTROL_PARAM_ENABLE,
-							strncmp((char*) evt.data, "0", evt.data_size) == 0 ?
-									false : true);
-					_gn_syn_nft1_change_enable(data);
 				}
+				 else if (gn_leaf_event_mask_param(&evt,
+						data->gn_syn_nft1_control_watering_enable_param) == 0) {
+					gn_leaf_param_force_bool(leaf_config,
+							GN_SYN_NFT1_CONTROL_PARAM_ENABLE,
+							atoi(evt.data) == 0 ? false : true);
+				}
+
+				break;
+
+			default:
+				break;
 
 			}
 
 		}
 
 	}
+}
 
 #ifdef __cplusplus
 }

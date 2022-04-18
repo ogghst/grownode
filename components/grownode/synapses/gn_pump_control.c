@@ -44,11 +44,11 @@ extern "C" {
 
 #define TAG "gn_leaf_pump_control"
 
-size_t pump_status = 0;
+int pump_status = 0;
 
-void gn_syn_nft1_control_task(gn_leaf_handle_t leaf_config);
+void gn_pump_control_task(gn_leaf_handle_t leaf_config);
 
-void gn_syn_nft1_control_task_event_handler(void *handler_args,
+void gn_pump_control_task_event_handler(void *handler_args,
 		esp_event_base_t base, int32_t event_id, void *event_data) {
 
 	ESP_LOGD(TAG, "Pump Control received event: %d", event_id);
@@ -118,13 +118,13 @@ void gn_syn_nft1_control_task_event_handler(void *handler_args,
 }
 
 
-gn_leaf_descriptor_handle_t gn_syn_nft1_control_config(
+gn_leaf_descriptor_handle_t gn_pump_control_config(
 		gn_leaf_handle_t leaf_config) {
 
 	gn_leaf_descriptor_handle_t descriptor =
 			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
 	strncpy(descriptor->type, GN_LEAF_PUMP_CONTROL_TYPE, GN_LEAF_DESC_TYPE_SIZE);
-	descriptor->callback = gn_syn_nft1_control_task;
+	descriptor->callback = gn_pump_control_task;
 	descriptor->status = GN_LEAF_STATUS_NOT_INITIALIZED;
 	descriptor->data = NULL;
 
@@ -135,7 +135,7 @@ gn_leaf_descriptor_handle_t gn_syn_nft1_control_config(
 
 }
 
-void gn_syn_nft1_control_task(gn_leaf_handle_t leaf_config) {
+void gn_pump_control_task(gn_leaf_handle_t leaf_config) {
 
 	char leaf_name[GN_LEAF_NAME_SIZE];
 	gn_leaf_get_name(leaf_config, leaf_name);
@@ -177,7 +177,7 @@ void gn_syn_nft1_control_task(gn_leaf_handle_t leaf_config) {
 
 	//register for events
 	ESP_ERROR_CHECK(
-			esp_event_handler_instance_register_with(gn_leaf_get_event_loop(leaf_config), GN_BASE_EVENT, GN_EVENT_ANY_ID, gn_syn_nft1_control_task_event_handler, leaf_config, NULL));
+			esp_event_handler_instance_register_with(gn_leaf_get_event_loop(leaf_config), GN_BASE_EVENT, GN_EVENT_ANY_ID, gn_pump_control_task_event_handler, leaf_config, NULL));
 
 	while (true) {
 		vTaskDelay(pdMS_TO_TICKS(1000));

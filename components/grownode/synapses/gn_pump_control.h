@@ -24,7 +24,7 @@ extern "C" {
 //define type
 static const char GN_LEAF_PUMP_CONTROL_TYPE[] = "pump_control";
 
-gn_leaf_descriptor_handle_t gn_syn_nft1_control_config(gn_leaf_handle_t leaf_config);
+gn_leaf_descriptor_handle_t gn_pump_control_config(gn_leaf_handle_t leaf_config);
 
 #ifdef __cplusplus
 }
