@@ -71,7 +71,7 @@ TEST_CASE("gn_pump_control_stress_test", "[pump_control]") {
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 3);
 
 	pump_control_config = gn_leaf_create(node_config, "pump_control",
-			gn_pump_control_config, 4096, 1);
+			gn_syn_nft1_control_config, 4096, 1);
 	TEST_ASSERT_EQUAL(gn_node_get_size(node_config), 4);
 
 	esp_err_t ret = gn_node_start(node_config);

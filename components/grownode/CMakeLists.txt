@@ -145,6 +145,7 @@ else()
 					"synapses/gn_hydroboard2_watering_control.c"
 					"synapses/gn_pump_control.c"
 					"synapses/gn_watering_control.c"
+					"synapses/gn_syn_nft1_control.c"
 					"boards/gn_hydroboard1.c"
 					"boards/gn_hydroboard2.c"
 					"boards/gn_easypot1.c"

@@ -1440,7 +1440,7 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
 }
 
 /**
- * 	@brief	init the parameter with new value and stores in NVS flash, overwriting previous values
+ * 	@brief	init the parameter with new value and stores in NVS flash, NOT overwriting previous values
  *
  *	the leaf must be not initialized to have an effect.
  * 	the parameter value will be copied to the corresponding handle.
@@ -1686,7 +1686,7 @@ gn_err_t gn_leaf_param_get_string(const gn_leaf_handle_t leaf_config,
 }
 
 /**
- * 	@brief	init the parameter with new value and stores in NVS flash, overwriting previous values
+ * 	@brief	init the parameter with new value and stores in NVS flash, NOT overwriting previous values
  *
  *	the leaf must be not initialized to have an effect.
  * 	the parameter value will be copied to the corresponding handle.
@@ -1975,7 +1975,7 @@ gn_err_t gn_leaf_param_get_bool(const gn_leaf_handle_t leaf_config,
 }
 
 /**
- * 	@brief	init the parameter with new value and stores in NVS flash, overwriting previous values
+ * 	@brief	init the parameter with new value and stores in NVS flash, NOT overwriting previous values
  *
  *	the leaf must be not initialized to have an effect.
  * 	the parameter value will be copied to the corresponding handle.

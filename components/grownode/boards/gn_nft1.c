@@ -35,20 +35,13 @@ void gn_configure_nft1(gn_node_handle_t node) {
 
 	//leaves
 	esp_log_level_set("gn_leaf_gpio", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_pump_hs", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_ds18b20", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_cwl", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_bme280", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_status_led", ESP_LOG_INFO);
-
-	esp_log_level_set("gn_leaf_pump_control", ESP_LOG_INFO);
-	esp_log_level_set("gn_leaf_hb2_watering_control", ESP_LOG_DEBUG);
 	esp_log_level_set("gn_leaf_pwm", ESP_LOG_DEBUG);
 
 	//leaves names
 	const char *PUMP = "pump";
 	const char *FAN = "fan";
 	const char *LIGHTS = "lights";
+	const char *SYN = "nft1_syn";
 
 	gn_leaf_handle_t fan = gn_leaf_create(node, FAN, gn_gpio_config,
 			4096, GN_LEAF_TASK_PRIORITY);
@@ -68,6 +61,13 @@ void gn_configure_nft1(gn_node_handle_t node) {
 	gn_leaf_param_init_double(pump, GN_LEAF_PWM_PARAM_GPIO, 5);
 	gn_leaf_param_init_double(pump, GN_LEAF_PWM_PARAM_CHANNEL, 2);
 	gn_leaf_param_init_double(pump, GN_LEAF_PWM_PARAM_POWER, 0);
+
+	gn_leaf_handle_t nft1_syn = gn_leaf_create(node, SYN,
+			gn_syn_nft1_control_config, 4096, GN_LEAF_TASK_PRIORITY);
+	gn_leaf_param_init_double(nft1_syn, GN_SYN_NFT1_CONTROL_PARAM_INTERVAL_SEC, 10);
+	gn_leaf_param_init_double(nft1_syn, GN_SYN_NFT1_CONTROL_PARAM_DURATION_SEC, 2);
+	gn_leaf_param_init_bool(nft1_syn, GN_SYN_NFT1_CONTROL_PARAM_ENABLE, true);
+	gn_leaf_param_init_string(nft1_syn, GN_SYN_NFT1_CONTROL_PARAM_PUMP_LEAF, PUMP);
 
 }
 

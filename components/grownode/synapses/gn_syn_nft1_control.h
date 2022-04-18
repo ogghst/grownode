@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MAIN_GN_PUMP_CONTROL_H_
-#define MAIN_GN_PUMP_CONTROL_H_
+#ifndef GN_SYN_NFT1_CONTROL_H_
+#define GN_SYN_NFT1_CONTROL_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,7 +22,13 @@ extern "C" {
 #include "grownode.h"
 
 //define type
-static const char GN_LEAF_PUMP_CONTROL_TYPE[] = "pump_control";
+static const char GN_SYN_NFT1_CONTROL_TYPE[] = "syn_nft1_ctrl";
+
+//parameters
+static const char GN_SYN_NFT1_CONTROL_PARAM_INTERVAL_SEC[] = "interval"; /*!< how many sec between two watering  */
+static const char GN_SYN_NFT1_CONTROL_PARAM_DURATION_SEC[] = "quantity"; /*!< how long a watering last */
+static const char GN_SYN_NFT1_CONTROL_PARAM_ENABLE[] = "enable"; /*!< whether the watering is active */
+static const char GN_SYN_NFT1_CONTROL_PARAM_PUMP_LEAF[] = "pump_leaf"; /*!< the pump leaf to control */
 
 gn_leaf_descriptor_handle_t gn_syn_nft1_control_config(gn_leaf_handle_t leaf_config);
 
@@ -30,4 +36,4 @@ gn_leaf_descriptor_handle_t gn_syn_nft1_control_config(gn_leaf_handle_t leaf_con
 }
 #endif //__cplusplus
 
-#endif /* MAIN_GN_PUMP_CONTROL_H_ */
+#endif /* GN_SYN_NFT1_CONTROL_H_ */
