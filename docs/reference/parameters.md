@@ -17,6 +17,13 @@ Each Leaf has a predetermined set of parameters. Those are initialized in the co
 
 Here, a `lights` leaf is created using the `gn_gpio_config` callback. This leaf (see `gn_gpio` leaf code) has a parameter called `GN_GPIO_PARAM_GPIO` that represents the GPIO to control. This code assigns the value 25 to that parameter at startup.
 
+
+## Overwrite stored parameters
+
+A leaf parameter can be stored in the board flash depending on its configuration. Standard behavior is that on next startup the init function will be ignored. 
+
+This could be overridden by using the `gn_leaf_param_force_XXX()` instead. this will set the parameter at the desired value ignoring the previously set value.
+
 ## Fast creation
 
 Some leaves has convenient functions created to perform creation and initialization in a compact form. Those functions have the suffix `_fastcreate` (see for instance `gn_gpio_fastcreate()` on `gn_gpio.c` leaf)

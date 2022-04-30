@@ -116,7 +116,7 @@ void gn_cwl_sensor_collect(gn_leaf_handle_t leaf_config) {
 	ESP_LOGD(TAG, "[%s] result: %f", leaf_name, result);
 
 	//store parameter and notify network
-	gn_leaf_param_write_double(leaf_config, GN_CWL_PARAM_ACT_LEVEL, result);
+	gn_leaf_param_force_double(leaf_config, GN_CWL_PARAM_ACT_LEVEL, result);
 
 	double max_level;
 	gn_leaf_param_get_double(leaf_config, GN_CWL_PARAM_MAX_LEVEL, &max_level);
@@ -132,25 +132,25 @@ void gn_cwl_sensor_collect(gn_leaf_handle_t leaf_config) {
 
 	//if level is above maximum, trigger max
 	if (result >= max_level && trg_high == false) {
-		gn_leaf_param_write_bool(leaf_config, GN_CWL_PARAM_TRG_HIGH,
+		gn_leaf_param_force_bool(leaf_config, GN_CWL_PARAM_TRG_HIGH,
 		true);
 	} else
 
 	//reset the trigger status if returning below max
 	if (result < max_level && trg_high == true) {
-		gn_leaf_param_write_bool(leaf_config, GN_CWL_PARAM_TRG_HIGH,
+		gn_leaf_param_force_bool(leaf_config, GN_CWL_PARAM_TRG_HIGH,
 		false);
 	} else
 
 	//if level is below maximum, trigger min
 	if (result <= min_level && trg_low == false) {
-		gn_leaf_param_write_bool(leaf_config, GN_CWL_PARAM_TRG_LOW,
+		gn_leaf_param_force_bool(leaf_config, GN_CWL_PARAM_TRG_LOW,
 		true);
 	} else
 
 	//reset the trigger status if returning above min
 	if (result > min_level && trg_low == true) {
-		gn_leaf_param_write_bool(leaf_config, GN_CWL_PARAM_TRG_LOW,
+		gn_leaf_param_force_bool(leaf_config, GN_CWL_PARAM_TRG_LOW,
 		false);
 	}
 
@@ -405,7 +405,7 @@ void gn_capacitive_water_level_task(gn_leaf_handle_t leaf_config) {
 			gn_log(TAG, GN_LOG_ERROR,
 					"[%s] failed to start capacitive water level timer", leaf_name);
 			gn_leaf_get_descriptor(leaf_config)->status = GN_LEAF_STATUS_ERROR;
-			gn_leaf_param_write_bool(leaf_config, GN_CWL_PARAM_ACTIVE,
+			gn_leaf_param_force_bool(leaf_config, GN_CWL_PARAM_ACTIVE,
 			false);
 			descriptor->status = GN_LEAF_STATUS_ERROR;
 		}
@@ -448,7 +448,7 @@ void gn_capacitive_water_level_task(gn_leaf_handle_t leaf_config) {
 							update_time_sec * 1000000);
 
 					//execute change
-					gn_leaf_param_write_double(leaf_config,
+					gn_leaf_param_force_double(leaf_config,
 							GN_CWL_PARAM_UPDATE_TIME_SEC, updtime);
 
 				} else if (gn_leaf_event_mask_param(&evt, data->active_param)
@@ -458,7 +458,7 @@ void gn_capacitive_water_level_task(gn_leaf_handle_t leaf_config) {
 					int _active = atoi(evt.data);
 
 					//execute change
-					gn_leaf_param_write_bool(leaf_config, GN_CWL_PARAM_ACTIVE,
+					gn_leaf_param_force_bool(leaf_config, GN_CWL_PARAM_ACTIVE,
 							_active == 0 ? false : true);
 
 					active = _active;

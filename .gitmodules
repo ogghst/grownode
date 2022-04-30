@@ -10,3 +10,6 @@
 [submodule "ext/esp-idf-lib"]
 	path = ext/esp-idf-lib
 	url = https://github.com/UncleRus/esp-idf-lib.git
+[submodule "ext/esp_cron"]
+	path = ext/esp_cron
+	url = https://github.com/DavidMora/esp_cron.git

@@ -90,7 +90,9 @@ typedef enum {
 	GN_RET_ERR_LEAF_NOT_FOUND = 0x206,
 	GN_RET_ERR_EVENT_NOT_SENT = 0x207,
 	GN_RET_ERR_MQTT_SUBSCRIBE = 0x208,
-	GN_RET_ERR_MQTT_ERROR = 0x209
+	GN_RET_ERR_MQTT_ERROR = 0x209,
+	GN_RET_NVS_PARAMETER_NOT_FOUND = 0x301,/*!< parameter requested was not found in NVS */
+	GN_RET_NVS_PARAMETER_FOUND = 0x302/*!< parameter requested was found in NVS */
 } gn_err_t;
 
 /**
@@ -128,11 +130,11 @@ typedef struct {
 	uint64_t sleep_time_millisec; /*! if sleep mode is GN_SLEEP_MODE_LIGHT or GN_SLEEP_MODE_DEEP, sets for how long the board must sleep !*/
 	uint64_t sleep_delay_millisec; /*! if sleep mode is GN_SLEEP_MODE_LIGHT or GN_SLEEP_MODE_DEEP, sets for how long the board must stay on waiting for leaves to complete its job before sleeping!*/
 	gn_sleep_mode_t sleep_mode; /*! define if and how the board must sleep !*/
+	char timezone[32]; /*! defines the timezone in POSIX time (TZ env variable) !*/
 
 } gn_config_init_param_t;
 
 typedef struct gn_config_init_param_t *gn_config_init_param_handle_t;
-
 
 typedef void *gn_leaf_handle_t;
 typedef void *gn_node_handle_t;

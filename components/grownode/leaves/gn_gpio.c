@@ -244,7 +244,7 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 					//notify change
 					ESP_LOGD(TAG, "written: %d", _active);
 
-					gn_leaf_param_write_bool(leaf_config, GN_GPIO_PARAM_TOGGLE,
+					gn_leaf_param_force_bool(leaf_config, GN_GPIO_PARAM_TOGGLE,
 							_active == 0 ? false : true);
 
 					status = _active;
@@ -274,7 +274,7 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 					int _inverted = atoi(evt.data);
 
 					//notify change
-					gn_leaf_param_write_bool(leaf_config,
+					gn_leaf_param_force_bool(leaf_config,
 							GN_GPIO_PARAM_INVERTED,
 							_inverted == 0 ? false : true);
 

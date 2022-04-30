@@ -32,14 +32,10 @@
 
 #include "esp_check.h"
 
-//switch from LOGI to LOGD
-//#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 #include "esp_log.h"
 
 
 void app_main(void) {
-
-	//vTaskDelay(5000 / portTICK_PERIOD_MS);
 
 	//set default log level
 	esp_log_level_set("*", ESP_LOG_INFO);
@@ -71,12 +67,13 @@ void app_main(void) {
 		.server_keepalive_timer_sec = 3600,
 		.server_discovery = false,
 		.server_discovery_prefix = "homeassistant",
-		.firmware_url = "http://grownode.duckdns.org/grownode/oscilloscope/grownode.bin",
+		.firmware_url = "http://grownode.duckdns.org/grownode/blink/grownode.bin",
 		.sntp_url = "pool.ntp.org",
 		.wakeup_time_millisec = 5000LL,
 		.sleep_delay_millisec = 50LL,
 		.sleep_time_millisec = 10000LL,
-		.sleep_mode = GN_SLEEP_MODE_NONE
+		.sleep_mode = GN_SLEEP_MODE_NONE,
+		.timezone = "CET-1CEST,M3.5.0,M10.5.0/3"
 	};
 
 	//creates the config handle

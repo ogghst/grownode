@@ -43,7 +43,7 @@ extern "C" {
 
 static const ledc_mode_t GN_LEAF_PWM_PARAM_LEDC_MODE = LEDC_HIGH_SPEED_MODE;
 
-#define GN_PUMP_HS_FADE /*!< define if duty has to be faded */
+#define GN_LEAF_PWM_FADE /*!< define if duty has to be faded */
 #define GN_LEAF_PWM_FADE_SPEED 500 /*!< define fade speed (msec) */
 
 #define GN_LEAF_PWM_UNKNOWN_CHANNEL	-1
@@ -68,6 +68,7 @@ typedef struct {
  * Use callback only if you are aware it is being called inside an ISR
  * Otherwise, you can use a semaphore to unblock tasks
  */
+#ifdef GN_LEAF_PWM_FADE
 static bool cb_ledc_fade_end_event(const ledc_cb_param_t *param, void *user_arg) {
 	portBASE_TYPE taskAwoken = pdFALSE;
 
@@ -78,6 +79,7 @@ static bool cb_ledc_fade_end_event(const ledc_cb_param_t *param, void *user_arg)
 
 	return (taskAwoken == pdTRUE);
 }
+#endif
 
 void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config);
 
@@ -184,7 +186,7 @@ void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 	ESP_LOGD(TAG, "%s - setting pwm pin %d channel %d", leaf_name, (int )gpio,
 			(int )channel);
 
-#ifdef GN_PUMP_HS_FADE
+#ifdef GN_LEAF_PWM_FADE
 	ESP_LOGD(TAG, "%s - xSemaphoreCreateBinary", leaf_name);
 	SemaphoreHandle_t fade_sem = xSemaphoreCreateBinary();
 #endif
@@ -218,13 +220,15 @@ void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 
 		ret = ledc_channel_config(&ledc_channel);
 
-#ifdef GN_PUMP_HS_FADE
+#ifdef GN_LEAF_PWM_FADE
 		if (ret == ESP_OK) {
-			ret = ledc_fade_func_install(0);
+
+			ESP_LOGD(TAG, "%s - ledc_fade_func_install", leaf_name);
+			ledc_fade_func_install(0);
+
 			ledc_cbs_t callbacks = { .fade_cb = cb_ledc_fade_end_event };
 
 			ESP_LOGD(TAG, "%s - ledc_cb_register", leaf_name);
-
 			ledc_cb_register(ledc_channel.speed_mode, ledc_channel.channel,
 					&callbacks, (void*) fade_sem);
 		}
@@ -324,7 +328,7 @@ void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 									false : true;
 
 					//execute change
-					gn_leaf_param_write_bool(leaf_config,
+					gn_leaf_param_force_bool(leaf_config,
 							GN_LEAF_PWM_PARAM_TOGGLE, _toggle);
 					toggle = _toggle;
 
@@ -350,7 +354,7 @@ void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 					int gpio = atoi(evt.data);
 					if (gpio >= 0 && gpio < GPIO_NUM_MAX) {
 						//execute change. this will have no effects until restart
-						gn_leaf_param_write_double(leaf_config,
+						gn_leaf_param_force_double(leaf_config,
 								GN_LEAF_PWM_PARAM_TOGGLE, gpio);
 					}
 
@@ -363,7 +367,7 @@ void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 					int channel = atoi(evt.data);
 					if (channel >= 0 && channel < LEDC_CHANNEL_MAX) {
 						//execute change. this will have no effects until restart
-						gn_leaf_param_write_double(leaf_config,
+						gn_leaf_param_force_double(leaf_config,
 								GN_LEAF_PWM_PARAM_CHANNEL, channel);
 					}
 
@@ -379,7 +383,7 @@ void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 						pow = 100;
 
 					//execute change
-					gn_leaf_param_write_double(leaf_config,
+					gn_leaf_param_force_double(leaf_config,
 							GN_LEAF_PWM_PARAM_POWER, pow);
 
 					need_update = true;
@@ -434,7 +438,7 @@ void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 
 			if (toggle == false) {
 
-#ifdef GN_PUMP_HS_FADE
+#ifdef GN_LEAF_PWM_FADE
 				ret = ledc_set_fade_with_time(GN_LEAF_PWM_PARAM_LEDC_MODE,
 						(ledc_channel_t) channel, 0, GN_LEAF_PWM_FADE_SPEED);
 
@@ -473,7 +477,7 @@ void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 				}
 #endif
 
-#ifdef GN_PUMP_HS_FADE
+#ifdef GN_LEAF_PWM_FADE
 				xSemaphoreTake(fade_sem, portMAX_DELAY);
 #endif
 
@@ -487,7 +491,7 @@ void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 
 				double duty = (pow(2, 13) - 1) * (power / 100); // Set duty to 50%. ((2 ** 13) - 1) * 50% = 4095
 
-#ifdef GN_PUMP_HS_FADE
+#ifdef GN_LEAF_PWM_FADE
 				ret = ledc_set_fade_with_time(GN_LEAF_PWM_PARAM_LEDC_MODE,
 						(ledc_channel_t) channel, duty, GN_LEAF_PWM_FADE_SPEED);
 
@@ -531,7 +535,7 @@ void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 						leaf_name, (int )gpio, (int ) channel, (int )power,
 						duty);
 
-#ifdef GN_PUMP_HS_FADE
+#ifdef GN_LEAF_PWM_FADE
 				xSemaphoreTake(fade_sem, portMAX_DELAY);
 #endif
 				need_update = false;

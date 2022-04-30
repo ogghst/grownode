@@ -105,8 +105,8 @@ else()
 		"unity" "mqtt" "spiffs" "json" "wifi_provisioning" "esp_https_ota" "app_update" "esp_adc_cal"
 	)
 	
-		if(DEFINED ENV{COLLECTIONS_C_PATH})
-	    list(APPEND components_required 
+	if(DEFINED ENV{COLLECTIONS_C_PATH})
+		list(APPEND components_required 
      		"collections-c" 
      	)
    	endif()
@@ -120,6 +120,12 @@ else()
 	if(DEFINED ENV{LVGL_PATH})
     	list(APPEND components_required 
      		"lvgl" "lvgl_esp32_drivers"
+     	)
+ 	endif()
+ 	
+	if(DEFINED ENV{CRON_LIB_PATH})
+    	list(APPEND components_required 
+     		"esp_cron"
      	)
  	endif()
 
@@ -136,9 +142,6 @@ else()
 					"leaves/gn_pump_hs.c"
 					"leaves/gn_ds18b20.c"
 					"leaves/gn_bme280.c"
-					"leaves/gn_pump_control.c"
-					"leaves/gn_watering_control.c"
-					"leaves/gn_hydroboard2_watering_control.c"
 					"leaves/gn_capacitive_water_level.c"
 					"leaves/gn_capacitive_moisture_sensor.c"
 					"leaves/gn_gpio.c"
@@ -146,23 +149,29 @@ else()
 					"leaves/gn_leaf_status_led.c"
 					"leaves/gn_leaf_ina219.c"
 					"leaves/gn_leaf_mux_cms.c"
+					"synapses/gn_hydroboard2_watering_control.c"
+					"synapses/gn_pump_control.c"
+					"synapses/gn_watering_control.c"
+					"synapses/gn_syn_nft1_control.c"
+					"boards/gn_hydroboard1.c"
+					"boards/gn_hydroboard2.c"
+					"boards/gn_easypot1.c"
+					"boards/gn_nft2.c"
+					"boards/gn_nft1.c"
+					"boards/gn_blink.c"
+					"boards/gn_oscilloscope.c"
 					"test/test_grownode.c"
 					"test/test_pump.c"
 					"test/test_ds18b20.c"
 					"test/test_pump_control.c"
 					"test/test_relay.c"
-					"boards/gn_hydroboard1.c"
-					"boards/gn_hydroboard2.c"
-					"boards/gn_easypot1.c"
-					"boards/gn_nft1.c"
-					"boards/gn_blink.c"
-					"boards/gn_oscilloscope.c"
 					
 					REQUIRES "${components_required}"
                     INCLUDE_DIRS 
                     "."
                     "leaves/"
                     "boards/"
+                    "synapses/"
                     EMBED_TXTFILES server_certs/ca_cert.pem)
 endif()
 

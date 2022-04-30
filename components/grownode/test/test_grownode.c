@@ -85,7 +85,7 @@ TEST_CASE("gn_get_blob_string", "[gn_storage]") {
 	char *retval = 0;
 
 	esp_err_t ret = gn_storage_get(&key[0], (void**) &retval);
-	TEST_ASSERT_EQUAL(ret, ESP_OK);
+	TEST_ASSERT_EQUAL(ret, GN_RET_NVS_PARAMETER_NOT_FOUND);
 	TEST_ASSERT(strcmp(value, retval) == 0);
 }
 
@@ -103,7 +103,7 @@ TEST_CASE("gn_get_blob_double", "[gn_storage]") {
 	double *retval = 0;
 
 	esp_err_t ret = gn_storage_get(&key[0], (void**) &retval);
-	TEST_ASSERT_EQUAL(ret, ESP_OK);
+	TEST_ASSERT_EQUAL(ret, GN_RET_NVS_PARAMETER_NOT_FOUND);
 	TEST_ASSERT(*retval == value);
 	free(retval);
 }

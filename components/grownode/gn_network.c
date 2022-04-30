@@ -47,7 +47,7 @@ extern "C" {
 
 #endif /* CONFIG_GROWNODE_WIFI_ENABLED */
 
-#include "lwip/apps/sntp.h"
+#include "esp_sntp.h"
 
 #include "grownode_intl.h"
 
@@ -461,6 +461,10 @@ esp_err_t gn_wifi_init(gn_config_handle_intl_t conf) {
 static bool time_sync_init_done = false;
 #endif
 
+void time_sync_notification_cb(struct timeval *tv) {
+	ESP_LOGD(TAG, "Notification of a time synchronization event");
+}
+
 esp_err_t gn_wifi_time_sync_init(gn_config_handle_t conf) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
@@ -472,10 +476,36 @@ esp_err_t gn_wifi_time_sync_init(gn_config_handle_t conf) {
 	}
 	ESP_LOGI(TAG, "Initializing SNTP. Using the SNTP server: %s",
 			((gn_config_handle_intl_t )conf)->config_init_params->sntp_url);
+
+#ifdef LWIP_DHCP_GET_NTP_SRV
+	sntp_servermode_dhcp(1);
+#endif
+
 	sntp_setoperatingmode(SNTP_OPMODE_POLL);
 	sntp_setservername(0,
 			((gn_config_handle_intl_t) conf)->config_init_params->sntp_url);
+	sntp_set_time_sync_notification_cb(time_sync_notification_cb);
 	sntp_init();
+
+    // wait for time to be set
+    time_t now = 0;
+    struct tm timeinfo = { 0 };
+    int retry = 0;
+    const int retry_count = 10;
+    while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < retry_count) {
+        ESP_LOGD(TAG, "Waiting for system time to be set... (%d/%d)", retry, retry_count);
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
+    }
+    time(&now);
+    localtime_r(&now, &timeinfo);
+
+    char strftime_buf[64];
+    setenv("TZ", ((gn_config_handle_intl_t) conf)->config_init_params->timezone, 1);
+    tzset();
+    localtime_r(&now, &timeinfo);
+    strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
+    ESP_LOGD(TAG, "The current date/time is: %s", strftime_buf);
+
 	time_sync_init_done = true;
 	return ESP_OK;
 

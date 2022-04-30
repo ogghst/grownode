@@ -290,7 +290,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 					int _active = atoi(evt.data);
 
 					//execute change
-					gn_leaf_param_write_bool(leaf_config,
+					gn_leaf_param_force_bool(leaf_config,
 							GN_LEAF_INA219_PARAM_ACTIVE,
 							_active == 0 ? false : true);
 
@@ -300,7 +300,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 						data->gn_leaf_ina219_ip_param) == 0) {
 
 					//execute change
-					gn_leaf_param_write_string(leaf_config,
+					gn_leaf_param_force_string(leaf_config,
 							GN_LEAF_INA219_PARAM_IP, evt.data);
 					//strncpy(ip, evt.data, IP_STRING_SIZE-1);
 					memcpy(ip, evt.data, IP_STRING_SIZE - 1);
@@ -325,7 +325,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 
 					port = atof(evt.data);
 					//execute change
-					gn_leaf_param_write_double(leaf_config,
+					gn_leaf_param_force_double(leaf_config,
 							GN_LEAF_INA219_PARAM_PORT, port);
 
 					//restart messaging configuration
@@ -347,7 +347,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 
 					sampling_cycles = atof(evt.data);
 					//execute change
-					gn_leaf_param_write_double(leaf_config,
+					gn_leaf_param_force_double(leaf_config,
 							GN_LEAF_INA219_PARAM_SAMPLING_CYCLES,
 							sampling_cycles);
 
@@ -356,7 +356,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 
 					sampling_interval = atof(evt.data);
 					//execute change
-					gn_leaf_param_write_double(leaf_config,
+					gn_leaf_param_force_double(leaf_config,
 							GN_LEAF_INA219_PARAM_SAMPLING_INTERVAL,
 							sampling_interval);
 
@@ -365,7 +365,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 
 					sda = atof(evt.data);
 					//execute change
-					gn_leaf_param_write_double(leaf_config,
+					gn_leaf_param_force_double(leaf_config,
 							GN_LEAF_INA219_PARAM_SDA, sda);
 
 				} else if (gn_leaf_event_mask_param(&evt,
@@ -373,7 +373,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 
 					scl = atof(evt.data);
 					//execute change
-					gn_leaf_param_write_double(leaf_config,
+					gn_leaf_param_force_double(leaf_config,
 							GN_LEAF_INA219_PARAM_SCL, scl);
 
 				} else if (gn_leaf_event_mask_param(&evt,
@@ -381,7 +381,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 
 					working_mode = atof(evt.data);
 					//execute change
-					gn_leaf_param_write_double(leaf_config,
+					gn_leaf_param_force_double(leaf_config,
 							GN_LEAF_INA219_PARAM_WORKING_MODE, working_mode);
 
 				}
@@ -461,20 +461,20 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 
 			if (working_mode == 1 || working_mode == 2) {
 
-				gn_leaf_param_write_double(leaf_config,
+				gn_leaf_param_force_double(leaf_config,
 						GN_LEAF_INA219_PARAM_VOLTAGE,
 						(shunt_voltage + bus_voltage));
 
-				gn_leaf_param_write_double(leaf_config,
+				gn_leaf_param_force_double(leaf_config,
 						GN_LEAF_INA219_PARAM_SHUNT_VOLTAGE, shunt_voltage);
 
-				gn_leaf_param_write_double(leaf_config,
+				gn_leaf_param_force_double(leaf_config,
 						GN_LEAF_INA219_PARAM_BUS_VOLTAGE, bus_voltage);
 
-				gn_leaf_param_write_double(leaf_config,
+				gn_leaf_param_force_double(leaf_config,
 						GN_LEAF_INA219_PARAM_POWER, power);
 
-				gn_leaf_param_write_double(leaf_config,
+				gn_leaf_param_force_double(leaf_config,
 						GN_LEAF_INA219_PARAM_CURRENT, current);
 
 			}

@@ -96,7 +96,7 @@ gn_err_t gn_leaf_param_get_value(const gn_leaf_param_handle_t param, void *val);
 gn_err_t gn_leaf_param_get_string(const gn_leaf_handle_t leaf_config,
 		const char *name, char *val, size_t max_lenght);
 
-gn_err_t gn_leaf_param_write_string(const gn_leaf_handle_t leaf,
+gn_err_t gn_leaf_param_force_string(const gn_leaf_handle_t leaf,
 		const char *name, char *val);
 
 gn_err_t gn_leaf_param_init_string(const gn_leaf_handle_t leaf,
@@ -105,7 +105,7 @@ gn_err_t gn_leaf_param_init_string(const gn_leaf_handle_t leaf,
 gn_err_t gn_leaf_param_get_bool(const gn_leaf_handle_t leaf_config,
 		const char *name, bool *val);
 
-gn_err_t gn_leaf_param_write_bool(const gn_leaf_handle_t leaf,
+gn_err_t gn_leaf_param_force_bool(const gn_leaf_handle_t leaf,
 		const char *name, bool val);
 
 gn_err_t gn_leaf_param_init_bool(const gn_leaf_handle_t leaf,
@@ -114,13 +114,13 @@ gn_err_t gn_leaf_param_init_bool(const gn_leaf_handle_t leaf,
 gn_err_t gn_leaf_param_get_double(const gn_leaf_handle_t leaf_config,
 		const char *name, double *val);
 
-gn_err_t gn_leaf_param_write_double(const gn_leaf_handle_t leaf,
+gn_err_t gn_leaf_param_force_double(const gn_leaf_handle_t leaf,
 		const char *name, double val);
 
 gn_err_t gn_leaf_param_init_double(const gn_leaf_handle_t leaf,
 		const char *name, double val);
 
-gn_err_t gn_leaf_param_write(const gn_leaf_handle_t leaf,
+gn_err_t gn_leaf_param_force(const gn_leaf_handle_t leaf,
 		const void *val);
 
 //gn_err_t gn_leaf_param_destroy(gn_leaf_param_handle_t new_param);
