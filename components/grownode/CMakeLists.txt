@@ -159,6 +159,7 @@ else()
 					"boards/gn_nft1.c"
 					"boards/gn_blink.c"
 					"boards/gn_oscilloscope.c"
+					"boards/gn_board_pump.c"
 					"test/test_grownode.c"
 					"test/test_pump.c"
 					"test/test_ds18b20.c"
