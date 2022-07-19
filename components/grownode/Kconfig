@@ -109,6 +109,7 @@ menu "GrowNode Configuration"
 #            Default SNTP Server which is used for time synchronization.
            
     config GROWNODE_DISPLAY_ENABLED
+    	depends on LVGL_PATH
     	bool "Enable Display"
     	default false
     	help
