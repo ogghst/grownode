@@ -9,3 +9,4 @@ sdkconfig
 sdkconfig
 .project
 main/main.c
+main/main.c
