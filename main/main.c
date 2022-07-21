@@ -16,21 +16,20 @@
 
 //#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 #include "esp_log.h"
-
+#include "esp_check.h"
 #include "esp_event.h"
 
 #include "grownode.h"
 
-//include the board you want to start here
-#include "gn_board_pump.h"
+#include "gn_sparkplugb_protocol.h"
 
-#define TASK_STACK_SIZE 8192*4
+//include the board you want to start here
+#include "gn_blink.h"
+
+#define TASK_STACK_SIZE 1024*128
 
 #define TAG "gn_main"
 
-#include "esp_check.h"
-
-#include "esp_log.h"
 
 void app_main(void) {
 
@@ -59,8 +58,8 @@ void app_main(void) {
 					.provisioning_password = "grownode",
 					.wifi_retries_before_reset_provisioning = -1,
 					.server_board_id_topic = false, .server_base_topic =
-							"grownode/balcone", .server_url =
-							"mqtt://192.168.1.10:1883",
+							"grownode/tahu", .server_url =
+							"mqtt://discoboy.duckdns.org:11883",
 					.server_keepalive_timer_sec = 3600, .server_discovery =
 					false, .server_discovery_prefix = "homeassistant",
 					.firmware_url =
@@ -85,10 +84,12 @@ void app_main(void) {
 	gn_node_handle_t node = gn_node_create(config, "pump");
 
 	//the board to start
-	gn_configure_pump(node);
+	gn_configure_blink(node);
 
 	//finally, start node
 	gn_node_start(node);
+
+	gn_spb_test(node);
 
 	//handles loop
 	gn_node_loop(node);

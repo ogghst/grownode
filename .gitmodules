@@ -13,3 +13,12 @@
 [submodule "ext/esp_cron"]
 	path = ext/esp_cron
 	url = https://github.com/DavidMora/esp_cron.git
+[submodule "ext/tahu/tahu"]
+	path = ext/tahu/tahu
+	url = https://github.com/eclipse/tahu.git
+[submodule "ext/esp_cron_components/esp_cron"]
+	path = ext/esp_cron_components/esp_cron
+	url = https://github.com/DavidMora/esp_cron.git
+[submodule "ext/tahu_components/tahu/tahu"]
+	path = ext/tahu_components/tahu/tahu
+	url = https://github.com/eclipse/tahu.git
