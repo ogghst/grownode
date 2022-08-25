@@ -127,7 +127,7 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 
 		char log[42];
 		uint8_t eth_mac[6];
-		const char ssid_prefix[10];
+		char ssid_prefix[10];
 		strncpy(ssid_prefix, CONFIG_GROWNODE_PROV_SOFTAP_PREFIX, 10);
 		esp_wifi_get_mac(WIFI_IF_STA, eth_mac);
 		char deviceName[17];
@@ -169,9 +169,10 @@ void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		if (disconnected->reason != WIFI_REASON_ASSOC_LEAVE) {
 
 			if (_conf->config_init_params->wifi_retries_before_reset_provisioning
-					== -1
-					|| s_retry_num
-							< _conf->config_init_params->wifi_retries_before_reset_provisioning) {
+					== -1) {
+				esp_wifi_connect();
+			} else if (s_retry_num
+					< _conf->config_init_params->wifi_retries_before_reset_provisioning) {
 				ESP_LOGI(TAG, "Retry to connect - attempt %i of %i",
 						s_retry_num,
 						_conf->config_init_params->wifi_retries_before_reset_provisioning);
@@ -487,24 +488,27 @@ esp_err_t gn_wifi_time_sync_init(gn_config_handle_t conf) {
 	sntp_set_time_sync_notification_cb(time_sync_notification_cb);
 	sntp_init();
 
-    // wait for time to be set
-    time_t now = 0;
-    struct tm timeinfo = { 0 };
-    int retry = 0;
-    const int retry_count = 10;
-    while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < retry_count) {
-        ESP_LOGD(TAG, "Waiting for system time to be set... (%d/%d)", retry, retry_count);
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
-    }
-    time(&now);
-    localtime_r(&now, &timeinfo);
+	// wait for time to be set
+	time_t now = 0;
+	struct tm timeinfo = { 0 };
+	int retry = 0;
+	const int retry_count = 10;
+	while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET
+			&& ++retry < retry_count) {
+		ESP_LOGD(TAG, "Waiting for system time to be set... (%d/%d)", retry,
+				retry_count);
+		vTaskDelay(2000 / portTICK_PERIOD_MS);
+	}
+	time(&now);
+	localtime_r(&now, &timeinfo);
 
-    char strftime_buf[64];
-    setenv("TZ", ((gn_config_handle_intl_t) conf)->config_init_params->timezone, 1);
-    tzset();
-    localtime_r(&now, &timeinfo);
-    strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
-    ESP_LOGD(TAG, "The current date/time is: %s", strftime_buf);
+	char strftime_buf[64];
+	setenv("TZ", ((gn_config_handle_intl_t) conf)->config_init_params->timezone,
+			1);
+	tzset();
+	localtime_r(&now, &timeinfo);
+	strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
+	ESP_LOGD(TAG, "The current date/time is: %s", strftime_buf);
 
 	time_sync_init_done = true;
 	return ESP_OK;

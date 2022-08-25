@@ -32,6 +32,9 @@ static const char GN_LEAF_PWM_PARAM_CHANNEL[] = "channel"; /*!< 0-7 */
 //static const char GN_LEAF_PWM_PARAM_RES[] = "res"; /*!< 1-16 */
 static const char GN_LEAF_PWM_PARAM_GPIO[] = "gpio"; /*!< the GPIO to connect the pump (must be PWM capable) */
 
+/**
+ * this leaf uses the LEDC ESP32 library to control a PWM device
+ */
 gn_leaf_descriptor_handle_t gn_leaf_pwm_config(gn_leaf_handle_t leaf_config);
 
 #ifdef __cplusplus

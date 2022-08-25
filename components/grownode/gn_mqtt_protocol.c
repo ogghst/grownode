@@ -1176,6 +1176,7 @@ void log_error_if_nonzero(const char *message, int error_code) {
 	}
 }
 
+
 void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 		int32_t event_id, void *event_data) {
 
@@ -1459,6 +1460,7 @@ gn_err_t gn_mqtt_start(gn_config_handle_t config) {
 
 		ESP_LOGD(TAG, "gn_mqtt_init connection successful. returning");
 		_gn_mqtt_on_connected(config);
+
 		return GN_RET_OK;
 	}
 
@@ -1552,6 +1554,8 @@ gn_err_t gn_mqtt_disconnect(gn_config_handle_t config) {
 	if (!config)
 		return GN_RET_ERR_INVALID_ARG;
 
+	ESP_LOGD(TAG, "gn_mqtt_disconnect");
+
 	gn_config_handle_intl_t _config = (gn_config_handle_intl_t) config;
 
 	if (!_config->mqtt_client)
@@ -1601,6 +1605,8 @@ gn_err_t gn_mqtt_reconnect(gn_config_handle_t config) {
 	if (!config)
 		return GN_RET_ERR_INVALID_ARG;
 
+	ESP_LOGD(TAG, "gn_mqtt_reconnect");
+
 	gn_config_handle_intl_t _config = (gn_config_handle_intl_t) config;
 
 	if (!_config->mqtt_client)
@@ -1609,7 +1615,7 @@ gn_err_t gn_mqtt_reconnect(gn_config_handle_t config) {
 	esp_err_t esp_ret;
 	esp_ret = esp_mqtt_client_reconnect(_config->mqtt_client);
 	if (esp_ret != ESP_OK) {
-		ESP_LOGE(TAG, "Error on esp_mqtt_client_disconnect: %s",
+		ESP_LOGE(TAG, "Error on esp_mqtt_client_reconnect: %s",
 				esp_err_to_name(esp_ret));
 		return GN_RET_ERR;
 	}

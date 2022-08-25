@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <gn_gpio.h>
+#include <gn_leaf_pwm_relay.h>
 #include <stdio.h>
 
 //#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
@@ -21,7 +22,6 @@
 #include "esp_event.h"
 
 #include "grownode.h"
-#include "gn_pump_hs.h"
 #include "gn_ds18b20.h"
 #include "gn_capacitive_water_level.h"
 #include "gn_pwm.h"

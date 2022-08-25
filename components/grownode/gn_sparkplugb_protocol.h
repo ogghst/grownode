@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-gn_err_t gn_spb_test(gn_node_handle_t node);
+gn_err_t gn_spb_test(void* arg);
 
 #ifdef __cplusplus
 }

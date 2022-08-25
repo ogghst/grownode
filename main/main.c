@@ -26,7 +26,7 @@
 //include the board you want to start here
 #include "gn_blink.h"
 
-#define TASK_STACK_SIZE 1024*128
+//#define TASK_STACK_SIZE 1024*32
 
 #define TAG "gn_main"
 
@@ -81,7 +81,7 @@ void app_main(void) {
 	}
 
 	//creates a new node
-	gn_node_handle_t node = gn_node_create(config, "pump");
+	gn_node_handle_t node = gn_node_create(config, "grownode");
 
 	//the board to start
 	gn_configure_blink(node);

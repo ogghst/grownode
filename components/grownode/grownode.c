@@ -324,7 +324,6 @@ void _gn_evt_handler(void *handler_data, esp_event_base_t base, int32_t id,
 		break;
 
 	case GN_NET_CONNECTED_EVENT:
-
 		break;
 	case GN_NET_DISCONNECTED_EVENT:
 

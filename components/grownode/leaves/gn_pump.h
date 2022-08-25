@@ -31,7 +31,9 @@ static const char GN_PUMP_PARAM_CHANNEL[] = "channel"; /*!< 0 = channel A, 1 = c
 static const char GN_PUMP_PARAM_GPIO_POWER[] = "gpio_power"; /*!< the GPIO to connect the pump (must be PWM capable) */
 static const char GN_PUMP_PARAM_GPIO_TOGGLE[] = "gpio_toggle"; /*!< the GPIO to connect the pump (must be PWM capable) */
 
-
+/**
+ * this leaf uses the PWM ESP32 library to control a pump
+ */
 gn_leaf_descriptor_handle_t gn_pump_config(gn_leaf_handle_t leaf_config);
 
 

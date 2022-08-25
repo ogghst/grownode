@@ -51,13 +51,22 @@ static const char  GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_LIGHT_1[] = "leaf_LIGHT_1";
 static const char  GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_LIGHT_2[] = "leaf_LIGHT_2";
 
 
-static const char GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_INTERVAL_SEC[] = "wat_int_sec"; //time between two watering cycles
-static const char GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TIME_SEC[] = "wat_time_sec"; //time of one watering cycle
-static const char GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TARGET_TEMP[] = "wat_t_temp";
+static const char GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_INTERVAL_SEC[] = "wat_int_sec"; /*!<time between two watering cycles */
+static const char GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TIME_SEC[] = "wat_time_sec"; /*!<time of one watering cycle */
+static const char GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TARGET_TEMP[] = "wat_t_temp"; /*!<target temperature on reservoir */
 static const char GN_HYDROBOARD2_WAT_CTR_PARAM_ACTIVE[] = "active";
 
 static const int32_t GN_HYDROBOARD2_WAT_CTR_CYCLE_TIME_MS = 1000L;
 
+/**
+ * this synapses aims to control a board composed by several devices:
+ * 1) peltier cell served by a pump to keep the reservoir at a desired temperature
+ * 2) pump to water the plants
+ * 3) temperature and pressure sensors
+ * 4) reservoir water level sensor
+ * 5) two lights relays
+ *
+ */
 gn_leaf_descriptor_handle_t gn_hb2_watering_control_config(gn_leaf_handle_t leaf_config);
 
 #ifdef __cplusplus
