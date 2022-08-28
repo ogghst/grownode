@@ -21,8 +21,6 @@
 
 #include "grownode.h"
 
-#include "gn_sparkplugb_protocol.h"
-
 //include the board you want to start here
 #include "gn_blink.h"
 
@@ -88,8 +86,6 @@ void app_main(void) {
 
 	//finally, start node
 	gn_node_start(node);
-
-	gn_spb_test(node);
 
 	//handles loop
 	gn_node_loop(node);
