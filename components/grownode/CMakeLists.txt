@@ -122,26 +122,13 @@ else()
      		"lvgl" "lvgl_esp32_drivers"
      	)
  	endif()
- 	
-	if(DEFINED ENV{CRON_LIB_PATH})
-    	list(APPEND components_required 
-     		"esp_cron"
-     	)
- 	endif()
- 	
- 	
-	if(DEFINED ENV{TAHU_LIB_PATH})
-    	list(APPEND components_required 
-     		"tahu"
-     	)
- 	endif()
 
 	idf_component_register(SRCS 
 					"gn_commons.c"
 					"gn_display.c"
 					"grownode.c"
 					"gn_mqtt_protocol.c"
-					"gn_sparkplugb_protocol.c"
+					#"gn_mqtt_homie_protocol.c"
 					"gn_network.c"
 					"gn_leaf_context.c"
 					"leaves/gn_bh1750.c"

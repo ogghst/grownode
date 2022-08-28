@@ -11,13 +11,10 @@ set(ENV{IDF_LIB_PATH} "ext/esp-idf-lib/components")
 #uncomment if you don't want to use sparkplug-b protocol
 set(ENV{TAHU_LIB_PATH} "ext/tahu_components")
 
-#uncomment if you are using ESP_CRON. makes the build process slower
-set(ENV{CRON_LIB_PATH} "ext/esp_cron_components")
-
 #uncomment if you are using LVGL. makes the build process slower
 #set(ENV{LVGL_PATH} "ext/lvgl/lvgl ext/lvgl/lvgl_esp32_drivers")
 
-set(EXTRA_COMPONENT_DIRS $ENV{IDF_LIB_PATH} $ENV{LVGL_PATH} $ENV{COLLECTIONS_C_PATH} $ENV{CRON_LIB_PATH} $ENV{TAHU_LIB_PATH})
+set(EXTRA_COMPONENT_DIRS $ENV{IDF_LIB_PATH} $ENV{LVGL_PATH} $ENV{COLLECTIONS_C_PATH})
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
