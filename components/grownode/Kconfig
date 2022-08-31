@@ -26,6 +26,18 @@ menu "GrowNode Configuration"
             bool "Soft AP"
     endchoice
 
+    choice GROWNODE_MQTT_PROTOCOL
+        bool "MQTT Protocol"
+        default GROWNODE_MQTT_LEGACY_PROTOCOL
+        depends on GROWNODE_WIFI_ENABLED
+        help
+            Choose among legacy and HOMIE protocol
+        config GROWNODE_MQTT_HOMIE_PROTOCOL
+            bool "Homie"
+        config GROWNODE_MQTT_LEGACY_PROTOCOL
+            bool "Legacy"
+    endchoice
+
     config GROWNODE_PROV_TRANSPORT
         int
         default 1 if GROWNODE_PROV_TRANSPORT_BLE

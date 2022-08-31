@@ -100,7 +100,7 @@ ESP_EVENT_DEFINE_BASE(GN_LEAF_EVENT);
  *
  * @return 	status of the operation
  */
-gn_err_t _gn_leaf_start(gn_leaf_config_handle_intl_t leaf_config) {
+gn_err_t _gn_leaf_start(gn_leaf_handle_intl_t leaf_config) {
 
 	int ret = GN_RET_OK;
 	ESP_LOGI(TAG, "_gn_leaf_start %s", leaf_config->name);
@@ -111,7 +111,7 @@ gn_err_t _gn_leaf_start(gn_leaf_config_handle_intl_t leaf_config) {
 			leaf_config->name, leaf_config->task_size, leaf_config,
 			GN_LEAF_TASK_PRIORITY, //configMAX_PRIORITIES - 1,
 			&task_handle) != pdPASS) {
-		ESP_LOGE(TAG, "failed to create lef task for %s", leaf_config->name);
+		ESP_LOGE(TAG, "failed to create leaf task for %s", leaf_config->name);
 		goto fail;
 	}
 	leaf_config->task_handle = task_handle;
@@ -242,7 +242,7 @@ void _gn_keepalive_stop(gn_config_handle_intl_t conf) {
 	ESP_LOGD(TAG, "timer paused");
 }
 
-gn_leaf_config_handle_intl_t _gn_leaf_get_by_name(gn_config_handle_intl_t conf,
+gn_leaf_handle_intl_t _gn_leaf_get_by_name(gn_config_handle_intl_t conf,
 		char *leaf_name) {
 
 	gn_leaves_list leaves = conf->node_handle->leaves;
@@ -264,13 +264,13 @@ gn_leaf_config_handle_intl_t _gn_leaf_get_by_name(gn_config_handle_intl_t conf,
  *
  * @return 	GN_ERR_EVENT_NOT_SENT if not possible to send event
  */
-gn_err_t _gn_send_event_to_leaf(gn_leaf_config_handle_intl_t leaf_config,
+gn_err_t _gn_send_event_to_leaf(gn_leaf_handle_intl_t leaf_config,
 		gn_leaf_parameter_event_handle_t evt) {
 
 	if (!leaf_config || !evt)
 		return GN_RET_ERR_INVALID_ARG;
 
-	if (leaf_config->node_config->config->status != GN_NODE_STATUS_STARTED
+	if (leaf_config->node->config->status != GN_NODE_STATUS_STARTED
 			&& evt->id != GN_NODE_STARTED_EVENT) {
 		ESP_LOGW(TAG_EVENT,
 				"_gn_send_event_to_leaf - GN_RET_ERR_NODE_NOT_STARTED - id: %d, param %s, leaf %s, data %.*s",
@@ -371,7 +371,7 @@ void _gn_evt_handler(void *handler_data, esp_event_base_t base, int32_t id,
 
 	case GN_SRV_KEEPALIVE_TRIGGERED_EVENT:
 		//publish node
-		if (gn_mqtt_send_node_config(conf->node_handle) != GN_RET_OK) {
+		if (gn_mqtt_send_keepalive(conf->node_handle) != GN_RET_OK) {
 			ESP_LOGE(TAG, "Error in sending node config message");
 		}
 		break;
@@ -381,7 +381,7 @@ void _gn_evt_handler(void *handler_data, esp_event_base_t base, int32_t id,
 		gn_leaf_parameter_event_handle_t evt =
 				(gn_leaf_parameter_event_handle_t) event_data;
 
-		gn_leaf_config_handle_intl_t leaf_config = _gn_leaf_get_by_name(conf,
+		gn_leaf_handle_intl_t leaf_config = _gn_leaf_get_by_name(conf,
 				evt->leaf_name);
 
 		if (leaf_config != NULL) {
@@ -651,7 +651,7 @@ esp_event_loop_handle_t gn_leaf_get_event_loop(gn_leaf_handle_t leaf_config) {
 
 	if (!leaf_config)
 		return NULL;
-	return ((gn_leaf_config_handle_intl_t) leaf_config)->node_config->config->event_loop;
+	return ((gn_leaf_handle_intl_t) leaf_config)->node->config->event_loop;
 
 }
 
@@ -751,6 +751,14 @@ gn_err_t gn_node_start(gn_node_handle_t node) {
 	ESP_LOGD(TAG, "gn_start_node: %s, leaves: %d", _node->name,
 			_node->leaves.last);
 
+	//init mqtt system
+	ESP_GOTO_ON_ERROR(gn_mqtt_start(_node->config), err_srv, TAG,
+			"error on server init: %s", esp_err_to_name(ret));
+
+	//heartbeat to check network comm and send periodical system watchdog to the network
+	ESP_GOTO_ON_ERROR(_gn_init_keepalive_timer(_node->config), err_srv, TAG,
+			"error on timer init: %s", esp_err_to_name(ret));
+
 	_node->config->status = GN_NODE_STATUS_STARTED;
 
 	if (ESP_OK
@@ -780,6 +788,10 @@ gn_err_t gn_node_start(gn_node_handle_t node) {
 	if (wakeup_reason == GN_SLEEP_MODE_NONE)
 		ret = gn_send_node_leaf_param_status(node);
 
+	return ret;
+
+
+	err_srv: _gn_default_conf->status = GN_NODE_STATUS_SERVER_ERROR;
 	return ret;
 
 }
@@ -1009,13 +1021,13 @@ gn_err_t gn_node_sleep(gn_node_handle_t node, gn_sleep_mode_t sleep_mode,
 
 }
 
-gn_leaf_config_handle_intl_t _gn_leaf_config_create() {
+gn_leaf_handle_intl_t _gn_leaf_config_create() {
 
-	gn_leaf_config_handle_intl_t _conf = (gn_leaf_config_handle_intl_t) malloc(
+	gn_leaf_handle_intl_t _conf = (gn_leaf_handle_intl_t) malloc(
 			sizeof(struct gn_leaf_config_t));
 	//_conf->callback = NULL;
 	strcpy(_conf->name, "");
-	_conf->node_config = NULL;
+	_conf->node = NULL;
 	_conf->leaf_descriptor = NULL;
 	_conf->params = NULL;
 	return _conf;
@@ -1069,11 +1081,11 @@ gn_leaf_handle_t gn_leaf_create(gn_node_handle_t node_config, const char *name,
 		return NULL;
 	}
 
-	gn_leaf_config_handle_intl_t l_c = _gn_leaf_config_create();
+	gn_leaf_handle_intl_t l_c = _gn_leaf_config_create();
 	gn_node_handle_intl_t n_c = node_cfg;
 
 	strncpy(l_c->name, name, GN_LEAF_NAME_SIZE - 1);
-	l_c->node_config = node_cfg;
+	l_c->node = node_cfg;
 	//l_c->task_cb = task;
 	l_c->task_size = task_size;
 	l_c->priority = priority;
@@ -1110,13 +1122,12 @@ gn_leaf_handle_t gn_leaf_create(gn_node_handle_t node_config, const char *name,
  * returns the descriptor handle for the corresponding leaf
  */
 gn_leaf_descriptor_handle_t gn_leaf_get_descriptor(gn_leaf_handle_t leaf_config) {
-	return ((gn_leaf_config_handle_intl_t) leaf_config)->leaf_descriptor;
+	return ((gn_leaf_handle_intl_t) leaf_config)->leaf_descriptor;
 }
 
 gn_err_t _gn_leaf_destroy(gn_leaf_handle_t leaf_config) {
 
-	gn_leaf_config_handle_intl_t _leaf_config =
-			((gn_leaf_config_handle_intl_t) leaf_config);
+	gn_leaf_handle_intl_t _leaf_config = ((gn_leaf_handle_intl_t) leaf_config);
 	gn_leaf_context_destroy(_leaf_config->leaf_context);
 	vQueueDelete(_leaf_config->event_queue);
 	;
@@ -1139,7 +1150,7 @@ gn_err_t gn_leaf_get_name(gn_leaf_handle_t leaf_config, char *name) {
 
 	if (!leaf_config)
 		return GN_RET_ERR_INVALID_ARG;
-	strcpy(name, ((gn_leaf_config_handle_intl_t) leaf_config)->name);
+	strcpy(name, ((gn_leaf_handle_intl_t) leaf_config)->name);
 
 	return GN_RET_OK;
 
@@ -1164,8 +1175,7 @@ gn_leaf_handle_t gn_leaf_get_config_handle(gn_node_handle_t node,
 
 	for (size_t i = 0; i < _node->leaves.last; i++) {
 
-		gn_leaf_config_handle_intl_t _lc =
-				(gn_leaf_config_handle_intl_t) _node->leaves.at[i];
+		gn_leaf_handle_intl_t _lc = (gn_leaf_handle_intl_t) _node->leaves.at[i];
 
 		if (strncmp(name, _lc->name, sizeof(_lc->name)) == 0) {
 			return _lc;
@@ -1188,7 +1198,7 @@ gn_node_handle_t gn_leaf_get_node(gn_leaf_handle_t leaf_config) {
 
 	if (!leaf_config)
 		return NULL;
-	return ((gn_leaf_config_handle_intl_t) leaf_config)->node_config;
+	return ((gn_leaf_handle_intl_t) leaf_config)->node;
 
 }
 
@@ -1204,7 +1214,7 @@ QueueHandle_t gn_leaf_get_event_queue(gn_leaf_handle_t leaf_config) {
 //TODO find a way to hide the freertos structure
 	if (!leaf_config)
 		return NULL;
-	return ((gn_leaf_config_handle_intl_t) leaf_config)->event_queue;
+	return ((gn_leaf_handle_intl_t) leaf_config)->event_queue;
 
 }
 
@@ -1221,8 +1231,7 @@ void _gn_leaf_evt_handler(void *handler_args, esp_event_base_t base, int32_t id,
 	ESP_LOGD(TAG_EVENT, "_gn_leaf_evt_handler event: %d", id);
 
 	//gets leaf
-	gn_leaf_config_handle_intl_t leaf_config =
-			(gn_leaf_config_handle_intl_t) handler_args;
+	gn_leaf_handle_intl_t leaf_config = (gn_leaf_handle_intl_t) handler_args;
 
 	if (id == GN_LEAF_PARAM_CHANGED_EVENT
 			|| id == GN_LEAF_PARAM_INITIALIZED_EVENT
@@ -1278,7 +1287,7 @@ gn_err_t gn_leaf_event_subscribe(gn_leaf_handle_t leaf_config,
 		return GN_RET_ERR;
 
 	ESP_LOGD(TAG_EVENT, "gn_leaf_event_subscribe event: %d, leaf %s", event_id,
-			((gn_leaf_config_handle_intl_t ) leaf_config)->name);
+			((gn_leaf_handle_intl_t ) leaf_config)->name);
 
 	//register for events
 	esp_err_t ret = esp_event_handler_instance_register_with(event_loop,
@@ -1304,7 +1313,7 @@ gn_err_t gn_leaf_event_unsubscribe(gn_leaf_handle_t leaf_config,
 		return GN_RET_ERR;
 
 	ESP_LOGD(TAG_EVENT, "gn_leaf_event_unsubscribe event: %d, leaf %s",
-			event_id, ((gn_leaf_config_handle_intl_t ) leaf_config)->name);
+			event_id, ((gn_leaf_handle_intl_t ) leaf_config)->name);
 
 	//unregister for events
 	esp_err_t ret = esp_event_handler_instance_unregister_with(event_loop,
@@ -1340,8 +1349,7 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
 		return NULL;
 	}
 
-	gn_leaf_config_handle_intl_t _leaf_config =
-			(gn_leaf_config_handle_intl_t) leaf_config;
+	gn_leaf_handle_intl_t _leaf_config = (gn_leaf_handle_intl_t) leaf_config;
 
 	ESP_LOGD(TAG, "gn_leaf_param_create %s ", name);
 	//ESP_LOGD(TAG, "building storage tag..");
@@ -1407,10 +1415,13 @@ gn_leaf_param_handle_t gn_leaf_param_create(gn_leaf_handle_t leaf_config,
 			sizeof(gn_leaf_param_t));
 	_ret->next = NULL;
 
-	char *_name = strdup(name);
+	//char *_name = strdup(name);
 	//(char*) calloc(sizeof(char)*strlen(name));
 	//strncpy(_name, name, strlen(name));
-	_ret->name = _name;
+	//_ret->name = _name;
+	strncpy(_ret->name, name, GN_LEAF_PARAM_NAME_SIZE);
+	strncpy(_ret->unit, "", GN_LEAF_PARAM_UNIT_SIZE);
+	strncpy(_ret->format, "", GN_LEAF_PARAM_FORMAT_SIZE);
 
 	gn_param_val_handle_t _param_val = (gn_param_val_handle_t) malloc(
 			sizeof(gn_param_val_t));
@@ -1476,8 +1487,7 @@ gn_err_t gn_leaf_param_init_string(const gn_leaf_handle_t leaf_config,
 
 	ESP_LOGD(TAG, "gn_leaf_param_init_string - param:%s value:%s", name, val);
 
-	gn_leaf_config_handle_intl_t _leaf_config =
-			(gn_leaf_config_handle_intl_t) leaf_config;
+	gn_leaf_handle_intl_t _leaf_config = (gn_leaf_handle_intl_t) leaf_config;
 
 	int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
 	char *_buf = (char*) calloc(_len, sizeof(char));
@@ -1535,9 +1545,8 @@ gn_err_t gn_leaf_param_init_string(const gn_leaf_handle_t leaf_config,
 	//evt.data = calloc((strlen(_param->param_val->v.s) + 1) * sizeof(char));
 	strncpy(evt.data, _param->param_val->v.s, GN_LEAF_DATA_SIZE - 1);
 
-	esp_err_t ret = esp_event_post_to(
-			_leaf_config->node_config->config->event_loop, GN_BASE_EVENT,
-			evt.id, &evt, sizeof(evt), portMAX_DELAY);
+	esp_err_t ret = esp_event_post_to(_leaf_config->node->config->event_loop,
+			GN_BASE_EVENT, evt.id, &evt, sizeof(evt), portMAX_DELAY);
 	if (ret != ESP_OK) {
 		ESP_LOGE(TAG,
 				"gn_leaf_param_init_string - not possible to send param message to event loop - id:%d, size:%d - result: %d",
@@ -1585,8 +1594,7 @@ gn_err_t gn_leaf_param_force_string(const gn_leaf_handle_t leaf_config,
 	//ESP_LOGD(TAG, "gn_leaf_param_set_string - param:%s value:%s", name, val);
 	//ESP_LOGD(TAG, "	old value %s", _param->param_val->v.s);
 
-	gn_leaf_config_handle_intl_t _leaf_config =
-			(gn_leaf_config_handle_intl_t) leaf_config;
+	gn_leaf_handle_intl_t _leaf_config = (gn_leaf_handle_intl_t) leaf_config;
 
 	if (_param->validator) {
 		char **validate = &val;
@@ -1650,9 +1658,8 @@ gn_err_t gn_leaf_param_force_string(const gn_leaf_handle_t leaf_config,
 	//evt.data = calloc((strlen(_param->param_val->v.s) + 1) * sizeof(char));
 	strncpy(evt.data, _param->param_val->v.s, GN_LEAF_DATA_SIZE - 1);
 
-	esp_err_t ret = esp_event_post_to(
-			_leaf_config->node_config->config->event_loop, GN_BASE_EVENT,
-			evt.id, &evt, sizeof(evt), portMAX_DELAY);
+	esp_err_t ret = esp_event_post_to(_leaf_config->node->config->event_loop,
+			GN_BASE_EVENT, evt.id, &evt, sizeof(evt), portMAX_DELAY);
 	if (ret != ESP_OK) {
 		ESP_LOGD(TAG,
 				"gn_leaf_param_write_string - not possible to send param message to event loop - id:%d, size:%d - result: %d",
@@ -1728,8 +1735,7 @@ gn_err_t gn_leaf_param_init_bool(const gn_leaf_handle_t leaf_config,
 
 	ESP_LOGD(TAG, "gn_leaf_param_init_bool %s %d", name, val);
 
-	gn_leaf_config_handle_intl_t _leaf_config =
-			(gn_leaf_config_handle_intl_t) leaf_config;
+	gn_leaf_handle_intl_t _leaf_config = (gn_leaf_handle_intl_t) leaf_config;
 
 	int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
 	char *_buf = (char*) calloc(_len, sizeof(char));
@@ -1792,9 +1798,8 @@ gn_err_t gn_leaf_param_init_bool(const gn_leaf_handle_t leaf_config,
 		evt.data[0] = '1';
 	}
 
-	esp_err_t ret = esp_event_post_to(
-			_leaf_config->node_config->config->event_loop, GN_BASE_EVENT,
-			evt.id, &evt, sizeof(evt), portMAX_DELAY);
+	esp_err_t ret = esp_event_post_to(_leaf_config->node->config->event_loop,
+			GN_BASE_EVENT, evt.id, &evt, sizeof(evt), portMAX_DELAY);
 	if (ret != ESP_OK) {
 		ESP_LOGE(TAG,
 				"gn_leaf_param_init_bool - not possible to send param message to event loop - id:%d, size:%d - result: %d",
@@ -1841,8 +1846,7 @@ gn_err_t gn_leaf_param_force_bool(const gn_leaf_handle_t leaf_config,
 	//ESP_LOGD(TAG, "gn_leaf_param_set_bool %s %d", name, val);
 	//ESP_LOGD(TAG, "	old value %d", _param->param_val->v.b);
 
-	gn_leaf_config_handle_intl_t _leaf_config =
-			(gn_leaf_config_handle_intl_t) leaf_config;
+	gn_leaf_handle_intl_t _leaf_config = (gn_leaf_handle_intl_t) leaf_config;
 
 	if (_param->validator) {
 		bool *p = &val;
@@ -1907,9 +1911,8 @@ gn_err_t gn_leaf_param_force_bool(const gn_leaf_handle_t leaf_config,
 		evt.data[0] = '1';
 	}
 
-	esp_err_t ret = esp_event_post_to(
-			_leaf_config->node_config->config->event_loop, GN_BASE_EVENT,
-			evt.id, &evt, sizeof(evt),
+	esp_err_t ret = esp_event_post_to(_leaf_config->node->config->event_loop,
+			GN_BASE_EVENT, evt.id, &evt, sizeof(evt),
 			portMAX_DELAY);
 	if (ret != ESP_OK) {
 		ESP_LOGD(TAG,
@@ -1945,7 +1948,7 @@ gn_err_t gn_leaf_param_force(const gn_leaf_param_handle_t param_handle,
 	//ESP_LOGD(TAG, "gn_leaf_param_set_bool %s %d", name, val);
 	//ESP_LOGD(TAG, "	old value %d", _param->param_val->v.b);
 
-	gn_leaf_config_handle_intl_t _leaf_config = _param->leaf_config;
+	gn_leaf_handle_intl_t _leaf_config = _param->leaf;
 
 	switch (_param->param_val->t) {
 
@@ -2027,8 +2030,7 @@ gn_err_t gn_leaf_param_init_double(const gn_leaf_handle_t leaf_config,
 
 	ESP_LOGD(TAG, "gn_leaf_param_init_double %s %g", name, val);
 
-	gn_leaf_config_handle_intl_t _leaf_config =
-			(gn_leaf_config_handle_intl_t) leaf_config;
+	gn_leaf_handle_intl_t _leaf_config = (gn_leaf_handle_intl_t) leaf_config;
 
 	int _len = (strlen(_leaf_config->name) + strlen(name) + 2);
 	char *_buf = (char*) calloc(_len, sizeof(char));
@@ -2088,9 +2090,8 @@ gn_err_t gn_leaf_param_init_double(const gn_leaf_handle_t leaf_config,
 	evt.id = GN_LEAF_PARAM_INITIALIZED_EVENT;
 	evt.data_size = sprintf(&evt.data[0], "%f", _param->param_val->v.d) + 1;
 
-	esp_err_t ret = esp_event_post_to(
-			_leaf_config->node_config->config->event_loop, GN_BASE_EVENT,
-			evt.id, &evt, sizeof(evt),
+	esp_err_t ret = esp_event_post_to(_leaf_config->node->config->event_loop,
+			GN_BASE_EVENT, evt.id, &evt, sizeof(evt),
 			portMAX_DELAY);
 	if (ret != ESP_OK) {
 		ESP_LOGE(TAG,
@@ -2139,8 +2140,7 @@ gn_err_t gn_leaf_param_force_double(const gn_leaf_handle_t leaf_config,
 	//ESP_LOGD(TAG, "gn_leaf_param_set_double %s %g", name, val);
 	//ESP_LOGD(TAG, "	old value %g", _param->param_val->v.d);
 
-	gn_leaf_config_handle_intl_t _leaf_config =
-			(gn_leaf_config_handle_intl_t) leaf_config;
+	gn_leaf_handle_intl_t _leaf_config = (gn_leaf_handle_intl_t) leaf_config;
 
 	if (_param->validator) {
 		double *p = &val;
@@ -2198,9 +2198,8 @@ gn_err_t gn_leaf_param_force_double(const gn_leaf_handle_t leaf_config,
 	evt.id = GN_LEAF_PARAM_CHANGED_EVENT;
 	evt.data_size = sprintf(&evt.data[0], "%f", _param->param_val->v.d) + 1;
 
-	esp_err_t ret = esp_event_post_to(
-			_leaf_config->node_config->config->event_loop, GN_BASE_EVENT,
-			evt.id, &evt, sizeof(evt),
+	esp_err_t ret = esp_event_post_to(_leaf_config->node->config->event_loop,
+			GN_BASE_EVENT, evt.id, &evt, sizeof(evt),
 			portMAX_DELAY);
 	if (ret != ESP_OK) {
 		ESP_LOGD(TAG,
@@ -2292,8 +2291,7 @@ gn_err_t _gn_leaf_parameter_update(const gn_leaf_handle_t leaf_config,
 
 	ESP_LOGD(TAG, "gn_leaf_parameter_update. param=%s", param);
 
-	gn_leaf_config_handle_intl_t _leaf_config =
-			(gn_leaf_config_handle_intl_t) leaf_config;
+	gn_leaf_handle_intl_t _leaf_config = (gn_leaf_handle_intl_t) leaf_config;
 
 	gn_leaf_param_handle_intl_t leaf_params =
 			(gn_leaf_param_handle_intl_t) _leaf_config->params;
@@ -2372,14 +2370,12 @@ gn_err_t gn_leaf_param_add_to_leaf(const gn_leaf_handle_t leaf,
 		return GN_RET_ERR_INVALID_ARG;
 	}
 
-	gn_leaf_param_handle_intl_t _param =
-			((gn_leaf_config_handle_intl_t) leaf)->params;
+	gn_leaf_param_handle_intl_t _param = ((gn_leaf_handle_intl_t) leaf)->params;
 
 	while (_param) {
 		if (strcmp(_param->name, new_param->name) == 0) {
 			ESP_LOGE(TAG, "Parameter with name %s already exists in Leaf %s",
-					new_param->name,
-					((gn_leaf_config_handle_intl_t ) leaf)->name);
+					new_param->name, ((gn_leaf_handle_intl_t ) leaf)->name);
 			return GN_RET_ERR_INVALID_ARG;
 		}
 		if (_param->next) {
@@ -2389,20 +2385,23 @@ gn_err_t gn_leaf_param_add_to_leaf(const gn_leaf_handle_t leaf,
 		}
 	}
 
-	new_param->leaf_config = leaf;
+	new_param->leaf = leaf;
 	if (_param) {
 		_param->next = new_param;
 	} else {
-		((gn_leaf_config_handle_intl_t) leaf)->params = new_param;
+		((gn_leaf_handle_intl_t) leaf)->params = new_param;
 	}
 
-	gn_err_t ret = GN_RET_OK;
 
+
+	//TODO put in mqtt on connected code
+	/*
+	gn_err_t ret = GN_RET_OK;
 	ret = gn_mqtt_subscribe_leaf_param(new_param);
 	if (ret != GN_RET_OK) {
 		ESP_LOGE(TAG,
 				"gn_leaf_param_add failed to subscribe param %s of leaf %s",
-				new_param->name, ((gn_leaf_config_handle_intl_t ) leaf)->name);
+				new_param->name, ((gn_leaf_handle_intl_t ) leaf)->name);
 		return ret;
 	}
 
@@ -2410,12 +2409,13 @@ gn_err_t gn_leaf_param_add_to_leaf(const gn_leaf_handle_t leaf,
 	if (ret != GN_RET_OK) {
 		ESP_LOGE(TAG,
 				"gn_leaf_param_add failed to send param configuration %s of leaf %s",
-				new_param->name, ((gn_leaf_config_handle_intl_t ) leaf)->name);
+				new_param->name, ((gn_leaf_handle_intl_t ) leaf)->name);
 		return ret;
 	}
+	*/
 
 	ESP_LOGD(TAG, "Param %s added in %s", new_param->name,
-			((gn_leaf_config_handle_intl_t ) leaf)->name);
+			((gn_leaf_handle_intl_t ) leaf)->name);
 	return GN_RET_OK;
 
 }
@@ -2435,7 +2435,7 @@ gn_err_t gn_send_node_leaf_param_status(const gn_node_handle_t _node_config) {
 	//run leaves
 	for (int i = 0; i < node_config->leaves.last; i++) {
 
-		gn_leaf_config_handle_intl_t leaf_config = node_config->leaves.at[i];
+		gn_leaf_handle_intl_t leaf_config = node_config->leaves.at[i];
 
 		gn_leaf_param_handle_intl_t _param =
 				(gn_leaf_param_handle_intl_t) leaf_config->params;
@@ -2521,8 +2521,7 @@ gn_err_t gn_leaf_param_set_bool(const gn_leaf_handle_t leaf_config,
 		ESP_LOGE(TAG, "gn_leaf_param_set_bool - invalid args");
 		return GN_RET_ERR_INVALID_ARG;
 	}
-	gn_leaf_config_handle_intl_t _leaf_config =
-			(gn_leaf_config_handle_intl_t) leaf_config;
+	gn_leaf_handle_intl_t _leaf_config = (gn_leaf_handle_intl_t) leaf_config;
 	char val_ptr[2] = "";
 	strcpy(val_ptr, val ? "1" : "0");
 	gn_err_t ret = gn_send_leaf_param_change_message(_leaf_config->name, name,
@@ -2551,8 +2550,7 @@ gn_err_t gn_leaf_param_set_double(const gn_leaf_handle_t leaf_config,
 		ESP_LOGE(TAG, "gn_leaf_param_set_double - invalid args");
 		return GN_RET_ERR_INVALID_ARG;
 	}
-	gn_leaf_config_handle_intl_t _leaf_config =
-			(gn_leaf_config_handle_intl_t) leaf_config;
+	gn_leaf_handle_intl_t _leaf_config = (gn_leaf_handle_intl_t) leaf_config;
 	char val_ptr[32] = "";
 	sprintf(val_ptr, "%f", val);
 	gn_err_t ret = gn_send_leaf_param_change_message(_leaf_config->name, name,
@@ -2581,8 +2579,7 @@ gn_err_t gn_leaf_param_set_string(const gn_leaf_handle_t leaf_config,
 		ESP_LOGE(TAG, "gn_leaf_param_set_string - invalid args");
 		return GN_RET_ERR_INVALID_ARG;
 	}
-	gn_leaf_config_handle_intl_t _leaf_config =
-			(gn_leaf_config_handle_intl_t) leaf_config;
+	gn_leaf_handle_intl_t _leaf_config = (gn_leaf_handle_intl_t) leaf_config;
 	char *val_ptr = (char*) calloc(strlen(val) + 1, sizeof(char));
 	strncpy(val_ptr, val, sizeof(val) + 1);
 	gn_err_t ret = gn_send_leaf_param_change_message(_leaf_config->name, name,
@@ -2603,7 +2600,7 @@ gn_leaf_param_handle_t gn_leaf_get_params(gn_leaf_handle_t leaf_config) {
 
 	if (!leaf_config)
 		return NULL;
-	return ((gn_leaf_config_handle_intl_t) leaf_config)->params;
+	return ((gn_leaf_handle_intl_t) leaf_config)->params;
 
 }
 
@@ -2624,7 +2621,7 @@ gn_leaf_param_handle_t gn_leaf_param_get_param_handle(
 		return NULL;
 	}
 	gn_leaf_param_handle_intl_t param =
-			((gn_leaf_config_handle_intl_t) leaf_config)->params;
+			((gn_leaf_handle_intl_t) leaf_config)->params;
 
 	if (!param) {
 		ESP_LOGD(TAG, "gn_leaf_param_get_param_handle incorrect parameter");
@@ -2643,8 +2640,7 @@ gn_leaf_param_handle_t gn_leaf_param_get_param_handle(
 		param = param->next;
 	}
 
-	gn_leaf_config_handle_intl_t _leaf_config =
-			(gn_leaf_config_handle_intl_t) leaf_config;
+	gn_leaf_handle_intl_t _leaf_config = (gn_leaf_handle_intl_t) leaf_config;
 	ESP_LOGW(TAG, "param '%s' on leaf '%s' not found", param_name,
 			_leaf_config->name);
 	return NULL;
@@ -2659,8 +2655,7 @@ void* _gn_leaf_context_add_to_leaf(const gn_leaf_handle_t leaf, char *key,
 		return NULL;
 	}
 
-	gn_leaf_config_handle_intl_t leaf_config =
-			(gn_leaf_config_handle_intl_t) leaf;
+	gn_leaf_handle_intl_t leaf_config = (gn_leaf_handle_intl_t) leaf;
 	if (!leaf_config->leaf_context)
 		return NULL;
 
@@ -2674,8 +2669,7 @@ void* _gn_leaf_context_remove_to_leaf(const gn_leaf_handle_t leaf, char *key) {
 		return NULL;
 	}
 
-	gn_leaf_config_handle_intl_t leaf_config =
-			(gn_leaf_config_handle_intl_t) leaf;
+	gn_leaf_handle_intl_t leaf_config = (gn_leaf_handle_intl_t) leaf;
 	if (!leaf_config->leaf_context)
 		return NULL;
 
@@ -2689,8 +2683,7 @@ void* _gn_leaf_context_get_key_to_leaf(const gn_leaf_handle_t leaf, char *key) {
 		return NULL;
 	}
 
-	gn_leaf_config_handle_intl_t leaf_config =
-			(gn_leaf_config_handle_intl_t) leaf;
+	gn_leaf_handle_intl_t leaf_config = (gn_leaf_handle_intl_t) leaf;
 	if (!leaf_config->leaf_context)
 		return NULL;
 
@@ -2960,10 +2953,6 @@ gn_config_handle_t gn_init(gn_config_init_param_t *config_init) {
 
 #if CONFIG_GROWNODE_WIFI_ENABLED
 
-	//heartbeat to check network comm and send periodical system watchdog to the network
-	ESP_GOTO_ON_ERROR(_gn_init_keepalive_timer(_gn_default_conf), err, TAG,
-			"error on timer init: %s", esp_err_to_name(ret));
-
 	//init wifi
 	ESP_GOTO_ON_ERROR(gn_wifi_init(_gn_default_conf), err_net, TAG,
 			"error on wifi init: %s", esp_err_to_name(ret));
@@ -2973,9 +2962,7 @@ gn_config_handle_t gn_init(gn_config_init_param_t *config_init) {
 			TAG, "error on time sync init: %s", esp_err_to_name(ret));
 
 	err_timesync:
-	//init mqtt system
-	ESP_GOTO_ON_ERROR(gn_mqtt_start(_gn_default_conf), err_srv, TAG,
-			"error on server init: %s", esp_err_to_name(ret));
+
 
 #endif
 
@@ -2989,8 +2976,7 @@ gn_config_handle_t gn_init(gn_config_init_param_t *config_init) {
 #if CONFIG_GROWNODE_WIFI_ENABLED
 	err_net: _gn_default_conf->status = GN_NODE_STATUS_NETWORK_ERROR;
 	return _gn_default_conf;
-	err_srv: _gn_default_conf->status = GN_NODE_STATUS_SERVER_ERROR;
-	return _gn_default_conf;
+
 #endif
 
 }

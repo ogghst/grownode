@@ -26,6 +26,10 @@ esp_err_t gn_wifi_time_sync_init(gn_config_handle_t conf);
 gn_err_t gn_wifi_stop(gn_config_handle_t conf);
 gn_err_t gn_wifi_start(gn_config_handle_t conf);
 
+int8_t gn_wifi_get_rssi();
+void gn_wifi_get_mac(char *mac_string);
+void gn_wifi_get_ip(char *ip_string);
+
 #ifdef __cplusplus
 }
 #endif //__cplusplus

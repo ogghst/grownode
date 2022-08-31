@@ -65,6 +65,32 @@ int s_retry_num = 0;
 
 gn_config_handle_intl_t _conf;
 
+int8_t gn_wifi_get_rssi() {
+	wifi_ap_record_t info;
+	if (!esp_wifi_sta_get_ap_info(&info)) {
+		return info.rssi;
+	}
+	return 0;
+}
+
+void gn_wifi_get_ip(char *ip_string) {
+	tcpip_adapter_ip_info_t ip;
+	tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip);
+
+	sprintf(ip_string, "%u.%u.%u.%u", (ip.ip.addr & 0x000000ff),
+			(ip.ip.addr & 0x0000ff00) >> 8, (ip.ip.addr & 0x00ff0000) >> 16,
+			(ip.ip.addr & 0xff000000) >> 24);
+}
+
+void gn_wifi_get_mac(char *mac_string) {
+	uint8_t mac[6];
+	esp_efuse_mac_get_default(mac);
+
+	sprintf(mac_string, "%X:%X:%X:%X:%X:%X", mac[0], mac[1], mac[2], mac[3],
+			mac[4], mac[5]);
+
+}
+
 void _gn_wifi_event_handler(void *arg, esp_event_base_t event_base,
 		int32_t event_id, void *event_data) {
 

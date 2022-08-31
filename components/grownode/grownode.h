@@ -38,6 +38,8 @@ extern "C" {
 #define GN_NODE_LEAVES_MAX_SIZE 64
 #define GN_NODE_LEAF_QUEUE_SIZE 3
 
+#define GN_VERSION "0.8.0"
+
 //functions
 gn_node_handle_t gn_node_create(gn_config_handle_t config,
 		const char *name);

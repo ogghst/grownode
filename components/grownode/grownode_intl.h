@@ -21,6 +21,7 @@
 #include "esp_event_base.h"
 #include "esp_event.h"
 #include "esp_timer.h"
+#include "esp_ota_ops.h"
 
 #include "grownode.h"
 #include "gn_leaf_context.h"
@@ -30,14 +31,14 @@ extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
 typedef struct gn_node_t *gn_node_handle_intl_t;
 
-typedef struct gn_leaf_config_t *gn_leaf_config_handle_intl_t;
+typedef struct gn_leaf_config_t *gn_leaf_handle_intl_t;
 
 typedef struct gn_config_t *gn_config_handle_intl_t;
 
 typedef struct {
 	size_t size;
 	size_t last;
-	gn_leaf_config_handle_intl_t at[64];
+	gn_leaf_handle_intl_t at[GN_NODE_LEAF_MAX_SIZE];
 } gn_leaves_list;
 
 typedef struct {
@@ -72,7 +73,7 @@ struct gn_leaf_config_t {
 	char name[GN_LEAF_NAME_SIZE];
 	size_t task_size;
 	UBaseType_t priority;
-	gn_node_handle_intl_t node_config;
+	gn_node_handle_intl_t node;
 	//gn_leaf_display_task_t display_task;
 	//gn_leaf_config_handle_t next;
 	//gn_leaf_task_callback task_cb;
@@ -95,12 +96,14 @@ typedef gn_param_val_t *gn_param_val_handle_t;
 typedef gn_param_val_t *gn_param_val_handle_int_t;
 
 struct gn_leaf_param {
-	char *name;
+	char name[GN_LEAF_PARAM_NAME_SIZE];
 	gn_leaf_param_access_type_t access;
 	gn_leaf_param_storage_t storage;
 	gn_param_val_handle_t param_val;
-	gn_leaf_handle_t leaf_config;
+	gn_leaf_handle_t leaf;
 	gn_validator_callback_t validator;
+	char unit[GN_LEAF_PARAM_UNIT_SIZE];
+	char format[GN_LEAF_PARAM_FORMAT_SIZE];
 	struct gn_leaf_param *next;
 };
 
@@ -134,7 +137,7 @@ typedef gn_leaf_param_t *gn_leaf_param_handle_intl_t;
  typedef gn_leaf_config_t *gn_leaf_config_handle_t;
  */
 
-gn_err_t _gn_send_event_to_leaf(gn_leaf_config_handle_intl_t leaf_config,
+gn_err_t _gn_send_event_to_leaf(gn_leaf_handle_intl_t leaf_config,
 		gn_leaf_parameter_event_handle_t evt);
 
 gn_err_t _gn_leaf_parameter_update(const gn_leaf_handle_t leaf_config,

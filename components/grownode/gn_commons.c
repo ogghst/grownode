@@ -47,8 +47,8 @@ inline size_t gn_leaf_event_mask_param(gn_leaf_parameter_event_handle_t evt,
 	if (!evt || !param)
 		return 1;
 
-	gn_leaf_config_handle_intl_t _leaf_config =
-			((gn_leaf_param_handle_intl_t) param)->leaf_config;
+	gn_leaf_handle_intl_t _leaf_config =
+			((gn_leaf_param_handle_intl_t) param)->leaf;
 
 	ESP_LOGD(TAG, "gn_common_leaf_event_mask_param (%s, %s/%s)", evt->leaf_name,
 			_leaf_config->name, ((gn_leaf_param_handle_intl_t ) param)->name);

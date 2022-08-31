@@ -42,6 +42,7 @@ void app_main(void) {
 	esp_log_level_set("gn_commons", ESP_LOG_INFO);
 	esp_log_level_set("gn_nvs", ESP_LOG_INFO);
 	esp_log_level_set("gn_mqtt_protocol", ESP_LOG_INFO);
+	esp_log_level_set("gn_mqtt_homie_protocol", ESP_LOG_DEBUG);
 	esp_log_level_set("gn_network", ESP_LOG_INFO);
 	esp_log_level_set("gn_display", ESP_LOG_INFO);
 
@@ -56,12 +57,12 @@ void app_main(void) {
 					.provisioning_password = "grownode",
 					.wifi_retries_before_reset_provisioning = -1,
 					.server_board_id_topic = false, .server_base_topic =
-							"grownode/tahu", .server_url =
-							"mqtt://discoboy.duckdns.org:11883",
+							"homie/", .server_url =
+							"mqtt://54.184.34.50:1883",
 					.server_keepalive_timer_sec = 3600, .server_discovery =
 					false, .server_discovery_prefix = "homeassistant",
 					.firmware_url =
-							"http://grownode.duckdns.org/grownode/balcone/pump/grownode.bin",
+							"http://grownode.duckdns.org/grownode/blink/grownode.bin",
 					.sntp_url = "pool.ntp.org", .wakeup_time_millisec = 5000LL,
 					.sleep_delay_millisec = 50LL,
 					.sleep_time_millisec = 10000LL, .sleep_mode =

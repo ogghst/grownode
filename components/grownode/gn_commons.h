@@ -30,9 +30,13 @@ extern "C" {
 #define GN_LEAF_NAME_SIZE 16
 #define GN_LEAF_PARAM_NAME_SIZE 32
 #define GN_LEAF_PARAM_VAL_SIZE 64
+#define GN_LEAF_PARAM_UNIT_SIZE 32
+#define GN_LEAF_PARAM_FORMAT_SIZE 32
 #define GN_LEAF_DATA_SIZE 512
 #define GN_NODE_DATA_SIZE 512
 #define GN_LEAF_DESC_TYPE_SIZE 32
+
+#define GN_NODE_LEAF_MAX_SIZE 64
 
 #include "esp_log.h"
 #include "esp_system.h"

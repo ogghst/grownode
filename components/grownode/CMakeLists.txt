@@ -128,7 +128,7 @@ else()
 					"gn_display.c"
 					"grownode.c"
 					"gn_mqtt_protocol.c"
-					#"gn_mqtt_homie_protocol.c"
+					"gn_mqtt_homie_protocol.c"
 					"gn_network.c"
 					"gn_leaf_context.c"
 					"leaves/gn_bh1750.c"
