@@ -58,7 +58,7 @@ void app_main(void) {
 					.wifi_retries_before_reset_provisioning = -1,
 					.server_board_id_topic = false, .server_base_topic =
 							"homie/", .server_url =
-							"mqtt://54.184.34.50:1883",
+							"mqtt://192.168.1.10:1883",
 					.server_keepalive_timer_sec = 3600, .server_discovery =
 					false, .server_discovery_prefix = "homeassistant",
 					.firmware_url =
@@ -80,7 +80,7 @@ void app_main(void) {
 	}
 
 	//creates a new node
-	gn_node_handle_t node = gn_node_create(config, "grownode");
+	gn_node_handle_t node = gn_node_create(config, "grownodehomie");
 
 	//the board to start
 	gn_configure_blink(node);

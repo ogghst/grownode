@@ -1273,7 +1273,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 
 			} else if (strncmp(event->data, _GN_MQTT_PAYLOAD_RBT,
 					event->data_len) == 0) {
-				//rst message
+				//rbt message
 
 				if (event->retain) {
 					//clear retain message
