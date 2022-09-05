@@ -103,13 +103,15 @@ gn_leaf_handle_t gn_bh1750_fastcreate(gn_node_handle_t node,
 			4096, GN_LEAF_TASK_PRIORITY);
 
 	if (leaf == NULL) {
-		ESP_LOGE(TAG, "gn_bh1750_fastcreate - cannot create leaf %s", leaf_name);
+		ESP_LOGE(TAG, "gn_bh1750_fastcreate - cannot create leaf %s",
+				leaf_name);
 		return NULL;
 	}
 
 	gn_leaf_param_init_double(leaf, GN_BH1750_PARAM_SDA, sda);
 	gn_leaf_param_init_double(leaf, GN_BH1750_PARAM_SCL, scl);
-	gn_leaf_param_init_double(leaf, GN_BH1750_PARAM_UPDATE_TIME_SEC, update_time_sec);
+	gn_leaf_param_init_double(leaf, GN_BH1750_PARAM_UPDATE_TIME_SEC,
+			update_time_sec);
 
 	ESP_LOGD(TAG, "[%s] bh1750 leaf created", leaf_name);
 
@@ -144,13 +146,14 @@ void bh1750_sensor_collect(gn_leaf_handle_t leaf_config) {
 			gn_log(TAG, GN_LOG_ERROR, "[%s] sensor read error %d (%s)",
 					leaf_name, res, esp_err_to_name(res));
 //			goto fail;
-		}
-		else {
+		} else {
 
-			ESP_LOGD(TAG, "[%s] Illuminance: %.2f lux\n", leaf_name, (double)lux);
+			ESP_LOGD(TAG, "[%s] Illuminance: %.2f lux\n", leaf_name,
+					(double )lux);
 
 			//store parameter and notify network
-			gn_leaf_param_force_double(leaf_config, GN_BH1750_PARAM_LUX, (double)lux);
+			gn_leaf_param_force_double(leaf_config, GN_BH1750_PARAM_LUX,
+					(double) lux);
 
 		}
 	}
@@ -159,8 +162,7 @@ void bh1750_sensor_collect(gn_leaf_handle_t leaf_config) {
 
 void gn_bh1750_task(gn_leaf_handle_t leaf_config);
 
-gn_leaf_descriptor_handle_t gn_bh1750_config(
-		gn_leaf_handle_t leaf_config) {
+gn_leaf_descriptor_handle_t gn_bh1750_config(gn_leaf_handle_t leaf_config) {
 
 	gn_leaf_descriptor_handle_t descriptor =
 			(gn_leaf_descriptor_handle_t) malloc(sizeof(gn_leaf_descriptor_t));
@@ -175,29 +177,31 @@ gn_leaf_descriptor_handle_t gn_bh1750_config(
 
 	data->active_param = gn_leaf_param_create(leaf_config,
 			GN_BH1750_PARAM_ACTIVE, GN_VAL_TYPE_BOOLEAN,
-			(gn_val_t ) { .b = true }, GN_LEAF_PARAM_ACCESS_NETWORK,
+			(gn_val_t ) { .b = true }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add_to_leaf(leaf_config, data->active_param);
 
 	data->sda_param = gn_leaf_param_create(leaf_config, GN_BH1750_PARAM_SDA,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 21 },
-			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
+			GN_LEAF_PARAM_ACCESS_NODE, GN_LEAF_PARAM_STORAGE_PERSISTED,
+			NULL);
 	gn_leaf_param_add_to_leaf(leaf_config, data->sda_param);
 
 	data->scl_param = gn_leaf_param_create(leaf_config, GN_BH1750_PARAM_SCL,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 22 },
-			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
+			GN_LEAF_PARAM_ACCESS_NODE, GN_LEAF_PARAM_STORAGE_PERSISTED,
+			NULL);
 	gn_leaf_param_add_to_leaf(leaf_config, data->scl_param);
 
 	data->update_time_param = gn_leaf_param_create(leaf_config,
 			GN_BH1750_PARAM_UPDATE_TIME_SEC, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
-							.d = 20 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+							.d = 20 }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add_to_leaf(leaf_config, data->update_time_param);
 
 	data->lux_param = gn_leaf_param_create(leaf_config, GN_BH1750_PARAM_LUX,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 0 },
-			GN_LEAF_PARAM_ACCESS_NODE, GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
+			GN_LEAF_PARAM_ACCESS_ALL, GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
 	gn_leaf_param_add_to_leaf(leaf_config, data->lux_param);
 
 	descriptor->status = GN_LEAF_STATUS_INITIALIZED;
@@ -214,7 +218,8 @@ void gn_bh1750_task(gn_leaf_handle_t leaf_config) {
 	gn_leaf_parameter_event_t evt;
 
 	//retrieves status descriptor from config
-	gn_leaf_descriptor_handle_t descriptor = gn_leaf_get_descriptor(leaf_config);
+	gn_leaf_descriptor_handle_t descriptor = gn_leaf_get_descriptor(
+			leaf_config);
 	gn_bh1750_data_t *data = descriptor->data;
 
 	bool active;
@@ -237,20 +242,20 @@ void gn_bh1750_task(gn_leaf_handle_t leaf_config) {
 	data->mode = BH1750_MODE_CONTINUOUS;
 	data->resolution = BH1750_RES_HIGH2;
 
-
 	if (ret != ESP_OK) {
 		gn_leaf_param_force_bool(leaf_config, GN_BH1750_PARAM_ACTIVE, false);
 		gn_log(TAG, GN_LOG_ERROR, "[%s] i2cdev_init failed", leaf_name);
 		descriptor->status = GN_LEAF_STATUS_ERROR;
 	} else {
 		memset(&data->i2c_dev, 0, sizeof(i2c_dev_t));
-		ret = bh1750_init_desc(&data->i2c_dev, BH1750_ADDR_LO, 0,
-				(int) sda, (int) scl);
+		ret = bh1750_init_desc(&data->i2c_dev, BH1750_ADDR_LO, 0, (int) sda,
+				(int) scl);
 
 		if (ret != ESP_OK) {
 			gn_leaf_param_force_bool(leaf_config, GN_BH1750_PARAM_ACTIVE,
-					false);
-			gn_log(TAG, GN_LOG_ERROR, "[%s] failed to init bh1750 driver descriptor", leaf_name);
+			false);
+			gn_log(TAG, GN_LOG_ERROR,
+					"[%s] failed to init bh1750 driver descriptor", leaf_name);
 			descriptor->status = GN_LEAF_STATUS_ERROR;
 		} else {
 
@@ -262,24 +267,22 @@ void gn_bh1750_task(gn_leaf_handle_t leaf_config) {
 			if (ret != ESP_OK) {
 				gn_leaf_param_force_bool(leaf_config, GN_BH1750_PARAM_ACTIVE,
 				false);
-				gn_log(TAG, GN_LOG_ERROR, "[%s] failed to init bh1750 driver", leaf_name);
+				gn_log(TAG, GN_LOG_ERROR, "[%s] failed to init bh1750 driver",
+						leaf_name);
 				descriptor->status = GN_LEAF_STATUS_ERROR;
 			} else {
 
 				ESP_LOGD(TAG,
 						"[%s] bh1750_init - OK, SDA = %d, SCL = %d, port = %d",
-						leaf_name,
-						data->i2c_dev.cfg.sda_io_num,
-						data->i2c_dev.cfg.scl_io_num,
-						data->i2c_dev.port);
+						leaf_name, data->i2c_dev.cfg.sda_io_num,
+						data->i2c_dev.cfg.scl_io_num, data->i2c_dev.port);
 				//vTaskDelay(1000 / portTICK_PERIOD_MS);
 
 				ESP_LOGD(TAG, "[%s] creating timer...", leaf_name);
 				//create a timer to update temps
-				esp_timer_create_args_t bh1750_sensor_timer_args = {
-						.callback = &bh1750_sensor_collect, .arg =
-								leaf_config, .name =
-								"leaf_bh1750_sensor_collect" };
+				esp_timer_create_args_t bh1750_sensor_timer_args = { .callback =
+						&bh1750_sensor_collect, .arg = leaf_config, .name =
+						"leaf_bh1750_sensor_collect" };
 
 				ret = esp_timer_create(&bh1750_sensor_timer_args,
 						&data->bh1750_sensor_timer);
@@ -287,7 +290,8 @@ void gn_bh1750_task(gn_leaf_handle_t leaf_config) {
 					gn_leaf_param_force_bool(leaf_config,
 							GN_BH1750_PARAM_ACTIVE,
 							false);
-					gn_log(TAG, GN_LOG_ERROR, "[%s] failed to init bh1750 leaf timer", leaf_name);
+					gn_log(TAG, GN_LOG_ERROR,
+							"[%s] failed to init bh1750 leaf timer", leaf_name);
 					descriptor->status = GN_LEAF_STATUS_ERROR;
 					//return descriptor;
 				}
@@ -306,13 +310,16 @@ void gn_bh1750_task(gn_leaf_handle_t leaf_config) {
 		//first shot immediate
 		bh1750_sensor_collect(leaf_config);
 
-		ESP_LOGD(TAG, "[%s] starting timer, polling at %f sec", leaf_name, update_time);
+		ESP_LOGD(TAG, "[%s] starting timer, polling at %f sec", leaf_name,
+				update_time);
 
 		ret = esp_timer_start_periodic(data->bh1750_sensor_timer,
 				update_time * 1000000);
 		if (ret != ESP_OK) {
-			gn_leaf_param_force_bool(leaf_config, GN_BH1750_PARAM_ACTIVE, false);
-			gn_log(TAG, GN_LOG_ERROR, "[%s] failed to start bh1750 leaf timer", leaf_name);
+			gn_leaf_param_force_bool(leaf_config, GN_BH1750_PARAM_ACTIVE,
+			false);
+			gn_log(TAG, GN_LOG_ERROR, "[%s] failed to start bh1750 leaf timer",
+					leaf_name);
 			gn_leaf_get_descriptor(leaf_config)->status = GN_LEAF_STATUS_ERROR;
 		}
 
@@ -396,11 +403,15 @@ void gn_bh1750_task(gn_leaf_handle_t leaf_config) {
 						leaf_name, evt.param_name, evt.data);
 
 				//parameter is update time
-				if (gn_leaf_event_mask_param(&evt,
-						data->update_time_param) == 0) {
+				if (gn_leaf_event_mask_param(&evt, data->update_time_param)
+						== 0) {
 
 					//check limits
-					double updtime = strtod(evt.data, NULL);
+					double updtime;
+					if (gn_double_from_event(evt, &updtime) != GN_RET_OK) {
+						break;
+					}
+
 					if (updtime < 10)
 						updtime = 10;
 					if (updtime > 600)
@@ -418,11 +429,15 @@ void gn_bh1750_task(gn_leaf_handle_t leaf_config) {
 								update_time * 1000000);
 					}
 
-				} else if (gn_leaf_event_mask_param(&evt,
-						data->sda_param) == 0) {
+				} else if (gn_leaf_event_mask_param(&evt, data->sda_param)
+						== 0) {
 
 					//check limits
-					int _sda = atoi(evt.data);
+					double _sda = 0;
+					if (gn_double_from_event(evt, &_sda) != GN_RET_OK) {
+						break;
+					}
+
 					if (_sda >= 0 && _sda < GPIO_NUM_MAX) {
 						//execute change. this will have no effects until restart
 						gn_leaf_param_force_double(leaf_config,
@@ -430,11 +445,15 @@ void gn_bh1750_task(gn_leaf_handle_t leaf_config) {
 						sda = _sda;
 					}
 
-				} else if (gn_leaf_event_mask_param(&evt,
-						data->scl_param) == 0) {
+				} else if (gn_leaf_event_mask_param(&evt, data->scl_param)
+						== 0) {
 
 					//check limits
-					int _scl = atoi(evt.data);
+					double _scl = 0;
+					if (gn_double_from_event(evt, &_scl) != GN_RET_OK) {
+						break;
+					}
+
 					if (_scl >= 0 && scl < GPIO_NUM_MAX) {
 						//execute change. this will have no effects until restart
 						gn_leaf_param_force_double(leaf_config,
@@ -442,16 +461,19 @@ void gn_bh1750_task(gn_leaf_handle_t leaf_config) {
 						scl = _scl;
 					}
 
-				} else if (gn_leaf_event_mask_param(&evt,
-						data->active_param) == 0) {
+				} else if (gn_leaf_event_mask_param(&evt, data->active_param)
+						== 0) {
 
 					bool prev_active = active;
-					int _active = atoi(evt.data);
+					bool _active = 0;
+					if (gn_bool_from_event(evt, &_active) != GN_RET_OK) {
+						break;
+					}
 
 					//execute change
-					gn_leaf_param_force_bool(leaf_config, GN_BH1750_PARAM_ACTIVE,
-							_active == 0 ? false : true);
-					active = (_active == 0 ? false : true);
+					gn_leaf_param_force_bool(leaf_config,
+							GN_BH1750_PARAM_ACTIVE, _active);
+					active = _active;
 
 					//stop timer if false
 					if (_active == 0 && prev_active == true) {

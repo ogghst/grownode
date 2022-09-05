@@ -84,7 +84,7 @@ TEST_CASE("gn_receive_status_0", "[relay]") {
 
 	_gn_mqtt_build_leaf_parameter_command_topic(relay_config, GN_GPIO_PARAM_TOGGLE, topic);
 
-	char data[] = "0";
+	char data[] = GN_LEAF_MESSAGE_FALSE;
 	event->topic = (char*) calloc(strlen(topic), sizeof(char));
 	event->data = (char*) calloc(strlen(data), sizeof(char));
 	event->topic_len = strlen(topic);
@@ -116,7 +116,7 @@ TEST_CASE("gn_receive_status_1", "[relay]") {
 
 	_gn_mqtt_build_leaf_parameter_command_topic(relay_config, GN_GPIO_PARAM_TOGGLE, topic);
 
-	char data[] = "1";
+	char data[] = GN_LEAF_MESSAGE_TRUE;
 	event->topic = (char*) calloc(strlen(topic), sizeof(char));
 	event->data = (char*) calloc(strlen(data), sizeof(char));
 	event->topic_len = strlen(topic);
@@ -174,9 +174,9 @@ TEST_CASE("gn_relay_mqtt_stress_test", "[relay]") {
 				GN_GPIO_PARAM_TOGGLE, topic);
 
 		if (j % 20 == 0) {
-			strcpy(data, "1");
+			strcpy(data, GN_LEAF_MESSAGE_TRUE);
 		} else {
-			strcpy(data, "0");
+			strcpy(data, GN_LEAF_MESSAGE_FALSE);
 		}
 
 		event->topic_len = strlen(topic);

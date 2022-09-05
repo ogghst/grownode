@@ -95,13 +95,13 @@ gn_leaf_descriptor_handle_t gn_leaf_pwm_relay_config(
 
 	data->channel_param = gn_leaf_param_create(leaf_config,
 			GN_LEAF_PWM_RELAY_HS_PARAM_CHANNEL, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_ALL,
+			(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_NODE_INTERNAL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add_to_leaf(leaf_config, data->channel_param);
 
 	data->gpio_toggle_param = gn_leaf_param_create(leaf_config,
 			GN_LEAF_PWM_RELAY_PARAM_GPIO_TOGGLE, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d =
-							32 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+							32 }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add_to_leaf(leaf_config, data->gpio_toggle_param);
 
@@ -113,7 +113,7 @@ gn_leaf_descriptor_handle_t gn_leaf_pwm_relay_config(
 
 	data->gpio_power_param = gn_leaf_param_create(leaf_config,
 			GN_LEAF_PWM_RELAY_PARAM_GPIO_POWER, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d =
-							32 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+							32 }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add_to_leaf(leaf_config, data->gpio_power_param);
 
@@ -296,9 +296,10 @@ void gn_leaf_pwm_relay_task(gn_leaf_handle_t leaf_config) {
 
 					ESP_LOGD(TAG, "updating toggle");
 
-					const bool _toggle =
-							strncmp((char*) evt.data, "0", evt.data_size) == 0 ?
-									false : true;
+					bool _toggle = 0;
+					if (gn_bool_from_event(evt, &_toggle) != GN_RET_OK) {
+						break;
+					}
 
 					//execute change
 					gn_leaf_param_force_bool(leaf_config, GN_LEAF_PWM_RELAY_PARAM_TOGGLE,
@@ -319,24 +320,15 @@ void gn_leaf_pwm_relay_task(gn_leaf_handle_t leaf_config) {
 #endif
 
 				} else if (gn_leaf_event_mask_param(&evt,
-						data->gpio_toggle_param) == 0) {
-
-					ESP_LOGD(TAG, "updating gpio toggle");
-
-					//check limits
-					int gpio = atoi(evt.data);
-					if (gpio >= 0 && gpio < GPIO_NUM_MAX) {
-						//execute change. this will have no effects until restart
-						gn_leaf_param_force_double(leaf_config,
-								GN_LEAF_PWM_RELAY_PARAM_GPIO_TOGGLE, gpio);
-					}
-
-				} else if (gn_leaf_event_mask_param(&evt,
 						data->power_param) == 0) {
 
 					ESP_LOGD(TAG, "updating power");
 
-					double pow = strtod(evt.data, NULL);
+					double pow = 0;
+					if (gn_double_from_event(evt, &pow) != GN_RET_OK) {
+						break;
+					}
+
 					if (pow < 0)
 						pow = 0;
 					if (pow > 100)
@@ -364,7 +356,11 @@ void gn_leaf_pwm_relay_task(gn_leaf_handle_t leaf_config) {
 					ESP_LOGD(TAG, "updating gpio power");
 
 					//check limits
-					int gpio = atoi(evt.data);
+					double gpio = 0;
+					if (gn_double_from_event(evt, &gpio) != GN_RET_OK) {
+						break;
+					}
+
 					if (gpio >= 0 && gpio < GPIO_NUM_MAX) {
 						//execute change. this will have no effects until restart
 						gn_leaf_param_force_double(leaf_config,

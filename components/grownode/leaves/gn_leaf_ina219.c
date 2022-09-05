@@ -131,27 +131,27 @@ gn_leaf_descriptor_handle_t gn_leaf_ina219_config(gn_leaf_handle_t leaf_config) 
 
 	data->gn_leaf_ina219_power_param = gn_leaf_param_create(leaf_config,
 			GN_LEAF_INA219_PARAM_POWER, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+			(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
 
 	data->gn_leaf_ina219_voltage_param = gn_leaf_param_create(leaf_config,
 			GN_LEAF_INA219_PARAM_VOLTAGE, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d =
-							0 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+							0 }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
 
 	data->gn_leaf_ina219_bus_voltage_param = gn_leaf_param_create(leaf_config,
 			GN_LEAF_INA219_PARAM_BUS_VOLTAGE, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
-							.d = 0 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+							.d = 0 }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
 
 	data->gn_leaf_ina219_shunt_voltage_param = gn_leaf_param_create(leaf_config,
 			GN_LEAF_INA219_PARAM_SHUNT_VOLTAGE, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+			(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
 
 	data->gn_leaf_ina219_current_param = gn_leaf_param_create(leaf_config,
 			GN_LEAF_INA219_PARAM_CURRENT, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d =
-							0 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+							0 }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_VOLATILE, NULL);
 
 	gn_leaf_param_add_to_leaf(leaf_config, data->gn_leaf_ina219_active_param);
@@ -286,13 +286,15 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 				if (gn_leaf_event_mask_param(&evt,
 						data->gn_leaf_ina219_active_param) == 0) {
 
-					//bool prev_active = active;
-					int _active = atoi(evt.data);
+					bool _active = false;
+					if (gn_bool_from_event(evt, &_active) != GN_RET_OK) {
+						break;
+					}
 
 					//execute change
 					gn_leaf_param_force_bool(leaf_config,
 							GN_LEAF_INA219_PARAM_ACTIVE,
-							_active == 0 ? false : true);
+							_active);
 
 					active = _active;
 
@@ -323,7 +325,10 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_leaf_ina219_port_param) == 0) {
 
-					port = atof(evt.data);
+					if (gn_double_from_event(evt, &port) != GN_RET_OK) {
+						break;
+					}
+
 					//execute change
 					gn_leaf_param_force_double(leaf_config,
 							GN_LEAF_INA219_PARAM_PORT, port);
@@ -345,7 +350,10 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_leaf_ina219_sampling_cycles_param) == 0) {
 
-					sampling_cycles = atof(evt.data);
+					if (gn_double_from_event(evt, &sampling_cycles) != GN_RET_OK) {
+						break;
+					}
+
 					//execute change
 					gn_leaf_param_force_double(leaf_config,
 							GN_LEAF_INA219_PARAM_SAMPLING_CYCLES,
@@ -354,7 +362,9 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_leaf_ina219_sampling_interval_param) == 0) {
 
-					sampling_interval = atof(evt.data);
+					if (gn_double_from_event(evt, &sampling_interval) != GN_RET_OK) {
+						break;
+					}
 					//execute change
 					gn_leaf_param_force_double(leaf_config,
 							GN_LEAF_INA219_PARAM_SAMPLING_INTERVAL,
@@ -363,7 +373,9 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_leaf_ina219_sda_param) == 0) {
 
-					sda = atof(evt.data);
+					if (gn_double_from_event(evt, &sda) != GN_RET_OK) {
+						break;
+					}
 					//execute change
 					gn_leaf_param_force_double(leaf_config,
 							GN_LEAF_INA219_PARAM_SDA, sda);
@@ -371,7 +383,9 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_leaf_ina219_scl_param) == 0) {
 
-					scl = atof(evt.data);
+					if (gn_double_from_event(evt, &scl) != GN_RET_OK) {
+						break;
+					}
 					//execute change
 					gn_leaf_param_force_double(leaf_config,
 							GN_LEAF_INA219_PARAM_SCL, scl);
@@ -379,7 +393,9 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_leaf_ina219_working_mode_param) == 0) {
 
-					working_mode = atof(evt.data);
+					if (gn_double_from_event(evt, &working_mode) != GN_RET_OK) {
+						break;
+					}
 					//execute change
 					gn_leaf_param_force_double(leaf_config,
 							GN_LEAF_INA219_PARAM_WORKING_MODE, working_mode);

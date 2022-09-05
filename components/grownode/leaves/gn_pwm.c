@@ -112,7 +112,7 @@ gn_leaf_descriptor_handle_t gn_leaf_pwm_config(
 
 	data->channel_param = gn_leaf_param_create(leaf_config,
 			GN_LEAF_PWM_PARAM_CHANNEL, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d =
-					GN_LEAF_PWM_UNKNOWN_CHANNEL }, GN_LEAF_PARAM_ACCESS_ALL,
+					GN_LEAF_PWM_UNKNOWN_CHANNEL }, GN_LEAF_PARAM_ACCESS_NODE,
 			GN_LEAF_PARAM_STORAGE_PERSISTED,
 			NULL);
 	gn_leaf_param_add_to_leaf(leaf_config, data->channel_param);
@@ -135,7 +135,7 @@ gn_leaf_descriptor_handle_t gn_leaf_pwm_config(
 
 	data->gpio_param = gn_leaf_param_create(leaf_config, GN_LEAF_PWM_PARAM_GPIO,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d =
-					GN_LEAF_PWM_UNKNOWN_GPIO }, GN_LEAF_PARAM_ACCESS_NETWORK,
+					GN_LEAF_PWM_UNKNOWN_GPIO }, GN_LEAF_PARAM_ACCESS_NODE,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add_to_leaf(leaf_config, data->gpio_param);
 
@@ -323,9 +323,10 @@ void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 
 					ESP_LOGD(TAG, "updating toggle");
 
-					const bool _toggle =
-							strncmp((char*) evt.data, "0", evt.data_size) == 0 ?
-									false : true;
+					bool _toggle = false;
+					if (gn_bool_from_event(evt, &_toggle) != GN_RET_OK) {
+						break;
+					}
 
 					//execute change
 					gn_leaf_param_force_bool(leaf_config,
@@ -344,32 +345,6 @@ void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 						gn_display_leaf_refresh_end();
 					}
 #endif
-
-				} else if (gn_leaf_event_mask_param(&evt, data->gpio_param)
-						== 0) {
-
-					ESP_LOGD(TAG, "updating gpio");
-
-					//check limits
-					int gpio = atoi(evt.data);
-					if (gpio >= 0 && gpio < GPIO_NUM_MAX) {
-						//execute change. this will have no effects until restart
-						gn_leaf_param_force_double(leaf_config,
-								GN_LEAF_PWM_PARAM_TOGGLE, gpio);
-					}
-
-				} else if (gn_leaf_event_mask_param(&evt, data->channel_param)
-						== 0) {
-
-					ESP_LOGD(TAG, "updating channel");
-
-					//check limits
-					int channel = atoi(evt.data);
-					if (channel >= 0 && channel < LEDC_CHANNEL_MAX) {
-						//execute change. this will have no effects until restart
-						gn_leaf_param_force_double(leaf_config,
-								GN_LEAF_PWM_PARAM_CHANNEL, channel);
-					}
 
 				} else if (gn_leaf_event_mask_param(&evt, data->power_param)
 						== 0) {

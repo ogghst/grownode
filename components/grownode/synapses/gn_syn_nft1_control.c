@@ -167,7 +167,7 @@ gn_leaf_descriptor_handle_t gn_syn_nft1_control_config(
 	data->gn_syn_nft1_control_watering_duration_param = gn_leaf_param_create(
 			leaf_config, GN_SYN_NFT1_CONTROL_PARAM_DURATION_SEC,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 20 },
-			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED,
+			GN_LEAF_PARAM_ACCESS_ALL, GN_LEAF_PARAM_STORAGE_PERSISTED,
 			gn_validator_double_positive);
 	gn_leaf_param_add_to_leaf(leaf_config,
 			data->gn_syn_nft1_control_watering_duration_param);
@@ -175,7 +175,7 @@ gn_leaf_descriptor_handle_t gn_syn_nft1_control_config(
 	data->gn_syn_nft1_control_watering_interval_param = gn_leaf_param_create(
 			leaf_config, GN_SYN_NFT1_CONTROL_PARAM_INTERVAL_SEC,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 1200 },
-			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED,
+			GN_LEAF_PARAM_ACCESS_ALL, GN_LEAF_PARAM_STORAGE_PERSISTED,
 			gn_validator_double_positive);
 	gn_leaf_param_add_to_leaf(leaf_config,
 			data->gn_syn_nft1_control_watering_interval_param);
@@ -183,7 +183,7 @@ gn_leaf_descriptor_handle_t gn_syn_nft1_control_config(
 	data->gn_syn_nft1_control_watering_enable_param = gn_leaf_param_create(
 			leaf_config, GN_SYN_NFT1_CONTROL_PARAM_ENABLE, GN_VAL_TYPE_BOOLEAN,
 			(gn_val_t ) { .b =
-					false }, GN_LEAF_PARAM_ACCESS_NETWORK,
+					false }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, gn_validator_boolean);
 	gn_leaf_param_add_to_leaf(leaf_config,
 			data->gn_syn_nft1_control_watering_enable_param);

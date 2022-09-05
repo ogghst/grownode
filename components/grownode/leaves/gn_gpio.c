@@ -113,17 +113,17 @@ gn_leaf_descriptor_handle_t gn_gpio_config(gn_leaf_handle_t leaf_config) {
 
 	data->gn_gpio_toggle_param = gn_leaf_param_create(leaf_config,
 			GN_GPIO_PARAM_TOGGLE, GN_VAL_TYPE_BOOLEAN,
-			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_NETWORK,
+			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	data->gn_gpio_inverted_param = gn_leaf_param_create(leaf_config,
 			GN_GPIO_PARAM_INVERTED, GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b =
-					false }, GN_LEAF_PARAM_ACCESS_NETWORK,
+					false }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 
 	data->gn_gpio_gpio_param = gn_leaf_param_create(leaf_config,
 			GN_GPIO_PARAM_GPIO, GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 32 },
-			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED,
+			GN_LEAF_PARAM_ACCESS_NODE, GN_LEAF_PARAM_STORAGE_PERSISTED,
 			NULL);
 
 	gn_leaf_param_add_to_leaf(leaf_config, data->gn_gpio_toggle_param);
@@ -156,19 +156,19 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 	double gpio;
 	gn_leaf_param_get_double(leaf_config, GN_GPIO_PARAM_GPIO, &gpio);
 
-	bool status;
-	gn_leaf_param_get_bool(leaf_config, GN_GPIO_PARAM_TOGGLE, &status);
+	bool toggle;
+	gn_leaf_param_get_bool(leaf_config, GN_GPIO_PARAM_TOGGLE, &toggle);
 
 	bool inverted;
 	gn_leaf_param_get_bool(leaf_config, GN_GPIO_PARAM_INVERTED, &inverted);
 
 	ESP_LOGD(TAG, "configuring - gpio %d, status %d, inverted %d", (int )gpio,
-			status ? 1 : 0, inverted ? 1 : 0);
+			toggle ? 1 : 0, inverted ? 1 : 0);
 
 	//setup
 	gpio_set_direction((int) gpio, GPIO_MODE_OUTPUT);
 	gpio_set_level((int) gpio,
-			status ? (inverted ? 0 : 1) : (inverted ? 1 : 0));
+			toggle ? (inverted ? 0 : 1) : (inverted ? 1 : 0));
 
 	//setup screen, if defined in sdkconfig
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
@@ -222,7 +222,7 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 
 		//check for messages and cycle every 100ms
 		if (xQueueReceive(gn_leaf_get_event_queue(leaf_config), &evt,
-				portMAX_DELAY) == pdPASS) {
+		portMAX_DELAY) == pdPASS) {
 
 			ESP_LOGD(TAG, "[%s] received message: %d", leaf_name, evt.id);
 
@@ -239,30 +239,30 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 				if (gn_leaf_event_mask_param(&evt, data->gn_gpio_toggle_param)
 						== 0) {
 
-					int _active = atoi(evt.data);
+					bool _active = false;
+					if (gn_bool_from_event(evt, &_active) != GN_RET_OK) {
+						break;
+					}
 
-					//notify change
-					ESP_LOGD(TAG, "written: %d", _active);
-
+					//execute change
 					gn_leaf_param_force_bool(leaf_config, GN_GPIO_PARAM_TOGGLE,
-							_active == 0 ? false : true);
-
-					status = _active;
+							_active);
+					toggle = _active;
 
 					ESP_LOGD(TAG, "[%s] - gpio %d, toggle %d, inverted %d",
-							leaf_name, (int )gpio, status ? 1 : 0,
+							leaf_name, (int )gpio, toggle ? 1 : 0,
 							inverted ? 1 : 0);
 
 					//update sensor using the parameter values
 					gpio_set_level((int) gpio,
-							status ? (inverted ? 0 : 1) : (inverted ? 1 : 0));
+							toggle ? (inverted ? 0 : 1) : (inverted ? 1 : 0));
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 					if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 						lv_label_set_text(label_status,
-								status ?
-								"status: on" : "status: off");
+								toggle ?
+								"toggle: on" : "toggle: off");
 
 						gn_display_leaf_refresh_end();
 					}
@@ -271,29 +271,32 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_gpio_inverted_param) == 0) {
 
-					int _inverted = atoi(evt.data);
+					bool _inverted = false;
+					if (gn_bool_from_event(evt, &_inverted) != GN_RET_OK) {
+						break;
+					}
 
 					//notify change
 					gn_leaf_param_force_bool(leaf_config,
 							GN_GPIO_PARAM_INVERTED,
-							_inverted == 0 ? false : true);
+							_inverted);
 
 					inverted = _inverted;
 
 					ESP_LOGD(TAG, "[%s] - gpio %d, toggle %d, inverted %d",
-							leaf_name, (int )gpio, status ? 1 : 0,
-							inverted ? 1 : 0);
+							leaf_name, (int )gpio, toggle ? 1 : 0,
+							inverted);
 
 					//update sensor using the parameter values
 					gpio_set_level((int) gpio,
-							status ? (inverted ? 0 : 1) : (inverted ? 1 : 0));
+							toggle ^ inverted);
 
 #ifdef CONFIG_GROWNODE_DISPLAY_ENABLED
 					if (pdTRUE == gn_display_leaf_refresh_start()) {
 
 						lv_label_set_text(label_status,
-						status ?
-						"status: on" : "status: off");
+						toggle ?
+						"toggle: on" : "toggle: off");
 
 						gn_display_leaf_refresh_end();
 					}

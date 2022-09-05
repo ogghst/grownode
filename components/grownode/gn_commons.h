@@ -48,6 +48,10 @@ extern "C" {
 */
 static const int16_t GN_CONFIG_MAX_SERVER_KEEPALIVE_SEC = 3600;
 
+
+#define GN_LEAF_MESSAGE_FALSE "false"
+#define GN_LEAF_MESSAGE_TRUE "true"
+
 typedef enum {
 	GN_NODE_STATUS_NOT_INITIALIZED = 0,
 	GN_NODE_STATUS_INITIALIZING = 1,
@@ -96,7 +100,8 @@ typedef enum {
 	GN_RET_ERR_MQTT_SUBSCRIBE = 0x208,
 	GN_RET_ERR_MQTT_ERROR = 0x209,
 	GN_RET_NVS_PARAMETER_NOT_FOUND = 0x301,/*!< parameter requested was not found in NVS */
-	GN_RET_NVS_PARAMETER_FOUND = 0x302/*!< parameter requested was found in NVS */
+	GN_RET_NVS_PARAMETER_FOUND = 0x302,/*!< parameter requested was found in NVS */
+	GN_RET_VALUE_OUT_OF_LIMIT = 0x401/*!< trying to set a value outside limits  */
 } gn_err_t;
 
 /**
@@ -151,7 +156,7 @@ typedef struct {
 	char leaf_name[GN_LEAF_NAME_SIZE];
 	char param_name[GN_LEAF_PARAM_NAME_SIZE];
 	char data[GN_LEAF_DATA_SIZE]; /*!< Data associated with this event */
-	int data_size; /*!< Length of the data for this event */
+	int data_len; /*!< Length of the data for this event */
 } gn_leaf_parameter_event_t;
 
 typedef gn_leaf_parameter_event_t *gn_leaf_parameter_event_handle_t;
@@ -225,13 +230,14 @@ typedef union {
 } gn_val_t;
 
 /*
- * type of parameter visibility
+ * type of parameter accessibility
  */
 typedef enum {
 	GN_LEAF_PARAM_ACCESS_ALL = 0x01, 			/*!< param can be modified both by the node and network (eg. local configuration settings)*/
-	GN_LEAF_PARAM_ACCESS_NETWORK = 0x02,		/*!< param can be modified only by network (eg. configuration settings from environment)*/
+	//GN_LEAF_PARAM_ACCESS_NETWORK = 0x02,		/*!< param can be modified only by network (eg. configuration settings from environment)*/
 	GN_LEAF_PARAM_ACCESS_NODE = 0x03, 			/*!< param can be modified only by the node (eg. sensor data)*/
-	GN_LEAF_PARAM_ACCESS_NODE_INTERNAL = 0x04 	/*!< param can be modified only by the node (eg. sensor data) and it is not shown externally*/
+	GN_LEAF_PARAM_ACCESS_NODE_INTERNAL = 0x04, 	/*!< param can be modified only by the node (eg. sensor data) and it is not shown externally*/
+	GN_LEAF_PARAM_ACCESS_IMMUTABLE = 0x05  /*!< param cannot be modified*/
 } gn_leaf_param_access_type_t;
 
 /*
@@ -246,6 +252,9 @@ typedef void *gn_leaf_param_handle_t;
 
 //typedef void* gn_leaf_context_handle_t;
 
+
+//utilities
+
 size_t gn_leaf_event_mask_param(gn_leaf_parameter_event_handle_t evt,
 		gn_leaf_param_handle_t param);
 
@@ -253,6 +262,20 @@ uint64_t gn_hash(const char *key);
 
 void gn_hash_str(const char *key, char *buf, size_t len);
 
+gn_err_t gn_bool_from_event(gn_leaf_parameter_event_t evt, bool *_ret);
+
+gn_err_t gn_double_from_event(gn_leaf_parameter_event_t evt, double *_ret);
+
+//TODO remove
+//gn_err_t gn_int_from_event(gn_leaf_parameter_event_t evt, int *_ret);
+
+gn_err_t gn_str_from_event(gn_leaf_parameter_event_t evt, char *_ret, int ret_len);
+
+gn_err_t gn_bool_from_payload(gn_leaf_parameter_event_t evt, bool *_ret);
+
+gn_err_t gn_double_from_payload(gn_leaf_parameter_event_t evt, double *_ret);
+
+gn_err_t gn_str_from_payload(gn_leaf_parameter_event_t evt, char *_ret, int ret_len);
 
 //validators
 gn_leaf_param_validator_result_t gn_validator_double_positive(

@@ -72,17 +72,17 @@ gn_leaf_descriptor_handle_t gn_led_config(gn_leaf_handle_t leaf_config) {
 
 	data->gn_led_status_param = gn_leaf_param_create(leaf_config,
 			GN_LED_PARAM_TOGGLE, GN_VAL_TYPE_BOOLEAN,
-			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_NETWORK,
+			(gn_val_t ) { .b = false }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_VOLATILE, gn_validator_boolean);
 
 	data->gn_led_inverted_param = gn_leaf_param_create(leaf_config,
-			GN_LED_PARAM_INVERTED, GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b =
-					false }, GN_LEAF_PARAM_ACCESS_NETWORK,
+			GN_LED_PARAM_INVERTED, GN_LEAF_PARAM_ACCESS_ALL, (gn_val_t ) { .b =
+					false }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, gn_validator_boolean);
 
 	data->gn_led_blinktime_param = gn_leaf_param_create(leaf_config,
 			GN_LED_PARAM_BLINK_TIME_MS, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+			(gn_val_t ) { .d = 0 }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, gn_validator_double_positive);
 
 	data->gn_led_gpio_param = gn_leaf_param_create(leaf_config,
@@ -211,23 +211,41 @@ void gn_led_task(gn_leaf_handle_t leaf_config) {
 				//status change
 				if (gn_leaf_event_mask_param(&evt, data->gn_led_status_param)
 						== 0) {
+
+					bool _val = false;
+					if (gn_bool_from_event(evt, &_val) != GN_RET_OK) {
+						break;
+					}
+
 					gn_leaf_param_force_bool(leaf_config, GN_LED_PARAM_TOGGLE,
-							(bool) atoi(evt.data));
+							_val);
 					gn_leaf_param_get_bool(leaf_config, GN_LED_PARAM_TOGGLE,
 							&status);
 					_changed = true;
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_led_inverted_param) == 0) {
+
+					bool _val = false;
+					if (gn_bool_from_event(evt, &_val) != GN_RET_OK) {
+						break;
+					}
+
 					gn_leaf_param_force_bool(leaf_config, GN_LED_PARAM_INVERTED,
-							(bool) atoi(evt.data));
+							_val);
 					gn_leaf_param_get_bool(leaf_config, GN_LED_PARAM_INVERTED,
 							&inverted);
 					_changed = true;
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_led_blinktime_param) == 0) {
+
+					double _val = 0;
+					if (gn_double_from_event(evt, &_val) != GN_RET_OK) {
+						break;
+					}
+
 					gn_leaf_param_force_double(leaf_config,
 							GN_LED_PARAM_BLINK_TIME_MS,
-							(double) atof(evt.data));
+							_val);
 					gn_leaf_param_get_double(leaf_config,
 							GN_LED_PARAM_BLINK_TIME_MS, &blinktime);
 					_changed = true;

@@ -93,10 +93,12 @@ gn_leaf_param_validator_result_t _gn_upd_time_sec_validator(
 	ESP_LOGD(TAG, "_gn_upd_time_sec_validator - param: %d", (int )_p1);
 
 	if (GN_DS18B20_MIN_UPDATE_TIME_SEC > **(double**) param_value) {
-		memcpy(param_value, &GN_DS18B20_MIN_UPDATE_TIME_SEC, sizeof(GN_DS18B20_MIN_UPDATE_TIME_SEC));
+		memcpy(param_value, &GN_DS18B20_MIN_UPDATE_TIME_SEC,
+				sizeof(GN_DS18B20_MIN_UPDATE_TIME_SEC));
 		return GN_LEAF_PARAM_VALIDATOR_ERROR_BELOW_MIN;
 	} else if (GN_DS18B20_MAX_UPDATE_TIME_SEC < **(double**) param_value) {
-		memcpy(param_value, &GN_DS18B20_MAX_UPDATE_TIME_SEC, sizeof(GN_DS18B20_MAX_UPDATE_TIME_SEC));
+		memcpy(param_value, &GN_DS18B20_MAX_UPDATE_TIME_SEC,
+				sizeof(GN_DS18B20_MAX_UPDATE_TIME_SEC));
 		return GN_LEAF_PARAM_VALIDATOR_ERROR_ABOVE_MAX;
 	}
 
@@ -107,7 +109,8 @@ gn_leaf_param_validator_result_t _gn_upd_time_sec_validator(
 
 }
 
-gn_leaf_handle_t gn_ds18b20_fastcreate(gn_node_handle_t node, const char *leaf_name, double gpio, double update_time_sec) {
+gn_leaf_handle_t gn_ds18b20_fastcreate(gn_node_handle_t node,
+		const char *leaf_name, double gpio, double update_time_sec) {
 
 	if (node == NULL) {
 		ESP_LOGE(TAG, "gn_ds18b20_fastcreate - node is null");
@@ -134,12 +137,14 @@ gn_leaf_handle_t gn_ds18b20_fastcreate(gn_node_handle_t node, const char *leaf_n
 			4096, GN_LEAF_TASK_PRIORITY);
 
 	if (leaf == NULL) {
-		ESP_LOGE(TAG, "gn_ds18b20_fastcreate - cannot create leaf %s", leaf_name);
+		ESP_LOGE(TAG, "gn_ds18b20_fastcreate - cannot create leaf %s",
+				leaf_name);
 		return NULL;
 	}
 
 	gn_leaf_param_init_double(leaf, GN_DS18B20_PARAM_GPIO, gpio);
-	gn_leaf_param_init_double(leaf, GN_DS18B20_PARAM_UPDATE_TIME_SEC, update_time_sec);
+	gn_leaf_param_init_double(leaf, GN_DS18B20_PARAM_UPDATE_TIME_SEC,
+			update_time_sec);
 
 	ESP_LOGD(TAG, "[%s] ds18b20 leaf created", leaf_name);
 
@@ -179,8 +184,8 @@ void gn_ds18b20_temp_sensor_collect(gn_leaf_handle_t leaf_config) {
 				ds18x20_measure(gpio, data->addrs[i], parasitic);
 		}
 		//read data from sensors using GPIO parameter
-		res = ds18x20_read_temp_multi(gpio, data->addrs,
-				data->sensor_count, data->temp);
+		res = ds18x20_read_temp_multi(gpio, data->addrs, data->sensor_count,
+				data->temp);
 
 		if (res != ESP_OK) {
 			gn_log(TAG, GN_LOG_ERROR, "[%s] sensors read error %d (%s)",
@@ -234,21 +239,21 @@ gn_leaf_descriptor_handle_t gn_ds18b20_config(gn_leaf_handle_t leaf_config) {
 
 	data->active_param = gn_leaf_param_create(leaf_config,
 			GN_DS18B20_PARAM_ACTIVE, GN_VAL_TYPE_BOOLEAN, (gn_val_t ) { .b =
-					true }, GN_LEAF_PARAM_ACCESS_NETWORK,
+					true }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add_to_leaf(leaf_config, data->active_param);
 
 	//get update time in sec, default 30
 	data->update_time_param = gn_leaf_param_create(leaf_config,
 			GN_DS18B20_PARAM_UPDATE_TIME_SEC, GN_VAL_TYPE_DOUBLE, (gn_val_t ) {
-							.d = 30 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+							.d = 30 }, GN_LEAF_PARAM_ACCESS_ALL,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, _gn_upd_time_sec_validator);
 	gn_leaf_param_add_to_leaf(leaf_config, data->update_time_param);
 
 	//get gpio from params. default 27
 	data->gpio_param = gn_leaf_param_create(leaf_config, GN_DS18B20_PARAM_GPIO,
 			GN_VAL_TYPE_DOUBLE, (gn_val_t ) { .d = 27 },
-			GN_LEAF_PARAM_ACCESS_NETWORK, GN_LEAF_PARAM_STORAGE_PERSISTED,
+			GN_LEAF_PARAM_ACCESS_NODE, GN_LEAF_PARAM_STORAGE_PERSISTED,
 			NULL);
 	gn_leaf_param_add_to_leaf(leaf_config, data->gpio_param);
 
@@ -489,23 +494,33 @@ void gn_ds18b20_task(gn_leaf_handle_t leaf_config) {
 				//parameter is update time
 				if (gn_leaf_event_mask_param(&evt, data->update_time_param)
 						== 0) {
+
+					double updtime;
+					if (gn_double_from_event(evt, &updtime) != GN_RET_OK) {
+						break;
+					}
+
 					gn_leaf_param_force_double(leaf_config,
-							GN_DS18B20_PARAM_UPDATE_TIME_SEC,
-							(double) atof(evt.data));
+							GN_DS18B20_PARAM_UPDATE_TIME_SEC, updtime);
+
+					if (active == true) {
 					esp_timer_stop(data->sensor_timer);
 					esp_timer_start_periodic(data->sensor_timer,
 							update_time_sec * 1000000);
+					}
 
 				} else if (gn_leaf_event_mask_param(&evt, data->active_param)
 						== 0) {
 
 					bool prev_active = active;
-					int _active = atoi(evt.data);
+					bool _active = 0;
+					if (gn_bool_from_event(evt, &_active) != GN_RET_OK) {
+						break;
+					}
 
 					//execute change
 					gn_leaf_param_force_bool(leaf_config,
-							GN_DS18B20_PARAM_ACTIVE,
-							_active == 0 ? false : true);
+							GN_DS18B20_PARAM_ACTIVE, _active);
 					active = _active;
 
 					//stop timer if false
@@ -516,17 +531,6 @@ void gn_ds18b20_task(gn_leaf_handle_t leaf_config) {
 								update_time_sec * 1000000);
 					}
 
-				} else if (gn_leaf_event_mask_param(&evt, data->gpio_param)
-						== 0) {
-
-					//check limits
-					int _gpio = atoi(evt.data);
-					if (_gpio >= 0 && gpio < GPIO_NUM_MAX) {
-						//execute change. this will have no effects until restart
-						gn_leaf_param_force_double(leaf_config,
-								GN_DS18B20_PARAM_GPIO, _gpio);
-						gpio = _gpio;
-					}
 				}
 
 				break;

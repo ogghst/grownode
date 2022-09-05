@@ -33,9 +33,6 @@ extern "C" {
 
 #define TAG "gn_mqtt_protocol"
 
-
-
-
 EventGroupHandle_t _gn_event_group_mqtt;
 const int _GN_MQTT_CONNECTED_EVENT_BIT = BIT0;
 const int _GN_MQTT_DISCONNECT_EVENT_BIT = BIT1;
@@ -83,8 +80,7 @@ inline char* _gn_mqtt_build_node_name(gn_config_handle_intl_t config) {
 
 void _gn_mqtt_build_leaf_command_topic(gn_leaf_handle_t _leaf_config, char *buf) {
 
-	gn_leaf_handle_intl_t leaf_config =
-			(gn_leaf_handle_intl_t) _leaf_config;
+	gn_leaf_handle_intl_t leaf_config = (gn_leaf_handle_intl_t) _leaf_config;
 	gn_node_handle_intl_t node_config =
 			(gn_node_handle_intl_t) leaf_config->node;
 	gn_config_handle_intl_t config =
@@ -109,8 +105,7 @@ void _gn_mqtt_build_leaf_command_topic(gn_leaf_handle_t _leaf_config, char *buf)
 void _gn_mqtt_build_leaf_parameter_command_topic(
 		const gn_leaf_handle_t _leaf_config, const char *param_name, char *buf) {
 
-	gn_leaf_handle_intl_t leaf_config =
-			(gn_leaf_handle_intl_t) _leaf_config;
+	gn_leaf_handle_intl_t leaf_config = (gn_leaf_handle_intl_t) _leaf_config;
 	gn_node_handle_intl_t node_config =
 			(gn_node_handle_intl_t) leaf_config->node;
 	gn_config_handle_intl_t config =
@@ -137,8 +132,7 @@ void _gn_mqtt_build_leaf_parameter_command_topic(
 void _gn_mqtt_build_leaf_parameter_status_topic(gn_leaf_handle_t _leaf_config,
 		char *param_name, char *buf) {
 
-	gn_leaf_handle_intl_t leaf_config =
-			(gn_leaf_handle_intl_t) _leaf_config;
+	gn_leaf_handle_intl_t leaf_config = (gn_leaf_handle_intl_t) _leaf_config;
 	gn_node_handle_intl_t node_config =
 			(gn_node_handle_intl_t) leaf_config->node;
 	gn_config_handle_intl_t config =
@@ -164,8 +158,7 @@ void _gn_mqtt_build_leaf_parameter_status_topic(gn_leaf_handle_t _leaf_config,
 
 void _gn_mqtt_build_leaf_status_topic(gn_leaf_handle_t _leaf_config, char *buf) {
 
-	gn_leaf_handle_intl_t leaf_config =
-			(gn_leaf_handle_intl_t) _leaf_config;
+	gn_leaf_handle_intl_t leaf_config = (gn_leaf_handle_intl_t) _leaf_config;
 	gn_node_handle_intl_t node_config =
 			(gn_node_handle_intl_t) leaf_config->node;
 	gn_config_handle_intl_t config =
@@ -277,15 +270,12 @@ void _gn_mqtt_build_command_topic(gn_config_handle_intl_t config, char *buf) {
  */
 gn_err_t gn_mqtt_subscribe_leaf(gn_leaf_handle_t _leaf_config) {
 
-
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	if (!_leaf_config)
 		return GN_RET_ERR;
 
-
-	gn_leaf_handle_intl_t leaf_config =
-			(gn_leaf_handle_intl_t) _leaf_config;
+	gn_leaf_handle_intl_t leaf_config = (gn_leaf_handle_intl_t) _leaf_config;
 
 	if (!leaf_config)
 		return GN_RET_ERR;
@@ -408,8 +398,7 @@ gn_err_t gn_mqtt_subscribe_leaf_param(gn_leaf_param_handle_t _param) {
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
 	gn_leaf_param_handle_intl_t param = (gn_leaf_param_handle_intl_t) _param;
-	gn_leaf_handle_intl_t leaf_config =
-			(gn_leaf_handle_intl_t) param->leaf;
+	gn_leaf_handle_intl_t leaf_config = (gn_leaf_handle_intl_t) param->leaf;
 	gn_node_handle_intl_t node_config =
 			(gn_node_handle_intl_t) leaf_config->node;
 	gn_config_handle_intl_t config =
@@ -592,8 +581,7 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 	}
 
 	gn_leaf_param_handle_intl_t param = (gn_leaf_param_handle_intl_t) _param;
-	gn_leaf_handle_intl_t _leaf_config =
-			(gn_leaf_handle_intl_t) param->leaf;
+	gn_leaf_handle_intl_t _leaf_config = (gn_leaf_handle_intl_t) param->leaf;
 	gn_node_handle_intl_t _node_config =
 			(gn_node_handle_intl_t) _leaf_config->node;
 
@@ -615,9 +603,9 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 	switch (param->param_val->t) {
 	case GN_VAL_TYPE_BOOLEAN:
 		if (param->param_val->v.b) {
-			strcpy(buf, "1");
+			strcpy(buf, GN_LEAF_MESSAGE_TRUE);
 		} else {
-			strcpy(buf, "0");
+			strcpy(buf, , mes);
 		}
 		break;
 	case GN_VAL_TYPE_STRING:
@@ -634,8 +622,7 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 		break;
 	}
 
-	gn_leaf_handle_intl_t leaf_config =
-			(gn_leaf_handle_intl_t) param->leaf;
+	gn_leaf_handle_intl_t leaf_config = (gn_leaf_handle_intl_t) param->leaf;
 	gn_node_handle_intl_t node_config =
 			(gn_node_handle_intl_t) leaf_config->node;
 	gn_config_handle_intl_t config =
@@ -1069,8 +1056,7 @@ gn_err_t gn_mqtt_send_leaf_message(gn_leaf_handle_t _leaf, const char *msg) {
 	if (_leaf == NULL || msg == NULL)
 		return GN_RET_ERR_INVALID_ARG;
 
-	gn_leaf_handle_intl_t leaf_config =
-			(gn_leaf_handle_intl_t) _leaf;
+	gn_leaf_handle_intl_t leaf_config = (gn_leaf_handle_intl_t) _leaf;
 	gn_node_handle_intl_t node_config =
 			(gn_node_handle_intl_t) leaf_config->node;
 	gn_config_handle_intl_t config =
@@ -1182,7 +1168,6 @@ void log_error_if_nonzero(const char *message, int error_code) {
 		ESP_LOGE(TAG, "Last error %s: 0x%x", message, error_code);
 	}
 }
-
 
 void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 		int32_t event_id, void *event_data) {
@@ -1307,7 +1292,7 @@ void _gn_mqtt_event_handler(void *handler_args, esp_event_base_t base,
 					memcpy(&evt.data[0], event->data,
 							event->data_len > GN_LEAF_DATA_SIZE ?
 									GN_LEAF_DATA_SIZE : event->data_len);
-					evt.data_size =
+					evt.data_len =
 							event->data_len > GN_LEAF_DATA_SIZE ?
 									GN_LEAF_DATA_SIZE : event->data_len;
 

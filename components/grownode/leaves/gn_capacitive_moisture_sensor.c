@@ -470,7 +470,11 @@ void gn_cms_task(gn_leaf_handle_t leaf_config) {
 						== 0) {
 
 					//check limits
-					double updtime = strtod(evt.data, NULL);
+					double updtime;
+					if (gn_double_from_event(evt, &updtime) != GN_RET_OK) {
+						break;
+					}
+
 					if (updtime < 10)
 						updtime = 10;
 					if (updtime > 600)
@@ -490,7 +494,10 @@ void gn_cms_task(gn_leaf_handle_t leaf_config) {
 						== 0) {
 
 					bool prev_active = active;
-					int _active = atoi(evt.data);
+					bool _active = 0;
+					if (gn_bool_from_event(evt, &_active) != GN_RET_OK) {
+						break;
+					}
 
 					//execute change
 					gn_leaf_param_force_bool(leaf_config, GN_CMS_PARAM_ACTIVE,

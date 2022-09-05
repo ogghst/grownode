@@ -82,7 +82,7 @@ gn_leaf_descriptor_handle_t gn_pump_config(gn_leaf_handle_t leaf_config) {
 
 	data->gn_pump_gpio_toggle_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_PARAM_GPIO_TOGGLE, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 32 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+			(gn_val_t ) { .d = 32 }, GN_LEAF_PARAM_ACCESS_NODE,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add_to_leaf(leaf_config, data->gn_pump_gpio_toggle_param);
 
@@ -93,7 +93,7 @@ gn_leaf_descriptor_handle_t gn_pump_config(gn_leaf_handle_t leaf_config) {
 
 	data->gn_pump_gpio_power_param = gn_leaf_param_create(leaf_config,
 			GN_PUMP_PARAM_GPIO_POWER, GN_VAL_TYPE_DOUBLE,
-			(gn_val_t ) { .d = 32 }, GN_LEAF_PARAM_ACCESS_NETWORK,
+			(gn_val_t ) { .d = 32 }, GN_LEAF_PARAM_ACCESS_NODE,
 			GN_LEAF_PARAM_STORAGE_PERSISTED, NULL);
 	gn_leaf_param_add_to_leaf(leaf_config, data->gn_pump_gpio_power_param);
 
@@ -141,9 +141,8 @@ void gn_pump_task(gn_leaf_handle_t leaf_config) {
 	char leaf_name[GN_LEAF_NAME_SIZE];
 	gn_leaf_get_name(leaf_config, leaf_name);
 
-	ESP_LOGD(TAG, "%s - setting pwm pin %d channel %d",
-			leaf_name, (int )gpio_toggle,
-			(int )channel);
+	ESP_LOGD(TAG, "%s - setting pwm pin %d channel %d", leaf_name,
+			(int )gpio_toggle, (int )channel);
 
 	mcpwm_unit_t pwm_unit = channel ? MCPWM_UNIT_1 : MCPWM_UNIT_0;
 
@@ -250,12 +249,13 @@ void gn_pump_task(gn_leaf_handle_t leaf_config) {
 						evt.param_name, evt.data);
 
 				//parameter is status
-				if (gn_leaf_event_mask_param(&evt,
-						data->gn_pump_toggle_param) == 0) {
+				if (gn_leaf_event_mask_param(&evt, data->gn_pump_toggle_param)
+						== 0) {
 
-					const bool ret =
-							strncmp((char*) evt.data, "0", evt.data_size) == 0 ?
-									false : true;
+					bool ret = false;
+					if (gn_bool_from_event(evt, &ret) != GN_RET_OK) {
+						break;
+					}
 
 					//execute change
 					gn_leaf_param_force_bool(leaf_config, GN_PUMP_PARAM_TOGGLE,
@@ -276,20 +276,13 @@ void gn_pump_task(gn_leaf_handle_t leaf_config) {
 
 					//parameter is power
 				} else if (gn_leaf_event_mask_param(&evt,
-						data->gn_pump_gpio_toggle_param) == 0) {
-
-					//check limits
-					int gpio = atoi(evt.data);
-					if (gpio >= 0 && gpio < GPIO_NUM_MAX) {
-						//execute change. this will have no effects until restart
-						gn_leaf_param_force_double(leaf_config,
-								GN_PUMP_PARAM_GPIO_TOGGLE, gpio);
-					}
-
-				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_pump_power_param) == 0) {
 
-					double pow = strtod(evt.data, NULL);
+					double pow = 0;
+					if (gn_double_from_event(evt, &pow) != GN_RET_OK) {
+						break;
+					}
+
 					if (pow < 0)
 						pow = 0;
 					if (pow > 100)
@@ -310,17 +303,6 @@ void gn_pump_task(gn_leaf_handle_t leaf_config) {
 						gn_display_leaf_refresh_end();
 					}
 #endif
-
-				} else if (gn_leaf_event_mask_param(&evt,
-						data->gn_pump_gpio_power_param) == 0) {
-
-					//check limits
-					int gpio = atoi(evt.data);
-					if (gpio >= 0 && gpio < GPIO_NUM_MAX) {
-						//execute change. this will have no effects until restart
-						gn_leaf_param_force_double(leaf_config,
-								GN_PUMP_PARAM_GPIO_POWER, gpio);
-					}
 
 				}
 
@@ -360,19 +342,20 @@ void gn_pump_task(gn_leaf_handle_t leaf_config) {
 				ret = gpio_set_level(gpio_toggle, 0);
 
 				if (ret != ESP_OK) {
-					gn_log(TAG, GN_LOG_ERROR, "error in disabling signal, channel %d",
-							(int )channel);
+					gn_log(TAG, GN_LOG_ERROR,
+							"error in disabling signal, channel %d",
+							(int) channel);
 				}
 
 				ret = mcpwm_set_duty(pwm_unit, pwm_timer, pwm_generator, 0);
 
 				if (ret != ESP_OK) {
-					gn_log(TAG, GN_LOG_ERROR, "error in changing power, channel %d",
-							(int )channel);
+					gn_log(TAG, GN_LOG_ERROR,
+							"error in changing power, channel %d",
+							(int) channel);
 				}
 
-				ESP_LOGD(TAG, "%s - toggle off",
-						leaf_name);
+				ESP_LOGD(TAG, "%s - toggle off", leaf_name);
 
 				need_update = false;
 
@@ -381,20 +364,21 @@ void gn_pump_task(gn_leaf_handle_t leaf_config) {
 				ret = gpio_set_level(gpio_toggle, 1);
 
 				if (ret != ESP_OK) {
-					gn_log(TAG, GN_LOG_ERROR, "error in setting signal, channel %d",
-							(int )channel);
+					gn_log(TAG, GN_LOG_ERROR,
+							"error in setting signal, channel %d",
+							(int) channel);
 				}
 
 				ret = mcpwm_set_duty(pwm_unit, pwm_timer, pwm_generator, power);
 
 				if (ret != ESP_OK) {
-					gn_log(TAG, GN_LOG_ERROR, "error in  changing power, channel %d",
-							(int )channel);
+					gn_log(TAG, GN_LOG_ERROR,
+							"error in  changing power, channel %d",
+							(int) channel);
 				}
 
-				ESP_LOGD(TAG, "%s - setting power pin %d to %d",
-						leaf_name, (int )gpio_power,
-						(int )power);
+				ESP_LOGD(TAG, "%s - setting power pin %d to %d", leaf_name,
+						(int )gpio_power, (int )power);
 				need_update = false;
 			}
 		}

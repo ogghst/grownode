@@ -17,6 +17,7 @@ extern "C" {
 #endif
 
 #include "float.h"
+#include <errno.h>
 
 #include "esp_log.h"
 #include "gn_commons.h"
@@ -24,22 +25,11 @@ extern "C" {
 
 #define TAG "gn_commons"
 
-const char *gn_config_status_descriptions [14] = {
-	"Not Initialized",
-	"Initializing",
-	"Generic Error",
-	"Network Error",
-	 "Server Error",
-	 "Completed",
-	"Started",
-	 "Bad Firmware URL",
-	 "Bad Provisioning Password",
-	 "Bad Server Base Topic",
-	 "Bad Server URL",
-	 "Bad Server Keepalive",
-	 "Bad SNTP URL",
-	 "Bad Server Discovery Prefix"
-};
+const char *gn_config_status_descriptions[14] = { "Not Initialized",
+		"Initializing", "Generic Error", "Network Error", "Server Error",
+		"Completed", "Started", "Bad Firmware URL", "Bad Provisioning Password",
+		"Bad Server Base Topic", "Bad Server URL", "Bad Server Keepalive",
+		"Bad SNTP URL", "Bad Server Discovery Prefix" };
 
 inline size_t gn_leaf_event_mask_param(gn_leaf_parameter_event_handle_t evt,
 		gn_leaf_param_handle_t param) {
@@ -150,7 +140,7 @@ gn_leaf_param_validator_result_t gn_validator_boolean(
 	bool _p1 = **(bool**) param_value;
 	ESP_LOGD(TAG, "gn_validator_boolean - param: %d", _p1);
 
-	if (_p1) {
+	if (_p1 != false) {
 		memcpy(&param_value, &bool_true, sizeof(bool_true));
 	} else {
 		memcpy(&param_value, &bool_false, sizeof(bool_false));
@@ -162,8 +152,101 @@ gn_leaf_param_validator_result_t gn_validator_boolean(
 
 }
 
+gn_err_t gn_bool_from_event(gn_leaf_parameter_event_t evt, bool *_ret) {
 
+	ESP_LOGD(TAG, "gn_bool_from_payload: data='%.*s', len = %d", evt.data_len,
+			evt.data, evt.data_len);
 
+	memcpy(_ret, evt.data, sizeof(bool));
+	/*
+	if (evt.data[0] == true) {
+		*_ret = true;
+	} else if (evt.data[0] == false) {
+		*_ret = false;
+	} else {
+		ESP_LOGW(TAG, "warning: payload '%.*s' cannot be converted as boolean",
+				evt.data_len, evt.data);
+		return GN_RET_ERR;
+	}*/
+
+	ESP_LOGD(TAG, "gn_bool_from_event: '%d'", *_ret);
+
+	return GN_RET_OK;
+}
+
+gn_err_t gn_double_from_event(gn_leaf_parameter_event_t evt, double *_ret) {
+
+	memcpy(_ret, evt.data, sizeof(double));
+	/*
+	char *payload = calloc(evt.data_len, sizeof(char));
+	strncpy(payload, evt.data, evt.data_len);
+
+	char *eptr;
+	double result = strtod(payload, &eptr);
+
+	if (result == 0) {
+		If the value provided was out of range, display a warning message
+		if (errno == ERANGE) {
+
+			ESP_LOGW(TAG,
+					"warning: payload '%.*s' cannot be converted as double",
+					evt.data_len, evt.data);
+			free(payload);
+			return GN_RET_ERR;
+		}
+	}
+
+	memcpy(_ret, &result, sizeof(double));
+
+	free(payload);
+	return GN_RET_OK;
+	*/
+	ESP_LOGD(TAG, "gn_double_from_event: '%f'", *_ret);
+
+	return GN_RET_OK;
+
+}
+
+/*
+gn_err_t gn_int_from_event(gn_leaf_parameter_event_t evt, int *_ret) {
+
+	char *payload = calloc(evt.data_len, sizeof(char));
+	strncpy(payload, evt.data, evt.data_len);
+
+	char *eptr;
+	long int _result = (int)strtol(payload, &eptr, 10);
+	int result;
+	if (_result >= INT_MIN && result <= INT_MAX) {
+	    result = _result;
+	} else {
+		free(payload);
+		return GN_RET_VALUE_OUT_OF_LIMIT;
+	}
+
+	if (result == 0) {
+		// If the value provided was out of range, display a warning message
+		if (errno == ERANGE) {
+
+			ESP_LOGW(TAG,
+					"warning: payload '%.*s' cannot be converted as double",
+					evt.data_len, evt.data);
+			free(payload);
+			return GN_RET_ERR;
+		}
+	}
+
+	memcpy(_ret, &result, sizeof(int));
+
+	free(payload);
+	return GN_RET_OK;
+}
+*/
+
+gn_err_t gn_str_from_event(gn_leaf_parameter_event_t evt, char *_ret, int _ret_len) {
+	strncpy(_ret, evt.data, _ret_len);
+	ESP_LOGD(TAG, "gn_str_from_event: '%s'", _ret);
+	return GN_RET_OK;
+}
 
 #ifdef __cplusplus
 }

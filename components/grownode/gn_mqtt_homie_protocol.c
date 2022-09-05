@@ -107,7 +107,11 @@ void _gn_homie_mk_topic_param_attribute(char *topic,
 inline gn_err_t _gn_homie_publish(gn_node_handle_intl_t node, const char *topic,
 		int qos, int retain, const char *payload, int len) {
 
-	gn_log(TAG, GN_LOG_DEBUG, "publishing: %s->%s, qos %d, retained=%d", topic, payload, qos, retain);
+	ESP_LOGD(TAG, "publishing: '%s' -> '%.*s', qos=%d, retained=%d", topic, len,
+			payload, qos, retain);
+
+	//vTaskDelay(5000 / portTICK_PERIOD_MS);
+
 	return (esp_mqtt_client_publish(node->config->mqtt_client, topic, payload,
 			len, qos, retain) == -1 ? GN_RET_ERR : GN_RET_OK);
 
@@ -175,7 +179,7 @@ gn_err_t _gn_homie_on_disconnected(gn_config_handle_t config) {
 }
 
 gn_leaf_param_handle_intl_t _gn_homie_param_from_set_topic(
-		gn_node_handle_intl_t node, char *topic) {
+		gn_node_handle_intl_t node, char *topic, int topic_len) {
 
 	char param_topic[_GN_MQTT_MAX_TOPIC_LENGTH];
 	//per each leaf
@@ -188,8 +192,15 @@ gn_leaf_param_handle_intl_t _gn_homie_param_from_set_topic(
 
 			//check if topic matches the mask and return it
 			_gn_homie_mk_topic_param_attribute(param_topic, _param_enum, "set");
-			if (strcmp(param_topic, topic) == 0)
+
+			ESP_LOGD(TAG,
+					"_gn_homie_param_from_set_topic: comparing topic '%.*s' with param '%s'..",
+					topic_len, topic, param_topic);
+
+			if (strncmp(param_topic, topic, topic_len) == 0) {
+				ESP_LOGD(TAG, "..found");
 				return _param_enum;
+			}
 
 			if (_param_enum->next) {
 				_param_enum = _param_enum->next;
@@ -210,6 +221,71 @@ void log_error_if_nonzero(const char *message, int error_code) {
 	}
 }
 
+gn_err_t _gn_mqtt_homie_payload_to_boolean(bool *_ret,
+		esp_mqtt_event_handle_t evt) {
+
+	ESP_LOGD(TAG,
+			"_gn_homie_payload_mqtt_payload_to_boolean: mqtt_payload='%.*s', len = %d",
+			evt->data_len, evt->data, evt->data_len);
+
+	/*
+	 if (evt->data[0] == true) {
+	 *_ret = true;
+	 } else if (evt->data[0] == false) {
+	 *_ret = false;
+	 } else {
+	 ESP_LOGW(TAG, "warning: payload '%.*s' cannot be converted as boolean",
+	 evt->data_len, evt->data);
+	 return GN_RET_ERR;
+	 }
+	 */
+	memcpy(_ret, evt->data, sizeof(bool));
+
+	ESP_LOGD(TAG, "gn_bool_from_payload: ret = %d", *_ret);
+
+	return GN_RET_OK;
+
+}
+
+gn_err_t _gn_mqtt_homie_payload_to_double(double *_ret,
+		esp_mqtt_event_handle_t evt) {
+
+	ESP_LOGD(TAG,
+			"_gn_homie_payload_mqtt_payload_to_boolean: mqtt_payload='%.*s', len = %d",
+			evt->data_len, evt->data, evt->data_len);
+
+	/*
+	 char *payload = calloc(evt->data_len, sizeof(char));
+	 strncpy(payload, evt->data, evt->data_len);
+
+	 char *eptr;
+	 double result = strtod(payload, &eptr);
+
+	 if (result == 0) {
+	 //If the value provided was out of range, display a warning message
+	 if (errno == ERANGE) {
+
+	 ESP_LOGW(TAG,
+	 "warning: payload '%.*s' cannot be converted as double",
+	 evt->data_len, evt->data);
+	 free(payload);
+	 return GN_RET_ERR;
+	 }
+	 }
+	 */
+
+	memcpy(_ret, evt->data, sizeof(double));
+
+	return GN_RET_OK;
+
+}
+
+gn_err_t _gn_mqtt_homie_payload_to_string(char *_ret, int _ret_len,
+		esp_mqtt_event_handle_t evt) {
+	strncpy(_ret, evt->data, _ret_len);
+	return GN_RET_OK;
+}
+
 void _gn_homie_event_handler(void *handler_args, esp_event_base_t base,
 		int32_t event_id, void *event_data) {
 
@@ -218,10 +294,10 @@ void _gn_homie_event_handler(void *handler_args, esp_event_base_t base,
 	//ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%d", base,
 	//		event_id);
 
-	esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t) event_data;
+	esp_mqtt_event_handle_t mqtt_event = (esp_mqtt_event_handle_t) event_data;
 
 	gn_config_handle_intl_t config =
-			(gn_config_handle_intl_t) event->user_context;
+			(gn_config_handle_intl_t) mqtt_event->user_context;
 
 	switch ((esp_mqtt_event_id_t) event_id) {
 
@@ -230,10 +306,24 @@ void _gn_homie_event_handler(void *handler_args, esp_event_base_t base,
 		xEventGroupSetBits(_gn_event_group_mqtt, _GN_MQTT_CONNECTED_EVENT_BIT);
 		break;
 
-	case MQTT_EVENT_DISCONNECTED:
+	case MQTT_EVENT_DISCONNECTED: {
+
+		EventBits_t uxBits;
+		uxBits = xEventGroupWaitBits(_gn_event_group_mqtt,
+				_GN_MQTT_CONNECTED_EVENT_BIT,
+				pdFALSE,
+				pdFALSE, 0);
+
+		if ((uxBits & _GN_MQTT_CONNECTED_EVENT_BIT) == 0) {
+			ESP_LOGD(TAG,
+					"MQTT_EVENT_DISCONNECTED but MQTT is not connected, discarding");
+			break;
+		}
+
 		ESP_LOGD(TAG, "MQTT_EVENT_DISCONNECTED");
 		xEventGroupSetBits(_gn_event_group_mqtt, _GN_MQTT_DISCONNECT_EVENT_BIT);
 		_gn_homie_on_disconnected(config);
+	}
 		break;
 
 	case MQTT_EVENT_DATA:
@@ -241,29 +331,85 @@ void _gn_homie_event_handler(void *handler_args, esp_event_base_t base,
 		ESP_LOGD(TAG, "MQTT_EVENT_DATA");
 		//parameter set
 		gn_leaf_param_handle_intl_t param = _gn_homie_param_from_set_topic(
-				config->node_handle, event->topic);
+				config->node_handle, mqtt_event->topic, mqtt_event->topic_len);
 		if (param) {
-			gn_leaf_parameter_event_t evt;
-			evt.id = GN_LEAF_MESSAGE_RECEIVED_EVENT;
-			strncpy(evt.leaf_name, ((gn_leaf_handle_intl_t) param->leaf)->name,
-			GN_LEAF_NAME_SIZE);
-			memcpy(&evt.data[0], event->data,
-					event->data_len > GN_LEAF_DATA_SIZE ?
-					GN_LEAF_DATA_SIZE :
-															event->data_len);
-			evt.data_size =
-					event->data_len > GN_LEAF_DATA_SIZE ?
-					GN_LEAF_DATA_SIZE :
-															event->data_len;
 
-			if (esp_event_post_to(config->event_loop, GN_BASE_EVENT, evt.id,
-					&evt, sizeof(evt), portMAX_DELAY) != ESP_OK) {
+			//check access
+			if (param->access != GN_LEAF_PARAM_ACCESS_ALL) {
+				ESP_LOGW(TAG,
+						"_gn_homie_event_handler - paramater is not accessible from network, change discarded");
+				break;
+			}
+
+			gn_leaf_parameter_event_t leaf_event;
+			leaf_event.id = GN_LEAF_MESSAGE_RECEIVED_EVENT;
+			strncpy(leaf_event.leaf_name,
+					((gn_leaf_handle_intl_t) param->leaf)->name,
+					GN_LEAF_NAME_SIZE);
+
+			switch (param->param_val->t) {
+			case GN_VAL_TYPE_BOOLEAN: {
+
+				bool ret = false;
+				if (_gn_mqtt_homie_payload_to_boolean(&ret, mqtt_event)
+						!= GN_RET_OK) {
+					ESP_LOGW(TAG,
+							"_gn_homie_event_handler - boolean payload not allowed");
+					break;
+				}
+				if (ret == true) {
+					leaf_event.data[0] = 0;
+				} else {
+					leaf_event.data[0] = 1;
+				}
+				leaf_event.data_len = sizeof(bool);
+
+			}
+
+				break;
+			case GN_VAL_TYPE_DOUBLE: {
+
+				double ret = 0;
+				if (_gn_mqtt_homie_payload_to_double(&ret, mqtt_event)
+						!= GN_RET_OK) {
+					ESP_LOGW(TAG,
+							"_gn_homie_event_handler - double payload not allowed");
+					break;
+				}
+				memcpy(&leaf_event.data[0], &ret, sizeof(double));
+				leaf_event.data_len = sizeof(double);
+				break;
+			}
+
+				break;
+			case GN_VAL_TYPE_STRING:
+
+				if (_gn_mqtt_homie_payload_to_string(&leaf_event.data[0],
+						leaf_event.data_len, mqtt_event) != GN_RET_OK) {
+					ESP_LOGW(TAG,
+							"_gn_homie_event_handler - string payload not allowed");
+					break;
+				}
+
+				leaf_event.data_len = strlen(leaf_event.data);
+				break;
+			}
+
+			ESP_LOGD(TAG,
+					"built event - id: %d, param %s, leaf %s, data '%.*s', len=%d",
+					leaf_event.id, leaf_event.param_name, leaf_event.leaf_name,
+					leaf_event.data_len, leaf_event.data, leaf_event.data_len);
+
+			if (esp_event_post_to(config->event_loop, GN_BASE_EVENT,
+					leaf_event.id, &leaf_event, sizeof(leaf_event),
+					portMAX_DELAY) != ESP_OK) {
 				ESP_LOGE(TAG, "not possible to send message to leaf %s",
 						((gn_leaf_handle_intl_t ) param->leaf)->name);
 			}
 
 			//send message to the interested leaf
-			_gn_send_event_to_leaf(((gn_leaf_handle_intl_t) param->leaf), &evt);
+			_gn_send_event_to_leaf(((gn_leaf_handle_intl_t) param->leaf),
+					&leaf_event);
 		}
 		break;
 
@@ -280,15 +426,17 @@ void _gn_homie_event_handler(void *handler_args, esp_event_base_t base,
 
 	case MQTT_EVENT_ERROR:
 		ESP_LOGD(TAG, "MQTT_EVENT_ERROR");
-		if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT) {
+		if (mqtt_event->error_handle->error_type
+				== MQTT_ERROR_TYPE_TCP_TRANSPORT) {
 			log_error_if_nonzero("reported from esp-tls",
-					event->error_handle->esp_tls_last_esp_err);
+					mqtt_event->error_handle->esp_tls_last_esp_err);
 			log_error_if_nonzero("reported from tls stack",
-					event->error_handle->esp_tls_stack_err);
+					mqtt_event->error_handle->esp_tls_stack_err);
 			log_error_if_nonzero("captured as transport's socket errno",
-					event->error_handle->esp_transport_sock_errno);
+					mqtt_event->error_handle->esp_transport_sock_errno);
 			ESP_LOGD(TAG, "Last errno string (%s)",
-					strerror(event->error_handle->esp_transport_sock_errno));
+					strerror(
+							mqtt_event->error_handle->esp_transport_sock_errno));
 			//_gn_mqtt_on_disconnected(config);
 		}
 		break;
@@ -471,74 +619,80 @@ gn_err_t _gn_homie_on_connected(gn_config_handle_intl_t _config,
 		gn_leaf_param_handle_intl_t _param = leaf->params;
 		while (_param) {
 
-			//name
-			_gn_homie_mk_topic_param_attribute(_topic_buf, _param, "$name");
-			ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1, 1,
-					_param->name);
-			if (ret != GN_RET_OK)
-				return ret;
+			if (_param->access != GN_LEAF_PARAM_ACCESS_NODE_INTERNAL) {
 
-			//datatype
-			_gn_homie_mk_topic_param_attribute(_topic_buf, _param, "$datatype");
+				//name
+				_gn_homie_mk_topic_param_attribute(_topic_buf, _param, "$name");
+				ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1,
+						1, _param->name);
+				if (ret != GN_RET_OK)
+					return ret;
 
-			switch (_param->param_val->t) {
-			case GN_VAL_TYPE_BOOLEAN:
+				//datatype
+				_gn_homie_mk_topic_param_attribute(_topic_buf, _param,
+						"$datatype");
+
+				switch (_param->param_val->t) {
+				case GN_VAL_TYPE_BOOLEAN:
+					ret = _gn_homie_publish_str(_config->node_handle,
+							_topic_buf, 1, 1, _GN_HOMIE_DATATYPE_BOOLEAN);
+					break;
+				case GN_VAL_TYPE_DOUBLE:
+					ret = _gn_homie_publish_str(_config->node_handle,
+							_topic_buf, 1, 1, _GN_HOMIE_DATATYPE_FLOAT);
+					break;
+				case GN_VAL_TYPE_STRING:
+					ret = _gn_homie_publish_str(_config->node_handle,
+							_topic_buf, 1, 1, _GN_HOMIE_DATATYPE_STRING);
+					break;
+				default:
+					ret = GN_RET_ERR;
+					break;
+				}
+				if (ret != GN_RET_OK)
+					return ret;
+
+				//format
+				_gn_homie_mk_topic_param_attribute(_topic_buf, _param,
+						"$format");
 				ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1,
-						1, _GN_HOMIE_DATATYPE_BOOLEAN);
-				break;
-			case GN_VAL_TYPE_DOUBLE:
+						1, _param->format);
+				if (ret != GN_RET_OK)
+					return ret;
+
+				//unit
+				_gn_homie_mk_topic_param_attribute(_topic_buf, _param, "$unit");
 				ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1,
-						1, _GN_HOMIE_DATATYPE_FLOAT);
-				break;
-			case GN_VAL_TYPE_STRING:
-				ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1,
-						1, _GN_HOMIE_DATATYPE_STRING);
-				break;
-			default:
-				ret = GN_RET_ERR;
-				break;
+						1, _param->unit);
+				if (ret != GN_RET_OK)
+					return ret;
+
+				//settable
+				_gn_homie_mk_topic_param_attribute(_topic_buf, _param,
+						"$settable");
+				if (_param->access == GN_LEAF_PARAM_ACCESS_ALL) {
+					ret = _gn_homie_publish_str(_config->node_handle,
+							_topic_buf, 1, 1, _GN_HOMIE_TRUE);
+				} else {
+					ret = _gn_homie_publish_str(_config->node_handle,
+							_topic_buf, 1, 1, _GN_HOMIE_FALSE);
+				}
+				if (ret != GN_RET_OK)
+					return ret;
+
+				//retained
+				_gn_homie_mk_topic_param_attribute(_topic_buf, _param,
+						"$retained");
+				if (_param->storage == GN_LEAF_PARAM_STORAGE_PERSISTED) {
+					ret = _gn_homie_publish_str(_config->node_handle,
+							_topic_buf, 1, 1, _GN_HOMIE_TRUE);
+				} else {
+					ret = _gn_homie_publish_str(_config->node_handle,
+							_topic_buf, 1, 1, _GN_HOMIE_FALSE);
+				}
+				if (ret != GN_RET_OK)
+					return ret;
 			}
-			if (ret != GN_RET_OK)
-				return ret;
-
-			//format
-			_gn_homie_mk_topic_param_attribute(_topic_buf, _param, "$format");
-			ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1, 1,
-					_param->format);
-			if (ret != GN_RET_OK)
-				return ret;
-
-			//unit
-			_gn_homie_mk_topic_param_attribute(_topic_buf, _param, "$unit");
-			ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1, 1,
-					_param->unit);
-			if (ret != GN_RET_OK)
-				return ret;
-
-			//settable
-			_gn_homie_mk_topic_param_attribute(_topic_buf, _param, "$settable");
-			if (_param->access == GN_LEAF_PARAM_ACCESS_ALL
-					|| _param->access == GN_LEAF_PARAM_ACCESS_NETWORK) {
-				ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1,
-						1, _GN_HOMIE_TRUE);
-			} else {
-				ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1,
-						1, _GN_HOMIE_FALSE);
-			}
-			if (ret != GN_RET_OK)
-				return ret;
-
-			//retained
-			_gn_homie_mk_topic_param_attribute(_topic_buf, _param, "$retained");
-			if (_param->storage == GN_LEAF_PARAM_STORAGE_PERSISTED) {
-				ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1,
-						1, _GN_HOMIE_TRUE);
-			} else {
-				ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1,
-						1, _GN_HOMIE_FALSE);
-			}
-			if (ret != GN_RET_OK)
-				return ret;
 
 			if (_param->next) {
 				_param = _param->next;
@@ -549,7 +703,7 @@ gn_err_t _gn_homie_on_connected(gn_config_handle_intl_t _config,
 
 	}
 
-	//state ready
+//state ready
 	_gn_homie_mk_topic_node_attribute(_topic_buf, _config->node_handle,
 			"$state");
 	ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1, 1,
@@ -594,7 +748,7 @@ gn_err_t gn_mqtt_subscribe_leaf(gn_leaf_handle_t _leaf) {
 
 	gn_leaf_handle_intl_t leaf = (gn_leaf_handle_intl_t) _leaf;
 
-	//subscribe each parameter
+//subscribe each parameter
 	gn_leaf_param_handle_intl_t _param_enum = leaf->params;
 	while (_param_enum) {
 
@@ -655,7 +809,7 @@ gn_err_t gn_mqtt_start(gn_config_handle_t config) {
 
 #ifdef CONFIG_GROWNODE_WIFI_ENABLED
 
-	//TODO check if naming of nodes leaf etc are compliant with homie specs. maybe add warnings in node and leaf creations?
+//TODO check if naming of nodes leaf etc are compliant with homie specs. maybe add warnings in node and leaf creations?
 
 	gn_config_handle_intl_t _config = (gn_config_handle_intl_t) config;
 
@@ -880,7 +1034,6 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 
 	int ret = GN_RET_OK;
 
-	int msg_id = -1;
 	char _topic[_GN_MQTT_MAX_TOPIC_LENGTH];
 	char *buf = (char*) calloc(_GN_MQTT_MAX_PAYLOAD_LENGTH, sizeof(char));
 
@@ -909,8 +1062,8 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 		goto fail;
 
 	if (esp_log_level_get(TAG) == ESP_LOG_DEBUG) {
-		ESP_LOGD(TAG,
-				"sent publish successful, topic=%s. now waiting %d ms",_topic, _GN_MQTT_DEBUG_WAIT_MS);
+		ESP_LOGD(TAG, "sent publish successful, topic=%s. now waiting %d ms",
+				_topic, _GN_MQTT_DEBUG_WAIT_MS);
 		vTaskDelay(_GN_MQTT_DEBUG_WAIT_MS / portTICK_PERIOD_MS);
 	}
 
