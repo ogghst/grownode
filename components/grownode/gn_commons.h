@@ -262,20 +262,20 @@ uint64_t gn_hash(const char *key);
 
 void gn_hash_str(const char *key, char *buf, size_t len);
 
-gn_err_t gn_bool_from_event(gn_leaf_parameter_event_t evt, bool *_ret);
+gn_err_t gn_event_payload_to_bool(gn_leaf_parameter_event_t evt, bool *_ret);
 
-gn_err_t gn_double_from_event(gn_leaf_parameter_event_t evt, double *_ret);
+gn_err_t gn_event_payload_to_double(gn_leaf_parameter_event_t evt, double *_ret);
 
 //TODO remove
 //gn_err_t gn_int_from_event(gn_leaf_parameter_event_t evt, int *_ret);
 
-gn_err_t gn_str_from_event(gn_leaf_parameter_event_t evt, char *_ret, int ret_len);
+gn_err_t gn_event_payload_to_string(gn_leaf_parameter_event_t evt, char *_ret, int ret_len);
 
-gn_err_t gn_bool_from_payload(gn_leaf_parameter_event_t evt, bool *_ret);
+gn_err_t gn_bool_to_event_payload(bool val, gn_leaf_parameter_event_handle_t evt);
 
-gn_err_t gn_double_from_payload(gn_leaf_parameter_event_t evt, double *_ret);
+gn_err_t gn_double_to_event_payload(double val, gn_leaf_parameter_event_handle_t evt);
 
-gn_err_t gn_str_from_payload(gn_leaf_parameter_event_t evt, char *_ret, int ret_len);
+gn_err_t gn_string_to_event_payload(char *val, int val_len, gn_leaf_parameter_event_handle_t evt);
 
 //validators
 gn_leaf_param_validator_result_t gn_validator_double_positive(

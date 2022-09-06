@@ -496,7 +496,7 @@ void gn_ds18b20_task(gn_leaf_handle_t leaf_config) {
 						== 0) {
 
 					double updtime;
-					if (gn_double_from_event(evt, &updtime) != GN_RET_OK) {
+					if (gn_event_payload_to_double(evt, &updtime) != GN_RET_OK) {
 						break;
 					}
 
@@ -514,7 +514,7 @@ void gn_ds18b20_task(gn_leaf_handle_t leaf_config) {
 
 					bool prev_active = active;
 					bool _active = 0;
-					if (gn_bool_from_event(evt, &_active) != GN_RET_OK) {
+					if (gn_event_payload_to_bool(evt, &_active) != GN_RET_OK) {
 						break;
 					}
 

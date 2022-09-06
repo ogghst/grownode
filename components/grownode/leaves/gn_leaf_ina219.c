@@ -287,7 +287,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 						data->gn_leaf_ina219_active_param) == 0) {
 
 					bool _active = false;
-					if (gn_bool_from_event(evt, &_active) != GN_RET_OK) {
+					if (gn_event_payload_to_bool(evt, &_active) != GN_RET_OK) {
 						break;
 					}
 
@@ -325,7 +325,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_leaf_ina219_port_param) == 0) {
 
-					if (gn_double_from_event(evt, &port) != GN_RET_OK) {
+					if (gn_event_payload_to_double(evt, &port) != GN_RET_OK) {
 						break;
 					}
 
@@ -350,7 +350,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_leaf_ina219_sampling_cycles_param) == 0) {
 
-					if (gn_double_from_event(evt, &sampling_cycles) != GN_RET_OK) {
+					if (gn_event_payload_to_double(evt, &sampling_cycles) != GN_RET_OK) {
 						break;
 					}
 
@@ -362,7 +362,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_leaf_ina219_sampling_interval_param) == 0) {
 
-					if (gn_double_from_event(evt, &sampling_interval) != GN_RET_OK) {
+					if (gn_event_payload_to_double(evt, &sampling_interval) != GN_RET_OK) {
 						break;
 					}
 					//execute change
@@ -373,7 +373,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_leaf_ina219_sda_param) == 0) {
 
-					if (gn_double_from_event(evt, &sda) != GN_RET_OK) {
+					if (gn_event_payload_to_double(evt, &sda) != GN_RET_OK) {
 						break;
 					}
 					//execute change
@@ -383,7 +383,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_leaf_ina219_scl_param) == 0) {
 
-					if (gn_double_from_event(evt, &scl) != GN_RET_OK) {
+					if (gn_event_payload_to_double(evt, &scl) != GN_RET_OK) {
 						break;
 					}
 					//execute change
@@ -393,7 +393,7 @@ void gn_leaf_ina219_task(gn_leaf_handle_t leaf_config) {
 				} else if (gn_leaf_event_mask_param(&evt,
 						data->gn_leaf_ina219_working_mode_param) == 0) {
 
-					if (gn_double_from_event(evt, &working_mode) != GN_RET_OK) {
+					if (gn_event_payload_to_double(evt, &working_mode) != GN_RET_OK) {
 						break;
 					}
 					//execute change

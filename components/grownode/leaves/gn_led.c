@@ -213,7 +213,7 @@ void gn_led_task(gn_leaf_handle_t leaf_config) {
 						== 0) {
 
 					bool _val = false;
-					if (gn_bool_from_event(evt, &_val) != GN_RET_OK) {
+					if (gn_event_payload_to_bool(evt, &_val) != GN_RET_OK) {
 						break;
 					}
 
@@ -226,7 +226,7 @@ void gn_led_task(gn_leaf_handle_t leaf_config) {
 						data->gn_led_inverted_param) == 0) {
 
 					bool _val = false;
-					if (gn_bool_from_event(evt, &_val) != GN_RET_OK) {
+					if (gn_event_payload_to_bool(evt, &_val) != GN_RET_OK) {
 						break;
 					}
 
@@ -239,7 +239,7 @@ void gn_led_task(gn_leaf_handle_t leaf_config) {
 						data->gn_led_blinktime_param) == 0) {
 
 					double _val = 0;
-					if (gn_double_from_event(evt, &_val) != GN_RET_OK) {
+					if (gn_event_payload_to_double(evt, &_val) != GN_RET_OK) {
 						break;
 					}
 

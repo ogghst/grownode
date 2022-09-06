@@ -324,7 +324,7 @@ void gn_leaf_pwm_task(gn_leaf_handle_t leaf_config) {
 					ESP_LOGD(TAG, "updating toggle");
 
 					bool _toggle = false;
-					if (gn_bool_from_event(evt, &_toggle) != GN_RET_OK) {
+					if (gn_event_payload_to_bool(evt, &_toggle) != GN_RET_OK) {
 						break;
 					}
 

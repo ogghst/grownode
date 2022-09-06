@@ -253,7 +253,7 @@ void gn_pump_task(gn_leaf_handle_t leaf_config) {
 						== 0) {
 
 					bool ret = false;
-					if (gn_bool_from_event(evt, &ret) != GN_RET_OK) {
+					if (gn_event_payload_to_bool(evt, &ret) != GN_RET_OK) {
 						break;
 					}
 
@@ -279,7 +279,7 @@ void gn_pump_task(gn_leaf_handle_t leaf_config) {
 						data->gn_pump_power_param) == 0) {
 
 					double pow = 0;
-					if (gn_double_from_event(evt, &pow) != GN_RET_OK) {
+					if (gn_event_payload_to_double(evt, &pow) != GN_RET_OK) {
 						break;
 					}
 

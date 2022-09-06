@@ -40,7 +40,7 @@ void app_main(void) {
 	//core
 	esp_log_level_set("grownode", ESP_LOG_DEBUG);
 	esp_log_level_set("gn_commons", ESP_LOG_DEBUG);
-	esp_log_level_set("gn_event", ESP_LOG_DEBUG);
+	//esp_log_level_set("gn_event", ESP_LOG_DEBUG);
 	//esp_log_level_set("gn_nvs", ESP_LOG_DEBUG);
 	//esp_log_level_set("gn_mqtt_protocol", ESP_LOG_DEBUG);
 	esp_log_level_set("gn_mqtt_homie_protocol", ESP_LOG_DEBUG);

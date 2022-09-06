@@ -297,7 +297,7 @@ void gn_leaf_pwm_relay_task(gn_leaf_handle_t leaf_config) {
 					ESP_LOGD(TAG, "updating toggle");
 
 					bool _toggle = 0;
-					if (gn_bool_from_event(evt, &_toggle) != GN_RET_OK) {
+					if (gn_event_payload_to_bool(evt, &_toggle) != GN_RET_OK) {
 						break;
 					}
 
@@ -325,7 +325,7 @@ void gn_leaf_pwm_relay_task(gn_leaf_handle_t leaf_config) {
 					ESP_LOGD(TAG, "updating power");
 
 					double pow = 0;
-					if (gn_double_from_event(evt, &pow) != GN_RET_OK) {
+					if (gn_event_payload_to_double(evt, &pow) != GN_RET_OK) {
 						break;
 					}
 
@@ -357,7 +357,7 @@ void gn_leaf_pwm_relay_task(gn_leaf_handle_t leaf_config) {
 
 					//check limits
 					double gpio = 0;
-					if (gn_double_from_event(evt, &gpio) != GN_RET_OK) {
+					if (gn_event_payload_to_double(evt, &gpio) != GN_RET_OK) {
 						break;
 					}
 

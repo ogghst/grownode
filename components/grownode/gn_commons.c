@@ -152,99 +152,56 @@ gn_leaf_param_validator_result_t gn_validator_boolean(
 
 }
 
-gn_err_t gn_bool_from_event(gn_leaf_parameter_event_t evt, bool *_ret) {
+/**
+ * put the bool value into the event payload
+ */
+gn_err_t gn_bool_to_event_payload(bool val, gn_leaf_parameter_event_handle_t evt) {
 
-	ESP_LOGD(TAG, "gn_bool_from_payload: data='%.*s', len = %d", evt.data_len,
-			evt.data, evt.data_len);
+	ESP_LOGD(TAG, "gn_event_from_bool: val='%d'", val);
+	memcpy(evt->data, &val, sizeof(bool));
+	evt->data_len = sizeof(bool);
+	//evt->data[0] = val;
+	//evt->data_len = sizeof(bool);
+	return GN_RET_OK;
+
+}
+
+/**
+ * put the double value into the event payload
+ */
+gn_err_t gn_double_to_event_payload(double val, gn_leaf_parameter_event_handle_t evt) {
+
+	memcpy(evt->data, &val, sizeof(double));
+	evt->data_len = sizeof(double);
+	return GN_RET_OK;
+
+}
+
+/**
+ * put the string value into the event payload
+ */
+gn_err_t gn_string_to_event_payload(char *val, int val_len, gn_leaf_parameter_event_handle_t evt) {
+
+	strncpy(evt->data, val, val_len);
+	return GN_RET_OK;
+}
+
+gn_err_t gn_event_payload_to_bool(gn_leaf_parameter_event_t evt, bool *_ret) {
 
 	memcpy(_ret, evt.data, sizeof(bool));
-	/*
-	if (evt.data[0] == true) {
-		*_ret = true;
-	} else if (evt.data[0] == false) {
-		*_ret = false;
-	} else {
-		ESP_LOGW(TAG, "warning: payload '%.*s' cannot be converted as boolean",
-				evt.data_len, evt.data);
-		return GN_RET_ERR;
-	}*/
-
-	ESP_LOGD(TAG, "gn_bool_from_event: '%d'", *_ret);
-
 	return GN_RET_OK;
 }
 
-gn_err_t gn_double_from_event(gn_leaf_parameter_event_t evt, double *_ret) {
+gn_err_t gn_event_payload_to_double(gn_leaf_parameter_event_t evt, double *_ret) {
 
 	memcpy(_ret, evt.data, sizeof(double));
-	/*
-	char *payload = calloc(evt.data_len, sizeof(char));
-	strncpy(payload, evt.data, evt.data_len);
-
-	char *eptr;
-	double result = strtod(payload, &eptr);
-
-	if (result == 0) {
-		If the value provided was out of range, display a warning message
-		if (errno == ERANGE) {
-
-			ESP_LOGW(TAG,
-					"warning: payload '%.*s' cannot be converted as double",
-					evt.data_len, evt.data);
-			free(payload);
-			return GN_RET_ERR;
-		}
-	}
-
-	memcpy(_ret, &result, sizeof(double));
-
-	free(payload);
-	return GN_RET_OK;
-	*/
-	ESP_LOGD(TAG, "gn_double_from_event: '%f'", *_ret);
-
 	return GN_RET_OK;
 
 }
 
-/*
-gn_err_t gn_int_from_event(gn_leaf_parameter_event_t evt, int *_ret) {
+gn_err_t gn_event_payload_to_string(gn_leaf_parameter_event_t evt, char *_ret, int _ret_len) {
 
-	char *payload = calloc(evt.data_len, sizeof(char));
-	strncpy(payload, evt.data, evt.data_len);
-
-	char *eptr;
-	long int _result = (int)strtol(payload, &eptr, 10);
-	int result;
-	if (_result >= INT_MIN && result <= INT_MAX) {
-	    result = _result;
-	} else {
-		free(payload);
-		return GN_RET_VALUE_OUT_OF_LIMIT;
-	}
-
-	if (result == 0) {
-		// If the value provided was out of range, display a warning message
-		if (errno == ERANGE) {
-
-			ESP_LOGW(TAG,
-					"warning: payload '%.*s' cannot be converted as double",
-					evt.data_len, evt.data);
-			free(payload);
-			return GN_RET_ERR;
-		}
-	}
-
-	memcpy(_ret, &result, sizeof(int));
-
-	free(payload);
-	return GN_RET_OK;
-}
-*/
-
-gn_err_t gn_str_from_event(gn_leaf_parameter_event_t evt, char *_ret, int _ret_len) {
 	strncpy(_ret, evt.data, _ret_len);
-	ESP_LOGD(TAG, "gn_str_from_event: '%s'", _ret);
 	return GN_RET_OK;
 }
 

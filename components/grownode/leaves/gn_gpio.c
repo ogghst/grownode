@@ -240,7 +240,7 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 						== 0) {
 
 					bool _active = false;
-					if (gn_bool_from_event(evt, &_active) != GN_RET_OK) {
+					if (gn_event_payload_to_bool(evt, &_active) != GN_RET_OK) {
 						break;
 					}
 
@@ -272,7 +272,7 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 						data->gn_gpio_inverted_param) == 0) {
 
 					bool _inverted = false;
-					if (gn_bool_from_event(evt, &_inverted) != GN_RET_OK) {
+					if (gn_event_payload_to_bool(evt, &_inverted) != GN_RET_OK) {
 						break;
 					}
 

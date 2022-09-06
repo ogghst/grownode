@@ -225,24 +225,21 @@ gn_err_t _gn_mqtt_homie_payload_to_boolean(bool *_ret,
 		esp_mqtt_event_handle_t evt) {
 
 	ESP_LOGD(TAG,
-			"_gn_homie_payload_mqtt_payload_to_boolean: mqtt_payload='%.*s', len = %d",
+			"_gn_mqtt_homie_payload_to_boolean: mqtt_payload='%.*s', len = %d",
 			evt->data_len, evt->data, evt->data_len);
 
-	/*
-	 if (evt->data[0] == true) {
-	 *_ret = true;
-	 } else if (evt->data[0] == false) {
-	 *_ret = false;
-	 } else {
-	 ESP_LOGW(TAG, "warning: payload '%.*s' cannot be converted as boolean",
-	 evt->data_len, evt->data);
-	 return GN_RET_ERR;
-	 }
-	 */
-	memcpy(_ret, evt->data, sizeof(bool));
+	if (strncasecmp(evt->data, "true", 4) == 0) {
+		//memcpy(_ret, &true, sizeof(bool));
+		*_ret = true;
+	} else if (strncasecmp(evt->data, "false", 5) == 0) {
+		//memcpy(_ret, &false, sizeof(bool));
+		*_ret = false;
+	} else {
+		ESP_LOGW(TAG, "_gn_mqtt_homie_payload_to_boolean: invalid payload");
+		return GN_RET_ERR_INVALID_ARG;
+	}
 
-	ESP_LOGD(TAG, "gn_bool_from_payload: ret = %d", *_ret);
-
+	ESP_LOGD(TAG, "_gn_mqtt_homie_payload_to_boolean: ret = %d", *_ret);
 	return GN_RET_OK;
 
 }
@@ -251,37 +248,35 @@ gn_err_t _gn_mqtt_homie_payload_to_double(double *_ret,
 		esp_mqtt_event_handle_t evt) {
 
 	ESP_LOGD(TAG,
-			"_gn_homie_payload_mqtt_payload_to_boolean: mqtt_payload='%.*s', len = %d",
+			"_gn_mqtt_homie_payload_to_double: mqtt_payload='%.*s', len = %d",
 			evt->data_len, evt->data, evt->data_len);
 
-	/*
-	 char *payload = calloc(evt->data_len, sizeof(char));
-	 strncpy(payload, evt->data, evt->data_len);
+	char *payload = calloc(evt->data_len, sizeof(char));
+	strncpy(payload, evt->data, evt->data_len);
 
-	 char *eptr;
-	 double result = strtod(payload, &eptr);
+	char *eptr;
+	double result = strtod(payload, &eptr);
 
-	 if (result == 0) {
-	 //If the value provided was out of range, display a warning message
-	 if (errno == ERANGE) {
+	if (result == 0) {
+		//If the value provided was out of range, display a warning message
+		if (errno == ERANGE) {
+			ESP_LOGW(TAG, "_gn_mqtt_homie_payload_to_double: invalid payload");
+			free(payload);
+			return GN_RET_ERR_INVALID_ARG;
+		}
+	}
 
-	 ESP_LOGW(TAG,
-	 "warning: payload '%.*s' cannot be converted as double",
-	 evt->data_len, evt->data);
-	 free(payload);
-	 return GN_RET_ERR;
-	 }
-	 }
-	 */
-
-	memcpy(_ret, evt->data, sizeof(double));
-
+	//memcpy(_ret, evt->data, sizeof(double));
+	free(payload);
 	return GN_RET_OK;
 
 }
 
 gn_err_t _gn_mqtt_homie_payload_to_string(char *_ret, int _ret_len,
 		esp_mqtt_event_handle_t evt) {
+	ESP_LOGD(TAG,
+			"_gn_mqtt_homie_payload_to_string: mqtt_payload='%.*s', len = %d",
+			evt->data_len, evt->data, evt->data_len);
 	strncpy(_ret, evt->data, _ret_len);
 	return GN_RET_OK;
 }
@@ -315,7 +310,7 @@ void _gn_homie_event_handler(void *handler_args, esp_event_base_t base,
 				pdFALSE, 0);
 
 		if ((uxBits & _GN_MQTT_CONNECTED_EVENT_BIT) == 0) {
-			ESP_LOGD(TAG,
+			ESP_LOGW(TAG,
 					"MQTT_EVENT_DISCONNECTED but MQTT is not connected, discarding");
 			break;
 		}
@@ -332,6 +327,7 @@ void _gn_homie_event_handler(void *handler_args, esp_event_base_t base,
 		//parameter set
 		gn_leaf_param_handle_intl_t param = _gn_homie_param_from_set_topic(
 				config->node_handle, mqtt_event->topic, mqtt_event->topic_len);
+
 		if (param) {
 
 			//check access
@@ -348,6 +344,7 @@ void _gn_homie_event_handler(void *handler_args, esp_event_base_t base,
 					GN_LEAF_NAME_SIZE);
 
 			switch (param->param_val->t) {
+
 			case GN_VAL_TYPE_BOOLEAN: {
 
 				bool ret = false;
@@ -357,12 +354,7 @@ void _gn_homie_event_handler(void *handler_args, esp_event_base_t base,
 							"_gn_homie_event_handler - boolean payload not allowed");
 					break;
 				}
-				if (ret == true) {
-					leaf_event.data[0] = 0;
-				} else {
-					leaf_event.data[0] = 1;
-				}
-				leaf_event.data_len = sizeof(bool);
+				gn_bool_to_event_payload(ret, &leaf_event);
 
 			}
 
@@ -376,23 +368,27 @@ void _gn_homie_event_handler(void *handler_args, esp_event_base_t base,
 							"_gn_homie_event_handler - double payload not allowed");
 					break;
 				}
-				memcpy(&leaf_event.data[0], &ret, sizeof(double));
-				leaf_event.data_len = sizeof(double);
-				break;
+				gn_double_to_event_payload(ret, &leaf_event);
 			}
 
 				break;
-			case GN_VAL_TYPE_STRING:
+			case GN_VAL_TYPE_STRING: {
 
-				if (_gn_mqtt_homie_payload_to_string(&leaf_event.data[0],
-						leaf_event.data_len, mqtt_event) != GN_RET_OK) {
+				char *ret = calloc(_GN_MQTT_MAX_PAYLOAD_LENGTH, sizeof(char));
+				if (_gn_mqtt_homie_payload_to_string(ret,
+						mqtt_event->data_len, mqtt_event) != GN_RET_OK) {
 					ESP_LOGW(TAG,
 							"_gn_homie_event_handler - string payload not allowed");
+					free(ret);
 					break;
 				}
-
-				leaf_event.data_len = strlen(leaf_event.data);
+				gn_string_to_event_payload(ret, &leaf_event, leaf_event.data_len);
+				free(ret);
+			}
 				break;
+			default:
+				ESP_LOGE(TAG, "parameter type not handled: %d", param->param_val->t);
+				return;
 			}
 
 			ESP_LOGD(TAG,
@@ -408,8 +404,20 @@ void _gn_homie_event_handler(void *handler_args, esp_event_base_t base,
 			}
 
 			//send message to the interested leaf
-			_gn_send_event_to_leaf(((gn_leaf_handle_intl_t) param->leaf),
-					&leaf_event);
+			//_gn_send_event_to_leaf(((gn_leaf_handle_intl_t) param->leaf),
+			//		&leaf_event);
+
+			if (GN_RET_OK
+					!= _gn_leaf_parameter_update(param->leaf, param->name,
+							leaf_event.data, leaf_event.data_len)) {
+				ESP_LOGE(TAG,
+						"error in updating parameter %s with value %s to leaf %s",
+						param->name, leaf_event.data,
+						((gn_leaf_handle_intl_t ) param->leaf)->name);
+
+			}
+			break;
+
 		}
 		break;
 
@@ -461,7 +469,7 @@ static int _clamp(int n, int lower, int upper) {
 gn_err_t _gn_homie_on_connected(gn_config_handle_intl_t _config,
 		char *_topic_buf) {
 
-	ESP_LOGI(TAG, "_gn_homie_on_connected");
+	ESP_LOGD(TAG, "_gn_homie_on_connected");
 
 //presentation messages
 	int ret;
