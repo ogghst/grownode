@@ -14,9 +14,7 @@ Two possible MQTT implementations are selectable from menuconfig
 [September 2022] from release 0.8.0, GrowNode supports HOMIE 4.0.0 as messaging standard! We think this is a great step in standardization, making the boards able to be discovered and talk with most popular IoT controllers (OpenHab, Home Assistant, Node-RED etc.)
 
 <a href="https://homieiot.github.io/">
-  <object type="image/svg+xml" data="https://homieiot.github.io/img/works-with-homie.svg">
-    works with MQTT Homie
-  </object>
+  <img src="https://homieiot.github.io/img/works-with-homie.png" alt="works with MQTT Homie">
 </a>
 
 From 0.8.0 release, Homie terminology is converted in GrowNode as follows

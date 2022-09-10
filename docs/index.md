@@ -58,8 +58,6 @@ GrowNode works with most common technologies, relying on minimal custom code in 
 It supports HOMIE protocol for autodiscovery and standard MQTT messaging
 
 <a href="https://homieiot.github.io/">
-  <object type="image/svg+xml" data="https://homieiot.github.io/img/works-with-homie.svg">
-    works with MQTT Homie
-  </object>
+  <img src="https://homieiot.github.io/img/works-with-homie.png" alt="works with MQTT Homie">
 </a>
 
