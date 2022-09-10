@@ -1,0 +1,1970 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="GrowNode is a vertical framework to build IoT devices targeted to growing plants in a controlled environment">
+      
+      
+        <meta name="author" content="Nicola Muratori - nicola.muratori@gmail.com">
+      
+      
+      <link rel="icon" href="../../img/grownode_logo_24.png">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.4.3">
+    
+    
+      
+        <title>MQTT - GrowNode Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6b80c2a2.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mqtt" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="GrowNode Documentation" class="md-header__button md-logo" aria-label="GrowNode Documentation" data-md-component="logo">
+      
+  <img src="../../img/grownode_logo_24.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            GrowNode Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              MQTT
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ogghst/GrowNode" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../.." class="md-tabs__link">
+      Introduction
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../platform/" class="md-tabs__link">
+      Platform
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../start/" class="md-tabs__link">
+      Install
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../workflow/" class="md-tabs__link">
+      Play
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../boards/" class="md-tabs__link">
+        Ready Made Boards
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../" class="md-tabs__link md-tabs__link--active">
+        Reference Guide
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../tutorials/" class="md-tabs__link">
+        Tutorials
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../story/" class="md-tabs__link">
+      Story
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../html/" class="md-tabs__link">
+      API
+    </a>
+  </li>
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="GrowNode Documentation" class="md-nav__button md-logo" aria-label="GrowNode Documentation" data-md-component="logo">
+      
+  <img src="../../img/grownode_logo_24.png" alt="logo">
+
+    </a>
+    GrowNode Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ogghst/GrowNode" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../platform/" class="md-nav__link">
+        Platform
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../start/" class="md-nav__link">
+        Install
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workflow/" class="md-nav__link">
+        Play
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../boards/">Ready Made Boards</a>
+          
+            <label for="__nav_5">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Ready Made Boards" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Ready Made Boards
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../boards/boards_easypot1/" class="md-nav__link">
+        EasyPot1
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../boards/boards_hb1/" class="md-nav__link">
+        HydroBoard1
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../boards/boards_hb2/" class="md-nav__link">
+        HydroBoard2
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../boards/oscilloscope.md" class="md-nav__link">
+        Oscilloscope
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../">Reference Guide</a>
+          
+            <label for="__nav_6">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Reference Guide" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Reference Guide
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../node/" class="md-nav__link">
+        Node
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../leaves/" class="md-nav__link">
+        Leaves
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parameters/" class="md-nav__link">
+        Parameters
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_6_5" type="checkbox" id="__nav_6_5" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../leaves_list/">Standard Leaves</a>
+          
+            <label for="__nav_6_5">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Standard Leaves" data-md-level="2">
+        <label class="md-nav__title" for="__nav_6_5">
+          <span class="md-nav__icon md-icon"></span>
+          Standard Leaves
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../leaves_list/bme280/" class="md-nav__link">
+        BME280
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../leaves_list/ina219/" class="md-nav__link">
+        INA219
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../synapses/" class="md-nav__link">
+        Synapses
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../boards/" class="md-nav__link">
+        Boards
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../events/" class="md-nav__link">
+        Event subsystem
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/" class="md-nav__link">
+        Networking
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          MQTT
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        MQTT
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#homie" class="md-nav__link">
+    HOMIE
+  </a>
+  
+    <nav class="md-nav" aria-label="HOMIE">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    Configuration
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#legacy" class="md-nav__link">
+    Legacy
+  </a>
+  
+    <nav class="md-nav" aria-label="Legacy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration_1" class="md-nav__link">
+    Configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mqtt-protocol" class="md-nav__link">
+    MQTT Protocol
+  </a>
+  
+    <nav class="md-nav" aria-label="MQTT Protocol">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#startup-messages" class="md-nav__link">
+    Startup messages
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwt-messages" class="md-nav__link">
+    LWT messages
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#node-config-message" class="md-nav__link">
+    Node Config message
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#leaf-parameter-change-request" class="md-nav__link">
+    Leaf parameter change request
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#leaf-parameter-change-notify" class="md-nav__link">
+    Leaf parameter change notify
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#discovery-messages" class="md-nav__link">
+    Discovery messages
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ota-message" class="md-nav__link">
+    OTA message
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reboot-message" class="md-nav__link">
+    Reboot message
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reset-message" class="md-nav__link">
+    Reset  message
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#log-messages" class="md-nav__link">
+    Log messages
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../power_management/" class="md-nav__link">
+        Sleep Modes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../display/" class="md-nav__link">
+        Display
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../logging/" class="md-nav__link">
+        Logging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../error/" class="md-nav__link">
+        Error
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../build_system/" class="md-nav__link">
+        Build System
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_7" type="checkbox" id="__nav_7" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../tutorials/">Tutorials</a>
+          
+            <label for="__nav_7">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Tutorials" data-md-level="1">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Tutorials
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/windows10_11_easy/" class="md-nav__link">
+        How to get started with GrowNode on Windows 10 and Windows 11 - Easy version
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/ubuntu1804_2004_easy/" class="md-nav__link">
+        How to get started with GrowNode on Ubuntu 18.04 and 20.04 - Easy version
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/ubuntu1804_2004_advanced/" class="md-nav__link">
+        How to get started with GrowNode on Ubuntu 18.04 and 20.04 - Advanced version
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/openhab_ubuntu1804_2004_easy/" class="md-nav__link">
+        How to install Mosquitto and openHAB on Ubuntu 18.04 and 20.04 - Easy version
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../story/" class="md-nav__link">
+        Story
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../html/" class="md-nav__link">
+        API
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#homie" class="md-nav__link">
+    HOMIE
+  </a>
+  
+    <nav class="md-nav" aria-label="HOMIE">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    Configuration
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#legacy" class="md-nav__link">
+    Legacy
+  </a>
+  
+    <nav class="md-nav" aria-label="Legacy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration_1" class="md-nav__link">
+    Configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mqtt-protocol" class="md-nav__link">
+    MQTT Protocol
+  </a>
+  
+    <nav class="md-nav" aria-label="MQTT Protocol">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#startup-messages" class="md-nav__link">
+    Startup messages
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lwt-messages" class="md-nav__link">
+    LWT messages
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#node-config-message" class="md-nav__link">
+    Node Config message
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#leaf-parameter-change-request" class="md-nav__link">
+    Leaf parameter change request
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#leaf-parameter-change-notify" class="md-nav__link">
+    Leaf parameter change notify
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#discovery-messages" class="md-nav__link">
+    Discovery messages
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ota-message" class="md-nav__link">
+    OTA message
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reboot-message" class="md-nav__link">
+    Reboot message
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reset-message" class="md-nav__link">
+    Reset  message
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#log-messages" class="md-nav__link">
+    Log messages
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+
+  <a href="https://github.com/ogghst/GrowNode/edit/master/docs/reference/mqtt.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+<h1 id="mqtt">MQTT</h1>
+<p>GrowNode uses MQTT as messaging protocol. It has been choosen due to wide use across IoT community, becoming a de facto standard for those applications. Users can deploy their own MQTT server or use a public server in the network. </p>
+<p>GrowNode will connect to the MQTT server just after receiving wifi credentials.</p>
+<p>Two possible MQTT implementations are selectable from menuconfig</p>
+<ul>
+<li>Homie: an open standard for IoT messaging. We currently implement 4.0.0 version. See [Specification] (https://homieiot.github.io/specification/)</li>
+<li>Legacy: a custom protocol</li>
+</ul>
+<h2 id="homie">HOMIE</h2>
+<p>[September 2022] from release 0.8.0, GrowNode supports HOMIE 4.0.0 as messaging standard! We think this is a great step in standardization, making the boards able to be discovered and talk with most popular IoT controllers (OpenHab, Home Assistant, Node-RED etc.)</p>
+<p><a href="https://homieiot.github.io/">
+  <img src="https://homieiot.github.io/img/works-with-homie.png" alt="works with MQTT Homie">
+</a></p>
+<p>From 0.8.0 release, Homie terminology is converted in GrowNode as follows</p>
+<ul>
+<li>Homie Device -&gt; GrowNode node</li>
+<li>Homie Node -&gt; GrowNode leaf</li>
+<li>Homie Property -&gt; Grownode parameter </li>
+</ul>
+<h3 id="configuration">Configuration</h3>
+<p>See <a href="../../start/#network-startup">Network Configuration</a> for a basic startup.</p>
+<p>Parameters involved in the MQTT server configuration are described in <code>gn_config_init_param_t</code> struct to be passed to node creation:</p>
+<ul>
+<li><code>bool server_board_id_topic</code>: whether grownode engine shall add the MAC address of the board in the topic prefix - default false;</li>
+<li><code>char server_base_topic[80]</code>: the base topic where to publish messages, TO COMPLY WITH HOMIE STANDARD AND ENABLE AUTODISCOVERY MUST BE SET AS: <code>homie/</code>;</li>
+<li><code>char server_url[255]</code>: URL of the server, specified with protocol and port - example: <code>mqtt://192.168.1.170:1883</code>;</li>
+<li><code>uint32_t server_keepalive_timer_sec</code>: GrowNode engine will send a keepalive message to MQTT server. This indicates the seconds between two messages. if not found or 0, keepalive messages will not be triggered;</li>
+</ul>
+<h2 id="legacy">Legacy</h2>
+<h3 id="configuration_1">Configuration</h3>
+<p>See <a href="../../start/#network-startup">Network Configuration</a> for a basic startup.</p>
+<p>Parameters involved in the MQTT server configuration are described in <code>gn_config_init_param_t</code> struct to be passed to node creation:</p>
+<ul>
+<li><code>bool server_board_id_topic</code>: whether grownode engine shall add the MAC address of the board in the topic prefix - default false;</li>
+<li><code>char server_base_topic[80]</code>: the base topic where to publish messages, format shall include all slashes - example: <code>/grownode/test</code>;</li>
+<li><code>char server_url[255]</code>: URL of the server, specified with protocol and port - example: <code>mqtt://192.168.1.170:1883</code>;</li>
+<li><code>uint32_t server_keepalive_timer_sec</code>: GrowNode engine will send a keepalive message to MQTT server. This indicates the seconds between two messages. if not found or 0, keepalive messages will not be triggered;</li>
+</ul>
+<h3 id="mqtt-protocol">MQTT Protocol</h3>
+<blockquote>
+<p>All messages are sent using QoS 0, retain = false. This to improve efficiency and performances on the node side. But this also means that if no listeners are subscribed when the message is lost. </p>
+</blockquote>
+<p>GrowNode uses JSON formatting to produce complex payloads. Parts in <em>italic</em> have to be replaced with your configuration.</p>
+<h4 id="startup-messages">Startup messages</h4>
+<p>Upon Server connection, the Node will send a startup message.</p>
+<table>
+<thead>
+<tr>
+<th>From</th>
+<th>To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Board</td>
+<td>Server</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Topic</td>
+<td><em>base</em>/STS</td>
+</tr>
+<tr>
+<td>QoS</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Payload</td>
+<td>{ "msgtype": "online" }</td>
+</tr>
+</tbody>
+</table>
+<h4 id="lwt-messages">LWT messages</h4>
+<p>LWT message (last will testament) is a particular message the MQTT server will publish if no messages are received from a certain time. </p>
+<table>
+<thead>
+<tr>
+<th>From</th>
+<th>To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Board</td>
+<td>Server</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Topic</td>
+<td><em>base</em>/STS</td>
+</tr>
+<tr>
+<td>QoS</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>retain</strong></td>
+<td>1</td>
+</tr>
+<tr>
+<td>Payload</td>
+<td>{ "msgtype": "offline" }</td>
+</tr>
+</tbody>
+</table>
+<h4 id="node-config-message">Node Config message</h4>
+<p>This is a message showing the node configuration to the network. Currently, it is sent as keepalive.</p>
+<table>
+<thead>
+<tr>
+<th>From</th>
+<th>To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Board</td>
+<td>Server</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Topic</td>
+<td><em>base</em>/STS</td>
+</tr>
+<tr>
+<td>QoS</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Payload</td>
+<td>{ "msgtype": "config"... (see example) }</td>
+</tr>
+</tbody>
+</table>
+<p>Example message:</p>
+<pre><code>{
+  &quot;msgtype&quot;: &quot;config&quot;,
+  &quot;name&quot;: &quot;node&quot;,
+  &quot;leaves&quot;: [
+    {
+      &quot;name&quot;: &quot;blink&quot;,
+      &quot;leaf_type&quot;: &quot;gpio&quot;,
+      &quot;params&quot;: [
+        {
+          &quot;name&quot;: &quot;status&quot;,
+          &quot;type&quot;: &quot;bool&quot;,
+          &quot;val&quot;: true
+        },
+        {
+          &quot;name&quot;: &quot;inverted&quot;,
+          &quot;type&quot;: &quot;bool&quot;,
+          &quot;val&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;gpio&quot;,
+          &quot;type&quot;: &quot;number&quot;,
+          &quot;val&quot;: 2
+        }
+      ]
+    }
+  ]
+}
+</code></pre>
+<h4 id="leaf-parameter-change-request">Leaf parameter change request</h4>
+<p>To request a parameter to change, user shall send a mqtt message indicating the leaf and the parameter to change. This will be evaluated against the permissions for this parameter:</p>
+<table>
+<thead>
+<tr>
+<th>From</th>
+<th>To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Server</td>
+<td>Board</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Topic</td>
+<td><em>base</em>/<em>leaf</em>/<em>parameter</em>/CMD</td>
+</tr>
+<tr>
+<td>QoS</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Payload</td>
+<td>parameter-dependent</td>
+</tr>
+</tbody>
+</table>
+<h4 id="leaf-parameter-change-notify">Leaf parameter change notify</h4>
+<p>When a parameter changes its status, if configured the board will send a parameter status change:</p>
+<table>
+<thead>
+<tr>
+<th>From</th>
+<th>To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Board</td>
+<td>Server</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Topic</td>
+<td><em>base</em>/<em>leaf</em>/<em>parameter</em>/STS</td>
+</tr>
+<tr>
+<td>QoS</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Payload</td>
+<td>parameter-dependent</td>
+</tr>
+</tbody>
+</table>
+<h4 id="discovery-messages">Discovery messages</h4>
+<blockquote>
+<p>This feature is not yet completed. Please consider it experimental.</p>
+</blockquote>
+<p>Discovery messages are particular messages that allows servers like openHAB or HomeAssistant to automatically detect the node capabilities and expose them in their system. With this functionality users does not have to manually add sensors to their home automation servers.</p>
+<p>Parameters involved in the configuration are described in <code>gn_config_init_param_t</code> struct to be passed to node creation:</p>
+<ul>
+<li><code>bool server_discovery</code>: whether the functionality shall be enabled - default false</li>
+<li><code>char server_discovery_prefix[80]</code>: topic prefix</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>From</th>
+<th>To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Board</td>
+<td>Server</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Topic</td>
+<td><em>server_discovery_prefix</em></td>
+</tr>
+<tr>
+<td>QoS</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Payload</td>
+<td>todo</td>
+</tr>
+</tbody>
+</table>
+<h4 id="ota-message">OTA message</h4>
+<p>This message informs the node to upload the firmware from the config specified URL. This message can be sent also with retained flag = true, and will be resetted by the board upon processing. This in order to call the functionality even if waking up from deep sleep</p>
+<table>
+<thead>
+<tr>
+<th>From</th>
+<th>To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Server</td>
+<td>Board</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Topic</td>
+<td><em>base</em>/CMD</td>
+</tr>
+<tr>
+<td>QoS</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Payload</td>
+<td>OTA</td>
+</tr>
+</tbody>
+</table>
+<p>This gives the confirmation the OTA message has been processed and the OTA is in progress</p>
+<table>
+<thead>
+<tr>
+<th>From</th>
+<th>To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Board</td>
+<td>Server</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Topic</td>
+<td><em>base</em>/STS</td>
+</tr>
+<tr>
+<td>QoS</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Payload</td>
+<td>OTA</td>
+</tr>
+</tbody>
+</table>
+<h4 id="reboot-message">Reboot message</h4>
+<p>This message tells the node to reboot. This message can be sent also with retained flag = true, and will be resetted by the board upon processing. This in order to call the functionality even if waking up from deep sleep</p>
+<table>
+<thead>
+<tr>
+<th>From</th>
+<th>To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Server</td>
+<td>Board</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Topic</td>
+<td><em>base</em>/CMD</td>
+</tr>
+<tr>
+<td>QoS</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Payload</td>
+<td>RBT</td>
+</tr>
+</tbody>
+</table>
+<p>This gives the confirmation the reboot message has been processed and the board is rebooting</p>
+<table>
+<thead>
+<tr>
+<th>From</th>
+<th>To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Board</td>
+<td>Server</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Topic</td>
+<td><em>base</em>/STS</td>
+</tr>
+<tr>
+<td>QoS</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Payload</td>
+<td>RBT</td>
+</tr>
+</tbody>
+</table>
+<h4 id="reset-message">Reset  message</h4>
+<p>This message tells the node to reset the NVS. This will bring to the initial configuration, including provisioning. This message can be sent also with retained flag = true, and will be resetted by the board upon processing. This in order to call the functionality even if waking up from deep sleep</p>
+<table>
+<thead>
+<tr>
+<th>From</th>
+<th>To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Server</td>
+<td>Board</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Topic</td>
+<td><em>base</em>/CMD</td>
+</tr>
+<tr>
+<td>QoS</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Payload</td>
+<td>RST</td>
+</tr>
+</tbody>
+</table>
+<p>This gives the confirmation the reset message has been processed and the reset is in progress</p>
+<table>
+<thead>
+<tr>
+<th>From</th>
+<th>To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Board</td>
+<td>Server</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Topic</td>
+<td><em>base</em>/STS</td>
+</tr>
+<tr>
+<td>QoS</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Payload</td>
+<td>RST</td>
+</tr>
+</tbody>
+</table>
+<h4 id="log-messages">Log messages</h4>
+<p>This is sent by the <a href="logging.mw">logging API</a></p>
+<table>
+<thead>
+<tr>
+<th>From</th>
+<th>To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Board</td>
+<td>Server</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Topic</td>
+<td><em>base</em>/STS</td>
+</tr>
+<tr>
+<td>QoS</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Payload</td>
+<td>{ "msgtype": "log"; "tag": "<em>tag</em>"; "lev": "<em>lev</em>"; "msg": "<em>payload</em>" }</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../networking/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Networking" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Networking
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../power_management/" class="md-footer__link md-footer__link--next" aria-label="Next: Sleep Modes" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Sleep Modes
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright 2022 - Nicola Muratori
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.expand", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.2ab50757.min.js"></script>
+      
+    
+  </body>
+</html>

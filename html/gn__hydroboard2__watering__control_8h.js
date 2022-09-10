@@ -1,0 +1,28 @@
+var gn__hydroboard2__watering__control_8h =
+[
+    [ "gn_hb2_watering_control_config", "gn__hydroboard2__watering__control_8h.html#aabc329fc860a5f70ae7db6da853caa2b", null ],
+    [ "GN_HYDROBOARD2_MAX_HCC_CYCLE_TIME_SEC", "gn__hydroboard2__watering__control_8h.html#aae3b148efceaf5698070bd79e34a90ce", null ],
+    [ "GN_HYDROBOARD2_MAX_WATERING_INTERVAL", "gn__hydroboard2__watering__control_8h.html#a7f16a80a5a54bc0978d79919269a4484", null ],
+    [ "GN_HYDROBOARD2_MAX_WATERING_TARGET_TEMP", "gn__hydroboard2__watering__control_8h.html#aeeaf94afd7afa34fad0232db68e099ed", null ],
+    [ "GN_HYDROBOARD2_MAX_WATERING_TIME", "gn__hydroboard2__watering__control_8h.html#a7f9d5ab95290ac760ecd61318e50da8c", null ],
+    [ "GN_HYDROBOARD2_MIN_WATERING_INTERVAL", "gn__hydroboard2__watering__control_8h.html#a34e5459dcccff4866ac09def1249b1bf", null ],
+    [ "GN_HYDROBOARD2_MIN_WATERING_TARGET_TEMP", "gn__hydroboard2__watering__control_8h.html#a809cce811002b89e79e4d7bdc9f4987d", null ],
+    [ "GN_HYDROBOARD2_MIN_WATERING_TIME", "gn__hydroboard2__watering__control_8h.html#aa174d3858bb5feafb619eb60a55be5a9", null ],
+    [ "GN_HYDROBOARD2_WAT_CTR_CYCLE_TIME_MS", "gn__hydroboard2__watering__control_8h.html#a6056461a47ba61f1fe63fe6ac4e3e4f4", null ],
+    [ "GN_HYDROBOARD2_WAT_CTR_PARAM_ACTIVE", "gn__hydroboard2__watering__control_8h.html#a79725e0509388d8348cc0682c7fcc1e0", null ],
+    [ "GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_BME280", "gn__hydroboard2__watering__control_8h.html#aab72a12f5c7dc512586b8221f8b460f1", null ],
+    [ "GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_DS18B20", "gn__hydroboard2__watering__control_8h.html#aeb09470732346898a5e798b29e47e7af", null ],
+    [ "GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_ENV_FAN", "gn__hydroboard2__watering__control_8h.html#a736ad6a28b6bd6ab66828c5d7f3ecb44", null ],
+    [ "GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_LIGHT_1", "gn__hydroboard2__watering__control_8h.html#aef1dd56100dc6582b6d590878e9b3d2e", null ],
+    [ "GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_LIGHT_2", "gn__hydroboard2__watering__control_8h.html#a1f9ccb926be6d5d810b35cb257527caf", null ],
+    [ "GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_COOL", "gn__hydroboard2__watering__control_8h.html#a87e62dc13019b1a44e03a975b29d5d3b", null ],
+    [ "GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_FAN", "gn__hydroboard2__watering__control_8h.html#abc889a1aa069952d97a4cd98a8443076", null ],
+    [ "GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_HOT", "gn__hydroboard2__watering__control_8h.html#a80774e640f35f30555e24c438d719424", null ],
+    [ "GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_PLT_PUMP", "gn__hydroboard2__watering__control_8h.html#ae91d9888e89feb4a881665d8596b32e5", null ],
+    [ "GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_WAT_LEV", "gn__hydroboard2__watering__control_8h.html#abe423efef236924f0df098b320162ce0", null ],
+    [ "GN_HYDROBOARD2_WAT_CTR_PARAM_LEAF_WAT_PUMP", "gn__hydroboard2__watering__control_8h.html#a9a15231d3314800e89a99e4b8211d7bf", null ],
+    [ "GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_INTERVAL_SEC", "gn__hydroboard2__watering__control_8h.html#a50cc431f762eae79b0a61d52f2f791e2", null ],
+    [ "GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TARGET_TEMP", "gn__hydroboard2__watering__control_8h.html#a58e69eb954d09a1e28da2444baa9c0bd", null ],
+    [ "GN_HYDROBOARD2_WAT_CTR_PARAM_WATERING_TIME_SEC", "gn__hydroboard2__watering__control_8h.html#a078a63cd57a661afd247740501279380", null ],
+    [ "GN_LEAF_HYDROBOARD2_WATERING_CONTROL_TYPE", "gn__hydroboard2__watering__control_8h.html#a0683344508cf697b8db5beaa19022b53", null ]
+];

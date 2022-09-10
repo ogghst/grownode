@@ -1,0 +1,28 @@
+var annotated_dup =
+[
+    [ "gn_bme280_data_t", "structgn__bme280__data__t.html", "structgn__bme280__data__t" ],
+    [ "gn_cms_data_t", "structgn__cms__data__t.html", "structgn__cms__data__t" ],
+    [ "gn_config_init_param_t", "structgn__config__init__param__t.html", "structgn__config__init__param__t" ],
+    [ "gn_config_t", "structgn__config__t.html", "structgn__config__t" ],
+    [ "gn_cwl_data_t", "structgn__cwl__data__t.html", "structgn__cwl__data__t" ],
+    [ "gn_ds18b20_data_t", "structgn__ds18b20__data__t.html", "structgn__ds18b20__data__t" ],
+    [ "gn_gpio_data_t", "structgn__gpio__data__t.html", "structgn__gpio__data__t" ],
+    [ "gn_hb2_watering_control_data_t", "structgn__hb2__watering__control__data__t.html", "structgn__hb2__watering__control__data__t" ],
+    [ "gn_leaf_config_t", "structgn__leaf__config__t.html", "structgn__leaf__config__t" ],
+    [ "gn_leaf_descriptor_t", "structgn__leaf__descriptor__t.html", "structgn__leaf__descriptor__t" ],
+    [ "gn_leaf_param", "structgn__leaf__param.html", "structgn__leaf__param" ],
+    [ "gn_leaf_parameter_event_t", "structgn__leaf__parameter__event__t.html", "structgn__leaf__parameter__event__t" ],
+    [ "gn_leaf_status_led_data_t", "structgn__leaf__status__led__data__t.html", "structgn__leaf__status__led__data__t" ],
+    [ "gn_leaves_list", "structgn__leaves__list.html", "structgn__leaves__list" ],
+    [ "gn_led_data_t", "structgn__led__data__t.html", "structgn__led__data__t" ],
+    [ "gn_mqtt_node_config_message_t", "structgn__mqtt__node__config__message__t.html", "structgn__mqtt__node__config__message__t" ],
+    [ "gn_mqtt_startup_message_t", "structgn__mqtt__startup__message__t.html", "structgn__mqtt__startup__message__t" ],
+    [ "gn_node_event_t", "structgn__node__event__t.html", "structgn__node__event__t" ],
+    [ "gn_node_t", "structgn__node__t.html", "structgn__node__t" ],
+    [ "gn_nodes_list", "structgn__nodes__list.html", "structgn__nodes__list" ],
+    [ "gn_param_val_t", "structgn__param__val__t.html", "structgn__param__val__t" ],
+    [ "gn_pump_data_t", "structgn__pump__data__t.html", "structgn__pump__data__t" ],
+    [ "gn_pump_hs_data_t", "structgn__pump__hs__data__t.html", "structgn__pump__hs__data__t" ],
+    [ "gn_val_t", "uniongn__val__t.html", "uniongn__val__t" ],
+    [ "gn_watering_control_data_t", "structgn__watering__control__data__t.html", "structgn__watering__control__data__t" ]
+];

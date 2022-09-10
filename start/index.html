@@ -1,0 +1,1465 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="GrowNode is a vertical framework to build IoT devices targeted to growing plants in a controlled environment">
+      
+      
+        <meta name="author" content="Nicola Muratori - nicola.muratori@gmail.com">
+      
+      
+      <link rel="icon" href="../img/grownode_logo_24.png">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.4.3">
+    
+    
+      
+        <title>Install - GrowNode Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.6b80c2a2.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#getting-started" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="GrowNode Documentation" class="md-header__button md-logo" aria-label="GrowNode Documentation" data-md-component="logo">
+      
+  <img src="../img/grownode_logo_24.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            GrowNode Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Install
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ogghst/GrowNode" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href=".." class="md-tabs__link">
+      Introduction
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../platform/" class="md-tabs__link">
+      Platform
+    </a>
+  </li>
+
+      
+        
+  
+  
+    
+  
+
+
+  <li class="md-tabs__item">
+    <a href="./" class="md-tabs__link md-tabs__link--active">
+      Install
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../workflow/" class="md-tabs__link">
+      Play
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../boards/" class="md-tabs__link">
+        Ready Made Boards
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../reference/" class="md-tabs__link">
+        Reference Guide
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../tutorials/" class="md-tabs__link">
+        Tutorials
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../story/" class="md-tabs__link">
+      Story
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../html/" class="md-tabs__link">
+      API
+    </a>
+  </li>
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="GrowNode Documentation" class="md-nav__button md-logo" aria-label="GrowNode Documentation" data-md-component="logo">
+      
+  <img src="../img/grownode_logo_24.png" alt="logo">
+
+    </a>
+    GrowNode Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ogghst/GrowNode" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../platform/" class="md-nav__link">
+        Platform
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Install
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Install
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#set-up-your-environment" class="md-nav__link">
+    Set up your environment
+  </a>
+  
+    <nav class="md-nav" aria-label="Set up your environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#esp-idf" class="md-nav__link">
+    ESP-IDF
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ide" class="md-nav__link">
+    IDE
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#obtain-grownode" class="md-nav__link">
+    Obtain GrowNode
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#check-everything-works" class="md-nav__link">
+    Check everything works
+  </a>
+  
+    <nav class="md-nav" aria-label="Check everything works">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#via-esp-idf-command-prompt" class="md-nav__link">
+    Via ESP-IDF command prompt
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#via-eclipse-ide" class="md-nav__link">
+    Via Eclipse IDE
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-startup" class="md-nav__link">
+    Network Startup
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../workflow/" class="md-nav__link">
+        Play
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../boards/">Ready Made Boards</a>
+          
+            <label for="__nav_5">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Ready Made Boards" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Ready Made Boards
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../boards/boards_easypot1/" class="md-nav__link">
+        EasyPot1
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../boards/boards_hb1/" class="md-nav__link">
+        HydroBoard1
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../boards/boards_hb2/" class="md-nav__link">
+        HydroBoard2
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../boards/oscilloscope.md" class="md-nav__link">
+        Oscilloscope
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/">Reference Guide</a>
+          
+            <label for="__nav_6">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Reference Guide" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Reference Guide
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/node/" class="md-nav__link">
+        Node
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/leaves/" class="md-nav__link">
+        Leaves
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/parameters/" class="md-nav__link">
+        Parameters
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_6_5" type="checkbox" id="__nav_6_5" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/leaves_list/">Standard Leaves</a>
+          
+            <label for="__nav_6_5">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Standard Leaves" data-md-level="2">
+        <label class="md-nav__title" for="__nav_6_5">
+          <span class="md-nav__icon md-icon"></span>
+          Standard Leaves
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/leaves_list/bme280/" class="md-nav__link">
+        BME280
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/leaves_list/ina219/" class="md-nav__link">
+        INA219
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/synapses/" class="md-nav__link">
+        Synapses
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/boards/" class="md-nav__link">
+        Boards
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/events/" class="md-nav__link">
+        Event subsystem
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/networking/" class="md-nav__link">
+        Networking
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/mqtt/" class="md-nav__link">
+        MQTT
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/power_management/" class="md-nav__link">
+        Sleep Modes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/display/" class="md-nav__link">
+        Display
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/logging/" class="md-nav__link">
+        Logging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/error/" class="md-nav__link">
+        Error
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/build_system/" class="md-nav__link">
+        Build System
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_7" type="checkbox" id="__nav_7" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../tutorials/">Tutorials</a>
+          
+            <label for="__nav_7">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Tutorials" data-md-level="1">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Tutorials
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/windows10_11_easy/" class="md-nav__link">
+        How to get started with GrowNode on Windows 10 and Windows 11 - Easy version
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/ubuntu1804_2004_easy/" class="md-nav__link">
+        How to get started with GrowNode on Ubuntu 18.04 and 20.04 - Easy version
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/ubuntu1804_2004_advanced/" class="md-nav__link">
+        How to get started with GrowNode on Ubuntu 18.04 and 20.04 - Advanced version
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/openhab_ubuntu1804_2004_easy/" class="md-nav__link">
+        How to install Mosquitto and openHAB on Ubuntu 18.04 and 20.04 - Easy version
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../story/" class="md-nav__link">
+        Story
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../html/" class="md-nav__link">
+        API
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#set-up-your-environment" class="md-nav__link">
+    Set up your environment
+  </a>
+  
+    <nav class="md-nav" aria-label="Set up your environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#esp-idf" class="md-nav__link">
+    ESP-IDF
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ide" class="md-nav__link">
+    IDE
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#obtain-grownode" class="md-nav__link">
+    Obtain GrowNode
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#check-everything-works" class="md-nav__link">
+    Check everything works
+  </a>
+  
+    <nav class="md-nav" aria-label="Check everything works">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#via-esp-idf-command-prompt" class="md-nav__link">
+    Via ESP-IDF command prompt
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#via-eclipse-ide" class="md-nav__link">
+    Via Eclipse IDE
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-startup" class="md-nav__link">
+    Network Startup
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+
+  <a href="https://github.com/ogghst/GrowNode/edit/master/docs/start.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+<h1 id="getting-started">Getting Started</h1>
+<p>This page describes the steps needed to have a working development environment on your PC. </p>
+<p>For more detailed, platform - specific installation procedure including IDE, see section <a href="tutorials">Tutorials</a></p>
+<h2 id="set-up-your-environment">Set up your environment</h2>
+<h3 id="esp-idf">ESP-IDF</h3>
+<blockquote>
+<p><a href="https://www.espressif.com/en/products/sdks/esp-idf">ESP-IDF</a> is the development environment provided by the ESP32 chipmaker. It lets you design applications using the full chipset capabilities. I've decided to use it instead of higher level solutions like Arduino in order to achieve maximum flexibility and control.</p>
+</blockquote>
+<ul>
+<li>install ESP-IDF as per <a href="https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32/index.html">ESP-IDF getting started guide</a></li>
+</ul>
+<blockquote>
+<p>Note: actual grownode library is made over esp-idf release 4.4. make sure to download the appropriate version</p>
+</blockquote>
+<h3 id="ide">IDE</h3>
+<ul>
+<li>Latest Windows ESP-IDF installations are including an Eclipse development environment that is already configured to run an ESP-IDF project. </li>
+<li>If you want to install your own IDE, prepare your favorite development environment (Anyway, I am personally using <a href="https://www.eclipse.org/downloads/">eclipse</a> with <a href="https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md">ESP-IDF plugin</a>. You should install the 'Eclipse for C/C++ developers').</li>
+</ul>
+<h2 id="obtain-grownode">Obtain GrowNode</h2>
+<ul>
+<li>Open an IDF shell (in Windows you should find in in your Windows start menu - it is called ESP-IDF 4.4 CMD), change dir where you want to install grownode</li>
+</ul>
+<blockquote>
+<p>Note: if you have installed Eclipse, I recommend to start a new workspace, then open a shell to the workspace directory</p>
+</blockquote>
+<ul>
+<li>Clone GrowNode repository using <a href="https://git-scm.com/">GIT</a> command <code>git clone --recurse-submodules https://github.com/ogghst/grownode.git</code></li>
+</ul>
+<blockquote>
+<p>Note: if you have installed Eclipse, you can now import the project using <code>Import projects... -&gt; Espressif -&gt; Existing IDF project</code> and select the grownode directory created with <code>git clone</code> command</p>
+</blockquote>
+<h2 id="check-everything-works">Check everything works</h2>
+<h3 id="via-esp-idf-command-prompt">Via ESP-IDF command prompt</h3>
+<ul>
+<li>Open an IDF shell (you should find it in your Windows start menu - it is called ESP-IDF 4.4 CMD), change dir where you have downloaded the grownode git folder, run <code>idf.py build</code>. It will compile for few minutes. </li>
+</ul>
+<blockquote>
+<p>Note: in Eclipse, select an esp32 target and build the grownode project</p>
+</blockquote>
+<ul>
+<li>If everything runs well, you should see something like <code>Project build complete</code></li>
+<li>Plug your ESP32 into your USB port, take note of the COM port you are attached, and run <code>idf.py -p (PORT) flash</code></li>
+</ul>
+<blockquote>
+<p>Note: Some boards requires a lower communication speed. In this case, you should use the command <code>idf.py -p (PORT) -b 115200 flash</code></p>
+</blockquote>
+<h3 id="via-eclipse-ide">Via Eclipse IDE</h3>
+<ul>
+<li>Open Eclipse IDE</li>
+<li>Import the project you have downloaded using <code>Project -&gt; Import -&gt; Existing IDF Project</code></li>
+<li>Press Ctrl+B to build the project</li>
+<li>If everything runs well, you should see something like <code>Project build complete</code></li>
+<li>Plug your ESP32 into your USB port, create a new launch target with the COM port of the board, and run using Ctrl + F11</li>
+</ul>
+<p><img alt="launch target" src="../resources/images/eclipse_run_toolboard.png" /></p>
+<p><img alt="new target" src="../resources/images/eclipse_new_target.png" /></p>
+<p>With default installation, you will see something like:</p>
+<pre><code>...
+I (0) cpu_start: App cpu up.
+I (141) cpu_start: Pro cpu start user code
+I (141) cpu_start: cpu freq: 160000000
+I (141) cpu_start: Application information:
+I (146) cpu_start: Project name:     grownode
+I (151) cpu_start: App version:      v0.3.0-21-g3184a68-dirty
+I (157) cpu_start: Compile time:     Jan  9 2022 08:53:43
+I (163) cpu_start: ELF file SHA256:  b0acca75d147e901...
+I (169) cpu_start: ESP-IDF:          v4.4-beta1-275-g214d62b9ad
+I (176) heap_init: Initializing. RAM available for dynamic allocation:
+I (183) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
+I (189) heap_init: At 3FFB2D90 len 0002D270 (180 KiB): DRAM
+I (196) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
+I (202) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
+I (208) heap_init: At 4008C058 len 00013FA8 (79 KiB): IRAM
+I (216) spi_flash: detected chip: generic
+I (219) spi_flash: flash io: dio
+I (224) cpu_start: Starting scheduler on PRO CPU.
+I (0) cpu_start: Starting scheduler on APP CPU.
+I (254) grownode: grownode startup sequence completed!
+I (264) grownode: _gn_start_leaf blink
+I (364) grownode: _gn_start_leaf blink completed
+I (5264) gn_blink: blinking - 0
+I (10264) gn_blink: blinking - 1
+...
+</code></pre>
+<h2 id="network-startup">Network Startup</h2>
+<p>If you want to add network connectivity to your board, you need to input the wifi credentials into your board. This process is called provisioning.</p>
+<p>First you need to modify your <code>sdkconfig</code> file via the command <code>idf.py menuconfig</code> and select under Grownode component the <code>enable networking</code> checkbox. 
+Then it's time to configure the network parameters. Modify the <code>main.c</code> file with your MQTT server address:</p>
+<pre><code>    gn_config_init_param_t config_init = {
+        ...
+        .server_url = &quot;mqtt://grownode&quot;,
+        ...
+    };
+</code></pre>
+<p>Then you need to recompile and flash again the board to upload the firmware with network capabilities.</p>
+<p>Once the new firmware is uploadeed, you will see in the console:</p>
+<pre><code>...
+I (558) wifi:wifi driver task: 3ffc2d98, prio:23, stack:6656, core=0
+I (558) system_api: Base MAC address is not set
+I (558) system_api: read default base MAC address from EFUSE
+I (568) wifi:wifi firmware version: 5c3d3bf
+I (568) wifi:wifi certification version: v7.0
+I (568) wifi:config NVS flash: enabled
+I (568) wifi:config nano formating: disabled
+I (578) wifi:Init data frame dynamic rx buffer num: 32
+I (578) wifi:Init management frame dynamic rx buffer num: 32
+I (588) wifi:Init management short buffer num: 32
+I (588) wifi:Init dynamic tx buffer num: 32
+I (598) wifi:Init static rx buffer size: 1600
+I (598) wifi:Init static rx buffer num: 10
+I (598) wifi:Init dynamic rx buffer num: 32
+I (608) wifi_init: rx ba win: 6
+I (608) wifi_init: tcpip mbox: 32
+I (618) wifi_init: udp mbox: 6
+I (618) wifi_init: tcp mbox: 6
+I (618) wifi_init: tcp tx win: 5744
+I (628) wifi_init: tcp rx win: 5744
+I (628) wifi_init: tcp mss: 1440
+I (638) wifi_init: WiFi IRAM OP enabled
+I (638) wifi_init: WiFi RX IRAM OP enabled
+I (648) gn_network: Starting provisioning
+I (648) phy_init: phy_version 4670,719f9f6,Feb 18 2021,17:07:07
+I (758) wifi:mode : sta (84:cc:a8:5e:60:48)
+I (758) wifi:enable tsf
+I (758) wifi:mode : sta (84:cc:a8:5e:60:48) + softAP (84:cc:a8:5e:60:49)
+I (768) wifi:Total power save buffer number: 16
+I (768) wifi:Init max length of beacon: 752/752
+I (768) wifi:Init max length of beacon: 752/752
+I (778) wifi:Total power save buffer number: 16
+W (778) wifi_prov_scheme_softap: Error adding mDNS service! Check if mDNS is running
+I (788) wifi_prov_mgr: Provisioning started with service name : GROWNODE_5E6048 
+I (788) gn_network: Provisioning Started
+...
+</code></pre>
+<p>Now, you need to download the app:</p>
+<p>Android: <a href="https://play.google.com/store/apps/details?id=com.espressif.provsoftap">Google PlayStore</a>
+iOS: <a href="https://apps.apple.com/in/app/esp-softap-provisioning/id1474040630">Apple App Store</a></p>
+<p>Follow these steps on the Phone app:</p>
+<ul>
+<li>Click on "Provision Device" </li>
+</ul>
+<p><img alt="launch target" src="../resources/images/provisioning0.png" /></p>
+<ul>
+<li>Click on the "I don't have a QR code" button. Tap on "Connect" and connect to your ESP32's SoftAP Process</li>
+</ul>
+<p><img alt="launch target" src="../resources/images/provisioning1.png" /></p>
+<ul>
+<li>Select the wifi network that the board has temporarily created. As default this is GROWNODE_XXXX where XXXX is a subset of the board MAC address. The app will then show you the visible wifi network to the board, just select your network and put the password</li>
+</ul>
+<p><img alt="launch target" src="../resources/images/provisioning2.png" /></p>
+<ul>
+<li>As proof of possession, default is 'grownode'. You can configure it in the 'main' application</li>
+</ul>
+<p><img alt="launch target" src="../resources/images/provisioning3.png" /></p>
+<ul>
+<li>if the password is correct you will see this screen</li>
+</ul>
+<p><img alt="launch target" src="../resources/images/provisioning4.png" /></p>
+<p>The board console will show something like:</p>
+<pre><code>...
+I (115448) gn_network: Provisioning OK
+I (116318) gn_network: Initializing SNTP. Using the SNTP server: pool.ntp.org
+I (116318) gn_mqtt_protocol: Connecting MQTT server at mqtt://grownode
+I (117368) gn_mqtt_protocol: MQTT client handshake successful
+I (117368) grownode: grownode startup sequence completed!
+I (117388) grownode: _gn_start_leaf blink
+I (117488) grownode: _gn_start_leaf blink completed
+I (122388) gn_blink: blinking - 1
+I (127388) gn_blink: blinking - 0
+I (132388) gn_blink: blinking - 1
+...
+</code></pre>
+<p>That's it! You're online!</p>
+
+
+
+  
+
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../platform/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Platform" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Platform
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../workflow/" class="md-footer__link md-footer__link--next" aria-label="Next: Play" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Play
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright 2022 - Nicola Muratori
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.expand", "navigation.indexes"], "search": "../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.2ab50757.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1698 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="GrowNode is a vertical framework to build IoT devices targeted to growing plants in a controlled environment">
+      
+      
+        <meta name="author" content="Nicola Muratori - nicola.muratori@gmail.com">
+      
+      
+      <link rel="icon" href="../img/grownode_logo_24.png">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.4.3">
+    
+    
+      
+        <title>Play - GrowNode Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.6b80c2a2.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#from-ideas-to-project" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="GrowNode Documentation" class="md-header__button md-logo" aria-label="GrowNode Documentation" data-md-component="logo">
+      
+  <img src="../img/grownode_logo_24.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            GrowNode Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Play
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ogghst/GrowNode" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href=".." class="md-tabs__link">
+      Introduction
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../platform/" class="md-tabs__link">
+      Platform
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../start/" class="md-tabs__link">
+      Install
+    </a>
+  </li>
+
+      
+        
+  
+  
+    
+  
+
+
+  <li class="md-tabs__item">
+    <a href="./" class="md-tabs__link md-tabs__link--active">
+      Play
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../boards/" class="md-tabs__link">
+        Ready Made Boards
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../reference/" class="md-tabs__link">
+        Reference Guide
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../tutorials/" class="md-tabs__link">
+        Tutorials
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../story/" class="md-tabs__link">
+      Story
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../html/" class="md-tabs__link">
+      API
+    </a>
+  </li>
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="GrowNode Documentation" class="md-nav__button md-logo" aria-label="GrowNode Documentation" data-md-component="logo">
+      
+  <img src="../img/grownode_logo_24.png" alt="logo">
+
+    </a>
+    GrowNode Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ogghst/GrowNode" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../platform/" class="md-nav__link">
+        Platform
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start/" class="md-nav__link">
+        Install
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Play
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Play
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#design-your-application" class="md-nav__link">
+    Design your application
+  </a>
+  
+    <nav class="md-nav" aria-label="Design your application">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#define-the-scope-of-your-project" class="md-nav__link">
+    Define the scope of your project
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sketch-your-system-architecture" class="md-nav__link">
+    Sketch your system architecture
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-your-board" class="md-nav__link">
+    Create your board
+  </a>
+  
+    <nav class="md-nav" aria-label="Create your board">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#wiring-diagram" class="md-nav__link">
+    Wiring diagram
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bill-of-material" class="md-nav__link">
+    Bill of Material
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-your-software" class="md-nav__link">
+    Design your Software
+  </a>
+  
+    <nav class="md-nav" aria-label="Design your Software">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configure-your-project" class="md-nav__link">
+    Configure your project
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-your-application" class="md-nav__link">
+    Code your application
+  </a>
+  
+    <nav class="md-nav" aria-label="Code your application">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#define-log-configuration-directives" class="md-nav__link">
+    Define log configuration directives
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configure-the-application-parameters" class="md-nav__link">
+    Configure the application parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#obtain-the-grownode-configuration-handle" class="md-nav__link">
+    Obtain the GrowNode configuration handle
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wait-for-the-configuration-to-be-completed" class="md-nav__link">
+    Wait for the configuration to be completed
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-the-node" class="md-nav__link">
+    Create the Node
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-leaves" class="md-nav__link">
+    Add leaves
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start-the-node" class="md-nav__link">
+    Start the node
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#and-do-nothing-forever" class="md-nav__link">
+    ...And do nothing forever!
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prebuilt-leaves" class="md-nav__link">
+    Prebuilt leaves
+  </a>
+  
+    <nav class="md-nav" aria-label="Prebuilt leaves">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#actuators" class="md-nav__link">
+    Actuators
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sensors" class="md-nav__link">
+    Sensors:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#controllers" class="md-nav__link">
+    Controllers:
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-your-own-leaves" class="md-nav__link">
+    Create your own leaves
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wire-it-up" class="md-nav__link">
+    Wire it up
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#share-you-work" class="md-nav__link">
+    Share you work!
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../boards/">Ready Made Boards</a>
+          
+            <label for="__nav_5">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Ready Made Boards" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Ready Made Boards
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../boards/boards_easypot1/" class="md-nav__link">
+        EasyPot1
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../boards/boards_hb1/" class="md-nav__link">
+        HydroBoard1
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../boards/boards_hb2/" class="md-nav__link">
+        HydroBoard2
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../boards/oscilloscope.md" class="md-nav__link">
+        Oscilloscope
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/">Reference Guide</a>
+          
+            <label for="__nav_6">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Reference Guide" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Reference Guide
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/node/" class="md-nav__link">
+        Node
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/leaves/" class="md-nav__link">
+        Leaves
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/parameters/" class="md-nav__link">
+        Parameters
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_6_5" type="checkbox" id="__nav_6_5" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/leaves_list/">Standard Leaves</a>
+          
+            <label for="__nav_6_5">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Standard Leaves" data-md-level="2">
+        <label class="md-nav__title" for="__nav_6_5">
+          <span class="md-nav__icon md-icon"></span>
+          Standard Leaves
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/leaves_list/bme280/" class="md-nav__link">
+        BME280
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/leaves_list/ina219/" class="md-nav__link">
+        INA219
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/synapses/" class="md-nav__link">
+        Synapses
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/boards/" class="md-nav__link">
+        Boards
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/events/" class="md-nav__link">
+        Event subsystem
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/networking/" class="md-nav__link">
+        Networking
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/mqtt/" class="md-nav__link">
+        MQTT
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/power_management/" class="md-nav__link">
+        Sleep Modes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/display/" class="md-nav__link">
+        Display
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/logging/" class="md-nav__link">
+        Logging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/error/" class="md-nav__link">
+        Error
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/build_system/" class="md-nav__link">
+        Build System
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_7" type="checkbox" id="__nav_7" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../tutorials/">Tutorials</a>
+          
+            <label for="__nav_7">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Tutorials" data-md-level="1">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Tutorials
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/windows10_11_easy/" class="md-nav__link">
+        How to get started with GrowNode on Windows 10 and Windows 11 - Easy version
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/ubuntu1804_2004_easy/" class="md-nav__link">
+        How to get started with GrowNode on Ubuntu 18.04 and 20.04 - Easy version
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/ubuntu1804_2004_advanced/" class="md-nav__link">
+        How to get started with GrowNode on Ubuntu 18.04 and 20.04 - Advanced version
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/openhab_ubuntu1804_2004_easy/" class="md-nav__link">
+        How to install Mosquitto and openHAB on Ubuntu 18.04 and 20.04 - Easy version
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../story/" class="md-nav__link">
+        Story
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../html/" class="md-nav__link">
+        API
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#design-your-application" class="md-nav__link">
+    Design your application
+  </a>
+  
+    <nav class="md-nav" aria-label="Design your application">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#define-the-scope-of-your-project" class="md-nav__link">
+    Define the scope of your project
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sketch-your-system-architecture" class="md-nav__link">
+    Sketch your system architecture
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-your-board" class="md-nav__link">
+    Create your board
+  </a>
+  
+    <nav class="md-nav" aria-label="Create your board">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#wiring-diagram" class="md-nav__link">
+    Wiring diagram
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bill-of-material" class="md-nav__link">
+    Bill of Material
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-your-software" class="md-nav__link">
+    Design your Software
+  </a>
+  
+    <nav class="md-nav" aria-label="Design your Software">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configure-your-project" class="md-nav__link">
+    Configure your project
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-your-application" class="md-nav__link">
+    Code your application
+  </a>
+  
+    <nav class="md-nav" aria-label="Code your application">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#define-log-configuration-directives" class="md-nav__link">
+    Define log configuration directives
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configure-the-application-parameters" class="md-nav__link">
+    Configure the application parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#obtain-the-grownode-configuration-handle" class="md-nav__link">
+    Obtain the GrowNode configuration handle
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wait-for-the-configuration-to-be-completed" class="md-nav__link">
+    Wait for the configuration to be completed
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-the-node" class="md-nav__link">
+    Create the Node
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-leaves" class="md-nav__link">
+    Add leaves
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start-the-node" class="md-nav__link">
+    Start the node
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#and-do-nothing-forever" class="md-nav__link">
+    ...And do nothing forever!
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prebuilt-leaves" class="md-nav__link">
+    Prebuilt leaves
+  </a>
+  
+    <nav class="md-nav" aria-label="Prebuilt leaves">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#actuators" class="md-nav__link">
+    Actuators
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sensors" class="md-nav__link">
+    Sensors:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#controllers" class="md-nav__link">
+    Controllers:
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-your-own-leaves" class="md-nav__link">
+    Create your own leaves
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wire-it-up" class="md-nav__link">
+    Wire it up
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#share-you-work" class="md-nav__link">
+    Share you work!
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+
+  <a href="https://github.com/ogghst/GrowNode/edit/master/docs/workflow.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+<h1 id="from-ideas-to-project">From Ideas to Project</h1>
+<p>This page aims to give you the basics on the necessary steps to define and design a GrowNode system. If you are already an advanced user.. You're welcome to add your experience! :)</p>
+<h2 id="design-your-application">Design your application</h2>
+<h3 id="define-the-scope-of-your-project">Define the scope of your project</h3>
+<p>The first step into your journey in a GrowNode implementation is like every other automated farming project: you need to understand what type of system you want to implement. 
+ - <strong>what</strong> do you want to grow? from lettuce to strawberries, to herbs, each situation has his own needs and techniques
+ - <strong>where</strong> you want to grow? from a greenhouse to a pot into your kitchen, the environment is important and has effects on the design
+ - <strong>how</strong> you want to grow? You want a fully automated system? Or just a light that is turning some hours per day?</p>
+<p>Choose among the several possible techniques, and what you want to measure and control. 
+Use some tutorials if you are a newbie, like <a href="https://www.youtube.com/watch?v=N7HNAD4EfkQ">this one</a> from YouTube.</p>
+<p><img alt="some techniques" src="https://github.com/ogghst/GrowNode/blob/master/docs/resources/images/techniques.jpg?raw=true" /></p>
+<h3 id="sketch-your-system-architecture">Sketch your system architecture</h3>
+<p>Next step is to define the sensor involved in the system you are designing. 
+You want to perform automatic watering? Then you need a water pump. You want to measure water temperature? Then you need a temperature probe. Help yourself with a conceptual schema or visit the <a href="https://github.com/ogghst/GrowNode/tree/master/docs/resources/solutions/hydroboard1">solutions</a> page already made with GrowNode (now it's just my home project :) ) </p>
+<p><img alt="Example System Architecture" src="https://github.com/ogghst/GrowNode/blob/master/docs/resources/images/schema3.png?raw=true" /></p>
+<h2 id="create-your-board">Create your board</h2>
+<p>You can now start getting your hands dirty!. But not yet in the soil. Your spades and hoes are now called CAD, PCB and solder.
+In this step you will transform your idea in working hardware.</p>
+<h3 id="wiring-diagram">Wiring diagram</h3>
+<p>First step is to attach all your sensors and actuators to the ESP32. Follow the datasheets, identify the needed hardware, connect to ESP32 GPIOs, put everything together in a schematic, that could be from a piece of paper to an advanced CAD.</p>
+<p><img alt="another schematic" src="https://github.com/ogghst/GrowNode/blob/master/docs/resources/images/schema5.png?raw=true" /></p>
+<p>Depending on the type of outcome you want, you need to choose carefully your tool.
+ - Prototyping - your target is probably a breadboard, therefore you should focus only on material needed, then you will wire up all together on the fly
+ - Pre Production - you will probably create a PCB using online shops or directly at home and solder components by yourself
+ - Production - you will design everything with a CAD, identify SMT components, and send everything to a PCB manufacturer like JLCPCB</p>
+<p>If you are unfamiliar with this process, visit the <a href="https://github.com/ogghst/GrowNode/tree/master/docs/resources/solutions/hydroboard1">solutions</a> page with some prebuilt ideas.</p>
+<h3 id="bill-of-material">Bill of Material</h3>
+<p>Now you're ready to shop! List your devices you've included in the schematic and wait for the courier. 
+<img alt="electrical components" src="https://github.com/ogghst/GrowNode/blob/master/docs/resources/images/electrical_components.jpg?raw=true" /></p>
+<h2 id="design-your-software">Design your Software</h2>
+<p>This is a process that can be done together with the hardware part described before. This is usually the most complex part, and <strong>this is where GrowNode will help you</strong>!</p>
+<h3 id="configure-your-project">Configure your project</h3>
+<p>Follow the instructions on <a href="../start/">Install</a> page in order to have a working environment on your PC.
+ After it, you have a preconfigured environment, that has to be personalized for your needs.</p>
+<p>You have two files to start:</p>
+<p><code>sdkconfig</code>,  in the main project directory. This is where all the instructions to the compiler resides. This is a standard place to put your settings that will enable specific functionalities. 
+You can edit this file using the IDF command <code>idf.py menuconfig</code>in your IDF command shell. browse into <code>component config</code>, you will find a section named <code>grownode</code>:
+<img alt="sdkconfig" src="../img/sdkconfig1.png" /></p>
+<p>Some basic configuration parameters:</p>
+<ul>
+<li><code>reset flash at every startup</code>: every time the board is started up, all information stored are wiped out. This is useful when you are testing the board and you want to restart every time with a clean situation. please note that this removes also your provisioning status (wifi SSID and password)</li>
+<li><code>enable networking</code>: in order to have all the network related functionalities. in case of local boards or issues with firmware size this will reduce a lot the firware footprint and enhance performances. Dependant parameters are:</li>
+<li><code>provisioning transport</code>: how the board will receive wifi credentials at startup. SoftAP means by becoming a local access point, Bluetooth is the other option. Depending on the choice, you will have to use one of the Espressif provisioning apps (at this page)[https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/provisioning/provisioning.html]</li>
+<li><code>SoftAP Prefix</code>: the name of the temporary network the board will create to ask for wifi credentials</li>
+<li><code>Enable Display</code>: if set, it will start the display driver. the configuration of the display will be taken from <code>LVGL</code> component configuration settings. Note: if you enable display, make sure in cmakelists.txt you have enabled the build of LVGL uncommenting the line <code>set(ENV{LVGL_PATH} "lvgl/lvgl lvgl/lvgl_esp32_drivers")</code></li>
+</ul>
+<h3 id="code-your-application">Code your application</h3>
+<p>In the <code>main</code> folder of the project you will find a <code>main.c</code> file. This is the entry point of the application. Understanding the code requires a knowledge of the C language and it is not the goal of this tutorial. </p>
+<p>Here is a standard <code>main</code> application workflow walkthrough:</p>
+<h4 id="define-log-configuration-directives">Define log configuration directives</h4>
+<p>Done by using the ESP-IDF logging system. Every GrowNode subsystem has his own log tag so it's easy to enable different logging levels depending on what you want to track.</p>
+<pre><code>esp_log_level_set("*", ESP_LOG_INFO);
+esp_log_level_set("grownode", ESP_LOG_DEBUG);
+esp_log_level_set("gn_commons", ESP_LOG_INFO);
+esp_log_level_set("gn_nvs", ESP_LOG_INFO);
+...
+</code></pre>
+<h4 id="configure-the-application-parameters">Configure the application parameters</h4>
+<p>Here the basic code block in a standard wifi configuration:</p>
+<pre><code>gn_config_init_param_t config_init = {
+    .provisioning_security = true,
+    .provisioning_password = "grownode",
+    .server_board_id_topic = false,
+    .server_base_topic = "/grownode",
+    .server_url = "mqtt://mymqttserver.com",
+    .server_keepalive_timer_sec = 60,
+    .firmware_url = "http://myserver/grownode.bin",
+    .sntp_url = "pool.ntp.org"
+};
+</code></pre>
+<p>Here's the explanation of those parameters</p>
+<ul>
+<li><code>provisioning_security</code>: whether provisioning data shall be encrypted and if yes the use of a proof of possession (password) is required. See <a href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/provisioning/provisioning.html">esp-idf provisioning manual</a> for details</li>
+<li><code>provisioning_password</code>: the proof of possession password you will need to enter in the provisioning mobile app to let the board enter in your wifi network </li>
+<li><code>server_url</code>: where to find the MQTT messaging server</li>
+<li><code>server_base_topic</code>: the 'address' of the MQTT messages created by the board and the server</li>
+<li><code>server_board_id_topic</code>: whether the board shall publish to the MQTT server its unique ID (calculated from MAC address). if true, the topic will be <code>/grownode/ADBC1234</code> where 'abcd1234' is your board unique ID</li>
+<li><code>server_keepalive_timer_sec</code>: how often the board shall publish a keepalive message <a href="../html/">see API</a></li>
+<li><code>firmare_url</code>: where to search for an updated firmware when the OTA process will start</li>
+<li><code>sntp_url</code>: the address of the time server the board will use to sync its clock</li>
+</ul>
+<h4 id="obtain-the-grownode-configuration-handle">Obtain the GrowNode configuration handle</h4>
+<p>This starts the various subsystems like networking, server messaging, provisioning, display, depending on the configuration you choose in previous steps.</p>
+<pre><code>gn_config_handle_t config = gn_init(config_init);
+</code></pre>
+<h4 id="wait-for-the-configuration-to-be-completed">Wait for the configuration to be completed</h4>
+<p>It takes several seconds depending on the actions needed. In this area you can add your custom code that catches the configuration process status </p>
+<pre><code>while (gn_get_config_status(config) != GN_CONFIG_STATUS_COMPLETED) {
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    ESP_LOGI(TAG, "grownode startup sequence code: %d",
+            gn_get_config_status(config));
+}
+</code></pre>
+<h4 id="create-the-node">Create the Node</h4>
+<p>Once the GrowNode configuration process has ended, you can then start defining your project structure. First step is to obtain a Node handler. This can be seen as the 'tree trunk' where the 'leaves' will be attached.</p>
+<pre><code>gn_node_config_handle_t node = gn_node_create(config, "node");
+</code></pre>
+<h4 id="add-leaves">Add leaves</h4>
+<p>And then you can add your sensors and actuators, that in GrowNode languages are called <strong>leaves</strong>. Standard leaves code is contained on <code>components/grownode/leaves</code> folder</p>
+<pre><code>gn_leaf_config_handle_t lights1in = gn_leaf_create(node, "lights1in", gn_relay_config, 4096);
+</code></pre>
+<p>In this example we have created an handle to a relay leaf, called <code>lights1in</code>, using the config callback <code>gn_relay_config</code>, with a memory space of 4K.
+Every leaf has his own characteristic and purposes. Some represents sensors, some actuators, and some has the only purpose to implement control logic for other leaves. The <code>relay</code> leaf, for instance, can be reused for multiple actuators in multiple pins. Some others may have limitations due to the specific hardware used.</p>
+<p>In order to make a leaf usable you probably have to configure it. The <code>relay</code> leaf need to know what is the GPIO pin attached and the initial status:</p>
+<pre><code>gn_leaf_param_init_double(lights1in, GN_RELAY_PARAM_GPIO, 25);
+gn_leaf_param_init_bool(lights1in, GN_RELAY_PARAM_STATUS, false);
+</code></pre>
+<p>Some paramaters are stored in the board non volatile storage (NVS) for later use (both ones in this case), so the real effect of this initialization is just on the first board initialization. Once the parameters has been stored in the board, it is ignored. </p>
+<p>Please look at the header file of the leaf you want to use to understand the needed parameters.</p>
+<h4 id="start-the-node">Start the node</h4>
+<p>At this point the leaf is ready for the startup. This is made by calling:</p>
+<pre><code>gn_node_start(node);
+</code></pre>
+<p>The framework will  tell the network that the board is online, publish the board sensor data, start all the leaves callbacks , start the listeners for leaves dialogue (in the <code>relay</code> leaf, this means the relay can be controlled by setting the <code>status</code> parameter). </p>
+<h4 id="and-do-nothing-forever">...And do nothing forever!</h4>
+<p>Last step, you should implement an infinite loop:</p>
+<pre><code>while (true) {
+    vTaskDelay(10000 / portTICK_PERIOD_MS);
+}
+</code></pre>
+<h3 id="prebuilt-leaves">Prebuilt leaves</h3>
+<p>You can use the prebuilt leaves under <a href="reference/leaves_list">leaves</a> or browsing the github <code>components/grownode/leaves</code> folder. Every leaf has his own header file you can use to understand how to use it.</p>
+<p>Basic leaves as per today:</p>
+<h4 id="actuators">Actuators</h4>
+<ul>
+<li>Relay: turns on/off a GPIO</li>
+<li>Pump: uses the low frequency PWM API to drive a motor</li>
+<li>Pump_HS: uses the LEDC API to drive a PWM device, like dimming a LED or driving a motor</li>
+</ul>
+<h4 id="sensors">Sensors:</h4>
+<ul>
+<li>Capacitive Water Level: gives you the value of a touch sensing device, here used to detect water level</li>
+<li>Capacitive Moisture Sensor: gives you the value of the water level through an external moisture sensor</li>
+<li>BME280: gets the data from this temperature/humidity/pressure sensor</li>
+<li>DS18B20: gets the temperature of multiple temperature sensors connected to a GPIO</li>
+</ul>
+<h4 id="controllers">Controllers:</h4>
+<ul>
+<li>Pump Control: DEMO leaf to drive a pump depending on temperature</li>
+<li>Watering Control: A more sophisticated controller to drive a water tower hydroponic system, like  <a href="https://ogghst.github.io/grownode/boards/#hydroboard1">hydroboard1</a></li>
+</ul>
+<h3 id="create-your-own-leaves">Create your own leaves</h3>
+<p>Goal of GrowNode project is to embrace a wide number of technologies and growing techniques. So I've designed it to be expandable. You can code your own leaf by taking inspiration of the preexisting leaves. Please return to the open source community what the community gave to you, by including your work in this project.</p>
+<h3 id="wire-it-up">Wire it up</h3>
+<p>Start putting your components in a breadbord according to your schematic. Make sure to test all possible hardware and software situation prior to pass to a more elaborated PCB. </p>
+<h3 id="share-you-work">Share you work!</h3>
+<p>Repeating myself once again. Once your board is working, please share to the community. Look at the preexisting boards, prepare your material, and let me know how you want to collaborate with GrowNode ecosystem.</p>
+
+
+
+  
+
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../start/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Install" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Install
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../boards/" class="md-footer__link md-footer__link--next" aria-label="Next: Boards" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Boards
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright 2022 - Nicola Muratori
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.expand", "navigation.indexes"], "search": "../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.2ab50757.min.js"></script>
+      
+    
+  </body>
+</html>

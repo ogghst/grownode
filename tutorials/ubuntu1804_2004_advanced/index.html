@@ -1,0 +1,1810 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="GrowNode is a vertical framework to build IoT devices targeted to growing plants in a controlled environment">
+      
+      
+        <meta name="author" content="Nicola Muratori - nicola.muratori@gmail.com">
+      
+      
+      <link rel="icon" href="../../img/grownode_logo_24.png">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.4.3">
+    
+    
+      
+        <title>How to get started with GrowNode on Ubuntu 18.04 and 20.04 - Advanced version - GrowNode Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6b80c2a2.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#how-to-get-started-with-grownode-on-ubuntu-1804-and-2004-advanced-version" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="GrowNode Documentation" class="md-header__button md-logo" aria-label="GrowNode Documentation" data-md-component="logo">
+      
+  <img src="../../img/grownode_logo_24.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            GrowNode Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              How to get started with GrowNode on Ubuntu 18.04 and 20.04 - Advanced version
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ogghst/GrowNode" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../.." class="md-tabs__link">
+      Introduction
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../platform/" class="md-tabs__link">
+      Platform
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../start/" class="md-tabs__link">
+      Install
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../workflow/" class="md-tabs__link">
+      Play
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../boards/" class="md-tabs__link">
+        Ready Made Boards
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../reference/" class="md-tabs__link">
+        Reference Guide
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../" class="md-tabs__link md-tabs__link--active">
+        Tutorials
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../story/" class="md-tabs__link">
+      Story
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../html/" class="md-tabs__link">
+      API
+    </a>
+  </li>
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="GrowNode Documentation" class="md-nav__button md-logo" aria-label="GrowNode Documentation" data-md-component="logo">
+      
+  <img src="../../img/grownode_logo_24.png" alt="logo">
+
+    </a>
+    GrowNode Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ogghst/GrowNode" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../platform/" class="md-nav__link">
+        Platform
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../start/" class="md-nav__link">
+        Install
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workflow/" class="md-nav__link">
+        Play
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../boards/">Ready Made Boards</a>
+          
+            <label for="__nav_5">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Ready Made Boards" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Ready Made Boards
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../boards/boards_easypot1/" class="md-nav__link">
+        EasyPot1
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../boards/boards_hb1/" class="md-nav__link">
+        HydroBoard1
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../boards/boards_hb2/" class="md-nav__link">
+        HydroBoard2
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../boards/oscilloscope.md" class="md-nav__link">
+        Oscilloscope
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../reference/">Reference Guide</a>
+          
+            <label for="__nav_6">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Reference Guide" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Reference Guide
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/node/" class="md-nav__link">
+        Node
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/leaves/" class="md-nav__link">
+        Leaves
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/parameters/" class="md-nav__link">
+        Parameters
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_6_5" type="checkbox" id="__nav_6_5" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../reference/leaves_list/">Standard Leaves</a>
+          
+            <label for="__nav_6_5">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Standard Leaves" data-md-level="2">
+        <label class="md-nav__title" for="__nav_6_5">
+          <span class="md-nav__icon md-icon"></span>
+          Standard Leaves
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/leaves_list/bme280/" class="md-nav__link">
+        BME280
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/leaves_list/ina219/" class="md-nav__link">
+        INA219
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/synapses/" class="md-nav__link">
+        Synapses
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/boards/" class="md-nav__link">
+        Boards
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/events/" class="md-nav__link">
+        Event subsystem
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/networking/" class="md-nav__link">
+        Networking
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/mqtt/" class="md-nav__link">
+        MQTT
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/power_management/" class="md-nav__link">
+        Sleep Modes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/display/" class="md-nav__link">
+        Display
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/logging/" class="md-nav__link">
+        Logging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/error/" class="md-nav__link">
+        Error
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/build_system/" class="md-nav__link">
+        Build System
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_7" type="checkbox" id="__nav_7" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../">Tutorials</a>
+          
+            <label for="__nav_7">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Tutorials" data-md-level="1">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Tutorials
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows10_11_easy/" class="md-nav__link">
+        How to get started with GrowNode on Windows 10 and Windows 11 - Easy version
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ubuntu1804_2004_easy/" class="md-nav__link">
+        How to get started with GrowNode on Ubuntu 18.04 and 20.04 - Easy version
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          How to get started with GrowNode on Ubuntu 18.04 and 20.04 - Advanced version
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        How to get started with GrowNode on Ubuntu 18.04 and 20.04 - Advanced version
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    Introduction
+  </a>
+  
+    <nav class="md-nav" aria-label="Introduction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-the-grownode-software-environment" class="md-nav__link">
+    Installing the GrowNode software environment
+  </a>
+  
+    <nav class="md-nav" aria-label="Installing the GrowNode software environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-package-installation-and-system-preparation" class="md-nav__link">
+    Step 1: Package installation and system preparation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-install-the-esp-idf-environment" class="md-nav__link">
+    Step 2: Install the ESP-IDF environment
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-download-the-grownode-source-and-build-the-firmware-of-your-first-board" class="md-nav__link">
+    Step 3: Download the GrowNode source and build the firmware of your first board
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-upload-flash-the-firmware-on-the-board" class="md-nav__link">
+    Step 4: Upload (flash) the firmware on the board
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-monitor-the-serial-output-of-your-board" class="md-nav__link">
+    Step 5: Monitor the serial output of your board
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#appendix" class="md-nav__link">
+    Appendix
+  </a>
+  
+    <nav class="md-nav" aria-label="Appendix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-how-to-get-the-name-of-the-serial-device-associated-to-the-esp32-board" class="md-nav__link">
+    A. How to get the name of the serial device associated to the ESP32 board
+  </a>
+  
+    <nav class="md-nav" aria-label="A. How to get the name of the serial device associated to the ESP32 board">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#if-you-are-not-working-inside-a-virtual-machine" class="md-nav__link">
+    If you are NOT working inside a virtual machine
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#if-you-are-working-inside-a-virtual-machine" class="md-nav__link">
+    If you are working inside a virtual machine
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-installing-grownode-into-an-ubuntu-virtual-machine-using-virtualbox" class="md-nav__link">
+    B. Installing GrowNode into an Ubuntu virtual machine using VirtualBox
+  </a>
+  
+    <nav class="md-nav" aria-label="B. Installing GrowNode into an Ubuntu virtual machine using VirtualBox">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#properly-link-the-host-and-guest-serial-ports" class="md-nav__link">
+    Properly link the host and guest serial ports
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-the-eclipse-ide-with-the-esp-idf-plugin" class="md-nav__link">
+    Installing the Eclipse IDE with the ESP-IDF plugin
+  </a>
+  
+    <nav class="md-nav" aria-label="Installing the Eclipse IDE with the ESP-IDF plugin">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-installing-eclipse-ide-for-cc-developers-2021-09" class="md-nav__link">
+    Step 1: Installing Eclipse IDE for C/C++ Developers 2021-09
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-installing-the-esp-idf-plugin-for-eclipse" class="md-nav__link">
+    Step 2: Installing the ESP-IDF plugin for Eclipse
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-configure-eclipse-for-using-the-local-esp-idf-environment" class="md-nav__link">
+    Step 3: Configure Eclipse for using the local ESP-IDF environment
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-import-your-first-grownode-project-and-build-it" class="md-nav__link">
+    Step 4: Import your first GrowNode project and build it
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-flash-your-board-from-eclipse" class="md-nav__link">
+    Step 5: Flash your board from Eclipse
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6-monitor-the-serial-output-of-your-board-from-eclipse" class="md-nav__link">
+    Step 6: Monitor the serial output of your board from Eclipse
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../openhab_ubuntu1804_2004_easy/" class="md-nav__link">
+        How to install Mosquitto and openHAB on Ubuntu 18.04 and 20.04 - Easy version
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../story/" class="md-nav__link">
+        Story
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../html/" class="md-nav__link">
+        API
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    Introduction
+  </a>
+  
+    <nav class="md-nav" aria-label="Introduction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-the-grownode-software-environment" class="md-nav__link">
+    Installing the GrowNode software environment
+  </a>
+  
+    <nav class="md-nav" aria-label="Installing the GrowNode software environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-package-installation-and-system-preparation" class="md-nav__link">
+    Step 1: Package installation and system preparation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-install-the-esp-idf-environment" class="md-nav__link">
+    Step 2: Install the ESP-IDF environment
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-download-the-grownode-source-and-build-the-firmware-of-your-first-board" class="md-nav__link">
+    Step 3: Download the GrowNode source and build the firmware of your first board
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-upload-flash-the-firmware-on-the-board" class="md-nav__link">
+    Step 4: Upload (flash) the firmware on the board
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-monitor-the-serial-output-of-your-board" class="md-nav__link">
+    Step 5: Monitor the serial output of your board
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#appendix" class="md-nav__link">
+    Appendix
+  </a>
+  
+    <nav class="md-nav" aria-label="Appendix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-how-to-get-the-name-of-the-serial-device-associated-to-the-esp32-board" class="md-nav__link">
+    A. How to get the name of the serial device associated to the ESP32 board
+  </a>
+  
+    <nav class="md-nav" aria-label="A. How to get the name of the serial device associated to the ESP32 board">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#if-you-are-not-working-inside-a-virtual-machine" class="md-nav__link">
+    If you are NOT working inside a virtual machine
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#if-you-are-working-inside-a-virtual-machine" class="md-nav__link">
+    If you are working inside a virtual machine
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-installing-grownode-into-an-ubuntu-virtual-machine-using-virtualbox" class="md-nav__link">
+    B. Installing GrowNode into an Ubuntu virtual machine using VirtualBox
+  </a>
+  
+    <nav class="md-nav" aria-label="B. Installing GrowNode into an Ubuntu virtual machine using VirtualBox">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#properly-link-the-host-and-guest-serial-ports" class="md-nav__link">
+    Properly link the host and guest serial ports
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-the-eclipse-ide-with-the-esp-idf-plugin" class="md-nav__link">
+    Installing the Eclipse IDE with the ESP-IDF plugin
+  </a>
+  
+    <nav class="md-nav" aria-label="Installing the Eclipse IDE with the ESP-IDF plugin">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-installing-eclipse-ide-for-cc-developers-2021-09" class="md-nav__link">
+    Step 1: Installing Eclipse IDE for C/C++ Developers 2021-09
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-installing-the-esp-idf-plugin-for-eclipse" class="md-nav__link">
+    Step 2: Installing the ESP-IDF plugin for Eclipse
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-configure-eclipse-for-using-the-local-esp-idf-environment" class="md-nav__link">
+    Step 3: Configure Eclipse for using the local ESP-IDF environment
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-import-your-first-grownode-project-and-build-it" class="md-nav__link">
+    Step 4: Import your first GrowNode project and build it
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-flash-your-board-from-eclipse" class="md-nav__link">
+    Step 5: Flash your board from Eclipse
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6-monitor-the-serial-output-of-your-board-from-eclipse" class="md-nav__link">
+    Step 6: Monitor the serial output of your board from Eclipse
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+
+  <a href="https://github.com/ogghst/GrowNode/edit/master/docs/tutorials/ubuntu1804_2004_advanced.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+<h1 id="how-to-get-started-with-grownode-on-ubuntu-1804-and-2004-advanced-version">How to get started with GrowNode on Ubuntu 18.04 and 20.04 - Advanced version</h1>
+<blockquote>
+<p>Updated on January 18, 2022</p>
+</blockquote>
+<h2 id="introduction">Introduction</h2>
+<p>With this step-by-step tutorial you will be able to quickly deploy the GrowNode development environment on your Ubuntu 18.04 or 20.04 workstation.</p>
+<p>At the end of the tutorial you will have:</p>
+<ul>
+<li>installed the main packages required to GrowNode</li>
+<li>installed the ESP-IDF environment v4.4</li>
+<li>compiled and run your first GrowNode test board</li>
+</ul>
+<p>In addition, the following optional steps are also explained:</p>
+<ul>
+<li>installing the Eclipse IDE</li>
+<li>installing the ESP-IDF plugin for Eclipse</li>
+<li>compiling and running your first GrowNode test board via Eclipse</li>
+</ul>
+<blockquote>
+<p><em>Notes:</em></p>
+<ul>
+<li><em>The same steps should also apply for Ubuntu 18.10 and 20.10, but we haven't tried yet. Let us know if you did!</em></li>
+<li><em>Older versions of Ubuntu do not satisfy the minimal requirements out-of-the-box, so they are not officially supported by GrowNode.</em></li>
+<li><em>This procedure could be also used to create an Ubuntu virtual machine to play with GrowNode without affecting your system. Read more details on this in the Appendix below.</em></li>
+</ul>
+</blockquote>
+<h3 id="prerequisites">Prerequisites</h3>
+<ul>
+<li>at least 2.5 Gb free space on hard drive (additional 3 Gb required for Eclipse and related sofrware)</li>
+<li>at least 4 Gb RAM</li>
+<li>an ESP32 board with USB cable</li>
+</ul>
+<p>The ESP32 board could be a ready-to-use one (like the Wemos D1 R32), or other more compact ones that need some soldering (like the ESP32-DevKitC V4 and D1 Mini ESP32).</p>
+<h2 id="installing-the-grownode-software-environment">Installing the GrowNode software environment</h2>
+<p>The following steps are mandatory in order to correctly deploy all the software libraries and basic tools for developing a GrowNode board. Just follow the instructions: it will be easy!</p>
+<h3 id="step-1-package-installation-and-system-preparation">Step 1: Package installation and system preparation</h3>
+<p>Open a terminal and use the following command to install the main packages required by ESP-IDF:</p>
+<pre><code>sudo apt-get install git wget flex bison gperf python3 python3-pip python3-setuptools cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
+</code></pre>
+<p>Then, you can make your serial devices always accessible with:</p>
+<pre><code>sudo usermod -a -G dialout $USER 
+</code></pre>
+<p>The latter command becomes effective only once you re-login to your workstation. So, it's better if do a logout/login procedure (or a restart) now to avoid forgetting it :)</p>
+<h3 id="step-2-install-the-esp-idf-environment">Step 2: Install the ESP-IDF environment</h3>
+<p>GrowNode needs the environment called ESP-IDF v4.4 to compile the firmware board. Type the following commands to download it in your home and install it in your system:</p>
+<pre><code>mkdir -p ~/esp
+cd ~/esp
+git clone -b release/v4.4 --recursive https://github.com/espressif/esp-idf.git
+cd ~/esp/esp-idf
+./install.sh esp32
+echo -e &quot;\nalias get_idf='. $HOME/esp/esp-idf/export.sh'&quot; &gt;&gt; ~/.bashrc
+source ~/.bashrc
+</code></pre>
+<p>Congratulations! You have just installed the base environment that will allow you to build your GrowNode boards!
+Now you are ready to download and build your first GrowNode project.</p>
+<h3 id="step-3-download-the-grownode-source-and-build-the-firmware-of-your-first-board">Step 3: Download the GrowNode source and build the firmware of your first board</h3>
+<p>The following commands allow you to download the current version of GrowNode in your home ESP directory:</p>
+<pre><code>cd ~/esp
+git clone --recurse-submodules https://github.com/ogghst/grownode.git
+</code></pre>
+<p>It's time for your first build! The first step is setting up the ESP-IDF environment variables.
+The command is:</p>
+<pre><code>get_idf
+</code></pre>
+<blockquote>
+<p><strong>IMPORTANT:</strong> this operation must be done every time you open a new terminal/console to use ESP-IDF commands, and applies only to that particular console.</p>
+</blockquote>
+<p>Now move to GrowNode's folder and build the default project:</p>
+<pre><code>cd ~/esp/grownode
+idf.py build
+</code></pre>
+<p>The compiler works for a while, and at the end of the process there will be the message <code>Project build complete</code>.
+If you see a different message... something went wrong. Be sure you followed all the steps above!</p>
+<h3 id="step-4-upload-flash-the-firmware-on-the-board">Step 4: Upload (flash) the firmware on the board</h3>
+<p>After building, plug the ESP32 board to your workstation with an USB cable and detect the name of the new serial port associated to the board. Most probably it is called <code>/dev/ttyUSB0</code>.</p>
+<blockquote>
+<p><em>If you don't know how to get the name of the new serial port, have a look at the Appendix below</em></p>
+</blockquote>
+<p>Finally, flash your board with the command:</p>
+<pre><code>cd ~/esp/grownode
+idf.py -p /dev/ttyUSB0 flash
+</code></pre>
+<p><em>(replace the port name </em><code>/dev/ttyUSB0</code><em> with the one used on your system, if different)</em></p>
+<p>Your flash should be fine if at the end of the procedure you see something similar to this:</p>
+<pre><code>Writing at 0x0000d000... (100 %)
+Wrote 8192 bytes (31 compressed) at 0x0000d000 in 0.1 seconds (effective 729.6 kbit/s)...
+Hash of data verified.
+
+Leaving...
+Hard resetting via RTS pin...
+Done
+</code></pre>
+<p>Did you? Great! Have a look at your board: one led is blinking! Congratulations!</p>
+<p>If you didn't see the above messages and no led is blinking, something went wrong. Assuming you are using the right serial port name, in the <a href="https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32/get-started/index.html#step-9-flash-onto-the-device">official ESP-IDF guide</a> you can find some solutions.</p>
+<p>A very common problem is serial baud rate, especially if you are working in a virtual machine using VirtualBox. Try to flash using the following command to slow down serial communication:</p>
+<pre><code>idf.py -p /dev/ttyUSB0 -b 115200 flash
+</code></pre>
+<p><em>(again, replace the port name with yours)</em></p>
+<h3 id="step-5-monitor-the-serial-output-of-your-board">Step 5: Monitor the serial output of your board</h3>
+<p>It is possible to read the debug messages sent by the board through the serial port using the following command:</p>
+<pre><code>idf.py -p /dev/ttyUSB0 monitor
+</code></pre>
+<p><em>(again, replace the port name with yours)</em></p>
+<p>If build and flashing were ok, you should see the board continuosly saying something like:</p>
+<pre><code>I (5602) gn_blink: blinking - 0
+I (10602) gn_blink: blinking - 1
+</code></pre>
+<p>Type <code>CTRL+]</code> to exit from the monitor mode.</p>
+<h3 id="appendix">Appendix</h3>
+<h4 id="a-how-to-get-the-name-of-the-serial-device-associated-to-the-esp32-board">A. How to get the name of the serial device associated to the ESP32 board</h4>
+<p>The procedure differes depending on if you are working or not inside a virtual machine. Let's see the two cases.</p>
+<h5 id="if-you-are-not-working-inside-a-virtual-machine">If you are NOT working inside a virtual machine</h5>
+<p>In this case, the host serial device associated to the ESP32 board is usually called <code>/dev/ttyUSB0</code>.
+If you want to check the actual name, follow these steps:</p>
+<ol>
+<li>open a terminal</li>
+<li>plug the USB cable</li>
+<li>type the command <code>dmesg</code></li>
+<li>a line with a text similar to the following should appear at the end of the log, indicating the name of your new serial device in place of <code>your-serial-device-id</code>:</li>
+</ol>
+<p><code>usb 1-1: ch341-uart converter now attached to</code><strong><code>your-serial-device-id</code></strong></p>
+<ol>
+<li>use the name <code>/dev/your-serial-device-id</code> when flashing your board or when looking at debug messages through a serial monitor (i.e., in steps 4 and 5 replace <code>/dev/ttyUSB0</code> with the <code>/dev/your-serial-device-id</code> you discovered here)</li>
+</ol>
+<h5 id="if-you-are-working-inside-a-virtual-machine">If you are working inside a virtual machine</h5>
+<p>In this case the serial device depends on the way you set up the virtual machine.
+If you are using VirtualBox and you followed the instructions below, your serial device will depend on the COM you selected as "Host Device":</p>
+<ul>
+<li><code>COM1</code> corresponds to <code>/dev/ttyS0</code></li>
+<li><code>COM2</code> corresponds to <code>/dev/ttyS1</code></li>
+<li>...and so on.</li>
+</ul>
+<h4 id="b-installing-grownode-into-an-ubuntu-virtual-machine-using-virtualbox">B. Installing GrowNode into an Ubuntu virtual machine using VirtualBox</h4>
+<p>If you wish to create a new Ubuntu virtual machine (VM) from scratch using VirtualBox just to have a try of GrowNode without affecting your system, you can still install the software environment inside the VM following the instructions of this page.</p>
+<blockquote>
+<p>How to create an Ubuntu VM using VirtualBox is out of scope here. You can find many guides about this topic on the web.</p>
+</blockquote>
+<p>When working inside a VM you have to be aware of the following issues/requirements in order to be able to flash and properly work with your board:</p>
+<ul>
+<li>you must link the host serial device to a VM serial device</li>
+<li>you must plug the board via USB <strong>BEFORE</strong> starting the VM</li>
+<li>you should never unplug the board while the VM is running</li>
+<li>you will probably need to manually set the flashing baud rate to 115200 baud (as explained at the end of Step 4 above)</li>
+</ul>
+<h5 id="properly-link-the-host-and-guest-serial-ports">Properly link the host and guest serial ports</h5>
+<p>In VirtualBox, open the "Serial Ports" tab of the VM settings, shown in figure.</p>
+<p align="center"><img alt="Serial Ports tab in VirtualBox" src="../img/appendix_b_virtualbox_serial.png"></p>
+
+<p>To properly set the serial communication, you have to:</p>
+<ul>
+<li>flag "Enable Serial Port"</li>
+<li>select the "Port Number" from the list (<code>COM1</code> will be ok in most cases)</li>
+<li>select "Host Device" in "Port Mode"</li>
+<li>write the name of the host serial port into the "Path/Address" field
+    &gt; Follow the instructions of the previous section <em>"If you are NOT working inside a virtual machine"</em> to identify it</li>
+</ul>
+<h2 id="installing-the-eclipse-ide-with-the-esp-idf-plugin">Installing the Eclipse IDE with the ESP-IDF plugin</h2>
+<p>Eclipse and the ESP-IDF plugin have several requirements which allow one to use only certain versions of softwares and libraries. You have not to worry about this, as this tutorial already makes you install the right things.</p>
+<h3 id="step-1-installing-eclipse-ide-for-cc-developers-2021-09">Step 1: Installing Eclipse IDE for C/C++ Developers 2021-09</h3>
+<p>This is the latest version officially supported by the plugin, and you can get it following these steps:</p>
+<ul>
+<li>download it from <a href="https://www.eclipse.org/downloads/packages/release/2021-09/r/eclipse-ide-cc-developers">this page</a> selecting the <strong>Linux</strong> package that corresponds to your architecture (most probably it is the one called <em>x86_64</em>) in the "Download Links" column</li>
+<li>open a terminal and move to the folder where you downloaded the tar.gz file (usually <code>~/Downloads</code>)</li>
+<li>use the following commands to extract Eclipse from the compressed file and make it available for use in the whole system:</li>
+</ul>
+<pre><code>sudo tar xf eclipse-cpp-2021-09-R-linux-gtk-x86_64.tar.gz -C /opt
+sudo ln -s /opt/eclipse/eclipse /usr/local/bin/
+</code></pre>
+<ul>
+<li>
+<p><em>(optional)</em> if you want to add a desktop icon to avoid launching Eclipse from terminal you need to create a shortcut:</p>
+<ul>
+<li>
+<p>open a terminal and launch:
+<code>sudo nano /usr/share/applications/eclipse.desktop</code></p>
+</li>
+<li>
+<p>paste the following text into the new empty file and press <code>CTLR+x</code> to save it:</p>
+</li>
+</ul>
+</li>
+</ul>
+<pre><code>[Desktop Entry]
+Version = 2021-09
+Type = Application
+Terminal = false
+Name = Eclipse C/C++
+Exec = /usr/local/bin/eclipse
+Icon = /opt/eclipse/icon.xpm
+Categories = Application;
+</code></pre>
+<ul>
+<li>
+<p>run Eclipse using the command <code>eclipse</code> from a terminal, or by using the Eclipse icon in your desktop (if you created it)</p>
+</li>
+<li>
+<p>at the first start, Eclipse will ask for the default workspace folder. If you followed these instructions, select the <code>esp</code> folder inside your home and then click on "Launch"</p>
+<blockquote>
+<p>you may also select "Use this as the default..." if you are going to use Eclipse only for GrowNode</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="step-2-installing-the-esp-idf-plugin-for-eclipse">Step 2: Installing the ESP-IDF plugin for Eclipse</h3>
+<p>Once Eclipse is launched, do as follows to install the ESP-IDF plugin:</p>
+<ul>
+<li>select "Install New Software" from the "Help" menu</li>
+<li>click on "Add...", a new window opens</li>
+<li>enter:<ul>
+<li>Name: Espressif IDF Plugin for Eclipse</li>
+<li>Location: https://dl.espressif.com/dl/idf-eclipse-plugin/updates/latest/</li>
+</ul>
+</li>
+<li>click on "Add"</li>
+<li>select the whole "Espressif IDF" tree, as in figure, and then click on "Next &gt;"</li>
+</ul>
+<p align="center"><img alt="Download Espressif IDF Plugin for Eclipse" src="../img/eclipse_install_esp-idf_plugin.png"></p>
+
+<ul>
+<li>click again on "Next &gt;"</li>
+<li>select "I accept the terms..." and then click on "Finish"</li>
+<li>if a warning about unsigned packages appears, click on "Install anyway"</li>
+<li>at the end of the process click on "Restart Now"</li>
+<li>if a sort of error window appears, close it and re-launch Eclipse manually</li>
+</ul>
+<h3 id="step-3-configure-eclipse-for-using-the-local-esp-idf-environment">Step 3: Configure Eclipse for using the local ESP-IDF environment</h3>
+<p>Now you are ready to link the ESP-IDF environment you installed at the beginning of this tutorial to Eclipse:</p>
+<ul>
+<li>select "Download and Configure ESP-IDF" in the "Espressif" menu</li>
+<li>check "Use an existing ESP-IDF directory from the file system"</li>
+<li>choose the <code>esp-idf</code> folder you created at the beginning of this tutorial, as in figure</li>
+</ul>
+<p align="center"><img alt="Link existing ESP-IDF environment to Eclipse" src="../img/eclipse_link_esp-idf_environment.png"></p>
+
+<ul>
+<li>click on "Finish"</li>
+<li>click on "Yes" in the pop-up window asking to install some new tools</li>
+<li>in the popup window fill the fields as in figure<ul>
+<li>ESP-IDF Directory: this field should be already filled with the right path</li>
+<li>Git Executable Location: <code>/usr/bin/git</code></li>
+<li>Python Executable Location: <code>/usr/bin/python3</code></li>
+</ul>
+</li>
+</ul>
+<p align="center"><img alt="Install ESP-IDF tools in Eclipse" src="../img/eclipse_esp-idf_tools.png"></p>
+
+<ul>
+<li>click on "Install Tools" and monitor the installation in the status bar at the bottom right</li>
+</ul>
+<h3 id="step-4-import-your-first-grownode-project-and-build-it">Step 4: Import your first GrowNode project and build it</h3>
+<p>Once the tool installation of the previous step is finished, import your first GrowNode project doing:</p>
+<ul>
+<li>close the "Welcome" tab</li>
+<li>select "Import..." from the "File" menu</li>
+<li>select "Espressif" &gt; "Existing IDF Project" from the list</li>
+<li>click on "Browse..." and select the <code>grownode</code> folder. The field "Project Name" will auto-fill with "grownode"</li>
+<li>click on "Finish"</li>
+</ul>
+<p>...and here you go! GrowNode is imported into Eclipse. Well done!
+In the Project Explorer on the left you can see the GrowNode workspace:</p>
+<p align="center"><img alt="GrowNode Project explorer in Eclipse" src="../img/eclipse_grownode_project_explorer.png"></p>
+
+<p>Try your first build by clicking on the hammer icon at the top left, or typing <code>CTRL+B</code>.
+In the console at the bottom you should see your project compiling and ending with the message <code>Build complete (0 errors...</code>. That means it was successful. Great!</p>
+<h3 id="step-5-flash-your-board-from-eclipse">Step 5: Flash your board from Eclipse</h3>
+<p>Before flashing you must complete some configuration steps:</p>
+<ul>
+<li>click on the setting gear beside "esp32" in the top icon bar (see point 1 in figure)</li>
+</ul>
+<p align="center"><img alt="ESP32 serial port in Eclipse" src="../img/eclipse_flashing_settings.png"></p>
+
+<ul>
+<li>select the right "Serial Port" from the list (the one you identified while installing ESP-IDF, most probably <code>/dev/ttyUSB0</code>) and click on "Finish"</li>
+</ul>
+<p>Now plug your board into the USB port and click on the green play icon on the top left, or type <code>CTRL+F11</code>. Eclipse will start the flashing procedure (it's possible it will re-build the project before) and if everything goes well you should see the following message:</p>
+<pre><code>Leaving...
+Hard resetting via RTS pin...
+Executing action: flash
+Running ninja in directory /home/your-username-here/esp/grownode/build
+Executing &quot;ninja flash&quot;...
+Done
+</code></pre>
+<p>Did you?! Yes? Perfect! Congratulations!</p>
+<p>If the answer is no, probably you need to manually set the serial port speed and re-trigger the flashing procedure:</p>
+<ul>
+<li>click on the setting gear beside "grownode" in the top icon bar (see point 2 in the figure above)</li>
+<li>in the "Arguments" section add the following bold parameter exactly in the same position:</li>
+</ul>
+<p><code>idf.py</code> <strong><code>-b 115200</code></strong> <code>-p /dev/your-serial-device-id flash</code></p>
+<h3 id="step-6-monitor-the-serial-output-of-your-board-from-eclipse">Step 6: Monitor the serial output of your board from Eclipse</h3>
+<p>To start the ESP-IDF monitor click on the icon "Open a Terminal" in the top icon bar (see point 1 in figure below). Check the correctness of the serial port and then click on "Ok".
+The board will restart you you will see the "blinking" messages.</p>
+<p>To stop the monitor, just close the "Terminal" window or click on the red "Disconnect Terminal Connection" at the top right of the terminal itself (point 2 in figure below).</p>
+<p align="center"><img alt="Monitor ESP-IDF from Eclipse" src="../img/eclipse_monitor.png"></p>
+
+<p>Great job! You are ready to play more with GrowNode ;)</p>
+
+
+
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../ubuntu1804_2004_easy/" class="md-footer__link md-footer__link--prev" aria-label="Previous: How to get started with GrowNode on Ubuntu 18.04 and 20.04 - Easy version" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              How to get started with GrowNode on Ubuntu 18.04 and 20.04 - Easy version
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../openhab_ubuntu1804_2004_easy/" class="md-footer__link md-footer__link--next" aria-label="Next: How to install Mosquitto and openHAB on Ubuntu 18.04 and 20.04 - Easy version" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              How to install Mosquitto and openHAB on Ubuntu 18.04 and 20.04 - Easy version
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright 2022 - Nicola Muratori
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.expand", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.2ab50757.min.js"></script>
+      
+    
+  </body>
+</html>

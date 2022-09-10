@@ -1,0 +1,46 @@
+var gn__hydroboard2__watering__control_8c =
+[
+    [ "gn_hb2_watering_control_data_t", "structgn__hb2__watering__control__data__t.html", "structgn__hb2__watering__control__data__t" ],
+    [ "TAG", "gn__hydroboard2__watering__control_8c.html#afc3d101f633a076cc1ca84b85b6224b2", null ],
+    [ "gn_hcc_status", "gn__hydroboard2__watering__control_8c.html#aad252419e0a34cdf4f313498a5d7651f", [
+      [ "HCC_HEATING", "gn__hydroboard2__watering__control_8c.html#aad252419e0a34cdf4f313498a5d7651fae41aab1510babd50e2ef5ecb721b9e88", null ],
+      [ "HCC_COOLING", "gn__hydroboard2__watering__control_8c.html#aad252419e0a34cdf4f313498a5d7651fa583c9fbde0676a27aa4116deea53e254", null ],
+      [ "HCC_OFF", "gn__hydroboard2__watering__control_8c.html#aad252419e0a34cdf4f313498a5d7651fa34f2765ea40f3e982c3b9501a7df9645", null ],
+      [ "HCC_HEATING", "gn__watering__control_8c.html#aad252419e0a34cdf4f313498a5d7651fae41aab1510babd50e2ef5ecb721b9e88", null ],
+      [ "HCC_COOLING", "gn__watering__control_8c.html#aad252419e0a34cdf4f313498a5d7651fa583c9fbde0676a27aa4116deea53e254", null ],
+      [ "HCC_OFF", "gn__watering__control_8c.html#aad252419e0a34cdf4f313498a5d7651fa34f2765ea40f3e982c3b9501a7df9645", null ]
+    ] ],
+    [ "gn_wat_status", "gn__hydroboard2__watering__control_8c.html#a95b7757f9b88bab6ff5c17fc17777342", [
+      [ "WAT_WAIT", "gn__hydroboard2__watering__control_8c.html#a95b7757f9b88bab6ff5c17fc17777342a08ca0147642e383968f80c48ca7c3f24", null ],
+      [ "WAT_ON", "gn__hydroboard2__watering__control_8c.html#a95b7757f9b88bab6ff5c17fc17777342a4dcf7f73217e941443e0ca0efd665758", null ],
+      [ "WAT_OFF", "gn__hydroboard2__watering__control_8c.html#a95b7757f9b88bab6ff5c17fc17777342a9ba7fb3014a7eddee8dd9ceef99abd79", null ],
+      [ "WAT_WAIT", "gn__watering__control_8c.html#a95b7757f9b88bab6ff5c17fc17777342a08ca0147642e383968f80c48ca7c3f24", null ],
+      [ "WAT_ON", "gn__watering__control_8c.html#a95b7757f9b88bab6ff5c17fc17777342a4dcf7f73217e941443e0ca0efd665758", null ],
+      [ "WAT_OFF", "gn__watering__control_8c.html#a95b7757f9b88bab6ff5c17fc17777342a9ba7fb3014a7eddee8dd9ceef99abd79", null ]
+    ] ],
+    [ "_gn_hb2_watering_callback_intl", "gn__hydroboard2__watering__control_8c.html#a6119fb74ec4d7e907fd042a1eb399505", null ],
+    [ "_gn_hb2_watering_control_hcc_temp_high", "gn__hydroboard2__watering__control_8c.html#a5fa15eeb101dd34e4d85368037be069b", null ],
+    [ "_gn_hb2_watering_control_hcc_temp_low", "gn__hydroboard2__watering__control_8c.html#a14bccdbbd6889fcb512234a656f4d10d", null ],
+    [ "_gn_hb2_watering_control_hcc_temp_ok", "gn__hydroboard2__watering__control_8c.html#a643ef38eb779105a2eb42c0ad30d32d6", null ],
+    [ "_gn_hb2_watering_control_start_hcc_cooling", "gn__hydroboard2__watering__control_8c.html#a5829c1d675d797f04b4cf852cf9a9fbb", null ],
+    [ "_gn_hb2_watering_control_start_hcc_heating", "gn__hydroboard2__watering__control_8c.html#abee406c9e7f4a7c1faff832d8449a445", null ],
+    [ "_gn_hb2_watering_control_start_watering", "gn__hydroboard2__watering__control_8c.html#a2dd9c513e5a954d1b93942311cc80ab5", null ],
+    [ "_gn_hb2_watering_control_stop_hcc", "gn__hydroboard2__watering__control_8c.html#a28642e9d47bd0f645afe56e5f3059990", null ],
+    [ "_gn_hb2_watering_control_stop_watering", "gn__hydroboard2__watering__control_8c.html#abe599933a6e3c759341519f96b2f96fa", null ],
+    [ "_gn_hb2_watering_interval_validator", "gn__hydroboard2__watering__control_8c.html#a0ced08ca8dcaed0b8fb1fa641c6f05b1", null ],
+    [ "_gn_hb2_watering_target_temp_validator", "gn__hydroboard2__watering__control_8c.html#abe825b3c470fcd9ff3df268b01c9b202", null ],
+    [ "_gn_hb2_watering_time_validator", "gn__hydroboard2__watering__control_8c.html#a4a2bca073a04a14c1fa0910278297b24", null ],
+    [ "gn_hb2_watering_control_config", "gn__hydroboard2__watering__control_8c.html#aabc329fc860a5f70ae7db6da853caa2b", null ],
+    [ "gn_hb2_watering_control_task", "gn__hydroboard2__watering__control_8c.html#a2de64073c6f0efdb17c37f27d1ca770d", null ],
+    [ "BME280", "gn__hydroboard2__watering__control_8c.html#a88f028dbebc773309d53c84db1429ae9", null ],
+    [ "DS18B20", "gn__hydroboard2__watering__control_8c.html#a33427e2661f237d5c33bfb41af583b9b", null ],
+    [ "ENV_FAN", "gn__hydroboard2__watering__control_8c.html#ac7168a1e0e119ab548ca9240b62224a4", null ],
+    [ "LIGHT_1", "gn__hydroboard2__watering__control_8c.html#a74b855f8ea74a41cae2f0c0cad70825b", null ],
+    [ "LIGHT_2", "gn__hydroboard2__watering__control_8c.html#ac8a1da78143bfa23af2662f7f2385728", null ],
+    [ "PLT_COOL", "gn__hydroboard2__watering__control_8c.html#a4c1e546cabfcbdad0ad0ba50929de3f4", null ],
+    [ "PLT_FAN", "gn__hydroboard2__watering__control_8c.html#a8ac71b6c7e1b583b0e0285b11f32b574", null ],
+    [ "PLT_HOT", "gn__hydroboard2__watering__control_8c.html#a191d79899c1f40b858c97717d93a63b5", null ],
+    [ "PLT_PUMP", "gn__hydroboard2__watering__control_8c.html#abf6530f600824f9d7d9768b4338b43ab", null ],
+    [ "WAT_LEV", "gn__hydroboard2__watering__control_8c.html#a06bae702bf17a2279b4f34289a3c02be", null ],
+    [ "WAT_PUMP", "gn__hydroboard2__watering__control_8c.html#a6eae92d07bcd5fcebe14e7032ba7fb18", null ]
+];
