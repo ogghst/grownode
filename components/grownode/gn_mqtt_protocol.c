@@ -605,7 +605,7 @@ gn_err_t gn_mqtt_send_leaf_param(gn_leaf_param_handle_t _param) {
 		if (param->param_val->v.b) {
 			strcpy(buf, GN_LEAF_MESSAGE_TRUE);
 		} else {
-			strcpy(buf, , mes);
+			strcpy(buf, GN_LEAF_MESSAGE_FALSE);
 		}
 		break;
 	case GN_VAL_TYPE_STRING:

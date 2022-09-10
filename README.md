@@ -5,6 +5,16 @@
 
 GrowNode is a vertical framework to build esp32 based devices targeted to growing plants in a controlled environment.
 
+## Latest News
+
+[September 2022] from release 0.8.0, GrowNode supports HOMIE 4.0.0 as messaging standard! We think this is a great step in standardization, making the boards able to be discovered and talk with most popular IoT controllers (OpenHab, Home Assistant, Node-RED etc.)
+
+<a href="https://homieiot.github.io/">
+  <object type="image/svg+xml" data="https://homieiot.github.io/img/works-with-homie.svg">
+    works with MQTT Homie
+  </object>
+</a>
+
 ## Target
 
 Grownode is targeted for whoever has the need to build an automatic growing system, from DIY home growing to more advanced farming solutions.

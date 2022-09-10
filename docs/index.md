@@ -50,3 +50,16 @@ GrowNode has a growing list of supported sensors and actuators, in order to buil
 Grownode is born having in mind IoT distributed environments. You can add nodes to your system and those nodes will easily talk between each other, acting as a unique orchestrated platform, with no limits over its scalability.
 
 ![orchestration](resources/images/easypot1_orchestration.png)
+
+## Technologies
+
+GrowNode works with most common technologies, relying on minimal custom code in order to obtain the most reliable platform features, benefits from ESP32 core and open source development effort. 
+
+It supports HOMIE protocol for autodiscovery and standard MQTT messaging
+
+<a href="https://homieiot.github.io/">
+  <object type="image/svg+xml" data="https://homieiot.github.io/img/works-with-homie.svg">
+    works with MQTT Homie
+  </object>
+</a>
+

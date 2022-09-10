@@ -154,6 +154,8 @@ esp_event_loop_handle_t gn_get_event_loop(gn_config_handle_t config);
 esp_event_loop_handle_t gn_leaf_get_event_loop(
 		gn_config_handle_t config);
 
+gn_err_t gn_leaf_receive_event(gn_leaf_parameter_event_handle_t evt, gn_leaf_handle_t leaf, int ms_to_wait);
+
 gn_err_t gn_node_get_name(gn_node_handle_t node_config, char* name);
 
 gn_err_t gn_leaf_get_name(gn_leaf_handle_t leaf_config, char* name);

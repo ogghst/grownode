@@ -26,6 +26,7 @@ extern "C" {
 #include "esp_log.h"
 #include "esp_event.h"
 #include "esp_check.h"
+#include "esp_system.h"
 
 #include "grownode_intl.h"
 #include "gn_commons.h"
@@ -37,7 +38,6 @@ extern "C" {
 #define TAG "gn_mqtt_homie_protocol"
 
 static const char *_GN_HOMIE_VERSION = "4.0.0";
-static const int _GN_HOMIE_REFRESH_INTERVAL_MS = 30000;
 
 static const char *_GN_HOMIE_INIT = "init";
 static const char *_GN_HOMIE_READY = "ready";
@@ -375,19 +375,21 @@ void _gn_homie_event_handler(void *handler_args, esp_event_base_t base,
 			case GN_VAL_TYPE_STRING: {
 
 				char *ret = calloc(_GN_MQTT_MAX_PAYLOAD_LENGTH, sizeof(char));
-				if (_gn_mqtt_homie_payload_to_string(ret,
-						mqtt_event->data_len, mqtt_event) != GN_RET_OK) {
+				if (_gn_mqtt_homie_payload_to_string(ret, mqtt_event->data_len,
+						mqtt_event) != GN_RET_OK) {
 					ESP_LOGW(TAG,
 							"_gn_homie_event_handler - string payload not allowed");
 					free(ret);
 					break;
 				}
-				gn_string_to_event_payload(ret, &leaf_event, leaf_event.data_len);
+				gn_string_to_event_payload(ret, &leaf_event,
+						leaf_event.data_len);
 				free(ret);
 			}
 				break;
 			default:
-				ESP_LOGE(TAG, "parameter type not handled: %d", param->param_val->t);
+				ESP_LOGE(TAG, "parameter type not handled: %d",
+						param->param_val->t);
 				return;
 			}
 
@@ -498,6 +500,12 @@ gn_err_t _gn_homie_on_connected(gn_config_handle_intl_t _config,
 	if (ret != GN_RET_OK)
 		return ret;
 
+
+//firmware
+	esp_app_desc_t* app_desc = esp_app_get_description();
+
+
+
 //nodes
 	char *msg_buf = calloc(
 			(_config->node_handle->leaves.last + 1) * GN_LEAF_NAME_SIZE,
@@ -521,27 +529,27 @@ gn_err_t _gn_homie_on_connected(gn_config_handle_intl_t _config,
 		return ret;
 
 //online
-	_gn_homie_mk_topic_node_attribute(_topic_buf, _config->node_handle,
-			"$online");
-	ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1, 1, "true");
-	if (ret != GN_RET_OK)
-		return ret;
+//	_gn_homie_mk_topic_node_attribute(_topic_buf, _config->node_handle,
+//			"$online");
+//	ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1, 1, "true");
+//	if (ret != GN_RET_OK)
+//		return ret;
 
 //implementation
-	_gn_homie_mk_topic_node_attribute(_topic_buf, _config->node_handle,
-			"$implementation");
-	ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1, 1,
-			"esp32-idf");
-	if (ret != GN_RET_OK)
-		return ret;
+//	_gn_homie_mk_topic_node_attribute(_topic_buf, _config->node_handle,
+//			"$implementation");
+//	ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1, 1,
+//			"esp32-idf");
+//	if (ret != GN_RET_OK)
+//		return ret;
 
 //implementation
-	_gn_homie_mk_topic_node_attribute(_topic_buf, _config->node_handle,
-			"$implementation/version");
-	ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1, 1,
-			esp_get_idf_version());
-	if (ret != GN_RET_OK)
-		return ret;
+//	_gn_homie_mk_topic_node_attribute(_topic_buf, _config->node_handle,
+//			"$implementation/version");
+//	ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1, 1,
+//			esp_get_idf_version());
+//	if (ret != GN_RET_OK)
+//		return ret;
 
 //extensions
 	_gn_homie_mk_topic_node_attribute(_topic_buf, _config->node_handle,
@@ -561,23 +569,23 @@ gn_err_t _gn_homie_on_connected(gn_config_handle_intl_t _config,
 
 //TODO logging
 
-	char mac_address[18];
-	char ip_address[16];
-	gn_wifi_get_mac(mac_address);
-	gn_wifi_get_ip(ip_address);
+//	char mac_address[18];
+//	char ip_address[16];
+//	gn_wifi_get_mac(mac_address);
+//	gn_wifi_get_ip(ip_address);
 
-	_gn_homie_mk_topic_node_attribute(_topic_buf, _config->node_handle,
-			"$localip");
-	ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1, 1,
-			ip_address);
-	if (ret != GN_RET_OK)
-		return ret;
+//	_gn_homie_mk_topic_node_attribute(_topic_buf, _config->node_handle,
+//			"$localip");
+//	ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1, 1,
+//			ip_address);
+//	if (ret != GN_RET_OK)
+//		return ret;
 
-	_gn_homie_mk_topic_node_attribute(_topic_buf, _config->node_handle, "$mac");
-	ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1, 1,
-			mac_address);
-	if (ret != GN_RET_OK)
-		return ret;
+//	_gn_homie_mk_topic_node_attribute(_topic_buf, _config->node_handle, "$mac");
+//	ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1, 1,
+//			mac_address);
+//	if (ret != GN_RET_OK)
+//		return ret;
 
 //node attributes
 	for (int i = 0; i < _config->node_handle->leaves.last; i++) {
@@ -716,6 +724,15 @@ gn_err_t _gn_homie_on_connected(gn_config_handle_intl_t _config,
 			"$state");
 	ret = _gn_homie_publish_str(_config->node_handle, _topic_buf, 1, 1,
 			(char*) _GN_HOMIE_READY);
+
+	if (ESP_OK
+			!= esp_event_post_to(_config->event_loop, GN_BASE_EVENT,
+					GN_SRV_CONNECTED_EVENT,
+					NULL, 0, portMAX_DELAY)) {
+		ESP_LOGE(TAG, "failed to send GN_SERVER_CONNECTED_EVENT event");
+		return GN_RET_ERR_EVENT_LOOP_ERROR;
+	}
+
 	if (ret != GN_RET_OK)
 		return ret;
 
@@ -993,25 +1010,27 @@ gn_err_t gn_mqtt_send_keepalive(gn_node_handle_t _node) {
 
 	gn_node_handle_intl_t node = (gn_node_handle_intl_t) _node;
 
-	while (1) {
-		_gn_homie_publish_int(node, "$stats/uptime", 0, 0,
-				esp_timer_get_time() / 1000000);
+	char _topic_buf[_GN_MQTT_MAX_TOPIC_LENGTH];
 
-		_gn_homie_publish_int(node, "$stats/interval", 0, 0,
-				_GN_HOMIE_REFRESH_INTERVAL_MS / 1000);
+	_gn_homie_mk_topic_node_attribute(_topic_buf, node, "$stats/uptime");
+	_gn_homie_publish_int(node, _topic_buf, 0, 0,
+			esp_timer_get_time() / 1000000);
 
-		int rssi = gn_wifi_get_rssi();
-		_gn_homie_publish_int(node, "$stats/rssi", 0, 0, rssi);
+	_gn_homie_mk_topic_node_attribute(_topic_buf, node, "$stats/interval");
+	_gn_homie_publish_int(node, _topic_buf, 0, 0,
+			node->config->config_init_params->server_keepalive_timer_sec);
 
-		// Translate to "signal" percentage, assuming RSSI range of (-100,-50)
-		_gn_homie_publish_int(node, "$stats/signal", 0, 0,
-				_clamp((rssi + 100) * 2, 0, 100));
+	int rssi = gn_wifi_get_rssi();
+	_gn_homie_mk_topic_node_attribute(_topic_buf, node, "$stats/rssi");
+	_gn_homie_publish_int(node, _topic_buf, 0, 0, rssi);
 
-		_gn_homie_publish_int(node, "$stats/freeheap", 0, 0,
-				esp_get_free_heap_size());
+	// Translate to "signal" percentage, assuming RSSI range of (-100,-50)
+	_gn_homie_mk_topic_node_attribute(_topic_buf, node, "$stats/signal");
+	_gn_homie_publish_int(node, _topic_buf, 0, 0,
+			_clamp((rssi + 100) * 2, 0, 100));
 
-		vTaskDelay(30000 / portTICK_PERIOD_MS);
-	}
+	_gn_homie_mk_topic_node_attribute(_topic_buf, node, "$stats/freeheap");
+	_gn_homie_publish_int(node, _topic_buf, 0, 0, esp_get_free_heap_size());
 
 	return GN_RET_OK;
 

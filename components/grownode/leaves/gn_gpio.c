@@ -221,8 +221,10 @@ void gn_gpio_task(gn_leaf_handle_t leaf_config) {
 		ESP_LOGD(TAG, "[%s] task cycle..", leaf_name);
 
 		//check for messages and cycle every 100ms
-		if (xQueueReceive(gn_leaf_get_event_queue(leaf_config), &evt,
-		portMAX_DELAY) == pdPASS) {
+		//if (xQueueReceive(gn_leaf_get_event_queue(leaf_config), &evt,
+		//portMAX_DELAY) == pdPASS) {
+
+		if (gn_leaf_receive_event(&evt, leaf_config, GN_MAX_EVENT_WAIT_MS) == GN_RET_OK) {
 
 			ESP_LOGD(TAG, "[%s] received message: %d", leaf_name, evt.id);
 

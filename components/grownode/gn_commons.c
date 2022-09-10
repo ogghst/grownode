@@ -186,6 +186,10 @@ gn_err_t gn_string_to_event_payload(char *val, int val_len, gn_leaf_parameter_ev
 	return GN_RET_OK;
 }
 
+/**
+ * extract the payload from the event and puts in the pointer
+ * @return
+ */
 gn_err_t gn_event_payload_to_bool(gn_leaf_parameter_event_t evt, bool *_ret) {
 
 	memcpy(_ret, evt.data, sizeof(bool));

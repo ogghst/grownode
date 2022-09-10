@@ -48,6 +48,11 @@ extern "C" {
 */
 static const int16_t GN_CONFIG_MAX_SERVER_KEEPALIVE_SEC = 3600;
 
+/**
+ * @brief maximum number of msec to wait on event queue
+ */
+static const unsigned long GN_MAX_EVENT_WAIT_MS = portMAX_DELAY / portTICK_PERIOD_MS;
+
 
 #define GN_LEAF_MESSAGE_FALSE "false"
 #define GN_LEAF_MESSAGE_TRUE "true"
@@ -101,7 +106,8 @@ typedef enum {
 	GN_RET_ERR_MQTT_ERROR = 0x209,
 	GN_RET_NVS_PARAMETER_NOT_FOUND = 0x301,/*!< parameter requested was not found in NVS */
 	GN_RET_NVS_PARAMETER_FOUND = 0x302,/*!< parameter requested was found in NVS */
-	GN_RET_VALUE_OUT_OF_LIMIT = 0x401/*!< trying to set a value outside limits  */
+	GN_RET_VALUE_OUT_OF_LIMIT = 0x401,/*!< trying to set a value outside limits  */
+	GN_RET_TIMEOUT = 0x501/*!< timeout expired  */
 } gn_err_t;
 
 /**
